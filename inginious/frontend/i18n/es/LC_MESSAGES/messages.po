@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-04 08:44+0100\n"
-"PO-Revision-Date: 2019-10-28 09:50+0000\n"
+"POT-Creation-Date: 2019-11-04 08:52+0100\n"
+"PO-Revision-Date: 2019-11-07 17:05+0000\n"
 "Last-Translator: Raziel CG <raziel.carvajal-gomez@uclouvain.be>\n"
 "Language-Team: Spanish <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/es/>\n"
@@ -311,43 +311,39 @@ msgstr "[Tarea #{submissionid}]"
 
 #: inginious/frontend/pages/tasks.py:387 inginious/frontend/pages/tasks.py:389
 msgid " <truncated>"
-msgstr ""
+msgstr " <incompleto>"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:129
 msgid "Audience with id {} not found."
-msgstr ""
+msgstr "El grupo con identificador {} no se ha encontrado."
 
-#: inginious/frontend/pages/course_admin/audience_edit.py:132
-msgid "You can't remove your default audience."
-msgstr ""
-
-#: inginious/frontend/pages/course_admin/audience_edit.py:141
-#: inginious/frontend/pages/course_admin/audience_edit.py:171
+#: inginious/frontend/pages/course_admin/audience_edit.py:138
+#: inginious/frontend/pages/course_admin/audience_edit.py:168
 #: inginious/frontend/pages/course_admin/group_edit.py:152
 msgid "Audience updated."
-msgstr ""
+msgstr "El grupo se ha actualizado."
 
-#: inginious/frontend/pages/course_admin/audience_edit.py:165
+#: inginious/frontend/pages/course_admin/audience_edit.py:162
 #: inginious/frontend/pages/course_admin/group_edit.py:173
 msgid "Changes couldn't be applied for following students :"
 msgstr "La actualización no se llevó a cabo para los siguientes estudiantes:"
 
-#: inginious/frontend/pages/course_admin/audience_edit.py:173
+#: inginious/frontend/pages/course_admin/audience_edit.py:170
 #: inginious/frontend/pages/course_admin/group_edit.py:182
 msgid "An error occurred while parsing the data."
 msgstr "Un error ha ocurrido durante la validación de la sintaxis."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:46
 msgid "New audience created."
-msgstr ""
+msgstr "Un nuevo grupo ha sido creado."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:48
 msgid "Invalid audience selected."
-msgstr ""
+msgstr "El grupo seleccionado es inválido."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:50
 msgid "You have no rights to add/change audiences"
-msgstr ""
+msgstr "No tienes derechos para agregar o cambiar grupos."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:53
 #: inginious/frontend/pages/course_admin/settings.py:91
@@ -393,7 +389,7 @@ msgstr "identificado de la tarea/nombre de usuario"
 #: inginious/frontend/pages/course_admin/download.py:22
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "taskid/audience"
-msgstr ""
+msgstr "Identificador de tarea o grupo"
 
 #: inginious/frontend/pages/course_admin/download.py:23
 #: inginious/frontend/pages/course_admin/submissions.py:26
@@ -403,11 +399,11 @@ msgstr "nombre de usuario/identificador de la tarea"
 #: inginious/frontend/pages/course_admin/download.py:24
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "audience/taskid"
-msgstr ""
+msgstr "grupo o identificador de tarea"
 
 #: inginious/frontend/pages/course_admin/group_edit.py:179
 msgid "Groups updated."
-msgstr ""
+msgstr "Los grupos han sido actualizados."
 
 #: inginious/frontend/pages/course_admin/replay.py:36
 msgid "Selected submissions were set for replay."
@@ -595,7 +591,7 @@ msgstr "Estudiantes"
 #: inginious/frontend/templates/course_admin/audience_list.html:28
 #: inginious/frontend/templates/course_admin/submissions.html:63
 msgid "Audiences"
-msgstr ""
+msgstr "Grupos"
 
 #: inginious/frontend/pages/course_admin/utils.py:253
 #: inginious/frontend/templates/course_admin/groups_edit.html:20
@@ -794,12 +790,12 @@ msgstr "Administración del curso"
 #: inginious/frontend/templates/course.html:58
 #: inginious/frontend/templates/task.html:153
 msgid "Group : {}"
-msgstr ""
+msgstr "Grupo: {}"
 
 #: inginious/frontend/templates/course.html:60
 #: inginious/frontend/templates/task.html:155
 msgid "Groups management"
-msgstr ""
+msgstr "Administración de grupos"
 
 #: inginious/frontend/templates/course.html:64
 #: inginious/frontend/templates/group.html:46
@@ -891,27 +887,31 @@ msgstr "Registrarse a un grupo"
 
 #: inginious/frontend/templates/group.html:83
 msgid "My group : {}"
-msgstr ""
+msgstr "Mi grupo es {}"
 
 #: inginious/frontend/templates/group.html:86
 msgid "\"Quit group\""
-msgstr ""
+msgstr "\"Dejar el grupo\""
 
 #: inginious/frontend/templates/group.html:98
 msgid "\"Send an email\""
-msgstr ""
+msgstr "\"Enviar un correo electrónico\""
 
 #: inginious/frontend/templates/group.html:110
 msgid ""
 "No set group in this course. If you think this is a mistake, please contact "
 "the course administrator."
 msgstr ""
+"No existen grupos en este curso. Si usted piensa que esto es un error, "
+"contacte al administrador del curso."
 
 #: inginious/frontend/templates/group.html:114
 msgid ""
 "Groups have been set up but you're not allowed to register in anyone. Please "
 "contact the course administrator."
 msgstr ""
+"Los grupos han sido asignamos pero no estás autorizado a registrar "
+"integrantes. Contacte al administrador del curso."
 
 #: inginious/frontend/templates/group.html:117
 #: inginious/frontend/templates/group.html:122
@@ -1395,7 +1395,7 @@ msgstr "Se han enviado {nb_submissions} tareas"
 
 #: inginious/frontend/templates/task.html:97
 msgid "Category tags"
-msgstr ""
+msgstr "Etiquetas de categoría"
 
 #: inginious/frontend/templates/task.html:119
 msgid "Administration"
@@ -1467,7 +1467,7 @@ msgstr "Bitácora de envíos"
 
 #: inginious/frontend/templates/task.html:272
 msgid "Collapse context"
-msgstr ""
+msgstr "Ver más sobre el contexto"
 
 #: inginious/frontend/templates/task.html:274
 msgid "\"Previous task\""
@@ -1561,7 +1561,7 @@ msgstr "Elimine su registro de {}"
 #: inginious/frontend/templates/unregister_modal.html:20
 msgid ""
 "This will keep your submissions saved but will remove you from your group."
-msgstr ""
+msgstr "Esta acción mantendrá tus tareas pero usted será eliminado del grupo."
 
 #: inginious/frontend/templates/unregister_modal.html:21
 msgid "Are you sure ?"
@@ -1591,12 +1591,12 @@ msgstr "\"Administración\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:20
 msgid "\"Audiences\""
-msgstr ""
+msgstr "\"Grupos\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:22
 #: inginious/frontend/templates/course_admin/audience_edit.html:27
 msgid "Edit audience {}"
-msgstr ""
+msgstr "Editar grupo {}"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:44
 #: inginious/frontend/templates/course_admin/audience_edit.html:95
@@ -1629,15 +1629,15 @@ msgstr "Configuraciones básicas"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:111
 msgid "Audience description"
-msgstr ""
+msgstr "Descripción del grupo"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:115
 msgid "\"Audience description\""
-msgstr ""
+msgstr "\"Descripción del grupo\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:118
 msgid "Delete audience"
-msgstr ""
+msgstr "Eliminar grupo"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:125
 msgid "Tutor list"
@@ -1649,11 +1649,11 @@ msgstr "Agregar tutor"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:165
 msgid "Student list"
-msgstr ""
+msgstr "Lista de estudiantes"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:179
 msgid "\"Remove student\""
-msgstr ""
+msgstr "\"Eliminar estudiante\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:188
 #: inginious/frontend/templates/course_admin/groups_edit.html:242
@@ -1692,7 +1692,7 @@ msgstr "Actualizar (esta acción suprimirá la configuración actual)"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:73
 msgid "Audience"
-msgstr ""
+msgstr "Grupo"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:74
 msgid "# students"
@@ -1724,15 +1724,15 @@ msgstr "\"Descargar el archivo CSV\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:88
 msgid "My audience(s)"
-msgstr ""
+msgstr "Mi (s) grupo (s)"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:88
 msgid "Other audience(s)"
-msgstr ""
+msgstr "Otro (s) grupo (s)"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:105
 msgid "\"Edit audience\""
-msgstr ""
+msgstr "\"Editar grupo\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:107
 #: inginious/frontend/templates/course_admin/student_list_table.html:57
@@ -1755,11 +1755,11 @@ msgstr "\"Responder a las tareas enviadas\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:120
 msgid "New audience description"
-msgstr ""
+msgstr "Nueva descripción de grupo"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:121
 msgid "New audience"
-msgstr ""
+msgstr "Nuevo grupo"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:41
 msgid "Archive data"
@@ -1784,6 +1784,9 @@ msgid ""
 "groups, user statistics) from the database.</p><p>To confirm your will, "
 "please type the course id below :</p>"
 msgstr ""
+"<p>Esta acción hará un respaldo y eliminará la información del curso (tareas "
+"enviadas, grupos y estadísticas de usuarios) de la base de datos. </p><p>"
+"Para confirmar esta acción, escriba el identificador del curso:</p>"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:75
 msgid "Restore backup from {}"
@@ -1850,7 +1853,7 @@ msgstr "Descargar solo las evaluaciones de las tareas de cada usuario"
 
 #: inginious/frontend/templates/course_admin/download.html:54
 msgid "audience"
-msgstr ""
+msgstr "grupo"
 
 #: inginious/frontend/templates/course_admin/download.html:60
 msgid "Download all the submissions"
@@ -1864,11 +1867,11 @@ msgstr "Descargar"
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:8
 msgid "Edit groups"
-msgstr ""
+msgstr "Editar grupos"
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:103
 msgid "Ungrouped students"
-msgstr ""
+msgstr "Desagrupar estudiantes"
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:130
 #: inginious/frontend/templates/course_admin/groups_edit.html:151
@@ -1878,15 +1881,15 @@ msgstr "Máximo número de integrantes para grupos:"
 #: inginious/frontend/templates/course_admin/groups_edit.html:136
 #: inginious/frontend/templates/course_admin/groups_edit.html:157
 msgid "\"Delete group\""
-msgstr ""
+msgstr "\"Eliminar grupo\""
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:167
 msgid "Restrict to audiences"
-msgstr ""
+msgstr "Restringir grupos"
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:177
 msgid "Add audience"
-msgstr ""
+msgstr "Agregar grupo"
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:227
 msgid "New group"
@@ -1977,10 +1980,13 @@ msgid ""
 "Learning Management Systems (LMS) such as Moodle or edX. Note that this will "
 "deactivate the group system."
 msgstr ""
+"Habilita esta opción para que tu curso sea utilizado por un sistema LMS ("
+"Learning Management System) externo como Moodle or edX. Esta acción "
+"desactivará el sistema de grupos."
 
 #: inginious/frontend/templates/course_admin/settings.html:85
 msgid "Group attribution"
-msgstr ""
+msgstr "Asignar un grupo"
 
 #: inginious/frontend/templates/course_admin/settings.html:91
 msgid "Staff only"
@@ -2085,10 +2091,13 @@ msgid ""
 "\"LTI keys in the form name:key, separated by newlines. Please ensure keys "
 "are long enough and random.\""
 msgstr ""
+"\"Las llaves LTI tienen el formato nombre:llave y están separadas por nuevas "
+"líneas. Asegúrese que las llaves tienen caracteres aleatorios y que el "
+"número de caracteres es relativamente grande.\""
 
 #: inginious/frontend/templates/course_admin/settings.html:285
 msgid "Send back grades"
-msgstr ""
+msgstr "Enviar las calificaciones"
 
 #: inginious/frontend/templates/course_admin/settings.html:291
 msgid ""
@@ -2097,51 +2106,55 @@ msgid ""
 "course and tasks from the web application when enabled. Tasks will be only "
 "available from the LTI interface."
 msgstr ""
+"Al permitir esta acción, las calificaciones serán enviadas al sistema Tool "
+"Consumer (típicamente tu sistema LMS). INGInious restringirá el acceso a los "
+"estudiantes del curso y también a las tareas. Las tareas solo estarán "
+"disponibles desde la interfaz LTI."
 
 #: inginious/frontend/templates/course_admin/settings.html:295
 #: inginious/frontend/templates/course_admin/tags.html:93
 #: inginious/frontend/templates/course_admin/task_edit.html:32
 #: inginious/frontend/templates/course_admin/task_edit.html:95
 msgid "Save changes"
-msgstr ""
+msgstr "Guardar cambios"
 
 #: inginious/frontend/templates/course_admin/stats.html:34
 msgid "Compute stats since"
-msgstr ""
+msgstr "Calcular las estadísticas desde"
 
 #: inginious/frontend/templates/course_admin/stats.html:38
 msgid "until"
-msgstr ""
+msgstr "hasta"
 
 #: inginious/frontend/templates/course_admin/stats.html:45
 msgid "Stats between {} and {}"
-msgstr ""
+msgstr "Estadísticas entre las fechas {} y {}"
 
 #: inginious/frontend/templates/course_admin/stats.html:47
 msgid "Submissions"
-msgstr ""
+msgstr "Tareas enviadas"
 
 #: inginious/frontend/templates/course_admin/stats.html:140
 #: inginious/frontend/templates/course_admin/submissions.html:53
 msgid "Users"
-msgstr ""
+msgstr "Usuarios"
 
 #: inginious/frontend/templates/course_admin/student_info.html:20
 #: inginious/frontend/templates/course_admin/submission.html:29
 msgid "\"Students\""
-msgstr ""
+msgstr "\"Estudiantes\""
 
 #: inginious/frontend/templates/course_admin/student_info.html:28
 msgid "Statistics for student {realname} ({username})"
-msgstr ""
+msgstr "Estadísticas del estudiante:  {realname} ({username})"
 
 #: inginious/frontend/templates/course_admin/student_info.html:32
 msgid "task"
-msgstr ""
+msgstr "tarea"
 
 #: inginious/frontend/templates/course_admin/student_info.html:33
 msgid "status"
-msgstr ""
+msgstr "estado"
 
 #: inginious/frontend/templates/course_admin/student_info.html:34
 msgid "# submissions"
@@ -2161,52 +2174,52 @@ msgstr "No se ha consultado (visto)"
 
 #: inginious/frontend/templates/course_admin/student_info.html:76
 msgid "\"View all submissions\""
-msgstr ""
+msgstr "\"Ver todas las tareas enviadas\""
 
 #: inginious/frontend/templates/course_admin/student_list.html:38
 msgid "Teaching staff"
-msgstr ""
+msgstr "Tutores"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:14
 msgid "member"
-msgstr ""
+msgstr "miembro"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:16
 msgid "student"
-msgstr ""
+msgstr "estudiante"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:17
 #: inginious/frontend/templates/course_admin/submissions.html:321
 msgid "username"
-msgstr ""
+msgstr "nombre de usuario"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:18
 msgid "email address"
-msgstr ""
+msgstr "correo electrónico"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:21
 msgid "current grade"
-msgstr ""
+msgstr "calificación actual"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:25
 msgid "\"Download  all submissions\""
-msgstr ""
+msgstr "\"Descargar todas la tareas enviadas\""
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:29
 msgid "\"Unregister all\""
-msgstr ""
+msgstr "\"Eliminar el registro de todos los usuarios\""
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:80
 msgid "This will remove {} from the course. Are you sure ?"
-msgstr ""
+msgstr "Esta acción eliminará al estudiante {} del curso. ¿Esta seguro?"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:86
 msgid "Remove {}"
-msgstr ""
+msgstr "Eliminar {}"
 
 #: inginious/frontend/templates/course_admin/submission.html:40
 msgid "Submission {}"
-msgstr ""
+msgstr "Tarea enviada {}"
 
 #: inginious/frontend/templates/course_admin/submission.html:42
 msgid ""

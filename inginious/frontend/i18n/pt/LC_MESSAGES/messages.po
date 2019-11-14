@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-04 08:44+0100\n"
+"POT-Creation-Date: 2019-11-04 08:52+0100\n"
 "PO-Revision-Date: 2019-11-01 17:05+0000\n"
 "Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
@@ -314,22 +314,18 @@ msgstr ""
 msgid "Audience with id {} not found."
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/audience_edit.py:132
-msgid "You can't remove your default audience."
-msgstr ""
-
-#: inginious/frontend/pages/course_admin/audience_edit.py:141
-#: inginious/frontend/pages/course_admin/audience_edit.py:171
+#: inginious/frontend/pages/course_admin/audience_edit.py:138
+#: inginious/frontend/pages/course_admin/audience_edit.py:168
 #: inginious/frontend/pages/course_admin/group_edit.py:152
 msgid "Audience updated."
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/audience_edit.py:165
+#: inginious/frontend/pages/course_admin/audience_edit.py:162
 #: inginious/frontend/pages/course_admin/group_edit.py:173
 msgid "Changes couldn't be applied for following students :"
 msgstr "Não foi possível aplicar as alterações para os seguintes alunos:"
 
-#: inginious/frontend/pages/course_admin/audience_edit.py:173
+#: inginious/frontend/pages/course_admin/audience_edit.py:170
 #: inginious/frontend/pages/course_admin/group_edit.py:182
 msgid "An error occurred while parsing the data."
 msgstr "Ocorreu um erro ao analisar os dados."
