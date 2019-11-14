@@ -21,6 +21,11 @@ $def ColumnF():
                 <td>$:_("Author(s)")</td>
                 <td>$task.get_authors(user_manager.session_language())</td>
             </tr>
+        $if task.get_contact_url(user_manager.session_language()):
+            <tr>
+                <td>$:_("Contact")</td>
+                <td><a href="$task.get_contact_url(user_manager.session_language()).format(course_id=course.get_id(), task_id=task.get_id(), username=user_manager.session_username())" target="_blank">$:_("Contact link")</a></td>
+            </tr>
         $if not is_lti():
             $if task.get_accessible_time().is_open() and not task.get_accessible_time().is_open_with_soft_deadline():
                 <tr class="list-group-item-danger">
