@@ -7,6 +7,7 @@
 import os
 
 import web
+from web.contrib.template import render_jinja
 import inginious
 import json
 
@@ -42,14 +43,11 @@ class TemplateHelper(object):
         self._user_manager = user_manager # can be None!
         self._layout = default_layout
         self._layout_lti = default_layout_lti
-
         self._template_globals = {}
 
-        self._default_renderer = self.get_custom_renderer(default_template_dir)
-        self._default_renderer_lti = self.get_custom_renderer(default_template_dir, layout = self._layout_lti)
-        self._default_renderer_nolayout = self.get_custom_renderer(default_template_dir, layout=False)
+        # include is only needed in webpy templates as jinja supports it by default
+        self.add_to_template_globals("include", self.get_custom_renderer(self._template_dir, layout=False, use_jinja=False))
 
-        self.add_to_template_globals("include", self._default_renderer_nolayout)
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
@@ -60,20 +58,20 @@ class TemplateHelper(object):
         """ True if the current session is an LTI one """
         return self._user_manager is not None and self._user_manager.session_lti_info() is not None
 
-    def get_renderer(self, with_layout=True):
+    def get_renderer(self, with_layout=True, use_jinja=False):
         """ Get the default renderer """
         if with_layout and self.is_lti():
-            return self._default_renderer_lti
+            return self.get_custom_renderer(self._template_dir, layout=self._layout_lti, use_jinja=use_jinja)
         elif with_layout:
-            return self._default_renderer
+            return self.get_custom_renderer(self._template_dir, use_jinja=use_jinja)
         else:
-            return self._default_renderer_nolayout
+            return self.get_custom_renderer(self._template_dir, layout=False, use_jinja=use_jinja)
 
     def add_to_template_globals(self, name, value):
         """ Add a variable to will be accessible in the templates """
         self._template_globals[name] = value
 
-    def get_custom_renderer(self, dir_path, layout=True):
+    def get_custom_renderer(self, dir_path, layout=True, use_jinja= False):
         """
         Create a template renderer on templates in the directory specified, and returns it.
         :param dir_path: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
@@ -91,7 +89,11 @@ class TemplateHelper(object):
         else:
             layout_path = None
 
-        return web.template.render(os.path.join(root_path, dir_path),
+        if use_jinja:
+            return render_jinja(os.path.join(root_path, dir_path),
+                             globals=self._template_globals)
+        else:
+            return web.template.render(os.path.join(root_path, dir_path),
                                    globals=self._template_globals,
                                    base=layout_path)
 

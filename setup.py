@@ -19,6 +19,7 @@ install_requires = [
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
     "web.py>=0.40",
+    "Jinja2 >= 2.10",
     "lti>=0.9.0",
     "oauth2>=1.9.0.post1",
     "httplib2>=0.9",
