@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-11-04 08:52+0100\n"
-"PO-Revision-Date: 2019-10-15 13:04+0000\n"
+"PO-Revision-Date: 2019-11-21 10:46+0000\n"
 "Last-Translator: HA Thi Ngoc Bao <thingocbaoha@gmail.com>\n"
 "Language-Team: Vietnamese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/vi/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
@@ -27,77 +27,79 @@ msgstr "[không có nội dung]"
 
 #: inginious/frontend/parsable_text.py:80
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "Phản hồi dưới đây sẽ bị che đi đối với sinh viên cho đến {}."
 
 #: inginious/frontend/parsable_text.py:95
 msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"Một phẩn của phản hồi này sẽ bị che đi cho đến {}. Xin hãy quay lại sau và "
+"tải lại bài nộp để xem được phản hồi đầy đủ."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr ""
+msgstr "<b>Phân tích cú pháp thất bại</b>: <pre>{}</pre>"
 
 #: inginious/frontend/task_problems.py:61
 msgid "code"
-msgstr ""
+msgstr "mã nguồn"
 
 #: inginious/frontend/task_problems.py:92
 msgid "single-line code"
-msgstr ""
+msgstr "mã nguồn trên 1 dòng"
 
 #: inginious/frontend/task_problems.py:118
 msgid "file upload"
-msgstr ""
+msgstr "tải file lên"
 
 #: inginious/frontend/task_problems.py:151
 msgid "multiple choice"
-msgstr ""
+msgstr "nhiều lựa chọn"
 
 #: inginious/frontend/task_problems.py:218
 msgid "match"
-msgstr ""
+msgstr "khớp"
 
 #: inginious/frontend/tasks.py:80
 msgid "No deadline"
-msgstr ""
+msgstr "Không có hạn chót"
 
 #: inginious/frontend/tasks.py:82
 msgid "It's too late"
-msgstr ""
+msgstr "Đã quá muộn rồi"
 
 #: inginious/frontend/pages/group.py:50
 msgid "Couldn't register to the specified group."
-msgstr ""
+msgstr "Không thể đăng kí vào nhóm đã chỉ định."
 
 #: inginious/frontend/pages/group.py:55 inginious/frontend/pages/group.py:67
 msgid "You are not allowed to change group."
-msgstr ""
+msgstr "Bạn không được phép thay đổi nhóm."
 
 #: inginious/frontend/pages/group.py:64
 msgid "You're not registered in a group."
-msgstr ""
+msgstr "Bạn không được đăng kí vào nhóm."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
-msgstr ""
+msgstr "Thiếu LTI session id"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
 msgid "Invalid LTI session id"
-msgstr ""
+msgstr "LTI session id không chính xác"
 
 #: inginious/frontend/pages/lti.py:70
 msgid "Invalid LTI data"
-msgstr ""
+msgstr "LTI data không chính xác"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
-msgstr ""
+msgstr "Tài khoản của bạn bị ràng buộc trong bối cảnh này."
 
 #: inginious/frontend/pages/lti.py:162
 msgid "Error while validating LTI request"
-msgstr ""
+msgstr "Có lỗi xảy ra khi xác thực yêu cầu LTI"
 
 #: inginious/frontend/pages/lti.py:177
 msgid ""
