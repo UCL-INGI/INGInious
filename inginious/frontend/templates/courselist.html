@@ -2,7 +2,7 @@
 {# more information about the licensing of this file. #}
 
 {% extends "layout_jinja.html" %}
-{% block title %} {{_("Course list") }} {% endblock %}}
+{% block title %}{{_("Course list") }}{% endblock %}}
 {% block column %}
     {% if not user_manager.session_logged_in() %}
         {% include "signin_button_jinja.html" %}
@@ -41,7 +41,7 @@
         <div class="card m-2">
             <div class="card-body">
                 <h5 class="card-title">
-                    <a href="$('#' if no_display else (get_homepath()+'/course/'+courseid))">{{course.get_name(user_manager.session_language())}}</a>
+                    <a href="{% if no_display %}#{% else %}{{ get_homepath()+'/course/'+courseid }}{% endif %}">{{course.get_name(user_manager.session_language())}}</a>
                 </h5>
                 <p class="card-text">
                     {{ course.get_description(user_manager.session_language()) }}
