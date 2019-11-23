@@ -35,7 +35,7 @@ class MCQAgent(Agent):
 
     @property
     def environments(self):
-        return {"mcq": {"id": "mcq", "created": 0}}
+        return {"mcq": {"id": "mcq", "created": 0, "type": "mcq"}}
 
     async def new_job(self, msg: BackendNewJob):
         try:

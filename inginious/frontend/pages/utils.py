@@ -96,7 +96,7 @@ class INGIniousPage(object):
         return self.app.backup_dir
 
     @property
-    def containers(self) -> List[str]:  # pylint: disable=invalid-sequence-index
+    def environments(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ Available containers """
         return self.app.submission_manager.get_available_environments()
 

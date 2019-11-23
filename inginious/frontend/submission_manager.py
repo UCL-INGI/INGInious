@@ -201,7 +201,7 @@ class WebAppSubmissionManager:
 
     def get_available_environments(self):
         """:return a list of available environments """
-        return self._client.get_available_containers()
+        return self._client.get_available_environments()
 
     def get_submission(self, submissionid, user_check=True):
         """ Get a submission from the database """

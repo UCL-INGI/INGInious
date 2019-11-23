@@ -42,7 +42,7 @@ class CourseEditTask(INGIniousAdminPage):
         if task_data is None:
             task_data = {}
 
-        environments = self.containers
+        environments = self.environments
 
         current_filetype = None
         try:

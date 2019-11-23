@@ -12,7 +12,7 @@ from zmq.asyncio import Poller
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDone, AgentJobSSHDebug, \
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, ClientNewJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, \
-    BackendUpdateContainers, Unknown, Ping, Pong, ClientGetQueue, BackendGetQueue
+    BackendUpdateEnvironments, Unknown, Ping, Pong, ClientGetQueue, BackendGetQueue
 
 
 class Backend(object):
@@ -39,11 +39,11 @@ class Backend(object):
         self._poller.register(self._agent_socket, zmq.POLLIN)
         self._poller.register(self._client_socket, zmq.POLLIN)
 
-        # List of containers available
+        # List of environments available
         # {
-        #     "name": ("last_id", "created_last", ["agent_addr1", "agent_addr2"])
+        #     "name": ("last_id", "created_last", ["agent_addr1", "agent_addr2"], "type")
         # }
-        self._containers = {}
+        self._environments = {}
         self._registered_clients = set()  # addr of registered clients
         self._registered_agents = {}  # addr of registered agents
         self._available_agents = []  # addr of available agents
@@ -88,19 +88,19 @@ class Backend(object):
             raise TypeError("Unknown message type %s" % message.__class__)
         self._create_safe_task(func(client_addr, message))
 
-    async def send_container_update_to_client(self, client_addrs):
+    async def send_environment_update_to_client(self, client_addrs):
         """ :param client_addrs: list of clients to which we should send the update """
-        self._logger.debug("Sending containers updates...")
-        available_containers = tuple(self._containers.keys())
-        msg = BackendUpdateContainers(available_containers)
+        self._logger.debug("Sending environments updates...")
+        available_environments = {idx: environment[3] for idx, environment in self._environments.items()}
+        msg = BackendUpdateEnvironments(available_environments)
         for client in client_addrs:
             await ZMQUtils.send_with_addr(self._client_socket, client, msg)
 
     async def handle_client_hello(self, client_addr, _: ClientHello):
-        """ Handle an ClientHello message. Send available containers to the client """
+        """ Handle an ClientHello message. Send available environments to the client """
         self._logger.info("New client connected %s", client_addr)
         self._registered_clients.add(client_addr)
-        await self.send_container_update_to_client([client_addr])
+        await self.send_environment_update_to_client([client_addr])
 
     async def handle_client_ping(self, client_addr, _: Ping):
         """ Handle an Ping message. Pong the client """
@@ -176,7 +176,7 @@ class Backend(object):
                 continue
 
             # Find agents that can run this job
-            possible_agents = list(set(self._containers[job_msg.environment][2]).intersection(set(self._available_agents)))
+            possible_agents = list(set(self._environments[job_msg.environment][2]).intersection(set(self._available_agents)))
 
             # No agent available, put job back to queue with lower priority
             if not possible_agents:
@@ -217,45 +217,47 @@ class Backend(object):
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
 
-        # update information about available containers
-        for container_name, container_info in message.available_containers.items():
-            if container_name in self._containers:
+        # update information about available environments
+        for environment_name, environment_info in message.available_environments.items():
+            if environment_name in self._environments:
                 # check if the id is the same
-                if self._containers[container_name][0] == container_info["id"]:
-                    # ok, just add the agent to the list of agents that have the container
-                    self._logger.debug("Registering container %s for agent %s", container_name, str(agent_addr))
-                    self._containers[container_name][2].append(agent_addr)
-                elif self._containers[container_name][1] > container_info["created"]:
-                    # containers stored have been created after the new one
+                if self._environments[environment_name][0] == environment_info["id"]:
+                    # ok, just add the agent to the list of agents that have the environment
+                    self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
+                    self._environments[environment_name][2].append(agent_addr)
+                elif self._environments[environment_name][1] > environment_info["created"]:
+                    # environments stored have been created after the new one
                     # add the agent, but emit a warning
-                    self._logger.warning("Container %s has multiple version: \n"
+                    self._logger.warning("Environment %s has multiple version: \n"
                                          "\t Currently registered agents have version %s (%i)\n"
                                          "\t New agent %s has version %s (%i)",
-                                         container_name,
-                                         self._containers[container_name][0], self._containers[container_name][1],
-                                         str(agent_addr), container_info["id"], container_info["created"])
-                    self._containers[container_name][2].append(agent_addr)
-                else:  # self._containers[container_name][1] < container_info["created"]:
-                    # containers stored have been created before the new one
+                                         environment_name,
+                                         self._environments[environment_name][0], self._environments[environment_name][1],
+                                         str(agent_addr), environment_info["id"], environment_info["created"])
+                    self._environments[environment_name][2].append(agent_addr)
+                else:  # self._environments[environment_name][1] < environment_info["created"]:
+                    # environments stored have been created before the new one
                     # add the agent, update the infos, and emit a warning
-                    self._logger.warning("Container %s has multiple version: \n"
+                    self._logger.warning("Environment %s has multiple version: \n"
                                          "\t Currently registered agents have version %s (%i)\n"
                                          "\t New agent %s has version %s (%i)",
-                                         container_name,
-                                         self._containers[container_name][0], self._containers[container_name][1],
-                                         str(agent_addr), container_info["id"], container_info["created"])
-                    self._containers[container_name] = (container_info["id"], container_info["created"],
-                                                        self._containers[container_name][2] + [agent_addr])
+                                         environment_name,
+                                         self._environments[environment_name][0], self._environments[environment_name][1],
+                                         str(agent_addr), environment_info["id"], environment_info["created"])
+                    self._environments[environment_name] = (environment_info["id"], environment_info["created"],
+                                                        self._environments[environment_name][2] + [agent_addr],
+                                                        environment_info["type"])
             else:
                 # just add it
-                self._logger.debug("Registering container %s for agent %s", container_name, str(agent_addr))
-                self._containers[container_name] = (container_info["id"], container_info["created"], [agent_addr])
+                self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
+                self._environments[environment_name] = (environment_info["id"], environment_info["created"], [agent_addr],
+                                                    environment_info["type"])
 
         # update the queue
         await self.update_queue()
 
         # update clients
-        await self.send_container_update_to_client(self._registered_clients)
+        await self.send_environment_update_to_client(self._registered_clients)
 
     async def handle_agent_job_started(self, agent_addr, message: AgentJobStarted):
         """Handle an AgentJobStarted message. Send the data back to the client"""

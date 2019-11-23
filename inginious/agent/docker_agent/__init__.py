@@ -82,6 +82,8 @@ class DockerAgent(Agent):
         # Auto discover containers
         self._logger.info("Discovering containers")
         self._containers = await self._docker.get_containers()
+        for idx in self._containers:
+            self._containers[idx]["type"] = "docker" # type is not given by self._docker.get_containers()
 
         self._assigned_external_ports = {}  # container_id : [external_ports]
 
