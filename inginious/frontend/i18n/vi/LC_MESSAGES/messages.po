@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-11-04 14:14+0100\n"
-"PO-Revision-Date: 2019-11-21 10:46+0000\n"
+"PO-Revision-Date: 2019-11-26 17:34+0000\n"
 "Last-Translator: HA Thi Ngoc Bao <thingocbaoha@gmail.com>\n"
 "Language-Team: Vietnamese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/vi/>\n"
@@ -107,34 +107,37 @@ msgid ""
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-launch-"
 "request. Please contact your administrator."
 msgstr ""
+"Để có thể gửi điểm trở lại cho TC, INGInious cần những tham số "
+"lis_outcome_service_url và lis_outcome_result_id trong LTI basic-launch-"
+"request. Xin hãy liên hệ với admin."
 
 #: inginious/frontend/pages/lti.py:197
 msgid "Couldn't validate LTI request"
-msgstr ""
+msgstr "Không thể xác thực yêu cầu LTI"
 
 #: inginious/frontend/pages/register.py:57
 msgid "Invalid activation hash."
-msgstr ""
+msgstr "Mã băm kích hoạt không chính xác."
 
 #: inginious/frontend/pages/register.py:59
 msgid "You are now activated. You can proceed to login."
-msgstr ""
+msgstr "Bạn đã được kích hoạt. Bạn có thể tiếp tục đăng nhập."
 
 #: inginious/frontend/pages/preferences/profile.py:27
 #: inginious/frontend/pages/register.py:76
 msgid "Invalid username format."
-msgstr ""
+msgstr "Định dạng của tên đăng nhập không chính xác."
 
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:131
 msgid "Invalid email format."
-msgstr ""
+msgstr "Định dạng của email không chính xác."
 
 #: inginious/frontend/pages/preferences/profile.py:47
 #: inginious/frontend/pages/register.py:82
 #: inginious/frontend/pages/register.py:161
 msgid "Password too short."
-msgstr ""
+msgstr "Mật khẩu quá ngắn."
 
 #: inginious/frontend/pages/preferences/profile.py:51
 #: inginious/frontend/pages/register.py:85
