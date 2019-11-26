@@ -62,8 +62,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) == 0 and not self.show_collapse(user_input):
             msgs.append(_("No submissions found"))
 
-        audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
-        audiences_id = [audience["_id"] for audience in audiences]
+        course_audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
+        audiences_id = [audience["_id"] for audience in course_audiences]
         audiences_list = list(self.database.audiences.aggregate([
             {"$match": {"_id": {"$in": audiences_id}}},
             {"$unwind": "$students"},
@@ -72,7 +72,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
                 "students": 1
             }}
         ]))
-        audiences = {audience["_id"]: audience for audience in audiences}
+        audiences = {audience["_id"]: audience for audience in course_audiences}
         audiences = {d["students"]: audiences[d["audience"]] for d in audiences_list}
 
         users = self.get_users(course)  # All users of the course
@@ -105,7 +105,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) > self._trunc_limit:
             msgs.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
             data = data[:self._trunc_limit]
-        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, audiences, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
+        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, course_audiences, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
 
     def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
