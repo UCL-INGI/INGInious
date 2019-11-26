@@ -123,13 +123,18 @@ class CourseEditTask(INGIniousAdminPage):
             del data["task_file"]
 
             problems = dict_from_prefix("problem", data)
-            environment_parameters = dict_from_prefix("envparams", data).get(data.get("environment_type", ""), {})
+            environment_type = data.get("environment_type", "")
+            environment_parameters = dict_from_prefix("envparams", data).get(environment_type, {})
+            environment_id = dict_from_prefix("environment_id", data).get(environment_type, "")
 
             data = {key: val for key, val in data.items() if
                     not key.startswith("problem")
                     and not key.startswith("envparams")
-                    and not key.startswith("/")}
-            del data["@action"]
+                    and not key.startswith("environment_id")
+                    and not key.startswith("/")
+                    and not key == "@action"}
+
+            data["environment_id"] = environment_id # we do this after having removed all the environment_id[something] entries
 
             # Determines the task filetype
             if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
@@ -153,10 +158,6 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Task environment parameters
             data["environment_parameters"] = environment_parameters
-
-            # TODO NOW move me to a separate function!
-            # if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
-            #     del data["limits"]["hard_time"]
 
             # Weight
             try:

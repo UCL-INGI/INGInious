@@ -45,3 +45,6 @@ class DockerEnvType(FrontendEnvType):
         out["limits"] = limits
 
         return out
+
+    def studio_env_template(self, templator, task, allow_html: bool):
+        return templator.course_admin.edit_tabs.env_docker(task, allow_html)

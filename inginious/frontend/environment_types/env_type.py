@@ -21,3 +21,8 @@ class FrontendEnvType(abc.ABC):
             This function should raise Exception if something is wrong with the input.
         """
         pass
+
+    @abc.abstractmethod
+    def studio_env_template(self, templator, task, allow_html: bool):
+        """ Return the HTML to be displayed inside the studio "environment" tab """
+        pass

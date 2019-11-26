@@ -45,7 +45,7 @@ function studio_load(data)
     });
 
     // Must be done *after* the event definition
-    if(collapsable.length != 1)
+    if(collapsable.length !== 1)
         collapsable.collapse('hide');
 
     $('form#edit_task_form').on('submit', function()
@@ -53,6 +53,15 @@ function studio_load(data)
         studio_submit();
         return false;
     });
+
+    studio_update_environments();
+    $('#environment-type').change(studio_update_environments);
+}
+
+function studio_update_environments() {
+    var env_type = $('#environment-type').val();
+    $('.environment-boxes').hide();
+    $('#environment-box-'+env_type).show();
 }
 
 /**
