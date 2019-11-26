@@ -138,13 +138,13 @@ class Backend(object):
     async def handle_client_get_queue(self, client_addr, _: ClientGetQueue):
         """ Handles a ClientGetQueue message. Send back info about the job queue"""
         #jobs_running: a list of tuples in the form
-        #(job_id, is_current_client_job, agent_name, info, launcher, started_at, max_end)
+        #(job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time)
         jobs_running = list()
 
         for backend_job_id, content in self._job_running.items():
             jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, self._registered_agents[content[0]],
                                  content[1].course_id+"/"+content[1].task_id,
-                                 content[1].launcher, int(content[2]), int(content[2])+content[1].time_limit))
+                                 content[1].launcher, int(content[2]), self._get_time_limit_estimate(content[1])))
 
         #jobs_waiting: a list of tuples in the form
         #(job_id, is_current_client_job, info, launcher, max_time)
@@ -154,7 +154,7 @@ class Backend(object):
             msg = job[-1]
             if isinstance(msg, ClientNewJob):
                 jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, msg.course_id+"/"+msg.task_id, msg.launcher,
-                                     msg.time_limit))
+                                     self._get_time_limit_estimate(msg)))
 
         await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendGetQueue(jobs_running, jobs_waiting))
 
@@ -198,10 +198,8 @@ class Backend(object):
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                         job_msg.inputdata, job_msg.environment,
-                                                                                        job_msg.enable_network, job_msg.time_limit,
-                                                                                        job_msg.hard_time_limit, job_msg.mem_limit,
-                                                                                        job_msg.debug,
-                                                                                        job_msg.run_cmd))
+                                                                                        job_msg.environment_parameters,
+                                                                                        job_msg.debug))
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """
@@ -377,3 +375,13 @@ class Backend(object):
         exception = task.exception()
         if exception is not None:
             self._logger.exception("An exception occurred while running a Task", exc_info=exception)
+
+    def _get_time_limit_estimate(self, job_info: ClientNewJob):
+        """
+            Returns an estimate of the time taken by a given job, if available in the environment_parameters.
+            For this to work, ["limits"]["time"] must be a parameter of the environment.
+        """
+        try:
+            return int(job_info.environment_parameters["limits"]["time"])
+        except:
+            return -1 # unknown

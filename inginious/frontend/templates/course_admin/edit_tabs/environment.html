@@ -1,0 +1,36 @@
+$def with (task_data,environment_types,environments,contains_is_html)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<div class="form-group row">
+    <label for="environment" class="col-sm-4 control-label">$:_("Grading environment type")</label>
+    <div class="col-sm-8">
+        <select id="environment" class="form-control" name="environment_type">
+            $for envtypeid, envtypeobj in environment_types.items():
+                <option value="$envtypeid"
+                    $if envtypeid == task_data.get('environment_type'):
+                        selected="selected"
+                >$envtypeobj.name</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="environment-id" class="col-sm-4 control-label">$:_("Grading environment")</label>
+    <div class="col-sm-8">
+        <select id="environment-id" class="form-control" name="environment_id">
+            $for env, envtype in environments.items():
+                <option value="$env" data-env-type="$envtype"
+                    $if env == task_data.get('environment_id'):
+                        selected="selected"
+                    $if envtype != task_data.get('environment_type'):
+                        hidden="hidden"
+                >$env</option>
+        </select>
+    </div>
+</div>
+
+$:include.course_admin.edit_tabs.env_docker(task_data,contains_is_html)

@@ -86,7 +86,7 @@ class AbstractClient(object, metaclass=ABCMeta):
 
         Return a tuple of two lists (or None, None):
         jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_time)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
@@ -94,7 +94,7 @@ class AbstractClient(object, metaclass=ABCMeta):
             - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
-            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
+            - max_time the maximum time that can be used, or -1 if no timeout is set
         jobs_waiting: a list of tuples in the form
             (job_id, is_current_client_job, info, launcher, max_time)
             where
@@ -170,9 +170,12 @@ class Client(BetterParanoidPirateClient):
         # Do some precomputation
         new_job_queue_cache = {}
         # format is job_id: (nb_jobs_before, max_remaining_time)
-        for (job_id, is_local, _, _2, _3, _4, max_end) in message.jobs_running:
+        for (job_id, is_local, _, _2, _3, start_time, max_time) in message.jobs_running:
             if is_local:
-                new_job_queue_cache[job_id] = (-1, max_end - time.time())
+                remaining = 0
+                if max_time > 0:
+                    remaining = max(0, (start_time + max_time) - time.time())
+                new_job_queue_cache[job_id] = (-1, remaining)
         wait_time = 0
         nb_tasks = 0
         for (job_id, is_local, _, _2, timeout) in message.jobs_waiting:
@@ -284,30 +287,25 @@ class Client(BetterParanoidPirateClient):
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
         ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3: None)
 
-        environment = task.get_environment()
+        environment = task.get_environment_id()
         if environment not in self._available_environments:
             self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
             callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        enable_network = task.allow_network_access_grading()
-
-        run_cmd = task.get_custom_run_cmd()
-
-        try:
-            limits = task.get_limits()
-            time_limit = int(limits.get('time', 20))
-            hard_time_limit = int(limits.get('hard_time', 3 * time_limit))
-            mem_limit = int(limits.get('memory', 200))
-        except:
-            self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())
+        environment_type = task.get_environment_type()
+        if self._available_environments[environment] != environment_type:
+            self._logger.warning("Env %s does not have the expected type %s, but rather %s, in task %s/%s",
+                                 environment, environment_type, self._available_environments[environment],
+                                 task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback(("crash", "Error while reading task limits"), 0.0, {}, {}, "", {}, None, "", "")
+            callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
-                           hard_time_limit, mem_limit, debug, launcher_name, run_cmd)
+        environment_parameters = task.get_environment_parameters()
+
+        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, environment_parameters, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))
 

@@ -39,8 +39,8 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
 
     def __init__(self, job_id: ClientJobId, priority: int,
                  course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool], launcher: str, run_cmd: Optional[str]):
+                 environment: str, environment_parameters: Dict[str, Any],
+                 debug: Union[str, bool], launcher: str):
         """
         :param job_id: the client-side job id that is associated to this job
         :param priority: the job priority
@@ -48,16 +48,12 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         :param task_id: task id of the task to run
         :param inputdata: student input data
         :param environment: environment to use
-        :param enable_network: wheter to enable the network or not, in supporting envs
-        :param time_limit: timeout, in seconds, of the task, for supporting envs
-        :param hard_time_limit: timeout, in seconds, of the task, for supporting envs. (hard)
-        :param mem_limit: memory limit in Mo, for supporting envs.
+        :param environment_parameters: parameters for the environment (timeouts, limits, ...)
         :param debug:
             True to enable debug
             False to disable it
             "ssh" to enable ssh debug
         :param launcher: the name of the entity that launched this job, for logging purposes
-        :param run_cmd: custom command to be run inside the environment, instead the default run file.
         """
         self.job_id = job_id
         self.priority = priority
@@ -66,12 +62,8 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         self.inputdata = inputdata
         self.debug = debug
         self.environment = environment
-        self.enable_network = enable_network
-        self.time_limit = time_limit
-        self.hard_time_limit = hard_time_limit
-        self.mem_limit = mem_limit
+        self.environment_parameters = environment_parameters
         self.launcher = launcher
-        self.run_cmd = run_cmd
 
 
 class ClientKillJob(metaclass=MessageMeta, msgtype="client_kill_job"):
@@ -188,7 +180,7 @@ class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
                        jobs_waiting: List[Tuple[ClientJobId, bool, str, str, int]]):
         """
         :param jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_tuime)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
@@ -196,7 +188,7 @@ class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
             - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
-            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
+            - max_time the maximum time that can be used, or -1 if no timeout is set
         :param jobs_waiting: a list of tuples in the form
             (job_id, is_current_client_job, info, launcher, max_time)
             where
@@ -223,23 +215,19 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
     """
 
     def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool], run_cmd: Optional[str]):
+                 environment: str, environment_parameters: Dict[str, Any],
+                 debug: Union[str, bool]):
         """
         :param job_id: the backend-side job id that is associated to this job
         :param course_id: course id of the task to run
         :param task_id: task id of the task to run
         :param inputdata: student input data
         :param environment: environment to use
-        :param enable_network: wheter to enable the network or not, in supporting envs
-        :param time_limit: timeout, in seconds, of the task, for supporting envs
-        :param hard_time_limit: timeout, in seconds, of the task, for supporting envs. (hard)
-        :param mem_limit: memory limit in Mo, for supporting envs.
+        :param environment_parameters: parameters for the environment (timeouts, limits, ...)
         :param debug:
             True to enable debug
             False to disable it
             "ssh" to enable ssh debug
-        :param run_cmd: custom command to be run inside the environment, instead the default run file.
         """
         self.job_id = job_id
         self.course_id = course_id
@@ -247,11 +235,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         self.inputdata = inputdata
         self.debug = debug
         self.environment = environment
-        self.enable_network = enable_network
-        self.time_limit = time_limit
-        self.hard_time_limit = hard_time_limit
-        self.mem_limit = mem_limit
-        self.run_cmd = run_cmd
+        self.environment_parameters = environment_parameters
 
 
 class BackendKillJob(metaclass=MessageMeta, msgtype="backend_kill_job"):

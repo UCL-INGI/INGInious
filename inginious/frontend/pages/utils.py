@@ -5,13 +5,15 @@
 
 """ Some utils for all the pages """
 import logging
-from typing import List
+from typing import List, Dict
 
 import web
 import os
 from gridfs import GridFS
 
 from inginious.common import custom_yaml
+from inginious.frontend.environment_types import get_all_env_types
+from inginious.frontend.environment_types.env_type import FrontendEnvType
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.template_helper import TemplateHelper
@@ -96,9 +98,14 @@ class INGIniousPage(object):
         return self.app.backup_dir
 
     @property
-    def environments(self) -> List[str]:  # pylint: disable=invalid-sequence-index
-        """ Available containers """
+    def environments(self) -> Dict[str, str]:  # pylint: disable=invalid-sequence-index
+        """ Available environments """
         return self.app.submission_manager.get_available_environments()
+
+    @property
+    def environment_types(self) -> Dict[str, FrontendEnvType]:
+        """ Available environment types """
+        return get_all_env_types()
 
     @property
     def webterm_link(self) -> str:

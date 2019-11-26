@@ -9,8 +9,9 @@ import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
-from inginious.frontend.pages.internalerror import internalerror_generator
 
+from inginious.frontend.environment_types import register_base_env_types
+from inginious.frontend.pages.internalerror import internalerror_generator
 
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
@@ -179,6 +180,9 @@ def get_app(config):
 
     # Init the different parts of the app
     plugin_manager = PluginManager()
+
+    # Add the "agent types" inside the frontend, to allow loading tasks and managing envs
+    register_base_env_types(plugin_manager)
 
     # Create the FS provider
     if "fs" in config:
