@@ -131,7 +131,7 @@ $def ColumnF():
                 $:_("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.")
             </div>
         <div class="list-group mb-3">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/admin/$course.get_id()/task/$task.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/admin/$course.get_id()/submissions?tasks=$task.get_id()">
                 <i class="fa fa-tasks fa-fw"></i>&nbsp; $:_("View submissions")
             </a>
             $if user_manager.has_admin_rights_on_course(course):
