@@ -10,6 +10,7 @@ from typing import List
 import web
 import os
 from gridfs import GridFS
+from inginious.client.client import Client
 
 from inginious.common import custom_yaml
 from inginious.frontend.plugin_manager import PluginManager
@@ -79,6 +80,11 @@ class INGIniousPage(object):
     def gridfs(self) -> GridFS:
         """ Returns the GridFS singleton """
         return self.app.gridfs
+
+    @property
+    def client(self) -> Client:
+        """ Returns the INGInious client """
+        return self.app.client
 
     @property
     def default_allowed_file_extensions(self) -> List[str]:  # pylint: disable=invalid-sequence-index
