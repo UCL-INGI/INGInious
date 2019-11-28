@@ -56,8 +56,6 @@ urls = (
     r'/preferences/profile', 'inginious.frontend.pages.preferences.profile.ProfilePage',
     r'/preferences/bindings', 'inginious.frontend.pages.preferences.bindings.BindingsPage',
     r'/preferences/delete', 'inginious.frontend.pages.preferences.delete.DeletePage',
-    r'/admin/board', 'inginious.frontend.pages.adminboard.AdminBoardPage',
-    r'/admin/([^/]+)/kill', 'inginious.frontend.pages.adminboard.KillPage',
     r'/admin/([^/]+)', 'inginious.frontend.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/students', 'inginious.frontend.pages.course_admin.student_list.CourseStudentListPage',
