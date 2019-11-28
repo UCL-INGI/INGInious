@@ -73,11 +73,11 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         """
         if filter_type == "users":
             self._validate_list(users)
-            audiences = self.database.audiences.find({"courseid": course.get_id(), "students": {"$in": users}})
+            audiences = list(self.database.audiences.find({"courseid": course.get_id(), "students": {"$in": users}}))
 
         else:
             self._validate_list(audiences)
-            audiences = self.database.audiences.find({"_id": {"$in": [ObjectId(cid) for cid in audiences]}})
+            audiences = list(self.database.audiences.find({"_id": {"$in": [ObjectId(cid) for cid in audiences]}}))
 
         audiences_id = [audience["_id"] for audience in audiences]
         audiences_list = list(self.database.audiences.aggregate([
