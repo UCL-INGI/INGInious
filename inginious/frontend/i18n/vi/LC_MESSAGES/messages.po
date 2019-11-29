@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-04 08:52+0100\n"
-"PO-Revision-Date: 2019-10-15 13:04+0000\n"
+"POT-Creation-Date: 2019-11-04 14:14+0100\n"
+"PO-Revision-Date: 2019-11-29 12:44+0000\n"
 "Last-Translator: HA Thi Ngoc Bao <thingocbaoha@gmail.com>\n"
 "Language-Team: Vietnamese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/vi/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
@@ -27,77 +27,79 @@ msgstr "[không có nội dung]"
 
 #: inginious/frontend/parsable_text.py:80
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "Phản hồi dưới đây sẽ bị che đi đối với sinh viên cho đến {}."
 
 #: inginious/frontend/parsable_text.py:95
 msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"Một phẩn của phản hồi này sẽ bị che đi cho đến {}. Xin hãy quay lại sau và "
+"tải lại bài nộp để xem được phản hồi đầy đủ."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr ""
+msgstr "<b>Phân tích cú pháp thất bại</b>: <pre>{}</pre>"
 
 #: inginious/frontend/task_problems.py:61
 msgid "code"
-msgstr ""
+msgstr "mã nguồn"
 
 #: inginious/frontend/task_problems.py:92
 msgid "single-line code"
-msgstr ""
+msgstr "mã nguồn trên 1 dòng"
 
 #: inginious/frontend/task_problems.py:118
 msgid "file upload"
-msgstr ""
+msgstr "tải file lên"
 
 #: inginious/frontend/task_problems.py:151
 msgid "multiple choice"
-msgstr ""
+msgstr "nhiều lựa chọn"
 
 #: inginious/frontend/task_problems.py:218
 msgid "match"
-msgstr ""
+msgstr "khớp"
 
-#: inginious/frontend/tasks.py:80
+#: inginious/frontend/tasks.py:85
 msgid "No deadline"
-msgstr ""
+msgstr "Không có hạn chót"
 
-#: inginious/frontend/tasks.py:82
+#: inginious/frontend/tasks.py:87
 msgid "It's too late"
-msgstr ""
+msgstr "Đã quá muộn rồi"
 
 #: inginious/frontend/pages/group.py:50
 msgid "Couldn't register to the specified group."
-msgstr ""
+msgstr "Không thể đăng kí vào nhóm đã chỉ định."
 
 #: inginious/frontend/pages/group.py:55 inginious/frontend/pages/group.py:67
 msgid "You are not allowed to change group."
-msgstr ""
+msgstr "Bạn không được phép thay đổi nhóm."
 
 #: inginious/frontend/pages/group.py:64
 msgid "You're not registered in a group."
-msgstr ""
+msgstr "Bạn không được đăng kí vào nhóm."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
-msgstr ""
+msgstr "Thiếu LTI session id"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
 msgid "Invalid LTI session id"
-msgstr ""
+msgstr "LTI session id không chính xác"
 
 #: inginious/frontend/pages/lti.py:70
 msgid "Invalid LTI data"
-msgstr ""
+msgstr "LTI data không chính xác"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
-msgstr ""
+msgstr "Tài khoản của bạn bị ràng buộc trong bối cảnh này."
 
 #: inginious/frontend/pages/lti.py:162
 msgid "Error while validating LTI request"
-msgstr ""
+msgstr "Có lỗi xảy ra khi xác thực yêu cầu LTI"
 
 #: inginious/frontend/pages/lti.py:177
 msgid ""
@@ -105,52 +107,55 @@ msgid ""
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-launch-"
 "request. Please contact your administrator."
 msgstr ""
+"Để có thể gửi điểm trở lại cho TC, INGInious cần những tham số "
+"lis_outcome_service_url và lis_outcome_result_id trong LTI basic-launch-"
+"request. Xin hãy liên hệ với admin."
 
 #: inginious/frontend/pages/lti.py:197
 msgid "Couldn't validate LTI request"
-msgstr ""
+msgstr "Không thể xác thực yêu cầu LTI"
 
 #: inginious/frontend/pages/register.py:57
 msgid "Invalid activation hash."
-msgstr ""
+msgstr "Mã băm kích hoạt không chính xác."
 
 #: inginious/frontend/pages/register.py:59
 msgid "You are now activated. You can proceed to login."
-msgstr ""
+msgstr "Bạn đã được kích hoạt. Bạn có thể tiếp tục đăng nhập."
 
 #: inginious/frontend/pages/preferences/profile.py:27
 #: inginious/frontend/pages/register.py:76
 msgid "Invalid username format."
-msgstr ""
+msgstr "Định dạng của tên đăng nhập không chính xác."
 
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:131
 msgid "Invalid email format."
-msgstr ""
+msgstr "Định dạng của email không chính xác."
 
 #: inginious/frontend/pages/preferences/profile.py:47
 #: inginious/frontend/pages/register.py:82
 #: inginious/frontend/pages/register.py:161
 msgid "Password too short."
-msgstr ""
+msgstr "Mật khẩu quá ngắn."
 
 #: inginious/frontend/pages/preferences/profile.py:51
 #: inginious/frontend/pages/register.py:85
 #: inginious/frontend/pages/register.py:164
 msgid "Passwords don't match !"
-msgstr ""
+msgstr "Mật khẩu không khớp !"
 
 #: inginious/frontend/pages/register.py:92
 msgid "This username is already taken !"
-msgstr ""
+msgstr "Tên đăng nhập này đã được sử dụng !"
 
 #: inginious/frontend/pages/register.py:94
 msgid "This email address is already in use !"
-msgstr ""
+msgstr "Email này đã được sử dụng !"
 
 #: inginious/frontend/pages/register.py:106
 msgid "Welcome on INGInious"
-msgstr ""
+msgstr "Chào mừng đến với INGInious"
 
 #: inginious/frontend/pages/register.py:107
 msgid ""
@@ -158,25 +163,32 @@ msgid ""
 "\n"
 "To activate your account, please click on the following link :\n"
 msgstr ""
+"Chào mừng đến với INGInious !\n"
+"\n"
+"Để kích hoạt tài khoản của bạn, xin mời hãy nhấn vào đường dẫn sau đây:\n"
 
 #: inginious/frontend/pages/register.py:112
 msgid ""
 "You are succesfully registered. An email has been sent to you for activation."
 msgstr ""
+"Bạn đã đăng ký thành công. Một email đã được gửi tới hòm thư của bạn để kích "
+"hoạt tài khoản."
 
 #: inginious/frontend/pages/register.py:115
 msgid ""
 "Something went wrong while sending you activation email. Please contact the "
 "administrator."
 msgstr ""
+"Có lỗi xảy ra trong quá trình kích hoạt email của bạn. Xin vui lòng liên hệ "
+"admin."
 
 #: inginious/frontend/pages/register.py:138
 msgid "This email address was not found in database."
-msgstr ""
+msgstr "Email này không tồn tại trong cơ sở dữ liệu."
 
 #: inginious/frontend/pages/register.py:141
 msgid "INGInious password recovery"
-msgstr ""
+msgstr "Mã phục hồi INGInious"
 
 #: inginious/frontend/pages/register.py:142
 msgid ""
@@ -185,151 +197,163 @@ msgid ""
 "Someone (probably you) asked to reset your INGInious password. If this was "
 "you, please click on the following link :\n"
 msgstr ""
+"Xin chào {realname},\n"
+"\n"
+"Có một ai đó (có thể là bạn) đã yêu cầu khởi tạo lại mật khẩu INGInious của "
+"bạn. Nếu bạn là người làm điều đó, xin hãy nhấn vào đường link sau:\n"
 
 #: inginious/frontend/pages/register.py:146
 msgid "An email has been sent to you to reset your password."
-msgstr ""
+msgstr "Một email đã được gửi đến cho bạn để khôi phục lại mật khẩu."
 
 #: inginious/frontend/pages/register.py:149
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
 msgstr ""
+"Có một sự cố đã xảy ra trong quá trình gửi mail khởi tạo lại của bạn. Xin "
+"hãy liên hệ admin."
 
 #: inginious/frontend/pages/register.py:173
 msgid "Invalid reset hash."
-msgstr ""
+msgstr "Mã băm khởi tạo lại không chính xác."
 
 #: inginious/frontend/pages/register.py:175
 msgid "Your password has been successfully changed."
-msgstr ""
+msgstr "Mật khẩu của bạn đã được thay đổi thành công."
 
 #: inginious/frontend/pages/tasks.py:197
 msgid "You are not allowed to submit for this task."
-msgstr ""
+msgstr "Bạn không được phép nộp bài cho nhiệm vụ này."
 
 #: inginious/frontend/pages/tasks.py:205
 msgid "Your task has been regenerated. This current task is outdated."
-msgstr ""
+msgstr "Nhiệm vụ của bạn đã được khởi sinh lại. Nhiệm vụ hiện tại đã lỗi thời."
 
 #: inginious/frontend/pages/tasks.py:216
 msgid ""
 "Please answer to all the questions and verify the extensions of the files "
 "you want to upload. Your responses were not tested."
 msgstr ""
+"Xin hãy trả lời tất cả các câu hỏi và kiểm chứng phần đuôi mở rộng của những "
+"tệp bạn muốn tải lên. Các câu trả lời của bạn chưa được kiểm thử."
 
 #: inginious/frontend/pages/tasks.py:231 inginious/frontend/pages/tasks.py:337
 msgid "<b>Your submission has been sent...</b>"
-msgstr ""
+msgstr "<b>Bài nộp của bạn đã được gửi đi...</b>"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
 #: inginious/frontend/pages/tasks.py:240 inginious/frontend/pages/tasks.py:256
 msgid "Internal error"
-msgstr ""
+msgstr "Lỗi nội tại hệ thống"
 
 #: inginious/frontend/pages/tasks.py:306
 msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
-msgstr ""
+msgstr "<b>INGInious đang chấm các câu trả lời của bạn. <b/> (gần hoàn thành)"
 
 #: inginious/frontend/pages/tasks.py:308
 msgid ""
 "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
+"<b>INGInious đang chấm các câu trả lời của bạn.<b/> (Thời gian đợi dự kiến: "
+"{} giây)"
 
 #: inginious/frontend/pages/tasks.py:311
 msgid "<b>You are next in the waiting queue!</b>"
-msgstr ""
+msgstr "<b>Bạn là người tiếp theo trong hàng đợi</b>"
 
 #: inginious/frontend/pages/tasks.py:313
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Có một nhiệm vụ đứng trước bạn trong hàng đợi.</b>"
 
 #: inginious/frontend/pages/tasks.py:315
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Có {} nhiệm vụ đứng trước bạn trong hàng đợi.</b>"
 
 #: inginious/frontend/pages/tasks.py:339
 msgid "There are some errors in your answer. Your score is {score}%."
-msgstr ""
+msgstr "Có một vài lỗi sai trong đáp án của bạn. Điểm của bạn là {score}%."
 
 #: inginious/frontend/pages/tasks.py:341
 msgid "Your answer passed the tests! Your score is {score}%."
-msgstr ""
+msgstr "Đáp án của bạn đã vượt qua cuộc kiểm thử! Điểm của bạn là {score}%."
 
 #: inginious/frontend/pages/tasks.py:343
 msgid "Your submission timed out. Your score is {score}%."
-msgstr ""
+msgstr "Bài nộp của bạn đã quá hạn. Điểm của bạn là {score}%."
 
 #: inginious/frontend/pages/tasks.py:345
 msgid "Your submission made an overflow. Your score is {score}%."
-msgstr ""
+msgstr "Bài nộp của bạn tạo ra một lỗi tràn. Điểm của bạn là {score}%."
 
 #: inginious/frontend/pages/tasks.py:347
 msgid "Your submission was killed."
-msgstr ""
+msgstr "Bài nộp của bạn đã bị huỷ."
 
 #: inginious/frontend/pages/tasks.py:349
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, send "
 "an email to the course administrator."
 msgstr ""
+"Một lỗi bên trong hệ thống đã xảy ra. Xin hãy thử lại sau. Nếu lỗi tiếp tục "
+"xảy ra, hãy gửi email đến cho người quản trị khoá học."
 
 #: inginious/frontend/pages/tasks.py:352
 msgid "[Submission #{submissionid}]"
-msgstr ""
+msgstr "[Bài nộp #{submissionid}]"
 
 #: inginious/frontend/pages/tasks.py:387 inginious/frontend/pages/tasks.py:389
 msgid " <truncated>"
-msgstr ""
+msgstr " .<đã cắt>"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:129
 msgid "Audience with id {} not found."
-msgstr ""
+msgstr "Không tìm thấy thính giả với mã {}."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:138
 #: inginious/frontend/pages/course_admin/audience_edit.py:168
 #: inginious/frontend/pages/course_admin/group_edit.py:152
 msgid "Audience updated."
-msgstr ""
+msgstr "Thính giả đã được cập nhật."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:162
 #: inginious/frontend/pages/course_admin/group_edit.py:173
 msgid "Changes couldn't be applied for following students :"
-msgstr ""
+msgstr "Những sự thay đổi không thể diễn ra với các sinh viên:"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:170
 #: inginious/frontend/pages/course_admin/group_edit.py:182
 msgid "An error occurred while parsing the data."
-msgstr ""
+msgstr "Một lỗi đã xảy ra khi duyệt dữ liệu."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:46
 msgid "New audience created."
-msgstr ""
+msgstr "Thính giả mới đã được tạo."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:48
 msgid "Invalid audience selected."
-msgstr ""
+msgstr "Thính giả đã chọn không chính xác."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:50
 msgid "You have no rights to add/change audiences"
-msgstr ""
+msgstr "Bạn không có quyền để thêm/thay đổi các thính giả"
 
 #: inginious/frontend/pages/course_admin/audience_list.py:53
 #: inginious/frontend/pages/course_admin/settings.py:91
 msgid "User returned an invalid form."
-msgstr ""
+msgstr "Người dùng đã trả về một biểu mẫu không chính xác."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:154
 msgid "Operation aborted due to invalid token."
-msgstr ""
+msgstr "Hoạt động bị dừng lại vì mã token không chính xác."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:158
 #: inginious/frontend/pages/course_admin/danger_zone.py:181
 msgid "Wrong course id."
-msgstr ""
+msgstr "Sai mã khoá học."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:163
 msgid "All course data have been deleted."
@@ -432,7 +456,7 @@ msgid "User"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
-#: inginious/frontend/templates/task.html:60
+#: inginious/frontend/templates/task.html:65
 msgid "Grade"
 msgstr ""
 
@@ -576,7 +600,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/tags.html:8
 #: inginious/frontend/templates/course_admin/tags.html:19
 #: inginious/frontend/templates/course_admin/tags.html:24
-#: inginious/frontend/templates/task.html:108
+#: inginious/frontend/templates/task.html:113
 msgid "Tags"
 msgstr ""
 
@@ -584,7 +608,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/submissions.html:12
 #: inginious/frontend/templates/course_admin/submissions.html:23
 #: inginious/frontend/templates/course_admin/submissions.html:28
-#: inginious/frontend/templates/task.html:130
+#: inginious/frontend/templates/task.html:135
 msgid "View submissions"
 msgstr ""
 
@@ -743,12 +767,12 @@ msgid "Course administration"
 msgstr ""
 
 #: inginious/frontend/templates/course.html:58
-#: inginious/frontend/templates/task.html:153
+#: inginious/frontend/templates/task.html:158
 msgid "Group : {}"
 msgstr ""
 
 #: inginious/frontend/templates/course.html:60
-#: inginious/frontend/templates/task.html:155
+#: inginious/frontend/templates/task.html:160
 msgid "Groups management"
 msgstr ""
 
@@ -761,23 +785,23 @@ msgstr ""
 #: inginious/frontend/templates/course.html:77
 #: inginious/frontend/templates/register_modal.html:14
 #: inginious/frontend/templates/register_modal.html:28
-#: inginious/frontend/templates/task.html:238
-#: inginious/frontend/templates/task.html:245
+#: inginious/frontend/templates/task.html:243
+#: inginious/frontend/templates/task.html:250
 msgid "Enroll in the course"
 msgstr ""
 
 #: inginious/frontend/templates/course.html:73
-#: inginious/frontend/templates/task.html:241
+#: inginious/frontend/templates/task.html:246
 msgid "Please enroll in the course to be able to submit answers to problems."
 msgstr ""
 
 #: inginious/frontend/templates/course.html:87
-#: inginious/frontend/templates/task.html:255
+#: inginious/frontend/templates/task.html:260
 msgid "\"My courses\""
 msgstr ""
 
 #: inginious/frontend/templates/course.html:89
-#: inginious/frontend/templates/task.html:257
+#: inginious/frontend/templates/task.html:262
 msgid "\"Course list\""
 msgstr ""
 
@@ -803,7 +827,7 @@ msgstr ""
 #: inginious/frontend/templates/preferences/bindings.html:18
 #: inginious/frontend/templates/preferences/profile.html:18
 #: inginious/frontend/templates/queue.html:15
-#: inginious/frontend/templates/task.html:259
+#: inginious/frontend/templates/task.html:264
 msgid "(current)"
 msgstr ""
 
@@ -1268,205 +1292,213 @@ msgstr ""
 msgid "Author(s)"
 msgstr ""
 
+#: inginious/frontend/templates/task.html:26
+msgid "Contact"
+msgstr ""
+
 #: inginious/frontend/templates/task.html:27
-#: inginious/frontend/templates/task.html:34
+msgid "Contact link"
+msgstr ""
+
+#: inginious/frontend/templates/task.html:32
+#: inginious/frontend/templates/task.html:39
 msgid "Deadline"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:41
+#: inginious/frontend/templates/task.html:46
 msgid "Status"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:44
+#: inginious/frontend/templates/task.html:49
 msgid "Not yet attempted"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/student_info.html:68
 #: inginious/frontend/templates/course_admin/submissions.html:376
-#: inginious/frontend/templates/task.html:46
+#: inginious/frontend/templates/task.html:51
 msgid "Succeeded"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:54
+#: inginious/frontend/templates/task.html:59
 msgid "Waiting for verification"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/student_info.html:71
 #: inginious/frontend/templates/course_admin/submissions.html:380
-#: inginious/frontend/templates/task.html:56
+#: inginious/frontend/templates/task.html:61
 msgid "Failed"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:67
+#: inginious/frontend/templates/task.html:72
 msgid "Grading weight"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:71
+#: inginious/frontend/templates/task.html:76
 msgid "Attempts"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:77
+#: inginious/frontend/templates/task.html:82
 msgid "Submission limit"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:109
-#: inginious/frontend/templates/task.html:81
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:115
+#: inginious/frontend/templates/task.html:86
 msgid "No limitation"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:84
+#: inginious/frontend/templates/task.html:89
 msgid "{nb_submissions} submissions<br /> every {nb_hours} hour(s)"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:86
+#: inginious/frontend/templates/task.html:91
 msgid "{nb_submissions} submissions"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:97
+#: inginious/frontend/templates/task.html:102
 msgid "Category tags"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:119
+#: inginious/frontend/templates/task.html:124
 msgid "Administration"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:122
+#: inginious/frontend/templates/task.html:127
 msgid ""
 "This course is currently invisible for students.  You can change this by "
 "modifying the \"accessible\" option in the configuration of the course."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:126
+#: inginious/frontend/templates/task.html:131
 msgid ""
 "This task is currently invisible for students. You can change this by "
 "modifying the \"accessible\" option in the configuration of the task."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:134
+#: inginious/frontend/templates/task.html:139
 msgid "Edit task"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:137
-#: inginious/frontend/templates/task.html:323
+#: inginious/frontend/templates/task.html:142
+#: inginious/frontend/templates/task.html:328
 msgid "Debug information"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:141
+#: inginious/frontend/templates/task.html:146
 msgid "Submitting as"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:145
+#: inginious/frontend/templates/task.html:150
 msgid "Group"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:161
+#: inginious/frontend/templates/task.html:166
 msgid "For evaluation"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:148
-#: inginious/frontend/templates/task.html:165
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:154
+#: inginious/frontend/templates/task.html:170
 msgid "Last submission"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:142
-#: inginious/frontend/templates/task.html:167
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:148
+#: inginious/frontend/templates/task.html:172
 msgid "Best submission"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:169
+#: inginious/frontend/templates/task.html:174
 msgid "Selected submission"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:177
-#: inginious/frontend/templates/task.html:232
+#: inginious/frontend/templates/task.html:182
+#: inginious/frontend/templates/task.html:237
 msgid "No submission"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:182
+#: inginious/frontend/templates/task.html:187
 msgid "Share my result"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:186
+#: inginious/frontend/templates/task.html:191
 msgid "Submission history"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:272
+#: inginious/frontend/templates/task.html:277
 msgid "Collapse context"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:274
+#: inginious/frontend/templates/task.html:279
 msgid "\"Previous task\""
 msgstr ""
 
-#: inginious/frontend/templates/task.html:276
+#: inginious/frontend/templates/task.html:281
 msgid "\"Next task\""
 msgstr ""
 
-#: inginious/frontend/templates/task.html:303
+#: inginious/frontend/templates/task.html:308
 msgid "Alternatively, you can also paste this command into your terminal:"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:305
+#: inginious/frontend/templates/task.html:310
 msgid "Paste this command into your terminal:"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:308
+#: inginious/frontend/templates/task.html:313
 msgid "The password to connect is {}"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:311
+#: inginious/frontend/templates/task.html:316
 msgid "Please answer to all the questions."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:327
+#: inginious/frontend/templates/task.html:332
 msgid ""
 "The raw data from the container will be displayed here, helping you to debug "
 "the task.<br/> This box is only displayed because you are an administrator "
 "of this course. It is not displayed to students."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:360
+#: inginious/frontend/templates/task.html:365
 msgid "Question {}"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:374
+#: inginious/frontend/templates/task.html:379
 msgid "Please enroll in the course to submit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:380
-#: inginious/frontend/templates/task.html:390
+#: inginious/frontend/templates/task.html:385
+#: inginious/frontend/templates/task.html:395
 msgid "Submit"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:384
+#: inginious/frontend/templates/task.html:389
 msgid "\"Start remote SSH console with this input\""
 msgstr ""
 
-#: inginious/frontend/templates/task.html:392
+#: inginious/frontend/templates/task.html:397
 msgid "The deadline is over, you cannot submit anymore"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:394
+#: inginious/frontend/templates/task.html:399
 msgid "Please register in a group"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:397
+#: inginious/frontend/templates/task.html:402
 msgid "You have reached the submission limit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:397
+#: inginious/frontend/templates/task.html:402
 msgid "Your group have reached the submission limit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:399
+#: inginious/frontend/templates/task.html:404
 msgid "It will be refilled within the next {} hour(s)"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:402
+#: inginious/frontend/templates/task.html:407
 msgid "You are not allowed to submit"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:412
+#: inginious/frontend/templates/task.html:417
 msgid "Share my result on: "
 msgstr ""
 
@@ -2288,7 +2320,7 @@ msgstr ""
 msgid "Tag"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:89
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:95
 #: inginious/frontend/templates/course_admin/submissions.html:283
 msgid "All submissions"
 msgstr ""
@@ -2523,82 +2555,86 @@ msgid "Author"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:52
+msgid "Contact URL"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:58
 msgid "Categories"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:54
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:60
 msgid "\"Tag ids, separated by commas\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:59
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:65
 msgid "Grade weight (in comparison to other tasks)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:65
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:71
 msgid "Submission mode"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:71
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:77
 msgid "Individually"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:77
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:83
 msgid "Per group"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:82
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:88
 msgid "Submission storage"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:98
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:104
 msgid "Only the last {nbr_submissions} submissions"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:105
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:111
 msgid "Submission limits"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:118
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:124
 msgid "Hard limit: {nbr_submissions} submission(s)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:129
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:135
 msgid "Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:136
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:142
 msgid "Evaluation submission"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:154
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:160
 msgid "Student choice"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:159
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:165
 msgid "Accessible"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:165
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:171
 msgid "Never"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:171
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:177
 msgid "Always"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:180
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:186
 msgid "Custom, from: {} to: {}"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:209
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:215
 msgid "Soft Deadline"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:232
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:238
 msgid "Random inputs"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:239
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:245
 msgid "Regenerate input random"
 msgstr ""
 
