@@ -144,7 +144,7 @@ class Backend(object):
         for backend_job_id, content in self._job_running.items():
             jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, self._registered_agents[content[0]],
                                  content[1].course_id+"/"+content[1].task_id,
-                                 content[1].launcher, int(content[2]), int(content[2])+content[1].time_limit))
+                                 content[1].launcher, int(content[2]), int(content[2])+content[1].task_data['limits']['time_limit']))
 
         #jobs_waiting: a list of tuples in the form
         #(job_id, is_current_client_job, info, launcher, max_time)
