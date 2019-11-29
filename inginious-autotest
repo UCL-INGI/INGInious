@@ -180,7 +180,7 @@ def test_submission_yaml(client, filesystem, path, output, client_sync, config):
     """
     # print(os.path.join(test_path, yaml_file.name))
     with open(path, 'r') as yaml:
-        yaml_data = custom_yaml.load(yaml, Loader=SafeLoader)
+        yaml_data = custom_yaml.load(yaml)
         res = test_task(yaml_data, get_task(filesystem, yaml_data["courseid"], yaml_data["taskid"], config["default_problem_types"]), client, client_sync)
         if res != {}:
             output[path] = res
@@ -198,7 +198,7 @@ def test_task_yaml(path, output, filesystem, task_name, course_name, config):
     :return: None
     """
     with open(path, 'r') as yaml_file:
-        yaml_data = custom_yaml.load(yaml_file, Loader=SafeLoader)
+        yaml_data = custom_yaml.load(yaml_file)
     res = test_web_task(yaml_data, get_task(filesystem, course_name, task_name, config["default_problem_types"]), config, path)
     if res != {}:
         output[path] = res
