@@ -168,21 +168,23 @@ class CourseSubmissionsPage(INGIniousAdminPage):
                 if id_checker(user_input.filter_tags[i]):
                     state = (user_input.filter_tags_presence[i] in ["True", "true"])
                     query_advanced["tests." + user_input.filter_tags[i]] = {"$in": [None, False]} if not state else True
-            
-        # Mongo operations
-        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(user_input.sort_by, 
-            pymongo.DESCENDING if user_input.order == "0" else pymongo.ASCENDING)]))
-        data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
 
         # Get best submissions from database
         user_tasks = list(self.database.user_tasks.find(query_base, {"submissionid": 1, "_id": 0}))
         best_submissions_list = [u["submissionid"] for u in user_tasks]  # list containing ids of best submissions
+
+        must_keep_best_submissions_only = "eval" in user_input or ("eval_dl" in user_input and "download" in web.input())
+        if must_keep_best_submissions_only:
+            query_advanced["_id"] = {"$in": best_submissions_list}
+
+        # Mongo operations
+        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(user_input.sort_by,
+            pymongo.DESCENDING if user_input.order == "0" else pymongo.ASCENDING)]).limit(self._trunc_limit))
+        data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
+
+
         for d in data:
             d["best"] = d["_id"] in best_submissions_list  # mark best submissions
-
-        # Keep best submissions
-        if "eval" in user_input or ("eval_dl" in user_input and "download" in web.input()):
-            data = [d for d in data if d["best"]]
         return data, audience
 
     def get_input(self):
