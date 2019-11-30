@@ -62,8 +62,8 @@ The ``plugin_module`` configuration parameter corresponds to the Python package 
 A demonstration plugin is found in the ``inginious.frontend.plugins.demo``. You do not need to include your plugin
 in the INGInious sources. As long as your plugin is found in the Python path, it will remain usable by INGInious.
 
-List of hookable hooks
-----------------------
+List of hooks
+-------------
 
 You may be interested to generate some actions useful for your plugins before or after some INGInious events. You
 would therefore need to add a hook method. This can be done using the ``add_hook`` method of package
@@ -252,12 +252,12 @@ Each hook available in INGInious is described here, starting with its name and p
     ``course`` is the course object related to task, ``task_data`` is the task descriptor content and ``task_fs`` is an
     object of type LocalFSProvider.    
 
-List of callable hooks
-----------------------
+Other useful methods for plugins
+--------------------------------
 
-These hooks are meant to be called inside plugins, using the ``call_hook`` function.
+These functions are meant to be called by plugins.
 
-``register_env_type`` (``env_obj``)
+``inginious.frontend.envrionment_types.register_env_type(env_obj)``
 
     ``env_obj`` a ``FrontendEnvType`` object to be registered (to be displayed in the frontend and made accessible both
     in the studio and for submitting tasks).

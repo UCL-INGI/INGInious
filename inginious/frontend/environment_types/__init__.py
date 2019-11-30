@@ -22,8 +22,6 @@ def register_env_type(env_obj):
 
 
 def register_base_env_types(hook_manager: HookManager):
-    hook_manager.add_hook("register_env_type", register_env_type, 0)
-
     # register standard env types here
     register_env_type(DockerEnvType())
     register_env_type(MCQEnvType())

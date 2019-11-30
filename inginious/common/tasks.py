@@ -168,5 +168,5 @@ class Task(object):
             content["environment_parameters"] = {"limits": content.get("limits", {}),
                                                  "run_cmd": content.get("run_cmd", ''),
                                                  "network_grading": content.get("network_grading", False),
-                                                 "response_id_html": content.get('responseIsHTML', False)}
+                                                 "response_is_html": content.get('responseIsHTML', False)}
         return content
