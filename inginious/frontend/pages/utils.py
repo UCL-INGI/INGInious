@@ -184,6 +184,7 @@ class INGIniousAuthPage(INGIniousPage):
         """
         return False
 
+
 class SignInPage(INGIniousAuthPage):
     def GET_AUTH(self, *args, **kwargs):
         raise web.seeother("/mycourses")

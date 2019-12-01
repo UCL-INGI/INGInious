@@ -19,6 +19,7 @@ from collections import OrderedDict
 from pymongo import ReturnDocument
 
 from inginious.common import exceptions
+from inginious.frontend.pages.course import handle_course_unavailable
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
 
@@ -88,7 +89,7 @@ class BaseTaskPage(object):
         else:
             return False
 
-    def GET(self, courseid, taskid, isLTI):
+    def GET(self, courseid, taskid, is_LTI):
         """ GET request """
         username = self.user_manager.session_username()
 
@@ -98,20 +99,20 @@ class BaseTaskPage(object):
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 
-        if isLTI and not self.user_manager.course_is_user_registered(course):
+        if is_LTI and not self.user_manager.course_is_user_registered(course):
             self.user_manager.course_register_user(course, force=True)
 
-        if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-            return self.template_helper.get_renderer().course_unavailable()
+        if not self.user_manager.course_is_open_to_user(course, username, is_LTI):
+            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
 
         # Fetch the task
         try:
-            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, isLTI))
+            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI))
             task = tasks[taskid]
         except KeyError:
             raise web.notfound()
 
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+        if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         # Compute previous and next taskid
@@ -186,7 +187,7 @@ class BaseTaskPage(object):
 
         course = self.course_factory.get_course(courseid)
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-            return self.template_helper.get_renderer().course_unavailable()
+            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
 
         task = course.get_task(taskid)
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
@@ -414,7 +415,7 @@ class TaskPageStaticDownload(INGIniousPage):
         try:
             course = self.course_factory.get_course(courseid)
             if not self.user_manager.course_is_open_to_user(course):
-                return self.template_helper.get_renderer().course_unavailable()
+                return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
 
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 

@@ -246,7 +246,7 @@ $def ColumnF():
             $:_("Please enroll in the course to be able to submit answers to problems.")
         </div>
         <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action list-group-item-info" data-toggle='modal' data-target='#register'>
+            <a href="$get_homepath()/register/$course.get_id()" class="list-group-item list-group-item-action list-group-item-info">
                 <i class="fa fa-sign-in fa-fw"></i>&nbsp; $:_("Enroll in the course")
             </a>
         </div>
@@ -445,5 +445,3 @@ $# set up some useful variable that may be used by task author
         "@random": $input_random_list
     }
 </script>
-
-$:include.register_modal(course)
