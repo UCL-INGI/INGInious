@@ -19,7 +19,7 @@ from collections import OrderedDict
 from pymongo import ReturnDocument
 
 from inginious.common import exceptions
-from inginious.frontend.pages.utils import INGIniousPage
+from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
 
 class BaseTaskPage(object):
@@ -36,6 +36,13 @@ class BaseTaskPage(object):
         self.default_max_file_size = self.cp.default_max_file_size
         self.webterm_link = self.cp.webterm_link
         self.plugin_manager = self.cp.plugin_manager
+
+    def preview_allowed(self, courseid, taskid):
+        try:
+            course = self.course_factory.get_course(courseid)
+        except exceptions.CourseNotFoundException as ex:
+            raise web.notfound(str(ex))
+        return course.get_accessibility().is_open() and course.allow_preview()
 
     def set_selected_submission(self, course, task, submissionid):
         """ Set submission whose id is `submissionid` to selected grading submission for the given course/task.
@@ -438,9 +445,12 @@ class TaskPageStaticDownload(INGIniousPage):
                 raise web.notfound()
 
 
-class TaskPage(INGIniousPage):
-    def GET(self, courseid, taskid):
+class TaskPage(INGIniousAuthPage):
+    def GET_AUTH(self, courseid, taskid):
         return BaseTaskPage(self).GET(courseid, taskid, False)
 
-    def POST(self, courseid, taskid):
+    def POST_AUTH(self, courseid, taskid):
         return BaseTaskPage(self).POST(courseid, taskid, False)
+
+    def preview_allowed(self, courseid, taskid):
+        return BaseTaskPage(self).preview_allowed(courseid, taskid)
