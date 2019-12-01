@@ -6,11 +6,15 @@
 """ Course page """
 import web
 
-from inginious.frontend.pages.utils import INGIniousAuthPage, INGIniousPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-class CoursePage(INGIniousPage):
+class CoursePage(INGIniousAuthPage):
     """ Course page """
+
+    def preview_allowed(self, courseid):
+        course = self.get_course(courseid)
+        return course.get_accessibility().is_open() and course.allow_preview()
 
     def get_course(self, courseid):
         """ Return the course """
@@ -21,7 +25,7 @@ class CoursePage(INGIniousPage):
 
         return course
 
-    def POST(self, courseid):  # pylint: disable=arguments-differ
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course = self.get_course(courseid)
 
@@ -32,7 +36,7 @@ class CoursePage(INGIniousPage):
 
         return self.show_page(course)
 
-    def GET(self, courseid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course(courseid)
         return self.show_page(course)
