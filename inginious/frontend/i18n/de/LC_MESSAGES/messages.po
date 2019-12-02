@@ -8,92 +8,97 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-11-04 14:14+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2019-12-03 07:24+0000\n"
+"Last-Translator: Felix Haase <felix.haase@stud.uni-bamberg.de>\n"
+"Language-Team: German <http://weblate.info.ucl.ac.be/projects/inginious/"
+"frontend/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.6.0\n"
 
 #: inginious/frontend/parsable_text.py:36
 msgid "[no content]"
-msgstr ""
+msgstr "[kein Inhalt]"
 
 #: inginious/frontend/parsable_text.py:80
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "Das unten stehende Feedback ist für Schüler verborgen bis {}."
 
 #: inginious/frontend/parsable_text.py:95
 msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"Ein Teil des Feedbacks ist verborgen bis {}. Bitte komm später wieder und "
+"lade die Seite neu um das gesamte Feedback zu sehen."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr ""
+msgstr "<b>Parsing ist fehlgeschlagen</b>: <pre>{}</pre>"
 
 #: inginious/frontend/task_problems.py:61
 msgid "code"
-msgstr ""
+msgstr "Code"
 
 #: inginious/frontend/task_problems.py:92
 msgid "single-line code"
-msgstr ""
+msgstr "einzeiliger Code"
 
 #: inginious/frontend/task_problems.py:118
 msgid "file upload"
-msgstr ""
+msgstr "Datei Upload"
 
 #: inginious/frontend/task_problems.py:151
 msgid "multiple choice"
-msgstr ""
+msgstr "Multiple Choice"
 
 #: inginious/frontend/task_problems.py:218
 msgid "match"
-msgstr ""
+msgstr "Übereinstimmung"
 
 #: inginious/frontend/tasks.py:85
 msgid "No deadline"
-msgstr ""
+msgstr "Keine Frist"
 
 #: inginious/frontend/tasks.py:87
 msgid "It's too late"
-msgstr ""
+msgstr "Zu spät"
 
 #: inginious/frontend/pages/group.py:50
 msgid "Couldn't register to the specified group."
-msgstr ""
+msgstr "Registrierung zur angegebenen Gruppe fehlgeschlagen."
 
 #: inginious/frontend/pages/group.py:55 inginious/frontend/pages/group.py:67
 msgid "You are not allowed to change group."
-msgstr ""
+msgstr "Sie sind nicht berechtigt diese Gruppe zu ändern."
 
 #: inginious/frontend/pages/group.py:64
 msgid "You're not registered in a group."
-msgstr ""
+msgstr "Sie sind in keiner Gruppe registriert."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
-msgstr ""
+msgstr "Fehlende LTI session id"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
 msgid "Invalid LTI session id"
-msgstr ""
+msgstr "Ungültige LTI session id"
 
 #: inginious/frontend/pages/lti.py:70
 msgid "Invalid LTI data"
-msgstr ""
+msgstr "Ungültige LTI Daten"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
-msgstr ""
+msgstr "Ihr Account ist bereits mit diesem Kontext verbunden."
 
 #: inginious/frontend/pages/lti.py:162
 msgid "Error while validating LTI request"
-msgstr ""
+msgstr "Fehler während der Validierung des LTI Requests"
 
 #: inginious/frontend/pages/lti.py:177
 msgid ""
@@ -101,52 +106,55 @@ msgid ""
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-"
 "launch-request. Please contact your administrator."
 msgstr ""
+"Um die Note an TC zurückzusenden benötigt INGInious die Parameter "
+"lis_outcome_service_url und  lis_outcome_result_id im LTI basic-launch-"
+"request. Bitte kontaktieren Sie den Administrator."
 
 #: inginious/frontend/pages/lti.py:197
 msgid "Couldn't validate LTI request"
-msgstr ""
+msgstr "Konnte den LTI Request nicht validieren"
 
 #: inginious/frontend/pages/register.py:57
 msgid "Invalid activation hash."
-msgstr ""
+msgstr "Invalider Aktivierungs-Hash."
 
 #: inginious/frontend/pages/register.py:59
 msgid "You are now activated. You can proceed to login."
-msgstr ""
+msgstr "Sie sind jetzt aktiviert. Sie können sich nun einloggen."
 
 #: inginious/frontend/pages/preferences/profile.py:27
 #: inginious/frontend/pages/register.py:76
 msgid "Invalid username format."
-msgstr ""
+msgstr "Nutzername hat invalides Format."
 
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:131
 msgid "Invalid email format."
-msgstr ""
+msgstr "E-Mail hat invalides Format."
 
 #: inginious/frontend/pages/preferences/profile.py:47
 #: inginious/frontend/pages/register.py:82
 #: inginious/frontend/pages/register.py:161
 msgid "Password too short."
-msgstr ""
+msgstr "Passwort ist zu kurz."
 
 #: inginious/frontend/pages/preferences/profile.py:51
 #: inginious/frontend/pages/register.py:85
 #: inginious/frontend/pages/register.py:164
 msgid "Passwords don't match !"
-msgstr ""
+msgstr "Passwörter stimmen nicht überein !"
 
 #: inginious/frontend/pages/register.py:92
 msgid "This username is already taken !"
-msgstr ""
+msgstr "Dieser Nutzername ist bereits vergeben !"
 
 #: inginious/frontend/pages/register.py:94
 msgid "This email address is already in use !"
-msgstr ""
+msgstr "Diese E-Mail Adresse wird bereits benutzt !"
 
 #: inginious/frontend/pages/register.py:106
 msgid "Welcome on INGInious"
-msgstr ""
+msgstr "Willkommen bei INGInious"
 
 #: inginious/frontend/pages/register.py:107
 msgid ""
@@ -154,26 +162,33 @@ msgid ""
 "\n"
 "To activate your account, please click on the following link :\n"
 msgstr ""
+"Willkommen bei INGInious !\n"
+"\n"
+"Um ihren Account zu aktivieren, bitte auf den folgenden Link klicken :\n"
 
 #: inginious/frontend/pages/register.py:112
 msgid ""
 "You are succesfully registered. An email has been sent to you for "
 "activation."
 msgstr ""
+"Sie wurden erfolgreich registriert. Ihnen wurde eine E-Mail zur Aktivierung "
+"geschickt."
 
 #: inginious/frontend/pages/register.py:115
 msgid ""
 "Something went wrong while sending you activation email. Please contact "
 "the administrator."
 msgstr ""
+"Irgendetwas ging schief beim senden der Aktivierungs-E-Mail. Bitte "
+"kontaktieren sie den Administrator."
 
 #: inginious/frontend/pages/register.py:138
 msgid "This email address was not found in database."
-msgstr ""
+msgstr "Diese E-Mail wurde nicht in der Datenbank gefunden."
 
 #: inginious/frontend/pages/register.py:141
 msgid "INGInious password recovery"
-msgstr ""
+msgstr "INGInious Passwort Wiederherstellung"
 
 #: inginious/frontend/pages/register.py:142
 msgid ""
@@ -182,32 +197,39 @@ msgid ""
 "Someone (probably you) asked to reset your INGInious password. If this "
 "was you, please click on the following link :\n"
 msgstr ""
+"Lieber {realname},\n"
+"\n"
+"Jemand (wahrscheinlich Sie) hat beantragt ihr INGInious Passwort "
+"zurückzusetzen. Wenn das Sie waren, klicken Sie bitte auf den folgenden Link "
+":\n"
 
 #: inginious/frontend/pages/register.py:146
 msgid "An email has been sent to you to reset your password."
-msgstr ""
+msgstr "Ihnen wurde eine E-Mail geschickt um das Passwort zurückzusetzen."
 
 #: inginious/frontend/pages/register.py:149
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
 msgstr ""
+"Irgendetwas ging schief beim senden der Zurücksetzungs-E-Mail. Bitte "
+"kontaktieren sie den Administrator."
 
 #: inginious/frontend/pages/register.py:173
 msgid "Invalid reset hash."
-msgstr ""
+msgstr "Ungültiger Zurücksetzungs-Hash."
 
 #: inginious/frontend/pages/register.py:175
 msgid "Your password has been successfully changed."
-msgstr ""
+msgstr "Ihr Passwort wurde erfolgreich geändert."
 
 #: inginious/frontend/pages/tasks.py:197
 msgid "You are not allowed to submit for this task."
-msgstr ""
+msgstr "Sie sind nicht berechtigt etwas für diese Aufgabe abzugeben."
 
 #: inginious/frontend/pages/tasks.py:205
 msgid "Your task has been regenerated. This current task is outdated."
-msgstr ""
+msgstr "Ihre Aufgabe wurde neu erstellt. Die aktuelle Aufgabe ist  veraltet."
 
 #: inginious/frontend/pages/tasks.py:216
 msgid ""
