@@ -82,6 +82,8 @@ class DockerAgent(Agent):
         # Auto discover containers
         self._logger.info("Discovering containers")
         self._containers = await self._docker.get_containers()
+        for idx in self._containers:
+            self._containers[idx]["type"] = "docker" # type is not given by self._docker.get_containers()
 
         self._assigned_external_ports = {}  # container_id : [external_ports]
 
@@ -154,18 +156,23 @@ class DockerAgent(Agent):
         except:
             self._logger.exception("Exception in _watch_docker_events")
 
-    def __new_job_sync(self, message, future_results):
+    def __new_job_sync(self, message: BackendNewJob, future_results):
         """ Synchronous part of _new_job. Creates needed directories, copy files, and starts the container. """
         course_id = message.course_id
         task_id = message.task_id
 
         debug = message.debug
         environment_name = message.environment
-        enable_network = message.enable_network
-        time_limit = message.time_limit
-        hard_time_limit = message.hard_time_limit or time_limit * 3
-        mem_limit = message.mem_limit
-        run_cmd = message.run_cmd
+
+        try:
+            enable_network = message.environment_parameters.get("enable_network", False)
+            limits = message.environment_parameters.get("limits", {})
+            time_limit = int(limits.get("time_limit", 30))
+            hard_time_limit = int(limits.get("hard_time_limit", None) or time_limit * 3)
+            mem_limit = int(limits.get("mem_limit", 200))
+            run_cmd = message.environment_parameters.get("run_cmd", '')
+        except:
+            raise CannotCreateJobException('The agent is unable to parse the parameters')
 
         course_fs = self.tasks_fs.from_subfolder(course_id)
         task_fs = course_fs.from_subfolder(task_id)

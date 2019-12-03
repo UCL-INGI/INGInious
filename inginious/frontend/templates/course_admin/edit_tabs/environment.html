@@ -1,0 +1,38 @@
+$def with (task_data,environment_types,environments,contains_is_html)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<div class="form-group row">
+    <label for="environment-type" class="col-sm-4 control-label">$:_("Grading environment type")</label>
+    <div class="col-sm-8">
+        <select id="environment-type" class="form-control" name="environment_type">
+            $for envtypeid, envtypeobj in environment_types.items():
+                <option value="$envtypeid"
+                    $if envtypeid == task_data.get('environment_type'):
+                        selected="selected"
+                >$envtypeobj.name</option>
+        </select>
+    </div>
+</div>
+
+$for envtype, envtypeobj in environment_types.items():
+    <div id="environment-box-$envtype" class="environment-boxes" >
+        <div class="form-group row">
+            <label for="environment-id-$envtype" class="col-sm-4 control-label">$:_("Grading environment")</label>
+            <div class="col-sm-8">
+                <select id="environment-id-$envtype" class="form-control" name="environment_id[$envtype]">
+                    $for env, env_envtype in environments.items():
+                        $if envtype == env_envtype:
+                            <option value="$env"
+                                $if env == task_data.get('environment_id'):
+                                    selected="selected"
+                            >$env</option>
+                </select>
+            </div>
+        </div>
+
+        $:envtypeobj.studio_env_template(include, task_data, contains_is_html)
+    </div>

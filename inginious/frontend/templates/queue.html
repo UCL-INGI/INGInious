@@ -33,7 +33,7 @@ $if jobs_running is not None and len(jobs_running) > 0:
             <th>$:_("Started at")</th>
             <th>$:_("Timeout at")</th>
         </tr>
-        $for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_end) in jobs_running:
+        $for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time) in jobs_running:
             <tr>
                 <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
                 <td>
@@ -46,7 +46,12 @@ $if jobs_running is not None and len(jobs_running) > 0:
                 <td>$info</td>
                 <td>$launcher</td>
                 <td>$from_timestamp(started_at).strftime("%d/%m/%Y %H:%M:%S")</td>
-                <td>$from_timestamp(max_end).strftime("%d/%m/%Y %H:%M:%S")</td>
+                <td>
+                    $if max_time >= 0:
+                        $from_timestamp(started_at+max_time).strftime("%d/%m/%Y %H:%M:%S")
+                    $else:
+                        $:_("No timeout set")
+                </td>
             </tr>
     </table>
 $else:
@@ -62,7 +67,7 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
             <th>$:_("Launcher name")</th>
             <th>$:_("Maximum runtime in seconds")</th>
         </tr>
-        $for (job_id, is_current_client_job, info, launcher, max_end) in jobs_waiting:
+        $for (job_id, is_current_client_job, info, launcher, max_time) in jobs_waiting:
         <tr>
             <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
             <td>
@@ -73,7 +78,12 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
             </td>
             <td>$info</td>
             <td>$launcher</td>
-            <td>$max_end</td>
+            <td>
+                $if max_time >= 0:
+                    $max_time
+                $else:
+                    $:_("No timeout set")
+            </td>
         </tr>
     </table>
 $else:

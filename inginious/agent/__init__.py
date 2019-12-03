@@ -84,13 +84,15 @@ class Agent(object, metaclass=ABCMeta):
         :return: a dict of available environments (containers most of the time) in the form
             {
                 "name": {                          #for example, "default"
-                    "id": "container img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                    "created": 12345678            # create date
-                    "ports": [22, 434]             # list of ports needed
+                    "id": "environment img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
+                    "created": 12345678,           # create date
+                    "ports": [22, 434],            # list of ports needed
+                    "type": "agent type id"        # an id of the type of the agent. Allows the frontend to display
+                                                   # the correct parameter list for the environment.
                 }
             }
 
-            If the environments are not containers, fills `created` with a fixed date (that will be shared by all agents of the same version),
+            If the environments are not environments, fills `created` with a fixed date (that will be shared by all agents of the same version),
             that could be 0. `id` can be anything, but should also be the same for the same versions of environments.
 
             Only the `name` field is shared with the Clients.

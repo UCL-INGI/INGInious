@@ -42,7 +42,8 @@ class CourseEditTask(INGIniousAdminPage):
         if task_data is None:
             task_data = {}
 
-        environments = self.containers
+        environment_types = self.environment_types
+        environments = self.environments
 
         current_filetype = None
         try:
@@ -59,6 +60,7 @@ class CourseEditTask(INGIniousAdminPage):
             taskid,
             self.task_factory.get_problem_types(),
             task_data,
+            environment_types,
             environments,
             task_data.get('problems',{}),
             self.contains_is_html(task_data),
@@ -121,13 +123,18 @@ class CourseEditTask(INGIniousAdminPage):
             del data["task_file"]
 
             problems = dict_from_prefix("problem", data)
-            limits = dict_from_prefix("limits", data)
+            environment_type = data.get("environment_type", "")
+            environment_parameters = dict_from_prefix("envparams", data).get(environment_type, {})
+            environment_id = dict_from_prefix("environment_id", data).get(environment_type, "")
 
             data = {key: val for key, val in data.items() if
                     not key.startswith("problem")
-                    and not key.startswith("limits")
-                    and not key.startswith("/")}
-            del data["@action"]
+                    and not key.startswith("envparams")
+                    and not key.startswith("environment_id")
+                    and not key.startswith("/")
+                    and not key == "@action"}
+
+            data["environment_id"] = environment_id # we do this after having removed all the environment_id[something] entries
 
             # Determines the task filetype
             if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
@@ -149,10 +156,8 @@ class CourseEditTask(INGIniousAdminPage):
                 if category not in course_tags:
                     return json.dumps({"status": "error", "message": _("Unknown category tag.")})
 
-            # Task limits
-            data["limits"] = limits
-            if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
-                del data["limits"]["hard_time"]
+            # Task environment parameters
+            data["environment_parameters"] = environment_parameters
 
             # Weight
             try:

@@ -252,6 +252,16 @@ Each hook available in INGInious is described here, starting with its name and p
     ``course`` is the course object related to task, ``task_data`` is the task descriptor content and ``task_fs`` is an
     object of type LocalFSProvider.    
 
+Other useful methods for plugins
+--------------------------------
+
+These functions are meant to be called by plugins.
+
+``inginious.frontend.envrionment_types.register_env_type(env_obj)``
+
+    ``env_obj`` a ``FrontendEnvType`` object to be registered (to be displayed in the frontend and made accessible both
+    in the studio and for submitting tasks).
+
 Additional subproblems
 ----------------------
 

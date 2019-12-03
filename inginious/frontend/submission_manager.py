@@ -201,7 +201,7 @@ class WebAppSubmissionManager:
 
     def get_available_environments(self):
         """:return a list of available environments """
-        return self._client.get_available_containers()
+        return self._client.get_available_environments()
 
     def get_submission(self, submissionid, user_check=True):
         """ Get a submission from the database """
@@ -586,7 +586,7 @@ class WebAppSubmissionManager:
 
         Return a tuple of two lists (None, None):
         jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_time)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
@@ -594,7 +594,7 @@ class WebAppSubmissionManager:
             - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
-            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
+            - max_time the maximum time that can be used, or -1 if no timeout is set
         jobs_waiting: a list of tuples in the form
             (job_id, is_current_client_job, info, launcher, max_time)
             where

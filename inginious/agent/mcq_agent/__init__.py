@@ -8,9 +8,7 @@ import gettext
 
 from inginious.agent import Agent, CannotCreateJobException
 from inginious import get_root_path
-from inginious.common.course_factory import create_factories
 from inginious.common.messages import BackendNewJob, BackendKillJob
-from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
 import os.path
 
 class MCQAgent(Agent):
@@ -35,7 +33,7 @@ class MCQAgent(Agent):
 
     @property
     def environments(self):
-        return {"mcq": {"id": "mcq", "created": 0}}
+        return {"mcq": {"id": "mcq", "created": 0, "type": "mcq"}}
 
     async def new_job(self, msg: BackendNewJob):
         try:
