@@ -150,7 +150,12 @@ def get_app(config):
     # Init gettext
     available_translations = {
         "fr": "Français",
-        "es": "Español"
+        "es": "Español",
+        "pt": "Português",
+        "el": "ελληνικά",
+        "vi": "Tiếng Việt",
+        "nl": "Nederlands",
+        "de": "Deutsch"
     }
 
     available_languages = {"en": "English"}
