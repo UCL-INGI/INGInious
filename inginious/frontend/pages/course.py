@@ -6,11 +6,25 @@
 """ Course page """
 import web
 
-from inginious.frontend.pages.utils import INGIniousAuthPage, INGIniousPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
+
+def handle_course_unavailable(app_homepath, template_helper, user_manager, course):
+    """ Displays the course_unavailable page or the course registration page """
+    reason = user_manager.course_is_open_to_user(course, lti=False, return_reason=True)
+    if reason == "unregistered_not_previewable":
+        username = user_manager.session_username()
+        user_info = user_manager.get_user_info(username)
+        if course.is_registration_possible(user_info):
+            raise web.seeother(app_homepath + "/register/" + course.get_id())
+    return template_helper.get_renderer(use_jinja=True).course_unavailable(reason=reason)
 
 
-class CoursePage(INGIniousPage):
+class CoursePage(INGIniousAuthPage):
     """ Course page """
+
+    def preview_allowed(self, courseid):
+        course = self.get_course(courseid)
+        return course.get_accessibility().is_open() and course.allow_preview()
 
     def get_course(self, courseid):
         """ Return the course """
@@ -21,7 +35,7 @@ class CoursePage(INGIniousPage):
 
         return course
 
-    def POST(self, courseid):  # pylint: disable=arguments-differ
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course = self.get_course(courseid)
 
@@ -32,7 +46,7 @@ class CoursePage(INGIniousPage):
 
         return self.show_page(course)
 
-    def GET(self, courseid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course(courseid)
         return self.show_page(course)
@@ -41,7 +55,7 @@ class CoursePage(INGIniousPage):
         """ Prepares and shows the course page """
         username = self.user_manager.session_username()
         if not self.user_manager.course_is_open_to_user(course, lti=False):
-            return self.template_helper.get_renderer().course_unavailable()
+            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
         else:
             tasks = course.get_tasks()
             last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})

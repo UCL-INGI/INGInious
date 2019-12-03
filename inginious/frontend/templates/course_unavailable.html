@@ -1,12 +1,30 @@
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$var title: Course unavailable
-
-$# Start content
-<img src="$get_homepath(True)/static/images/logo_maintenance.png" style="margin:auto; display:block;"/>
-<div class="alert alert-warning" role="alert" style="text-align: center;">
-    <b>$:_("Error 403")</b> $:_("You are not registered to this course.")
-</div>
+{% extends "layout_jinja.html" %}
+{% block title %}{{ _("Course unavailable") }}{% endblock %}}
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ get_homepath() }}/courselist" title={{ _("\"Course list\"") }} data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">{{ _("Course unavailable") }}</a></li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <img src="{{ get_homepath(True) }}/static/images/logo_maintenance.png" style="margin:auto; display:block;"/>
+            <div class="alert alert-warning" role="alert" style="text-align: center;">
+                <b>{{ _("Error 403") }}</b>
+                {% if reason == "closed" or reason == "unregistered_not_previewable" %}
+                    {{ _("This course is closed.") }}
+                {% elif reason == "lti_only" or reason == "lti_not_registered" %}
+                    {{ _("This course must be accessed on an external platform. Read the course description or contact the teaching team for more information.") }}
+                {% else %}
+                    {{ _("You are not registered to this course.") }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

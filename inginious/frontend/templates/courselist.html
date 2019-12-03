@@ -14,7 +14,7 @@
         <div class="list-group">
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/mycourses">
                 <i class="fa fa-fw fa-th-list"></i>
-                {{ _("My courses / Register for a course") }}
+                {{ _("My courses") }}
             </a>
         </div>
         {{ template_helper.call('main_menu', template_helper=template_helper) }}
@@ -35,13 +35,10 @@
 
     {% set username = user_manager.session_username() %}
     {% for courseid, course in open_courses.items() %}
-        {% set no_display_filter = not user_manager.course_is_user_registered(course, username) and not course.allow_preview() %}
-        {% set no_display_lti_filter =  course.lti_send_back_grade() or no_display_filter %}
-        {% set no_display = (no_display_lti_filter if course.is_lti() else no_display_filter) and not user_manager.has_admin_rights_on_course(course) %}
         <div class="card m-2">
             <div class="card-body">
                 <h5 class="card-title">
-                    <a href="{% if no_display %}#{% else %}{{ get_homepath()+'/course/'+courseid }}{% endif %}">{{course.get_name(user_manager.session_language())}}</a>
+                    <a href="{{ get_homepath()+'/course/'+courseid }}">{{course.get_name(user_manager.session_language())}}</a>
                 </h5>
                 <p class="card-text">
                     {{ course.get_description(user_manager.session_language()) }}

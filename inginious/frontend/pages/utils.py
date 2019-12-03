@@ -152,6 +152,8 @@ class INGIniousAuthPage(INGIniousPage):
                 return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
             return self.GET_AUTH(*args, **kwargs)
+        elif self.preview_allowed(*args, **kwargs):
+            return self.GET_AUTH(*args, **kwargs)
         else:
             return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
@@ -176,8 +178,17 @@ class INGIniousAuthPage(INGIniousPage):
                     return self.GET_AUTH(*args, **kwargs)
                 else:
                     return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), True)
+            elif self.preview_allowed(*args, **kwargs):
+                return self.POST_AUTH(*args, **kwargs)
             else:
                 return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
+
+    def preview_allowed(self, *args, **kwargs):
+        """
+            If this function returns True, the auth check is disabled.
+            Override this function with a custom check if needed.
+        """
+        return False
 
 
 class SignInPage(INGIniousAuthPage):
