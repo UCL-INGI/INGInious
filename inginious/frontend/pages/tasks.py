@@ -311,9 +311,9 @@ class BaseTaskPage(object):
             nb_tasks_before, approx_wait_time = waiting_data
             wait_time = round(approx_wait_time)
             if nb_tasks_before == -1 and wait_time <= 0:
-                text = _("<b>INGInious is currently grading your answers.<b/> (almost done)")
+                text = _("<b>INGInious is currently grading your answers.</b> (almost done)")
             elif nb_tasks_before == -1:
-                text = _("<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} seconds)").format(
+                text = _("<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} seconds)").format(
                     wait_time)
             elif nb_tasks_before == 0:
                 text = _("<b>You are next in the waiting queue!</b>")
