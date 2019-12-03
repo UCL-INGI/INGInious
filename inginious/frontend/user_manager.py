@@ -723,7 +723,7 @@ class UserManager:
 
         self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
-    def course_is_open_to_user(self, course, username=None, lti=None):
+    def course_is_open_to_user(self, course, username=None, lti=None, return_reason=False):
         """
         Checks if a user is can access a course
         :param course: a Course object
@@ -733,7 +733,14 @@ class UserManager:
             - True to indicate the user is in a LTI session
             - False to indicate the user is not in a LTI session
             - "auto" to enable the check and take the information from the current session
-        :return: True if the user can access the course, False else
+        :param return_reason: instead of False, returns a string indicating for which reason the course is not open
+        to the user. Reasons may be:
+            - "closed" if the course is not open
+            - "unregistered_not_previewable" user is not registered and course is not previewable
+            - "lti_only" the current session is not a LTI session and this course requires at LTI session
+            - "lti_not_registered" this LTI course can be accessed outside an LTI session only if the user register
+              first via the LTI interface
+        :return: True if the user can access the course, False (or the reason if return_reason is True) otherwise
         """
         if username is None:
             username = self.session_username()
@@ -743,17 +750,23 @@ class UserManager:
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        if not course.get_accessibility().is_open() or (not self.course_is_user_registered(course, username) and not course.allow_preview()):
-            return False
+        if not course.get_accessibility().is_open():
+            return False if not return_reason else "closed"
+
+        if not self.course_is_user_registered(course, username) and not course.allow_preview():
+            return False if not return_reason else "unregistered_not_previewable"
 
         # LTI courses can only be accessed from a LTI session
         if lti and course.is_lti() != lti:
-            return False
+            return False if not return_reason else "lti_only"
 
         # If we are not in a LTI session, an LTI course can be accessed if we do not need to send grades back
         # to the LMS
         if lti is False and course.is_lti():
-            return not course.lti_send_back_grade()
+            if not course.lti_send_back_grade():
+                return True
+            else:
+                return False if not return_reason else "lti_not_registered"
 
         return True
 

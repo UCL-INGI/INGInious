@@ -62,8 +62,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) == 0 and not self.show_collapse(user_input):
             msgs.append(_("No submissions found"))
 
-        audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
-        audiences_id = [audience["_id"] for audience in audiences]
+        course_audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
+        audiences_id = [audience["_id"] for audience in course_audiences]
         audiences_list = list(self.database.audiences.aggregate([
             {"$match": {"_id": {"$in": audiences_id}}},
             {"$unwind": "$students"},
@@ -72,7 +72,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
                 "students": 1
             }}
         ]))
-        audiences = {audience["_id"]: audience for audience in audiences}
+        audiences = {audience["_id"]: audience for audience in course_audiences}
         audiences = {d["students"]: audiences[d["audience"]] for d in audiences_list}
 
         users = self.get_users(course)  # All users of the course
@@ -105,7 +105,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) > self._trunc_limit:
             msgs.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
             data = data[:self._trunc_limit]
-        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, audiences, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
+        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, course_audiences, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
 
     def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
@@ -168,21 +168,23 @@ class CourseSubmissionsPage(INGIniousAdminPage):
                 if id_checker(user_input.filter_tags[i]):
                     state = (user_input.filter_tags_presence[i] in ["True", "true"])
                     query_advanced["tests." + user_input.filter_tags[i]] = {"$in": [None, False]} if not state else True
-            
-        # Mongo operations
-        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(user_input.sort_by, 
-            pymongo.DESCENDING if user_input.order == "0" else pymongo.ASCENDING)]))
-        data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
 
         # Get best submissions from database
         user_tasks = list(self.database.user_tasks.find(query_base, {"submissionid": 1, "_id": 0}))
         best_submissions_list = [u["submissionid"] for u in user_tasks]  # list containing ids of best submissions
+
+        must_keep_best_submissions_only = "eval" in user_input or ("eval_dl" in user_input and "download" in web.input())
+        if must_keep_best_submissions_only:
+            query_advanced["_id"] = {"$in": best_submissions_list}
+
+        # Mongo operations
+        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(user_input.sort_by,
+            pymongo.DESCENDING if user_input.order == "0" else pymongo.ASCENDING)]).limit(self._trunc_limit))
+        data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
+
+
         for d in data:
             d["best"] = d["_id"] in best_submissions_list  # mark best submissions
-
-        # Keep best submissions
-        if "eval" in user_input or ("eval_dl" in user_input and "download" in web.input()):
-            data = [d for d in data if d["best"]]
         return data, audience
 
     def get_input(self):

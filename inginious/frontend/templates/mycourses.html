@@ -46,6 +46,13 @@ $var Column: $:ColumnF()
 $# Start content
 <h2>$:_("My courses")</h2>
 <div class="list-group">
+    <a href="$get_homepath()/courselist" class="list-group-item list-group-item-action list-group-item-info">
+        <div class="row">
+            <div class="col-xs-12 col-md-8">
+                $:_("Find new courses on the course list page")
+            </div>
+        </div>
+    </a>
 	$if len(open_courses) != 0:
         $ username = user_manager.session_username()
         $for courseid, course in open_courses.items():
@@ -75,8 +82,8 @@ $# Start content
     $else:
         <a href="#register" class="list-group-item list-group-item-action disabled">$:_("You are not registered to any course")</a>
 </div>
-<hr/>
 $if user_manager.user_is_superadmin():
+    <hr/>
     $if success == True:
         <div class="alert alert-success alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -95,34 +102,4 @@ $if user_manager.user_is_superadmin():
         <div class="form-group col-sm-4">
             <button type="submit" class="btn btn-block btn-primary">$:_("Create new course")</button>
         </div>
-    </form>
-$else:
-    <h3>$:_("Register for a course")</h3>
-    $if success == True:
-        <div class="alert alert-success alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $:_("Registration complete.")
-        </div>
-    $elif success == False:
-        <div class="alert alert-danger alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $:_("Registration failed. Please check that you properly typed the password.")
-        </div>
-    <form class="form row" role="form" method="post">
-        <div class="form-group col-sm-8">
-            <label class="sr-only" for="register_courseid">$:_("Course")</label>
-            <select class="form-control" id="register_courseid" name="register_courseid">
-                <option value="">$:_("Select a course")</option>
-                $for courseid, course in registrable_courses.items():
-                    <option value="$courseid"
-                    $if course.is_password_needed_for_registration():
-                        data-password="1"
-                    >$course.get_name(user_manager.session_language())</option>
-            </select>
-        </div>
-        <div class="form-group col-sm-4">
-            <label class="sr-only" for="register_password">$:_("Password")</label>
-            <input class="form-control" type="password" id="register_password" name="register_password" disabled="disabled" placeholder="$:_('Password')">
-        </div>
-        <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">$:_("Register")</button></div>
     </form>

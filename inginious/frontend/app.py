@@ -47,6 +47,7 @@ urls = (
     r'/auth/signin/([^/]+)', 'inginious.frontend.pages.social.AuthenticationPage',
     r'/auth/callback/([^/]+)', 'inginious.frontend.pages.social.CallbackPage',
     r'/auth/share/([^/]+)', 'inginious.frontend.pages.social.SharePage',
+    r'/register/([^/]+)', 'inginious.frontend.pages.course_register.CourseRegisterPage',
     r'/course/([^/]+)', 'inginious.frontend.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.pages.tasks.TaskPageStaticDownload',
@@ -267,6 +268,7 @@ def get_app(config):
     appli.template_helper = template_helper
     appli.database = database
     appli.gridfs = gridfs
+    appli.client = client
     appli.default_allowed_file_extensions = default_allowed_file_extensions
     appli.default_max_file_size = default_max_file_size
     appli.backup_dir = config.get("backup_directory", './backup')

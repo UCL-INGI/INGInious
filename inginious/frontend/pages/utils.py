@@ -10,6 +10,7 @@ from typing import List, Dict
 import web
 import os
 from gridfs import GridFS
+from inginious.client.client import Client
 
 from inginious.common import custom_yaml
 from inginious.frontend.environment_types import get_all_env_types
@@ -83,6 +84,11 @@ class INGIniousPage(object):
         return self.app.gridfs
 
     @property
+    def client(self) -> Client:
+        """ Returns the INGInious client """
+        return self.app.client
+
+    @property
     def default_allowed_file_extensions(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ List of allowed file extensions """
         return self.app.default_allowed_file_extensions
@@ -153,6 +159,8 @@ class INGIniousAuthPage(INGIniousPage):
                 return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
             return self.GET_AUTH(*args, **kwargs)
+        elif self.preview_allowed(*args, **kwargs):
+            return self.GET_AUTH(*args, **kwargs)
         else:
             return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
@@ -177,8 +185,17 @@ class INGIniousAuthPage(INGIniousPage):
                     return self.GET_AUTH(*args, **kwargs)
                 else:
                     return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), True)
+            elif self.preview_allowed(*args, **kwargs):
+                return self.POST_AUTH(*args, **kwargs)
             else:
                 return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
+
+    def preview_allowed(self, *args, **kwargs):
+        """
+            If this function returns True, the auth check is disabled.
+            Override this function with a custom check if needed.
+        """
+        return False
 
 
 class SignInPage(INGIniousAuthPage):
