@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-11-04 14:14+0100\n"
-"PO-Revision-Date: 2019-11-01 17:04+0000\n"
+"PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language-Team: Greek <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/el/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
@@ -78,7 +78,7 @@ msgstr "Δεν μπορείτε να αλλάξετε την ομάδα σας."
 
 #: inginious/frontend/pages/group.py:64
 msgid "You're not registered in a group."
-msgstr "Δεν είναι εγγεγραμμένος/η σε μια ομάδα."
+msgstr "Δεν είστε εγγεγραμμένος/η σε μια ομάδα."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
@@ -107,7 +107,7 @@ msgid ""
 "request. Please contact your administrator."
 msgstr ""
 "Για να στείλουμε το βαθμός στο πλατφόρμα, INGInious χρειάζεται τους "
-"παράμετρους lis_outcome_service_url και lis_outcome_result_id. Παρακαλούμε, "
+"παράμετρους lis_outcome_service_url και lis_outcome_result_id. Να "
 "επικοινωνείτε με τον διαχειριστή συστήματο σας."
 
 #: inginious/frontend/pages/lti.py:197
@@ -179,8 +179,8 @@ msgid ""
 "Something went wrong while sending you activation email. Please contact the "
 "administrator."
 msgstr ""
-"Κάτι πήγε στραβά όταν στείλουμε το email της ενεργοποίησης. Παρακαλούμε, "
-"επικοινωνείτε με τον διαχειριστή ιστοσελίδα."
+"Κάτι πήγε στραβά όταν στείλουμε το email της ενεργοποίησης. Να επικοινωνείτε "
+"με τον διαχειριστή ιστοσελίδα."
 
 #: inginious/frontend/pages/register.py:138
 msgid "This email address was not found in database."
@@ -212,7 +212,7 @@ msgid ""
 "administrator."
 msgstr ""
 "Κάτι πήγε στραβά όταν στείλουμε το email για να ξαναρυθμίξετε το κωδικό "
-"πρόσβασης σας. Παρακαλούμε, επικοινωνείτε με τον διαχειριστή ιστοσελίδα."
+"πρόσβασης σας. Να επικοινωνείτε με τον διαχειριστή ιστοσελίδα."
 
 #: inginious/frontend/pages/register.py:173
 msgid "Invalid reset hash."
@@ -310,17 +310,17 @@ msgstr "[Υποβολή #{submissionid}]"
 
 #: inginious/frontend/pages/tasks.py:387 inginious/frontend/pages/tasks.py:389
 msgid " <truncated>"
-msgstr ""
+msgstr " <μειωμένος>"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:129
 msgid "Audience with id {} not found."
-msgstr ""
+msgstr "Δεν βρήκαμε το κοινό με αναγνωριστικό {}."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:138
 #: inginious/frontend/pages/course_admin/audience_edit.py:168
 #: inginious/frontend/pages/course_admin/group_edit.py:152
 msgid "Audience updated."
-msgstr ""
+msgstr "Επικαιροποιημένο κοινό."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:162
 #: inginious/frontend/pages/course_admin/group_edit.py:173
@@ -334,15 +334,15 @@ msgstr "Ένα σφάλμα συνέβηκε οτάν αναλύσαμε του�
 
 #: inginious/frontend/pages/course_admin/audience_list.py:46
 msgid "New audience created."
-msgstr ""
+msgstr "Δημιουργήσαμε ένα νεο κοινό."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:48
 msgid "Invalid audience selected."
-msgstr ""
+msgstr "Λαθος επιλεγμένο κοινό."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:50
 msgid "You have no rights to add/change audiences"
-msgstr ""
+msgstr "Δεν μπορείτε να προσθέσετε ή να αλλάξετε τα κοινά"
 
 #: inginious/frontend/pages/course_admin/audience_list.py:53
 #: inginious/frontend/pages/course_admin/settings.py:91
@@ -387,7 +387,7 @@ msgstr "αναγνωριστικό άσκησης/όνομα χρήστη"
 #: inginious/frontend/pages/course_admin/download.py:22
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "taskid/audience"
-msgstr ""
+msgstr "σύνδεση άσκησης/κοινό"
 
 #: inginious/frontend/pages/course_admin/download.py:23
 #: inginious/frontend/pages/course_admin/submissions.py:26
@@ -397,11 +397,11 @@ msgstr "όνομα χρήστη/αναγνωριστικό άσκησης"
 #: inginious/frontend/pages/course_admin/download.py:24
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "audience/taskid"
-msgstr ""
+msgstr "κοινό/σύνδεση άσκησης"
 
 #: inginious/frontend/pages/course_admin/group_edit.py:179
 msgid "Groups updated."
-msgstr ""
+msgstr "Επικαιροποιημένες ομάδες."
 
 #: inginious/frontend/pages/course_admin/replay.py:36
 msgid "Selected submissions were set for replay."
@@ -482,7 +482,7 @@ msgid ""
 "truncated.\n"
 msgstr ""
 "Η Αναζήτηση περιέχει περισσότερο από {0} υποβολές. Οι εκτεθειμένες υποβολές "
-"είναι κολοβές.\n"
+"είναι μειωμένες.\n"
 
 #: inginious/frontend/pages/course_admin/tags.py:31
 msgid "Some tags have the same id! The id of a tag must be unique."
@@ -586,7 +586,7 @@ msgstr "Φοιτητές"
 #: inginious/frontend/templates/course_admin/audience_list.html:28
 #: inginious/frontend/templates/course_admin/submissions.html:63
 msgid "Audiences"
-msgstr ""
+msgstr "Κοινά"
 
 #: inginious/frontend/pages/course_admin/utils.py:253
 #: inginious/frontend/templates/course_admin/groups_edit.html:20
@@ -594,7 +594,7 @@ msgstr ""
 #: inginious/frontend/templates/group.html:59
 #: inginious/frontend/templates/group.html:67
 msgid "Groups"
-msgstr ""
+msgstr "Ομάδες"
 
 #: inginious/frontend/pages/course_admin/utils.py:255
 #: inginious/frontend/templates/course_admin/stats.html:129
@@ -754,7 +754,7 @@ msgstr "Συνδεθείτε με"
 #: inginious/frontend/templates/course.html:15
 #: inginious/frontend/templates/group.html:14
 msgid "Current grade"
-msgstr ""
+msgstr "Tρέχων βαθμός"
 
 #: inginious/frontend/templates/course.html:22
 #: inginious/frontend/templates/group.html:22
@@ -773,20 +773,22 @@ msgid ""
 "This course is currently invisible for students. You can change this by "
 "modifying the \"accessibility\" option in the configuration of the course."
 msgstr ""
+"Οι μαθητές δεν μπορoύν να δούν αυτό το μάθημα. Μπορείτε να το αλλάξετε αν "
+"αλλάζετε την \"προσβασιμότητα\" ρύθμιση στους παράμετρους του μαθηματος."
 
 #: inginious/frontend/templates/course.html:49
 msgid "Course administration"
-msgstr ""
+msgstr "Έλεγχος μαθήματος"
 
 #: inginious/frontend/templates/course.html:58
 #: inginious/frontend/templates/task.html:158
 msgid "Group : {}"
-msgstr ""
+msgstr "Ομάδα: {}"
 
 #: inginious/frontend/templates/course.html:60
 #: inginious/frontend/templates/task.html:160
 msgid "Groups management"
-msgstr ""
+msgstr "Διαχείριση μαθημάτος"
 
 #: inginious/frontend/templates/course.html:64
 #: inginious/frontend/templates/group.html:46
@@ -800,22 +802,22 @@ msgstr "Καταργήστε την εγγραφή από αυτό το μαθή
 #: inginious/frontend/templates/task.html:243
 #: inginious/frontend/templates/task.html:250
 msgid "Enroll in the course"
-msgstr ""
+msgstr "Εγγράφομαι στο μάθημα"
 
 #: inginious/frontend/templates/course.html:73
 #: inginious/frontend/templates/task.html:246
 msgid "Please enroll in the course to be able to submit answers to problems."
-msgstr ""
+msgstr "Να καταταχτείτε σε αυτό το μάθημα για να απαντήσετε στους άσκησεις."
 
 #: inginious/frontend/templates/course.html:87
 #: inginious/frontend/templates/task.html:260
 msgid "\"My courses\""
-msgstr ""
+msgstr "\"Τα μαθήματα μου\""
 
 #: inginious/frontend/templates/course.html:89
 #: inginious/frontend/templates/task.html:262
 msgid "\"Course list\""
-msgstr ""
+msgstr "\"λίστα με τα μαθήματα\""
 
 #: inginious/frontend/templates/course.html:90
 #: inginious/frontend/templates/course_admin/audience_edit.html:22
@@ -845,65 +847,69 @@ msgstr "(τρέχων)"
 
 #: inginious/frontend/templates/course.html:103
 msgid "About this course"
-msgstr ""
+msgstr "Στοιχεία επικοινωνίας μαθήματος"
 
 #: inginious/frontend/templates/course.html:137
 msgid "List of exercises"
-msgstr ""
+msgstr "Λίστα με τους άσκησεις"
 
 #: inginious/frontend/templates/course.html:141
 msgid "Filter tasks by tags"
-msgstr ""
+msgstr "Φιλτράρω την άσκησεις με τους ετικετές"
 
 #: inginious/frontend/templates/course.html:163
 msgid "task hidden to students"
-msgstr ""
+msgstr "Η άσκηση είναι κρυμμένη από τους μαθητές"
 
 #: inginious/frontend/templates/course.html:165
 msgid "deadline reached"
-msgstr ""
+msgstr "προθεσμία τελείωσε"
 
 #: inginious/frontend/templates/course_unavailable.html:11
 #: inginious/frontend/templates/task_unavailable.html:11
 msgid "Error 403"
-msgstr ""
+msgstr "Σφάλμα 403"
 
 #: inginious/frontend/templates/course_unavailable.html:11
 msgid "You are not registered to this course."
-msgstr ""
+msgstr "Δεν είστε καταγεγραμμένος σε αυτό μάθημα."
 
 #: inginious/frontend/templates/group.html:57
 msgid "Register for a group"
-msgstr ""
+msgstr "Γράφομαι για μια ομάδα"
 
 #: inginious/frontend/templates/group.html:83
 msgid "My group : {}"
-msgstr ""
+msgstr "Την ομάδα μου: {}"
 
 #: inginious/frontend/templates/group.html:86
 msgid "\"Quit group\""
-msgstr ""
+msgstr "\"Παραιτούμαι από την ομάδα\""
 
 #: inginious/frontend/templates/group.html:98
 msgid "\"Send an email\""
-msgstr ""
+msgstr "\"Στύλνω ένα email\""
 
 #: inginious/frontend/templates/group.html:110
 msgid ""
 "No set group in this course. If you think this is a mistake, please contact "
 "the course administrator."
 msgstr ""
+"Δεν υπάρχουν ομάδες για τα μάθημα. Av νομίζετε ότι είναι λάθος, να "
+"επικοινωνείτε με τον διαχειριστή μαθημάτος σας."
 
 #: inginious/frontend/templates/group.html:114
 msgid ""
 "Groups have been set up but you're not allowed to register in anyone. Please "
 "contact the course administrator."
 msgstr ""
+"Υπάρχουν ομάδα αλλά δεν μπορείτε να εγγράψετε σε αύτες. Να επικοινωνείτε με "
+"τον διαχειριστή μαθημάτος."
 
 #: inginious/frontend/templates/group.html:117
 #: inginious/frontend/templates/group.html:122
 msgid "My group"
-msgstr ""
+msgstr "Η ομάδα μου"
 
 #: inginious/frontend/templates/group.html:119
 msgid ""
@@ -911,24 +917,30 @@ msgid ""
 "group below to take part in all course activities. If no more group is "
 "available, please contact the course administrator."
 msgstr ""
+"Δεν είστε καταγεγραμμένος σε μια ομάδα. Να εγγράψετε σε μια ομάδα για να "
+"συμμετάσχετε σε όλες τους δραστηριότητες μαθήματος. Αν δεν υπάρχει μια "
+"διαθέσιμα ομάδα, παρακαλούμε, να επικοινωνείτε με τον διαχειριστή μαθημάτος "
+"σας."
 
 #: inginious/frontend/templates/group.html:124
 msgid ""
 "You're not yet registered to a group. Please contact the course "
 "administrator for more information."
 msgstr ""
+"Δεν είστε ακόμα καταγεγραμμένος σε μια ομάδα. Παρακαλούμε, να επικοινωνείτε "
+"με τον διαχειριστή μαθημάτος σας για περισσότερες πληροφορίες."
 
 #: inginious/frontend/templates/group.html:128
 msgid "All groups"
-msgstr ""
+msgstr "Όλες οι ομάδες"
 
 #: inginious/frontend/templates/group.html:138
 msgid "(available : {})"
-msgstr ""
+msgstr "(διαθέσιμος: {})"
 
 #: inginious/frontend/templates/group.html:148
 msgid "No registered member."
-msgstr ""
+msgstr "Κανένα εγγεγραμμένος μέλος."
 
 #: inginious/frontend/templates/index.html:8
 #: inginious/frontend/templates/index.html:13
@@ -936,122 +948,132 @@ msgstr ""
 #: inginious/frontend/templates/layout.html:113
 #: inginious/frontend/templates/layout.html:140
 msgid "Course list"
-msgstr ""
+msgstr "Λίστα με τα μαθήματα"
 
 #: inginious/frontend/templates/index.html:24
 msgid "Public courses"
-msgstr ""
+msgstr "Δημόσιες μαθήματα"
 
 #: inginious/frontend/templates/index.html:26
 msgid ""
 "This page lists all the courses that are available now. If you are a course "
 "administrator, go to your 'My courses' page to see all of them."
 msgstr ""
+"Αυτός το περισσότερος απαριθμεί όλα τα μαθήματα που είναι διαθέσιμα τώρα. Αν "
+"είναι ένας βββββββ, να κάνετε κλικ στο 'Τα μαθήματα μου' περισσότερο για να "
+"τα όλα δείτε."
 
 #: inginious/frontend/templates/index.html:31
 msgid "My courses / Register for a course"
-msgstr ""
+msgstr "Τα μαθήματα μου / Καταθέτω για ένα μάθημα"
 
 #: inginious/frontend/templates/index.html:61
 msgid "External platform"
-msgstr ""
+msgstr "Εξωτερικό πλατφόρμα"
 
 #: inginious/frontend/templates/index.html:64
 msgid "Auto-registration"
-msgstr ""
+msgstr "Αυτόματη εγγραφή"
 
 #: inginious/frontend/templates/index.html:67
 msgid "Password needed"
-msgstr ""
+msgstr "Απαραίτητος κωδικός πρόσβασης"
 
 #: inginious/frontend/templates/internalerror.html:60
 msgid ""
 "<b>Internal error</b> Something bad happened. The error has been logged, "
 "please contact your administrator if the error persists."
 msgstr ""
+"<b>Εσωτερικό σφάλμα</b> Κάτι κακό συνέβηκε. Kαταγράψαμε το σφάλμα, να "
+"επικοινωνείτε με τον διαχειριστή ιστοσελίδα αν το σφάλμα επιμένει."
 
 #: inginious/frontend/templates/internalerror.html:74
 #: inginious/frontend/templates/layout.html:173
 #: inginious/frontend/templates/maintenance.html:70
 msgid "INGInious is distributed under AGPL license"
-msgstr ""
+msgstr "INGInious διανέμεται υπό την άδεια AGPL"
 
 #: inginious/frontend/templates/layout.html:119
 #: inginious/frontend/templates/mycourses.html:8
 #: inginious/frontend/templates/mycourses.html:13
 #: inginious/frontend/templates/mycourses.html:47
 msgid "My courses"
-msgstr ""
+msgstr "Τα μαθήματα μου"
 
 #: inginious/frontend/templates/layout.html:120
 msgid "Preferences"
-msgstr ""
+msgstr "Προτίμησες"
 
 #: inginious/frontend/templates/layout.html:122
 msgid "Service status"
-msgstr ""
+msgstr "Κατάσταση υπηρεσίας"
 
 #: inginious/frontend/templates/layout.html:124
 msgid "Log out"
-msgstr ""
+msgstr "Αποσυνδέω"
 
 #: inginious/frontend/templates/layout.html:132
 msgid "English"
-msgstr ""
+msgstr "Ελληνικά"
 
 #: inginious/frontend/templates/layout.html:143
 #: inginious/frontend/templates/mycourses.html:127
 #: inginious/frontend/templates/register.html:8
 msgid "Register"
-msgstr ""
+msgstr "Εγγράφομαι"
 
 #: inginious/frontend/templates/layout_lti.html:91
 msgid ""
 "Powered by <a href=\"http://www.inginious.org\" target=\"_blank\">INGInious</"
 "a>, a free and open-source grading tool."
 msgstr ""
+"Powered by <a href=\"http://www.inginious.org\" target=\"_blank\""
+">INGInious</a>, ένα δωρεάν εργαλείο βαθμολόγησης με λογισμικό ανοικτού "
+"κώδικα."
 
 #: inginious/frontend/templates/lti_bind.html:8
 msgid "Bind LTI"
-msgstr ""
+msgstr "Δεσμεύω LTI"
 
 #: inginious/frontend/templates/lti_bind.html:10
 msgid "Binding to an existing LMS"
-msgstr ""
+msgstr "Δεσμεύω με ένα υπάρχουσο LMS"
 
 #: inginious/frontend/templates/lti_bind.html:18
 msgid "Authorization required"
-msgstr ""
+msgstr "Απαιτείται έγκριση"
 
 #: inginious/frontend/templates/lti_bind.html:20
 msgid ""
 "You are going to bind your INGInious account <strong>{realname} "
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
+"Θα δεσμέψετε τον λογαριασμό σας στο INGInious <strong>{realname} "
+"[{username}]</strong> με το επόμενο LTI εργαλείο και συμφραζόμενα:"
 
 #: inginious/frontend/templates/lti_bind.html:22
 msgid "Tool name:"
-msgstr ""
+msgstr "Όνομα εργαλείου:"
 
 #: inginious/frontend/templates/lti_bind.html:23
 msgid "Tool description:"
-msgstr ""
+msgstr "Περιγραφή εργαλείου:"
 
 #: inginious/frontend/templates/lti_bind.html:24
 msgid "Tool URL:"
-msgstr ""
+msgstr "URL εργαλείου:"
 
 #: inginious/frontend/templates/lti_bind.html:25
 msgid "Tool context:"
-msgstr ""
+msgstr "Συμφραζόμενα εργαλείου:"
 
 #: inginious/frontend/templates/lti_bind.html:26
 msgid "Tool identifiers:"
-msgstr ""
+msgstr "Aναγνωριστικό εργαλείου:"
 
 #: inginious/frontend/templates/lti_bind.html:33
 msgid "Bind my account"
-msgstr ""
+msgstr "Δεσμεύω τον λογαριασμό μου"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:94
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
@@ -1063,111 +1085,119 @@ msgstr ""
 #: inginious/frontend/templates/lti_bind.html:34
 #: inginious/frontend/templates/unregister_modal.html:24
 msgid "Cancel"
-msgstr ""
+msgstr "Ακυρώνω"
 
 #: inginious/frontend/templates/lti_login.html:16
 msgid "Hello!"
-msgstr ""
+msgstr "Γεία σας!"
 
 #: inginious/frontend/templates/lti_login.html:17
 msgid "Welcome on the INGInious platform."
-msgstr ""
+msgstr "καλωσορίστε στο INGInious πλατφόρμα."
 
 #: inginious/frontend/templates/lti_login.html:29
 msgid ""
 "In order to use INGInious via this platform, please bind your existing "
 "account or create a new one."
 msgstr ""
+"Για να χρησιμοποιήσετε INGInious μέσω αυτής της πλατφόρμας, να δεσμέψετε το "
+"υφιστάμενος λογαριασμό ή να δημιουργήσετε ένα καινούργιο."
 
 #: inginious/frontend/templates/lti_login.html:35
 msgid "Bind your INGInious account"
-msgstr ""
+msgstr "Δεσμεύω τον INGInious λογαριασμό μου"
 
 #: inginious/frontend/templates/lti_login.html:36
 msgid "Refresh"
-msgstr ""
+msgstr "Κάνω ανανέωση"
 
 #: inginious/frontend/templates/maintenance.html:59
 msgid ""
 "<b>This INGInious instance is currently under maintenance.</b> Please come "
 "back in a few minutes!"
 msgstr ""
+"<b>Αυτή την INGInious περίπτωση είναι υπό συντήρηση.</b> Να γυρίσετε σε λίγα "
+"λεπτά!"
 
 #: inginious/frontend/templates/mycourses.html:61
 msgid "LTI course"
-msgstr ""
+msgstr "Μάθημα LTI"
 
 #: inginious/frontend/templates/mycourses.html:63
 msgid "Hidden course"
-msgstr ""
+msgstr "Κρυμμένα μάθημα"
 
 #: inginious/frontend/templates/mycourses.html:66
 msgid "Administrator"
-msgstr ""
+msgstr "Διαχειριστής συστήματο"
 
 #: inginious/frontend/templates/mycourses.html:68
 msgid "Tutor"
-msgstr ""
+msgstr "Καθηγητής"
 
 #: inginious/frontend/templates/mycourses.html:70
 msgid "Student"
-msgstr ""
+msgstr "Μαθητής"
 
 #: inginious/frontend/templates/mycourses.html:76
 msgid "You are not registered to any course"
-msgstr ""
+msgstr "Δεν είστε εγγεγραμμένος/η σε ένα μάθημα"
 
 #: inginious/frontend/templates/mycourses.html:83
 msgid "Course created."
-msgstr ""
+msgstr "Δημιουργήσαμε ένα μάθημα."
 
 #: inginious/frontend/templates/mycourses.html:88
 msgid "Failed to create the course."
-msgstr ""
+msgstr "Δεν καταφέρατε να δημιουργήσουμε το μάθημα."
 
 #: inginious/frontend/templates/mycourses.html:92
 #: inginious/frontend/templates/mycourses.html:113
 msgid "Course"
-msgstr ""
+msgstr "Μάθημα"
 
 #: inginious/frontend/templates/mycourses.html:96
 msgid "Create new course"
-msgstr ""
+msgstr "Δημιουργώ ένα νέο μάθημα"
 
 #: inginious/frontend/templates/mycourses.html:100
 msgid "Register for a course"
-msgstr ""
+msgstr "Γράφομαι σε ένα μάθημα"
 
 #: inginious/frontend/templates/mycourses.html:104
 msgid "Registration complete."
-msgstr ""
+msgstr "Τελειωμένη εγγραφή."
 
 #: inginious/frontend/templates/mycourses.html:109
 msgid "Registration failed. Please check that you properly typed the password."
 msgstr ""
+"Η εγγραφή δεν καταφέρε. Να ελέγξετε ότι δακτυλογραφήσατε τον σωστό κωδικό "
+"πρόσβασης."
 
 #: inginious/frontend/templates/mycourses.html:115
 msgid "Select a course"
-msgstr ""
+msgstr "Επιλέγω ένα μάθημα"
 
 #: inginious/frontend/templates/notfound.html:8
 #: inginious/frontend/templates/notfound.html:13
 msgid "Error 404"
-msgstr ""
+msgstr "Σφάλμα 404"
 
 #: inginious/frontend/templates/queue.html:8
 #: inginious/frontend/templates/queue.html:14
 #: inginious/frontend/templates/queue.html:21
 msgid "Job queue"
-msgstr ""
+msgstr "Ουρά δουλειάς"
 
 #: inginious/frontend/templates/queue.html:22
 msgid "This page shows a <strong>snapshot</strong> of the job queue."
 msgstr ""
+"Αυτός το περισσότερος παρουσιάζει ένα <strong>στιγμιότυπο</strong> αυτή την "
+"ουράς δουλειάς."
 
 #: inginious/frontend/templates/queue.html:24
 msgid "Running jobs"
-msgstr ""
+msgstr "Διαχείρισες δοθλειές"
 
 #: inginious/frontend/templates/course_admin/download.html:47
 #: inginious/frontend/templates/course_admin/subproblems/code.html:22
@@ -1175,7 +1205,7 @@ msgstr ""
 #: inginious/frontend/templates/queue.html:28
 #: inginious/frontend/templates/queue.html:59
 msgid "Type"
-msgstr ""
+msgstr "Είδος"
 
 #: inginious/frontend/templates/queue.html:29
 msgid "Local client"

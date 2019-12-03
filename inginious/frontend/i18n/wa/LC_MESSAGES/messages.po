@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-11-04 14:14+0100\n"
-"PO-Revision-Date: 2019-11-01 17:05+0000\n"
+"PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Maxime Piraux <maxime.piraux@uclouvain.be>\n"
 "Language-Team: Walloon <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/wa/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
@@ -33,6 +33,8 @@ msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"En part des comintaires es catchi djusqu'au {}. Merci di rivni après et "
+"retcherdji li somission pou vey les comintaires."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
@@ -43,12 +45,10 @@ msgid "code"
 msgstr "côde"
 
 #: inginious/frontend/task_problems.py:92
-#, fuzzy
 msgid "single-line code"
-msgstr "côde å une lene"
+msgstr "côde å ene lene"
 
 #: inginious/frontend/task_problems.py:118
-#, fuzzy
 msgid "file upload"
 msgstr "eberwetage di fitchî"
 
@@ -63,7 +63,7 @@ msgstr ""
 
 #: inginious/frontend/tasks.py:85
 msgid "No deadline"
-msgstr ""
+msgstr "Acun echeyance"
 
 #: inginious/frontend/tasks.py:87
 msgid "It's too late"
@@ -82,19 +82,16 @@ msgid "You're not registered in a group."
 msgstr "Vos n'estoz nin eredjistré a ene brigade."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
-#, fuzzy
 msgid "Missing LTI session id"
 msgstr "LTI session id mancant"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
-#, fuzzy
 msgid "Invalid LTI session id"
 msgstr "LTI session id invalide"
 
 #: inginious/frontend/pages/lti.py:70
-#, fuzzy
 msgid "Invalid LTI data"
-msgstr "Bayeyes LTI invalides"
+msgstr "Dinêyes LTI invalides"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
@@ -117,10 +114,9 @@ msgstr ""
 
 #: inginious/frontend/pages/register.py:57
 msgid "Invalid activation hash."
-msgstr ""
+msgstr "Hatchî d'avikation invalide."
 
 #: inginious/frontend/pages/register.py:59
-#, fuzzy
 msgid "You are now activated. You can proceed to login."
 msgstr "Vos estoz maintenin aviké. Vos povez vo raloyî."
 
@@ -553,7 +549,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/student_list.html:27
 #: inginious/frontend/templates/course_admin/student_list.html:34
 msgid "Students"
-msgstr ""
+msgstr "Estudiants"
 
 #: inginious/frontend/pages/course_admin/utils.py:250
 #: inginious/frontend/templates/course_admin/audience_list.html:21
