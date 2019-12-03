@@ -263,6 +263,7 @@ def get_app(config):
     appli.template_helper = template_helper
     appli.database = database
     appli.gridfs = gridfs
+    appli.client = client
     appli.default_allowed_file_extensions = default_allowed_file_extensions
     appli.default_max_file_size = default_max_file_size
     appli.backup_dir = config.get("backup_directory", './backup')
