@@ -260,16 +260,14 @@ msgid "Internal error"
 msgstr "Εσωτερικό σφάλμα"
 
 #: inginious/frontend/pages/tasks.py:314
-msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
-msgstr "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (σχεδόν τελείωσα)"
+msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
+msgstr ""
 
 #: inginious/frontend/pages/tasks.py:316
 msgid ""
-"<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} "
+"<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
-"<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (περίπου χρόνο αναμονής: {} "
-"δευτερόλεπτα)"
 
 #: inginious/frontend/pages/tasks.py:319
 msgid "<b>You are next in the waiting queue!</b>"
@@ -2997,6 +2995,16 @@ msgstr ""
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
 msgstr ""
+
+#~ msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
+#~ msgstr "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (σχεδόν τελείωσα)"
+
+#~ msgid ""
+#~ "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
+#~ "{} seconds)"
+#~ msgstr ""
+#~ "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (περίπου χρόνο αναμονής: "
+#~ "{} δευτερόλεπτα)"
 
 #~ msgid "My courses / Register for a course"
 #~ msgstr "Τα μαθήματα μου / Καταθέτω για ένα μάθημα"

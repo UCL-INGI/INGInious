@@ -259,15 +259,14 @@ msgid "Internal error"
 msgstr "Erreur interne"
 
 #: inginious/frontend/pages/tasks.py:314
-msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
-msgstr "<b>INGInious corrige votre réponse.</b> (bientôt terminé)"
+msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
+msgstr ""
 
 #: inginious/frontend/pages/tasks.py:316
 msgid ""
-"<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} "
+"<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
-"<b>INGInious corrige votre réponse.</b> (Temps restant approx.: {} secondes)"
 
 #: inginious/frontend/pages/tasks.py:319
 msgid "<b>You are next in the waiting queue!</b>"
@@ -3054,6 +3053,16 @@ msgstr "Taille fichier max. :"
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
 msgstr "Extensions autorisées :"
+
+#~ msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
+#~ msgstr "<b>INGInious corrige votre réponse.</b> (bientôt terminé)"
+
+#~ msgid ""
+#~ "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
+#~ "{} seconds)"
+#~ msgstr ""
+#~ "<b>INGInious corrige votre réponse.</b> (Temps restant approx.: {} "
+#~ "secondes)"
 
 #~ msgid "My courses / Register for a course"
 #~ msgstr "Mes cours / S'inscrire à un cours"

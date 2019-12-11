@@ -255,12 +255,12 @@ msgid "Internal error"
 msgstr ""
 
 #: inginious/frontend/pages/tasks.py:314
-msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
+msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
 msgstr ""
 
 #: inginious/frontend/pages/tasks.py:316
 msgid ""
-"<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} "
+"<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
 
