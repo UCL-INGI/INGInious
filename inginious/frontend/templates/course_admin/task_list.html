@@ -25,12 +25,21 @@ $var Navbar: $:NavbarF()
 <h2>$:_("Tasks")
     <div class="pull-right">
         <div class="btn-group btn-group-sm">
-            <button type="button" id="action_tasks" class="btn btn-default"><i class="fa fa-align-justify"></i> $:_("Action")</button>
+            <div>
+                <select class="form-control" id="actionControlSelect">
+                    <option value="def" selected>$:_("Action")</option>
+                    <option value="accessible">$:_("Accessible")</option>
+                    <option value="inaccessible">$:_("Inaccessible")</option>
+                </select>
+            </div>
             <button type="button" id="switch" class="btn btn-default"><i class="fa fa-list-ol"></i> $:_("Change task order")</button>
             <button type="submit" id="switch" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update")</button>
             </div>
     </div>
 </h2>
+<div id="message"></div>
+<input type="hidden" id="selected_task_ids" name="selected_task_ids" value="">
+<input type="hidden" id="action_task" name="action_task" value="">
 
 $if webdav_host:
     <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">
@@ -124,8 +133,7 @@ $if len(errors) != 0:
     </table>
 
 <script type="text/javascript">
-    let actions = ["Accessible","Inaccessible"];
-    let icon_action = ["<i class=\"fa fa-eye\"></i>","<i class=\"fa fa-low-vision\"></i>"]
+
 $$('.sorted_table').sortable({
     containerSelector: 'table',
     itemPath: '> tbody',
@@ -146,28 +154,23 @@ $$("#switch").click(function  (e) {
     $$('.sorted_table').sortable($$(this).hasClass("active") ? "enable" : "disable");
 });
 
-$$("#action_tasks").click(function  (e) {
-    if($$(this).hasClass("active")) {
-        //update selected tasks
-        let index  = actions.indexOf($$("#action_task").val());
-        if (index === actions.length-1){
-            $$(this).removeClass("active");
-            $$("#action_task").val("");
-            $$(this).html("<i class=\"fa fa-align-justify\"></i> Action");
-        }else{
-            $$("#action_task").val(actions[index+1]);
-            $$(this).html(icon_action[index+1] + actions[index+1]);
-        }
-
-
-    }else{
-        //select multiple tasks
-        $$(this).addClass("active");
-        let index = 0;
-        $$("#action_task").val(actions[index]);
-        $$(this).html(icon_action[index]+actions[index]);
-    }
+var active= false;
+$$("#actionControlSelect").change(function () {
+   if(this.value !== "def"){
+       active=true;
+       $$("#action_task").val(this.value);
+       $$("#message").html("<p>Please select task(s) and then click update button.</p>");
+   }else{
+       active=false;
+       $$(".sorted_table tr").each(function(){
+           $$(this).removeClass("table-active");
+       });
+       $$("#message").html("");
+       $$("#action_task").val("");
+   }
 });
+
+
 $$( "form" ).on("submit",function(){
     $$(".sorted_table tr.table-active").each(function(e){
             let task_id = $$(this).data("task-id");
@@ -182,7 +185,7 @@ $$( "form" ).on("submit",function(){
 });
 
 $$(".sorted_table tr").click(function (e) {
-    if($$("#action_tasks").hasClass("active")) {
+    if(active) {
         if($$(this).hasClass("table-active")) {
             $$(this).removeClass("table-active");
         }else{

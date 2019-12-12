@@ -36,7 +36,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             for taskid in task_ids:
                 try:
                     task = self.task_factory.get_task_descriptor_content(courseid, taskid)
-                    if data["action_task"] == "Accessible":
+                    if data["action_task"] == "accessible":
                         task["accessible"] = True
                     else:
                         task["accessible"] = False
