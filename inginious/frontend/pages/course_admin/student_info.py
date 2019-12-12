@@ -17,6 +17,15 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid)
         return self.page(course, username)
 
+    def POST_AUTH(self, courseid, username):
+        data = web.input()
+        taskid = data["taskid"]
+        course, __ = self.get_course_and_check_rights(courseid)
+
+        self.user_manager.reset_user_task_state(courseid, taskid, username)
+
+        return self.page(course, username)
+
     def submission_url_generator(self, username, taskid):
         """ Generates a submission url """
         return "?format=taskid%2Fusername&tasks=" + taskid + "&users=" + username
