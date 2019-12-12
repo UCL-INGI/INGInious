@@ -12,6 +12,7 @@ subdirectory.
 .. code-block:: yaml
 
     author: Your name
+    contact_url: mailto:yourself@example.com?subject=About the task {task_id} (course {course_id}), INGInious username {username}
     context: |-
         The context of this task. Explain here what the students have to do.
     order: 1
@@ -34,6 +35,8 @@ subdirectory.
 -   ``author``, ``context``, ``order``, ``name``, ``language`` and ``header`` are only needed
     if you use the frontend.
     ``context`` and ``header`` are parsed using restructuredText.
+
+-   ``contact_url`` is an url to contact the maintainer of the task. It is a Python format string that will be formatted with values for the keys ``{task_id, course_id, username}``. It must form a valid URL. It can thus also be an HTTP link.
 
 -   ``order`` is an integer, used by the frontend to sort the task list. Task are sorted
     in increasing value of *order*.
@@ -81,8 +84,8 @@ subdirectory.
     This field is only needed if there is code to correct; a multiple-choice question does
     not need it. This environment will be used by default for the student containers.
 
--   ``groups`` allows to indicate if the submission is to be done individually or per groups/teams.
-    (see Classrooms and Teams).
+-   ``groups`` allows to indicate if the submission is to be done individually or per groups.
+    (see Groups).
 
 -   ``network_grading`` indicates if the grading container should have access to the net. This
     is not the case by default.
@@ -118,7 +121,7 @@ Code problems
 `````````````
 
 ``type: code`` problems allows students to submit their code. The code is then
-sent to a container where a script made by the teaching team corrects it.
+sent to a container where a script, made by the teaching staff, corrects it.
 
 Here is a simple example for a code problem
 

@@ -12,7 +12,7 @@ from zmq.asyncio import Poller
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDone, AgentJobSSHDebug, \
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, ClientNewJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, \
-    BackendUpdateContainers, Unknown, Ping, Pong, ClientGetQueue, BackendGetQueue
+    BackendUpdateEnvironments, Unknown, Ping, Pong, ClientGetQueue, BackendGetQueue
 
 
 class Backend(object):
@@ -39,11 +39,11 @@ class Backend(object):
         self._poller.register(self._agent_socket, zmq.POLLIN)
         self._poller.register(self._client_socket, zmq.POLLIN)
 
-        # List of containers available
+        # List of environments available
         # {
-        #     "name": ("last_id", "created_last", ["agent_addr1", "agent_addr2"])
+        #     "name": ("last_id", "created_last", ["agent_addr1", "agent_addr2"], "type")
         # }
-        self._containers = {}
+        self._environments = {}
         self._registered_clients = set()  # addr of registered clients
         self._registered_agents = {}  # addr of registered agents
         self._available_agents = []  # addr of available agents
@@ -88,19 +88,19 @@ class Backend(object):
             raise TypeError("Unknown message type %s" % message.__class__)
         self._create_safe_task(func(client_addr, message))
 
-    async def send_container_update_to_client(self, client_addrs):
+    async def send_environment_update_to_client(self, client_addrs):
         """ :param client_addrs: list of clients to which we should send the update """
-        self._logger.debug("Sending containers updates...")
-        available_containers = tuple(self._containers.keys())
-        msg = BackendUpdateContainers(available_containers)
+        self._logger.debug("Sending environments updates...")
+        available_environments = {idx: environment[3] for idx, environment in self._environments.items()}
+        msg = BackendUpdateEnvironments(available_environments)
         for client in client_addrs:
             await ZMQUtils.send_with_addr(self._client_socket, client, msg)
 
     async def handle_client_hello(self, client_addr, _: ClientHello):
-        """ Handle an ClientHello message. Send available containers to the client """
+        """ Handle an ClientHello message. Send available environments to the client """
         self._logger.info("New client connected %s", client_addr)
         self._registered_clients.add(client_addr)
-        await self.send_container_update_to_client([client_addr])
+        await self.send_environment_update_to_client([client_addr])
 
     async def handle_client_ping(self, client_addr, _: Ping):
         """ Handle an Ping message. Pong the client """
@@ -138,13 +138,13 @@ class Backend(object):
     async def handle_client_get_queue(self, client_addr, _: ClientGetQueue):
         """ Handles a ClientGetQueue message. Send back info about the job queue"""
         #jobs_running: a list of tuples in the form
-        #(job_id, is_current_client_job, agent_name, info, launcher, started_at, max_end)
+        #(job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time)
         jobs_running = list()
 
         for backend_job_id, content in self._job_running.items():
             jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, self._registered_agents[content[0]],
                                  content[1].course_id+"/"+content[1].task_id,
-                                 content[1].launcher, int(content[2]), int(content[2])+content[1].time_limit))
+                                 content[1].launcher, int(content[2]), self._get_time_limit_estimate(content[1])))
 
         #jobs_waiting: a list of tuples in the form
         #(job_id, is_current_client_job, info, launcher, max_time)
@@ -154,7 +154,7 @@ class Backend(object):
             msg = job[-1]
             if isinstance(msg, ClientNewJob):
                 jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, msg.course_id+"/"+msg.task_id, msg.launcher,
-                                     msg.time_limit))
+                                     self._get_time_limit_estimate(msg)))
 
         await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendGetQueue(jobs_running, jobs_waiting))
 
@@ -176,7 +176,7 @@ class Backend(object):
                 continue
 
             # Find agents that can run this job
-            possible_agents = list(set(self._containers[job_msg.environment][2]).intersection(set(self._available_agents)))
+            possible_agents = list(set(self._environments[job_msg.environment][2]).intersection(set(self._available_agents)))
 
             # No agent available, put job back to queue with lower priority
             if not possible_agents:
@@ -198,10 +198,8 @@ class Backend(object):
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                         job_msg.inputdata, job_msg.environment,
-                                                                                        job_msg.enable_network, job_msg.time_limit,
-                                                                                        job_msg.hard_time_limit, job_msg.mem_limit,
-                                                                                        job_msg.debug,
-                                                                                        job_msg.run_cmd))
+                                                                                        job_msg.environment_parameters,
+                                                                                        job_msg.debug))
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """
@@ -217,45 +215,47 @@ class Backend(object):
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
 
-        # update information about available containers
-        for container_name, container_info in message.available_containers.items():
-            if container_name in self._containers:
+        # update information about available environments
+        for environment_name, environment_info in message.available_environments.items():
+            if environment_name in self._environments:
                 # check if the id is the same
-                if self._containers[container_name][0] == container_info["id"]:
-                    # ok, just add the agent to the list of agents that have the container
-                    self._logger.debug("Registering container %s for agent %s", container_name, str(agent_addr))
-                    self._containers[container_name][2].append(agent_addr)
-                elif self._containers[container_name][1] > container_info["created"]:
-                    # containers stored have been created after the new one
+                if self._environments[environment_name][0] == environment_info["id"]:
+                    # ok, just add the agent to the list of agents that have the environment
+                    self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
+                    self._environments[environment_name][2].append(agent_addr)
+                elif self._environments[environment_name][1] > environment_info["created"]:
+                    # environments stored have been created after the new one
                     # add the agent, but emit a warning
-                    self._logger.warning("Container %s has multiple version: \n"
+                    self._logger.warning("Environment %s has multiple version: \n"
                                          "\t Currently registered agents have version %s (%i)\n"
                                          "\t New agent %s has version %s (%i)",
-                                         container_name,
-                                         self._containers[container_name][0], self._containers[container_name][1],
-                                         str(agent_addr), container_info["id"], container_info["created"])
-                    self._containers[container_name][2].append(agent_addr)
-                else:  # self._containers[container_name][1] < container_info["created"]:
-                    # containers stored have been created before the new one
+                                         environment_name,
+                                         self._environments[environment_name][0], self._environments[environment_name][1],
+                                         str(agent_addr), environment_info["id"], environment_info["created"])
+                    self._environments[environment_name][2].append(agent_addr)
+                else:  # self._environments[environment_name][1] < environment_info["created"]:
+                    # environments stored have been created before the new one
                     # add the agent, update the infos, and emit a warning
-                    self._logger.warning("Container %s has multiple version: \n"
+                    self._logger.warning("Environment %s has multiple version: \n"
                                          "\t Currently registered agents have version %s (%i)\n"
                                          "\t New agent %s has version %s (%i)",
-                                         container_name,
-                                         self._containers[container_name][0], self._containers[container_name][1],
-                                         str(agent_addr), container_info["id"], container_info["created"])
-                    self._containers[container_name] = (container_info["id"], container_info["created"],
-                                                        self._containers[container_name][2] + [agent_addr])
+                                         environment_name,
+                                         self._environments[environment_name][0], self._environments[environment_name][1],
+                                         str(agent_addr), environment_info["id"], environment_info["created"])
+                    self._environments[environment_name] = (environment_info["id"], environment_info["created"],
+                                                        self._environments[environment_name][2] + [agent_addr],
+                                                        environment_info["type"])
             else:
                 # just add it
-                self._logger.debug("Registering container %s for agent %s", container_name, str(agent_addr))
-                self._containers[container_name] = (container_info["id"], container_info["created"], [agent_addr])
+                self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
+                self._environments[environment_name] = (environment_info["id"], environment_info["created"], [agent_addr],
+                                                    environment_info["type"])
 
         # update the queue
         await self.update_queue()
 
         # update clients
-        await self.send_container_update_to_client(self._registered_clients)
+        await self.send_environment_update_to_client(self._registered_clients)
 
     async def handle_agent_job_started(self, agent_addr, message: AgentJobStarted):
         """Handle an AgentJobStarted message. Send the data back to the client"""
@@ -375,3 +375,13 @@ class Backend(object):
         exception = task.exception()
         if exception is not None:
             self._logger.exception("An exception occurred while running a Task", exc_info=exception)
+
+    def _get_time_limit_estimate(self, job_info: ClientNewJob):
+        """
+            Returns an estimate of the time taken by a given job, if available in the environment_parameters.
+            For this to work, ["limits"]["time"] must be a parameter of the environment.
+        """
+        try:
+            return int(job_info.environment_parameters["limits"]["time"])
+        except:
+            return -1 # unknown

@@ -1,0 +1,81 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout_jinja.html" %}
+{% block title %}{{_("Course list") }}{% endblock %}}
+{% block column %}
+    {% if not user_manager.session_logged_in() %}
+        {% include "signin_button_jinja.html" %}
+    {% else %}
+        <h3> {{ _("Public courses") }}</h3>
+        <div class="alert alert-warning" role="alert">
+            {{ _("This page lists all the courses that are available now. If you are a course administrator, go to your 'My courses' page to see all of them.") }}
+        </div>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/mycourses">
+                <i class="fa fa-fw fa-th-list"></i>
+                {{ _("My courses") }}
+            </a>
+        </div>
+        {{ template_helper.call('main_menu', template_helper=template_helper) }}
+    {% endif %}
+{% endblock %}
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}
+                <span class="sr-only">{{_("(current)")}}</span></a></li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+
+<h2>{{ _("Course list") }}</h2>
+<div class="card-deck m-0">
+
+    {% set username = user_manager.session_username() %}
+    {% for courseid, course in open_courses.items() %}
+        <div class="card m-2">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ get_homepath()+'/course/'+courseid }}">{{course.get_name(user_manager.session_language())}}</a>
+                </h5>
+                <p class="card-text">
+                    {{ course.get_description(user_manager.session_language()) }}
+                </p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">
+                    {% set any = False %}
+                    {% if course.is_lti() %}
+                        {% set any = True %}
+                        <i class="fa fa-fw fa-external-link"></i> {{ _("External platform") }}<br/>
+                    {% endif %}
+                    {%if course.is_registration_possible(user_info) %}
+                        {% set any = True %}
+                        <i class="fa fa-fw fa-user"></i> {{ _("Auto-registration") }}<br/>
+                    {% endif %}
+                    {% if course.is_password_needed_for_registration() %}
+                        {% set any = True %}
+                        <i class="fa fa-fw fa-key"></i> {{ _("Password needed") }}<br/>
+                    {% endif %}
+                    {{ ("&nbsp;" if not any else "") }}
+                </small>
+            </div>
+        </div>
+        {# Resizing logic #}
+        {% if loop.index % 2 == 0 %}
+             <div class="w-100 d-none d-sm-block d-md-none"><!-- wrap every 2 on sm--></div>
+        {% endif %}
+        {% if loop.index % 3 == 0 %}
+            <div class="w-100 d-none d-md-block d-lg-none"><!-- wrap every 3 on md--></div>
+        {% endif %}
+        {% if loop.index % 4 == 0 %}
+            <div class="w-100 d-none d-lg-block d-xl-none"><!-- wrap every 4 on lg--></div>
+        {% endif %}
+        {% if loop.index % 5 == 0 %}
+            <div class="w-100 d-none d-xl-block"><!-- wrap every 5 on xl--></div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-$def with (course, tasks, user_data, aggregations, tutored_aggregations, tutored_users, checked_tasks, checked_users, valid_formats, chosen_format, show_aggregations)
+$def with (course, tasks, user_data, audiences, tutored_audiences, tutored_users, checked_tasks, checked_users, valid_formats, chosen_format, show_audiences, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -8,8 +8,6 @@ $#
 $var title: $:course.get_name(user_manager.session_language()) - $:_("Download submissions")
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='download')
-
-$ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
     <nav aria-label="breadcrumb">
@@ -24,9 +22,15 @@ $var Navbar: $:NavbarF()
 
 <h2>$:_("Download submissions")</h2>
 
+$if error:
+    <div class="alert alert-danger alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $error
+    </div>
+
 <form method="post" action="$get_homepath()/admin/$course.get_id()/download">
     $:include.course_admin.submissions_tabs.tasks(tasks, checked_tasks, "download")
-    $:include.course_admin.submissions_tabs.users(user_data, aggregations, tutored_aggregations, tutored_users, checked_users, show_aggregations, use_classrooms)
+    $:include.course_admin.submissions_tabs.users(user_data, audiences, tutored_audiences, tutored_users, checked_users, show_audiences)
 
     <div class="card mb-3">
         <div class="card-header">
@@ -41,7 +45,7 @@ $var Navbar: $:NavbarF()
                             <li><label><input type="radio" name="format" value="$entry"
                                               $if chosen_format == entry:
                                                 checked="checked"
-                                    /> $:_(entry).replace(_('aggregation'), _('classroom') if use_classrooms else _('team'))</label></li>
+                                    /> $:_(entry)</label></li>
                     </ul>
                 </div>
             </div>
@@ -53,7 +57,7 @@ $var Navbar: $:NavbarF()
                         <li>
                             <label>
                                 <input type="radio" name="type" value="single" checked="checked"/>
-                                $:_("Download only the evaluation submission for each task/user")/$(_('classroom') if use_classrooms else _('team'))
+                                $:_("Download only the evaluation submission for each task/user")/$(_('audience'))
                             </label>
                         </li>
                         <li>

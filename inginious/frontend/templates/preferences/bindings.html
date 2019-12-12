@@ -54,10 +54,14 @@ $for id, auth_method in auth_methods.items():
                         $:auth_method.get_imlink()
                     </div>
                     <div class="col-md-11">
-                        <p>$:_("Identifier:") $bindings[id][0]</p>
-                        <!--<p>Fields: </p>-->
+                        <p>$:_("Identifier"): $bindings[id][0]</p>
+                        $if bindings[id][1]:
+                            <p>$:_("Additional fields"): </p>
+                            <ul>
+                                $for key, val in bindings[id][1].items():
+                                    <li>$id.$key : $val</li>
+                            </ul>
                     </div>
-
                 </div>
             </div>
         </div>

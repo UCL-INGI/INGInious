@@ -28,35 +28,21 @@ class APIAuthentication(APIPage):
         """
             Authenticates the remote client. Takes as input:
 
-            auth_method_id
-                an id for an auth method as returned be /api/v0/auth_methods
+            login
+                the INGInious account login
 
-            input_key_1
-                the first input key and its value
-
-            input_key_2
-                the first input key and its value
-
-            ...
-                ...
+            password
+                the associated password
 
             Response: a dict in the form {"status": "success"} (200 OK) or {"status": "error"} (403 Forbidden)
         """
 
         user_input = web.input()
-        if "auth_method_id" not in user_input:
+        if "login" not in user_input or "password" not in user_input:
             raise APIInvalidArguments()
 
         try:
-            auth_method_id = int(user_input["auth_method_id"])
-        except:
-            raise APIInvalidArguments()
-
-        del user_input["auth_method_id"]
-
-        try:
-            if "login" in user_input and "password" in user_input and \
-                            self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
+            if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
                     return 200, {"status": "success", "username": self.user_manager.session_username()}
         except:
             pass

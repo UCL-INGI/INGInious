@@ -57,7 +57,7 @@ $var Navbar: $:NavbarF()
             $elif task["status"] == "failed":
                 class="table-danger"
         >
-    		<td><a href="$get_homepath()/admin/${course.get_id()}/submissions?user=$username&task=$task['taskid']">$task["name"]</a></td>
+    		<td>$task["name"]</td>
     		<td>
                 $if task["status"] == "notviewed":
                     $:_("Not viewed")
@@ -73,7 +73,7 @@ $var Navbar: $:NavbarF()
             <td>$task["tried"]</td>
     		<td>
                 <div class="btn-group btn-group-sm" role="group">
-                    <a href="$get_homepath()/admin/${course.get_id()}/submissions?user=$username&task=$task['taskid']" class="btn btn-secondary" title=$:_('"View all submissions"')
+                    <a href="$get_homepath()/admin/${course.get_id()}/submissions$task['url']" class="btn btn-secondary" title=$:_('"View all submissions"')
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                     <a href="$get_homepath()/admin/${course.get_id()}/download$task['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>

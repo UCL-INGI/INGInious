@@ -9,10 +9,9 @@ import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
-from inginious.frontend.fix_webpy_cookies import fix_webpy_cookies
-from inginious.frontend.pages.internalerror import internalerror_generator
 
-fix_webpy_cookies() # TODO: remove me once https://github.com/webpy/webpy/pull/419 is merge in web.py
+from inginious.frontend.environment_types import register_base_env_types
+from inginious.frontend.pages.internalerror import internalerror_generator
 
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
@@ -48,10 +47,11 @@ urls = (
     r'/auth/signin/([^/]+)', 'inginious.frontend.pages.social.AuthenticationPage',
     r'/auth/callback/([^/]+)', 'inginious.frontend.pages.social.CallbackPage',
     r'/auth/share/([^/]+)', 'inginious.frontend.pages.social.SharePage',
+    r'/register/([^/]+)', 'inginious.frontend.pages.course_register.CourseRegisterPage',
     r'/course/([^/]+)', 'inginious.frontend.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.pages.tasks.TaskPageStaticDownload',
-    r'/aggregation/([^/]+)', 'inginious.frontend.pages.aggregation.AggregationPage',
+    r'/group/([^/]+)', 'inginious.frontend.pages.group.GroupPage',
     r'/queue', 'inginious.frontend.pages.queue.QueuePage',
     r'/mycourses', 'inginious.frontend.pages.mycourses.MyCoursesPage',
     r'/preferences', 'inginious.frontend.pages.preferences.utils.RedirectPage',
@@ -63,21 +63,18 @@ urls = (
     r'/admin/([^/]+)/students', 'inginious.frontend.pages.course_admin.student_list.CourseStudentListPage',
     r'/admin/([^/]+)/student/([^/]+)', 'inginious.frontend.pages.course_admin.student_info.CourseStudentInfoPage',
     r'/submission/([^/]+)', 'inginious.frontend.pages.course_admin.submission.SubmissionPage',
-    r'/admin/([^/]+)/aggregations', 'inginious.frontend.pages.course_admin.aggregation_list.CourseAggregationListPage',
-    r'/admin/([^/]+)/aggregation/([^/]+)', 'inginious.frontend.pages.course_admin.aggregation_info.CourseAggregationInfoPage',
+    r'/admin/([^/]+)/audiences', 'inginious.frontend.pages.course_admin.audience_list.CourseAudienceListPage',
     r'/admin/([^/]+)/submissions', 'inginious.frontend.pages.course_admin.submissions.CourseSubmissionsPage',
     r'/admin/([^/]+)/tasks', 'inginious.frontend.pages.course_admin.task_list.CourseTaskListPage',
     r'/admin/([^/]+)/tags', 'inginious.frontend.pages.course_admin.tags.CourseTagsPage',
-    r'/admin/([^/]+)/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_info.CourseTaskInfoPage',
-    r'/admin/([^/]+)/edit/aggregation/([^/]+)', 'inginious.frontend.pages.course_admin.aggregation_edit.CourseEditAggregation',
-    r'/admin/([^/]+)/edit/aggregations', 'inginious.frontend.pages.course_admin.aggregation_edit.CourseEditAggregation',
+    r'/admin/([^/]+)/groups', 'inginious.frontend.pages.course_admin.group_edit.CourseEditGroup',
+    r'/admin/([^/]+)/edit/audience/([^/]+)', 'inginious.frontend.pages.course_admin.audience_edit.CourseEditAudience',
     r'/admin/([^/]+)/edit/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
     r'/admin/([^/]+)/download', 'inginious.frontend.pages.course_admin.download.CourseDownloadSubmissions',
     r'/admin/([^/]+)/replay', 'inginious.frontend.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
-    r'/admin/([^/]+)/webdav', 'inginious.frontend.pages.course_admin.webdav.WebDavInfoPage',
     r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/admin/([^/]+)/stats/([^/]+)/([^/]+)', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
@@ -151,13 +148,21 @@ def get_app(config):
     appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     # Init gettext
-    available_languages = {
-        "en": "English",
+    available_translations = {
         "fr": "Français",
-        "es": "Español"
+        "es": "Español",
+        "pt": "Português",
+        "el": "ελληνικά",
+        "vi": "Tiếng Việt",
+        "nl": "Nederlands",
+        "de": "Deutsch"
     }
 
-    for lang in available_languages.keys():
+    available_languages = {"en": "English"}
+    available_languages.update(available_translations)
+
+    appli.add_translation("en", gettext.NullTranslations())  # English does not need translation ;-)
+    for lang in available_translations.keys():
         appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
 
     builtins.__dict__['_'] = appli.gettext
@@ -181,6 +186,9 @@ def get_app(config):
 
     # Init the different parts of the app
     plugin_manager = PluginManager()
+
+    # Add the "agent types" inside the frontend, to allow loading tasks and managing envs
+    register_base_env_types(plugin_manager)
 
     # Create the FS provider
     if "fs" in config:
@@ -265,6 +273,7 @@ def get_app(config):
     appli.template_helper = template_helper
     appli.database = database
     appli.gridfs = gridfs
+    appli.client = client
     appli.default_allowed_file_extensions = default_allowed_file_extensions
     appli.default_max_file_size = default_max_file_size
     appli.backup_dir = config.get("backup_directory", './backup')

@@ -10,7 +10,7 @@ from abc import abstractmethod, ABCMeta
 import time
 
 from inginious.client._zeromq_client import BetterParanoidPirateClient
-from inginious.common.messages import ClientHello, BackendUpdateContainers, BackendJobStarted, \
+from inginious.common.messages import ClientHello, BackendUpdateEnvironments, BackendJobStarted, \
     BackendJobDone, BackendJobSSHDebug, ClientNewJob, ClientKillJob, ClientGetQueue, BackendGetQueue
 
 
@@ -38,9 +38,9 @@ class AbstractClient(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_available_containers(self):
+    def get_available_environments(self):
         """
-        Return the list of available containers for grading
+        Return the list of available environments for grading
         """
         pass
 
@@ -56,8 +56,8 @@ class AbstractClient(object, metaclass=ABCMeta):
             result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded');
             grade is a number between 0 and 100 indicating the grade of the users;
             problems is a dict of tuple, in the form {'problemid': result};
-            test is a dict of tests made in the container
-            custom is a dict containing random things set in the container
+            test is a dict of tests made in the environment
+            custom is a dict containing random things set in the environment
             archive is either None or a bytes containing a tgz archive of files from the job
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
@@ -86,7 +86,7 @@ class AbstractClient(object, metaclass=ABCMeta):
 
         Return a tuple of two lists (or None, None):
         jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_time)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
@@ -94,7 +94,7 @@ class AbstractClient(object, metaclass=ABCMeta):
             - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
-            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
+            - max_time the maximum time that can be used, or -1 if no timeout is set
         jobs_waiting: a list of tuples in the form
             (job_id, is_current_client_job, info, launcher, max_time)
             where
@@ -125,9 +125,9 @@ class Client(BetterParanoidPirateClient):
         """
         super().__init__(context, backend_addr)
         self._logger = logging.getLogger("inginious.client")
-        self._available_containers = []
+        self._available_environments = {}
 
-        self._register_handler(BackendUpdateContainers, self._handle_update_containers)
+        self._register_handler(BackendUpdateEnvironments, self._handle_update_environments)
         self._register_handler(BackendGetQueue, self._handle_job_queue_update)
         self._register_transaction(ClientNewJob, BackendJobDone, self._handle_job_done, self._handle_job_abort,
                                    lambda x: x.job_id, [
@@ -170,9 +170,12 @@ class Client(BetterParanoidPirateClient):
         # Do some precomputation
         new_job_queue_cache = {}
         # format is job_id: (nb_jobs_before, max_remaining_time)
-        for (job_id, is_local, _, _2, _3, _4, max_end) in message.jobs_running:
+        for (job_id, is_local, _, _2, _3, start_time, max_time) in message.jobs_running:
             if is_local:
-                new_job_queue_cache[job_id] = (-1, max_end - time.time())
+                remaining = 0
+                if max_time > 0:
+                    remaining = max(0, (start_time + max_time) - time.time())
+                new_job_queue_cache[job_id] = (-1, remaining)
         wait_time = 0
         nb_tasks = 0
         for (job_id, is_local, _, _2, timeout) in message.jobs_waiting:
@@ -192,10 +195,10 @@ class Client(BetterParanoidPirateClient):
     def get_job_queue_info(self, jobid):
         return self._queue_job_cache.get(jobid)
 
-    async def _handle_update_containers(self, message: BackendUpdateContainers):
-        self._available_containers = message.available_containers
-        self._logger.info("Updated containers")
-        self._logger.debug("Containers: %s", str(self._available_containers))
+    async def _handle_update_environments(self, message: BackendUpdateEnvironments):
+        self._available_environments = message.available_environments
+        self._logger.info("Updated environments")
+        self._logger.debug("Environments: %s", str(self._available_environments))
 
     async def _handle_job_started(self, message: BackendJobStarted, **kwargs):  # pylint: disable=unused-argument
         self._logger.debug("Job %s started", message.job_id)
@@ -231,7 +234,7 @@ class Client(BetterParanoidPirateClient):
         self._logger.warning("Disconnected from backend, retrying...")
 
     async def _on_connect(self):
-        self._available_containers = []
+        self._available_environments = {}
         await self._simple_send(ClientHello("me"))
         self._restartable_tasks.append(self._loop.create_task(self._ask_queue_update()))
         self._logger.info("Connecting to backend")
@@ -244,11 +247,12 @@ class Client(BetterParanoidPirateClient):
         """ Close the Client """
         pass
 
-    def get_available_containers(self):
+    def get_available_environments(self):
         """
-        Return the list of available containers for grading
+        Return the dict of available environments for grading. Keys are the id of the environment, and values are
+        their type.
         """
-        return self._available_containers
+        return self._available_environments
 
     def new_job(self, priority, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
         """ Add a new job. Every callback will be called once and only once.
@@ -261,8 +265,8 @@ class Client(BetterParanoidPirateClient):
             result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded');
             grade is a number between 0 and 100 indicating the grade of the users;
             problems is a dict of tuple, in the form {'problemid': result};
-            test is a dict of tests made in the container
-            custom is a dict containing random things set in the container
+            test is a dict of tests made in the environment
+            custom is a dict containing random things set in the environment
             archive is either None or a bytes containing a tgz archive of files from the job
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
@@ -283,30 +287,25 @@ class Client(BetterParanoidPirateClient):
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
         ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3: None)
 
-        environment = task.get_environment()
-        if environment not in self._available_containers:
+        environment = task.get_environment_id()
+        if environment not in self._available_environments:
             self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
             callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        enable_network = task.allow_network_access_grading()
-
-        run_cmd = task.get_custom_run_cmd()
-
-        try:
-            limits = task.get_limits()
-            time_limit = int(limits.get('time', 20))
-            hard_time_limit = int(limits.get('hard_time', 3 * time_limit))
-            mem_limit = int(limits.get('memory', 200))
-        except:
-            self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())
+        environment_type = task.get_environment_type()
+        if self._available_environments[environment] != environment_type:
+            self._logger.warning("Env %s does not have the expected type %s, but rather %s, in task %s/%s",
+                                 environment, environment_type, self._available_environments[environment],
+                                 task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback(("crash", "Error while reading task limits"), 0.0, {}, {}, "", {}, None, "", "")
+            callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
-                           hard_time_limit, mem_limit, debug, launcher_name, run_cmd)
+        environment_parameters = task.get_environment_parameters()
+
+        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, environment_parameters, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))
 

@@ -10,25 +10,33 @@ function init_task_page(evaluate)
 
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
-    task_form.on('submit', function()
-    {
+    task_form.on('submit', function() {
         submitTask(false);
         return false;
     });
 
     //Init the button that start a remote ssh server for debugging
-    $('form#task #task-submit-debug').on('click', function()
-    {
+    $('form#task #task-submit-debug').on('click', function() {
         submitTask(true);
     });
 
-    if(task_form.attr("data-wait-submission"))
-    {
+    //if INGInious tells us to wait for another submission
+    //this takes precedence over the link in the URL, in order to be consistent.
+    if(task_form.attr("data-wait-submission")) {
         loadOldSubmissionInput(task_form.attr("data-wait-submission"), false);
-        blurTaskForm();
-        resetAlerts();
-        displayTaskLoadingAlert(null, null);
         waitForSubmission(task_form.attr("data-wait-submission"));
+    }
+    else {
+        // Check if the page link contains a submission id to load, if needed
+        try {
+            // the class URLSearchParams may not exist in older browsers...
+            var loadFromURL = (new URLSearchParams(document.location.search.substring(1))).get("load");
+            if(loadFromURL !== null)
+                loadOldSubmissionInput(loadFromURL, true);
+        }
+        catch(error) {
+          console.error(error);
+        }
     }
 
     $('.submission').each(function() {

@@ -23,17 +23,4 @@ function init_webapp()
         update_size();
         start_affix();
     }
-
-    //Registration form, disable the password field when not needed
-    var register_courseid = $('#register_courseid');
-    if(register_courseid)
-    {
-        register_courseid.change(function()
-        {
-            if($('option[value="' + register_courseid.val() + '"]', register_courseid).attr('data-password') == 1)
-                $('#register_password').removeAttr('disabled');
-            else
-                $('#register_password').attr('disabled', 'disabled');
-        });
-    }
 }

@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs)
+$def with (course,taskid,problem_types,task_data,environment_types,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list,additional_tabs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -46,8 +46,8 @@ $var Navbar: $:NavbarF()
                     <a href="#tab_basic" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
                     fa-cog fa-fw"></i>&nbsp; $:_("Basic settings")</a></li>
                 <li role="presentation" class="nav-item">
-                    <a href="#tab_container" class="nav-link" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                    fa-cube fa-fw"></i>&nbsp; $:_("Container setup")</a></li>
+                    <a href="#tab_environment" class="nav-link" aria-controls="environment" role="tab" data-toggle="tab"><i class="fa
+                    fa-cube fa-fw"></i>&nbsp; $:_("Environment")</a></li>
                 <li role="presentation" class="nav-item">
                     <a href="#tab_subproblems" class="nav-link" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
                     fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
@@ -64,8 +64,8 @@ $var Navbar: $:NavbarF()
                 $:include.course_admin.edit_tabs.basic(course,task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
             </div>
 
-            <div role="tabpanel" class="card-body tab-pane" id="tab_container">
-                $:include.course_admin.edit_tabs.container(task_data,environments,contains_is_html)
+            <div role="tabpanel" class="card-body tab-pane" id="tab_environment">
+                $:include.course_admin.edit_tabs.environment(task_data,environment_types,environments,contains_is_html)
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">

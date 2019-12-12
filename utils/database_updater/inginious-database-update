@@ -11,6 +11,7 @@ import bson
 import pymongo
 import logging
 import argparse
+import base64
 
 from pymongo import MongoClient
 from gridfs import GridFS
@@ -88,6 +89,28 @@ if __name__ == "__main__":
                 print("!!! Exception for submission id {} : {}".format(item["_id"], str(ex)))
         db_version = 14
 
-    database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)
+    if db_version < 15:
+        print("Updating database to db_version 15")
+        aggregations = database.aggregations.find({})
+        for aggregation in aggregations:
+            audience = database.audiences.insert_one({"courseid": aggregation["courseid"],
+                                                         "description": aggregation["description"],
+                                                         "students": aggregation["students"],
+                                                         "tutors": aggregation["tutors"]})
+            audience_id = bson.ObjectId(audience.inserted_id)
+
+            database.courses.update_one({"_id": aggregation["courseid"]},
+                                                 {"$push": {"students": {"$each": aggregation["students"]}}},
+                                                 upsert=True)
+            i = 1
+            for group in aggregation["groups"]:
+                database.groups.insert_one({"courseid": aggregation["courseid"], "description": "Group # " + str(i),
+                                            "students": group["students"], "size": group["size"],
+                                            "audiences": [audience_id]})
+                i += 1
+
+        db_version = 15
+
+    database.db_version.update_one({}, {"$set": {"db_version": db_version}}, upsert=True)
 
     print("Database up to date")

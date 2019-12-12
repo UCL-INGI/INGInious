@@ -42,7 +42,7 @@ class TwitterAuthMethod(AuthMethod):
             r = twitter.get('https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true')
             profile = json.loads(r.content.decode('utf-8'))
             auth_storage["session"] = twitter
-            return str(profile["id"]), profile["name"], profile["email"]
+            return str(profile["id"]), profile["name"], profile["email"], {}
         except:
             return None
 

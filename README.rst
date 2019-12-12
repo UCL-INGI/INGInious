@@ -3,13 +3,10 @@ INGInious
 
 .. image:: http://jenkins2.info.ucl.ac.be/job/INGInious/badge/icon
     :target: http://jenkins2.info.ucl.ac.be/job/INGInious/
-.. image:: https://landscape.io/github/UCL-INGI/INGInious/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/UCL-INGI/INGInious/master
 .. image:: https://readthedocs.org/projects/inginious/badge/?version=latest
     :target: https://readthedocs.org/projects/inginious/?badge=latest
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-    :target: https://gitter.im/UCL-INGI/INGInious?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
+.. image:: http://weblate.info.ucl.ac.be/widgets/inginious/-/frontend/svg-badge.svg
+    :target: http://weblate.info.ucl.ac.be/engage/inginious/?utm_source=widget
 
 INGInious is an intelligent grader that allows secured and automated testing of code made by students.
 

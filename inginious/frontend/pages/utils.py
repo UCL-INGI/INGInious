@@ -5,13 +5,16 @@
 
 """ Some utils for all the pages """
 import logging
-from typing import List
+from typing import List, Dict
 
 import web
 import os
 from gridfs import GridFS
+from inginious.client.client import Client
 
 from inginious.common import custom_yaml
+from inginious.frontend.environment_types import get_all_env_types
+from inginious.frontend.environment_types.env_type import FrontendEnvType
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.template_helper import TemplateHelper
@@ -81,6 +84,11 @@ class INGIniousPage(object):
         return self.app.gridfs
 
     @property
+    def client(self) -> Client:
+        """ Returns the INGInious client """
+        return self.app.client
+
+    @property
     def default_allowed_file_extensions(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ List of allowed file extensions """
         return self.app.default_allowed_file_extensions
@@ -96,9 +104,14 @@ class INGIniousPage(object):
         return self.app.backup_dir
 
     @property
-    def containers(self) -> List[str]:  # pylint: disable=invalid-sequence-index
-        """ Available containers """
+    def environments(self) -> Dict[str, str]:  # pylint: disable=invalid-sequence-index
+        """ Available environments """
         return self.app.submission_manager.get_available_environments()
+
+    @property
+    def environment_types(self) -> Dict[str, FrontendEnvType]:
+        """ Available environment types """
+        return get_all_env_types()
 
     @property
     def webterm_link(self) -> str:
@@ -146,6 +159,8 @@ class INGIniousAuthPage(INGIniousPage):
                 return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
             return self.GET_AUTH(*args, **kwargs)
+        elif self.preview_allowed(*args, **kwargs):
+            return self.GET_AUTH(*args, **kwargs)
         else:
             return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
@@ -170,8 +185,17 @@ class INGIniousAuthPage(INGIniousPage):
                     return self.GET_AUTH(*args, **kwargs)
                 else:
                     return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), True)
+            elif self.preview_allowed(*args, **kwargs):
+                return self.POST_AUTH(*args, **kwargs)
             else:
                 return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
+
+    def preview_allowed(self, *args, **kwargs):
+        """
+            If this function returns True, the auth check is disabled.
+            Override this function with a custom check if needed.
+        """
+        return False
 
 
 class SignInPage(INGIniousAuthPage):

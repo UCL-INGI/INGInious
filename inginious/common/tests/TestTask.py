@@ -26,7 +26,7 @@ class test_tasks_basic(object):
         '''Tests if a course file loads correctly'''
         print("\033[1m-> common-tasks: task loading\033[0m")
         t = self.course_factory.get_task('test', 'task1')
-        assert t.get_environment() == 'default'
+        assert t.get_environment_id() == 'default'
         assert t.get_id() == 'task1'
         assert t.get_course_id() == 'test'
         assert t.get_response_type() == 'rst'

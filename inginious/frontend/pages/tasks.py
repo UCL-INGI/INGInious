@@ -19,7 +19,8 @@ from collections import OrderedDict
 from pymongo import ReturnDocument
 
 from inginious.common import exceptions
-from inginious.frontend.pages.utils import INGIniousPage
+from inginious.frontend.pages.course import handle_course_unavailable
+from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
 
 class BaseTaskPage(object):
@@ -36,6 +37,13 @@ class BaseTaskPage(object):
         self.default_max_file_size = self.cp.default_max_file_size
         self.webterm_link = self.cp.webterm_link
         self.plugin_manager = self.cp.plugin_manager
+
+    def preview_allowed(self, courseid, taskid):
+        try:
+            course = self.course_factory.get_course(courseid)
+        except exceptions.CourseNotFoundException as ex:
+            raise web.notfound(str(ex))
+        return course.get_accessibility().is_open() and course.allow_preview()
 
     def set_selected_submission(self, course, task, submissionid):
         """ Set submission whose id is `submissionid` to selected grading submission for the given course/task.
@@ -62,16 +70,15 @@ class BaseTaskPage(object):
         if task.get_evaluate() != 'student' and not is_staff:
             return False
 
-        # Check if task is done per group/team
+        # Check if task is done per group
         if task.is_group_task() and not is_staff:
-            group = self.database.aggregations.find_one(
-                {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
-                {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-            students = group["groups"][0]["students"]
+            group = self.database.groups.find_one({"courseid": task.get_course_id(),
+                                                 "students": self.user_manager.session_username()})
+            students = group["students"]
         else:
             students = [self.user_manager.session_username()]
 
-        # Check if group/team is the same
+        # Check if group/group is the same
         if students == submission["username"]:
             self.database.user_tasks.update_many(
                 {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": {"$in": students}},
@@ -82,7 +89,7 @@ class BaseTaskPage(object):
         else:
             return False
 
-    def GET(self, courseid, taskid, isLTI):
+    def GET(self, courseid, taskid, is_LTI):
         """ GET request """
         username = self.user_manager.session_username()
 
@@ -92,20 +99,20 @@ class BaseTaskPage(object):
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 
-        if isLTI and not self.user_manager.course_is_user_registered(course):
+        if is_LTI and not self.user_manager.course_is_user_registered(course):
             self.user_manager.course_register_user(course, force=True)
 
-        if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-            return self.template_helper.get_renderer().course_unavailable()
+        if not self.user_manager.course_is_open_to_user(course, username, is_LTI):
+            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
 
         # Fetch the task
         try:
-            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, isLTI))
+            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI))
             task = tasks[taskid]
-        except exceptions.TaskNotFoundException as ex:
-            raise web.notfound(str(ex))
+        except KeyError:
+            raise web.notfound()
 
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+        if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         # Compute previous and next taskid
@@ -161,11 +168,10 @@ class BaseTaskPage(object):
 
             students = [self.user_manager.session_username()]
             if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                group = self.database.aggregations.find_one(
-                    {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
-                    {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-                if group is not None and len(group["groups"]) > 0:
-                    students = group["groups"][0]["students"]
+                group = self.database.groups.find_one({"courseid": task.get_course_id(),
+                                                     "students": self.user_manager.session_username()})
+                if group is not None:
+                    students = group["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
@@ -181,7 +187,7 @@ class BaseTaskPage(object):
 
         course = self.course_factory.get_course(courseid)
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-            return self.template_helper.get_renderer().course_unavailable()
+            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
 
         task = course.get_task(taskid)
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
@@ -305,9 +311,9 @@ class BaseTaskPage(object):
             nb_tasks_before, approx_wait_time = waiting_data
             wait_time = round(approx_wait_time)
             if nb_tasks_before == -1 and wait_time <= 0:
-                text = _("<b>INGInious is currently grading your answers.<b/> (almost done)")
+                text = _("<b>INGInious is currently grading your answers.</b> (almost done)")
             elif nb_tasks_before == -1:
-                text = _("<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} seconds)").format(
+                text = _("<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} seconds)").format(
                     wait_time)
             elif nb_tasks_before == 0:
                 text = _("<b>You are next in the waiting queue!</b>")
@@ -386,9 +392,9 @@ class BaseTaskPage(object):
             new_data = {}
             for key, value in data.items():
                 if isinstance(value, bytes) and len(value) > limit:
-                    new_data[key] = value[:limit] + _(" <text cut due to its length>").encode("utf-8")
+                    new_data[key] = value[:limit] + _(" <truncated>").encode("utf-8")
                 elif isinstance(value, str) and len(value) > limit:
-                    new_data[key] = value[:limit] + _(" <text cut due to its length>")
+                    new_data[key] = value[:limit] + _(" <truncated>")
                 elif isinstance(value, dict):
                     new_data[key] = self._cut_long_chains(value)
                 else:
@@ -409,7 +415,7 @@ class TaskPageStaticDownload(INGIniousPage):
         try:
             course = self.course_factory.get_course(courseid)
             if not self.user_manager.course_is_open_to_user(course):
-                return self.template_helper.get_renderer().course_unavailable()
+                return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
 
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 
@@ -440,9 +446,12 @@ class TaskPageStaticDownload(INGIniousPage):
                 raise web.notfound()
 
 
-class TaskPage(INGIniousPage):
-    def GET(self, courseid, taskid):
+class TaskPage(INGIniousAuthPage):
+    def GET_AUTH(self, courseid, taskid):
         return BaseTaskPage(self).GET(courseid, taskid, False)
 
-    def POST(self, courseid, taskid):
+    def POST_AUTH(self, courseid, taskid):
         return BaseTaskPage(self).POST(courseid, taskid, False)
+
+    def preview_allowed(self, courseid, taskid):
+        return BaseTaskPage(self).preview_allowed(courseid, taskid)

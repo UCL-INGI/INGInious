@@ -109,7 +109,7 @@ The recommended setup is to install INGInious via pip and the master branch of t
 This allows you to use the latest development version. This version is currently the supported one for issues.
 ::
 
-    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@v0.5
+    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@v0.6
 
 This will automatically upgrade an existing version.
 
@@ -120,7 +120,7 @@ This will automatically upgrade an existing version.
 
    ::
 
-       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@v0.5#egg=INGInious[cgi,ldap]
+       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@v0.6#egg=INGInious[cgi,ldap]
 
 .. _config:
 

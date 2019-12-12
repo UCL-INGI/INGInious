@@ -7,50 +7,36 @@
 import gettext
 
 from inginious.common.base import id_checker
+from inginious.common.hook_manager import HookManager
+from inginious.frontend.environment_types import get_env_type
 
 
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
+    def __init__(self, course, taskid, content, task_fs, translations_fs, hook_manager: HookManager, task_problem_types):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
+        content = self._migrate_from_v1(content)
+
         self._course = course
         self._taskid = taskid
         self._fs = task_fs
         self._hook_manager = hook_manager
         self._data = content
-        self._environment = self._data.get('environment', None)
+        self._environment_id = self._data.get('environment_id', 'default')
+        self._environment_type = self._data.get('environment_type', 'unknown')
 
-        # Ensure that run_cmd is in the correct format
-        self._run_cmd = self._data.get('run_cmd')
-        if self._run_cmd == '':
-            self._run_cmd = None
+        env_type_obj = get_env_type(self._environment_type)
 
-        # Response is HTML
-        self._response_is_html = self._data.get("responseIsHTML", False)
-
-        # Limits
-        self._limits = {"time": 20, "memory": 1024, "disk": 1024}
-        if "limits" in self._data:
-            try:
-                self._limits['time'] = int(self._data["limits"].get("time", 20))
-                self._limits['hard_time'] = int(self._data["limits"].get("hard_time", 3 * self._limits['time']))
-                self._limits['memory'] = int(self._data["limits"].get("memory", 1024))
-                self._limits['disk'] = int(self._data["limits"].get("disk", 1024))
-
-                if self._limits['time'] <= 0 or self._limits['hard_time'] <= 0 or self._limits['memory'] <= 0 or self._limits['disk'] <= 0:
-                    raise Exception("Invalid limit")
-            except:
-                raise Exception("Invalid limit")
+        if env_type_obj is None:
+            raise Exception(_("Environment type {0} is unknown").format(self._environment_type))
+        self._environment_parameters = env_type_obj.load_task_environment_parameters(self._data.get("environment_parameters", {}))
 
         if "problems" not in self._data:
             raise Exception("Tasks must have some problems descriptions")
-
-        # Network access in grading container?
-        self._network_grading = self._data.get("network_grading", False)
 
         # i18n
         self._translations_fs = translations_fs
@@ -90,9 +76,13 @@ class Task(object):
         """ Get the position of this task in the course """
         return self._order
 
-    def get_environment(self):
+    def get_environment_id(self):
         """ Returns the environment in which the agent have to launch this task"""
-        return self._environment
+        return self._environment_id
+
+    def get_environment_type(self):
+        """ Returns the environment type in which the agent have to launch this task"""
+        return self._environment_type
 
     def get_id(self):
         """ Get the id of this task """
@@ -110,25 +100,13 @@ class Task(object):
         """ Return the course that contains this task """
         return self._course
 
-    def get_limits(self):
-        """ Return the limits of this task """
-        vals = self._hook_manager.call_hook('task_limits', course=self.get_course(), task=self, default=self._limits)
-        return vals[0] if len(vals) else self._limits
-
-    def allow_network_access_grading(self):
-        """ Return True if the grading container should have access to the network """
-        vals = self._hook_manager.call_hook('task_network_grading', course=self.get_course(), task=self, default=self._network_grading)
-        return vals[0] if len(vals) else self._network_grading
-
-    def get_custom_run_cmd(self):
-        """ Returns a string containing the custom run command to be run inside the container, instead of the default run file.
-            Returns None if no custom command has been set
-        """
-        return self._run_cmd
+    def get_environment_parameters(self):
+        """ Returns the environment parameters, as returned by the loader """
+        return self._environment_parameters
 
     def get_response_type(self):
         """ Returns the method used to parse the output of the task: HTML or rst """
-        return "HTML" if self._response_is_html else "rst"
+        return "HTML" if self._environment_parameters.get('response_is_html', False) else "rst"
 
     def get_fs(self):
         """ Returns a FileSystemProvider which points to the folder of this task """
@@ -181,3 +159,14 @@ class Task(object):
             raise Exception("Invalid type for problem " + problemid)
 
         return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content)
+
+    def _migrate_from_v1(self, content):
+        if "environment" in content:
+            content["environment_id"] = content["environment"]
+            content["environment_type"] = "docker" if content["environment_id"] != "mcq" else "mcq"
+            del content["environment"]
+            content["environment_parameters"] = {"limits": content.get("limits", {}),
+                                                 "run_cmd": content.get("run_cmd", ''),
+                                                 "network_grading": content.get("network_grading", False),
+                                                 "response_is_html": content.get('responseIsHTML', False)}
+        return content

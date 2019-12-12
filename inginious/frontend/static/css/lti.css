@@ -104,8 +104,6 @@ form#task label {
   font-size: 1em;
   line-height: 1.5em;
   font-family: 'Source Code Pro', monospace !important;
-  letter-spacing: 0.3px;
-  word-spacing: 1px;
   background: #fdfdfd;
   color: #181818;
 }
