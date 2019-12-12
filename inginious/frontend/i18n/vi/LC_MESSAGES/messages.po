@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-12-03 13:53+0100\n"
-"PO-Revision-Date: 2019-12-02 15:03+0000\n"
+"PO-Revision-Date: 2019-12-13 12:34+0000\n"
 "Last-Translator: HA Thi Ngoc Bao <thingocbaoha@gmail.com>\n"
 "Language-Team: Vietnamese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/vi/>\n"
@@ -71,11 +71,11 @@ msgstr "Đã quá muộn rồi"
 
 #: inginious/frontend/environment_types/docker.py:11
 msgid "Docker container"
-msgstr ""
+msgstr "Docker container"
 
 #: inginious/frontend/environment_types/mcq.py:11
 msgid "Multiple Choice Question solver"
-msgstr ""
+msgstr "Bộ giải Câu hỏi đa lựa chọn"
 
 #: inginious/frontend/pages/group.py:50
 msgid "Couldn't register to the specified group."
@@ -260,12 +260,15 @@ msgstr "Lỗi nội tại hệ thống"
 #: inginious/frontend/pages/tasks.py:314
 msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
 msgstr ""
+"<b>INGInious đang chấm điểm các câu trả lời của bạn.</b> (gần hoàn thành)"
 
 #: inginious/frontend/pages/tasks.py:316
 msgid ""
 "<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
+"<b>INGInious đang chấm điểm các câu trả lời của bạn.</b> (Thời gian đợi dự "
+"kiến: {} giây)"
 
 #: inginious/frontend/pages/tasks.py:319
 msgid "<b>You are next in the waiting queue!</b>"
@@ -405,7 +408,7 @@ msgstr "thính giả/mã nhiệm vụ"
 #: inginious/frontend/pages/course_admin/download.py:53
 #: inginious/frontend/pages/course_admin/submissions.py:100
 msgid "The following submission could not be prepared for download: {}"
-msgstr ""
+msgstr "Các bài nộp sau đây không thể tải được: {}"
 
 #: inginious/frontend/pages/course_admin/group_edit.py:179
 msgid "Groups updated."
@@ -875,7 +878,7 @@ msgstr "đã đến hạn chót"
 
 #: inginious/frontend/templates/course_register.html:5
 msgid "Register to course '{}'"
-msgstr ""
+msgstr "Đăng ký vào khóa học '{}'"
 
 #: inginious/frontend/templates/course_register.html:11
 #: inginious/frontend/templates/layout.html:143
@@ -886,20 +889,20 @@ msgstr "Đăng ký"
 
 #: inginious/frontend/templates/course_register.html:19
 msgid "Enroll in the course '{}'"
-msgstr ""
+msgstr "Ghi tên vào khoá học '{}'"
 
 #: inginious/frontend/templates/course_register.html:20
 msgid "This will enroll you in the course {}"
-msgstr ""
+msgstr "Bạn sẽ được đăng ký vào khoá học {}"
 
 #: inginious/frontend/templates/course_register.html:23
 msgid "Invalid password."
-msgstr ""
+msgstr "Mật khẩu không chính xác."
 
 #: inginious/frontend/templates/course_unavailable.html:5
 #: inginious/frontend/templates/course_unavailable.html:10
 msgid "Course unavailable"
-msgstr ""
+msgstr "Khoá học không có sẵn"
 
 #: inginious/frontend/templates/course_unavailable.html:19
 #: inginious/frontend/templates/task_unavailable.html:11
@@ -908,13 +911,15 @@ msgstr "Lỗi 403"
 
 #: inginious/frontend/templates/course_unavailable.html:21
 msgid "This course is closed."
-msgstr ""
+msgstr "Khoá học này đã bị đóng."
 
 #: inginious/frontend/templates/course_unavailable.html:23
 msgid ""
 "This course must be accessed on an external platform. Read the course "
 "description or contact the teaching team for more information."
 msgstr ""
+"Khoá học này phải được truy cập trên một nền tảng bên ngoài. Xin hãy đọc mô "
+"tả của khoá học hoặc liên hệ với đội ngũ giảng dạy để biết thêm thông tin."
 
 #: inginious/frontend/templates/course_unavailable.html:25
 msgid "You are not registered to this course."
@@ -1091,30 +1096,32 @@ msgid ""
 "You are going to bind your INGInious account <strong>{realname} "
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
+"Bạn đang chuẩn bị ràng buộc tài khoản INGInious của bạn <strong>{realname} "
+"[{username}]</strong> với công cụ LTI và bối cảnh sau đây:"
 
 #: inginious/frontend/templates/lti_bind.html:22
 msgid "Tool name:"
-msgstr ""
+msgstr "Tên công cụ:"
 
 #: inginious/frontend/templates/lti_bind.html:23
 msgid "Tool description:"
-msgstr ""
+msgstr "Mô tả công cụ:"
 
 #: inginious/frontend/templates/lti_bind.html:24
 msgid "Tool URL:"
-msgstr ""
+msgstr "Đường dẫn đến công cụ:"
 
 #: inginious/frontend/templates/lti_bind.html:25
 msgid "Tool context:"
-msgstr ""
+msgstr "Bối cảnh của công cụ:"
 
 #: inginious/frontend/templates/lti_bind.html:26
 msgid "Tool identifiers:"
-msgstr ""
+msgstr "Các định danh của công cụ:"
 
 #: inginious/frontend/templates/lti_bind.html:33
 msgid "Bind my account"
-msgstr ""
+msgstr "Ràng buộc tài khoản của tôi"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:94
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
@@ -1126,98 +1133,103 @@ msgstr ""
 #: inginious/frontend/templates/lti_bind.html:34
 #: inginious/frontend/templates/unregister_modal.html:24
 msgid "Cancel"
-msgstr ""
+msgstr "Huỷ bỏ"
 
 #: inginious/frontend/templates/lti_login.html:16
 msgid "Hello!"
-msgstr ""
+msgstr "Xin chào!"
 
 #: inginious/frontend/templates/lti_login.html:17
 msgid "Welcome on the INGInious platform."
-msgstr ""
+msgstr "Chào mừng đến với nền tảng INGInious."
 
 #: inginious/frontend/templates/lti_login.html:29
 msgid ""
 "In order to use INGInious via this platform, please bind your existing "
 "account or create a new one."
 msgstr ""
+"Để sử dụng INGInious qua nền tảng này, xin hãy ràng buộc tài khoản có sẵn "
+"của bạn hoặc tạo một tài khoản mới."
 
 #: inginious/frontend/templates/lti_login.html:35
 msgid "Bind your INGInious account"
-msgstr ""
+msgstr "Ràng buộc tài khoản INGInious của bạn"
 
 #: inginious/frontend/templates/lti_login.html:36
 msgid "Refresh"
-msgstr ""
+msgstr "Làm mới"
 
 #: inginious/frontend/templates/maintenance.html:59
 msgid ""
 "<b>This INGInious instance is currently under maintenance.</b> Please come "
 "back in a few minutes!"
 msgstr ""
+"<b>Bản INGInious này hiện đang trong quá trình bảo dưỡng.</b> Xin hãy quay "
+"lại trong một vài phút nữa!"
 
 #: inginious/frontend/templates/mycourses.html:52
 msgid "Find new courses on the course list page"
-msgstr ""
+msgstr "Tìm các khoá học mới tại trang danh sách khoá học"
 
 #: inginious/frontend/templates/mycourses.html:68
 msgid "LTI course"
-msgstr ""
+msgstr "Khoá học LTI"
 
 #: inginious/frontend/templates/mycourses.html:70
 msgid "Hidden course"
-msgstr ""
+msgstr "Khoá học bị ẩn"
 
 #: inginious/frontend/templates/mycourses.html:73
 msgid "Administrator"
-msgstr ""
+msgstr "Quản trị viên"
 
 #: inginious/frontend/templates/mycourses.html:75
 msgid "Tutor"
-msgstr ""
+msgstr "Trợ giảng"
 
 #: inginious/frontend/templates/mycourses.html:77
 msgid "Student"
-msgstr ""
+msgstr "Sinh viên"
 
 #: inginious/frontend/templates/mycourses.html:83
 msgid "You are not registered to any course"
-msgstr ""
+msgstr "Bạn không được đăng ký vào bất kỳ khoá học nào"
 
 #: inginious/frontend/templates/mycourses.html:90
 msgid "Course created."
-msgstr ""
+msgstr "Khoá học đã được tạo."
 
 #: inginious/frontend/templates/mycourses.html:95
 msgid "Failed to create the course."
-msgstr ""
+msgstr "Tạo khoá học thất bại."
 
 #: inginious/frontend/templates/mycourses.html:99
 msgid "Course"
-msgstr ""
+msgstr "Khoá học"
 
 #: inginious/frontend/templates/mycourses.html:103
 msgid "Create new course"
-msgstr ""
+msgstr "Tạo khoá học mới"
 
 #: inginious/frontend/templates/notfound.html:8
 #: inginious/frontend/templates/notfound.html:13
 msgid "Error 404"
-msgstr ""
+msgstr "Lỗi 404"
 
 #: inginious/frontend/templates/queue.html:8
 #: inginious/frontend/templates/queue.html:14
 #: inginious/frontend/templates/queue.html:21
 msgid "Job queue"
-msgstr ""
+msgstr "Hàng đợi công việc"
 
 #: inginious/frontend/templates/queue.html:22
 msgid "This page shows a <strong>snapshot</strong> of the job queue."
 msgstr ""
+"Trang này hiển thị một <strong>bản chụp</strong> của hàng đợi công việc."
 
 #: inginious/frontend/templates/queue.html:24
 msgid "Running jobs"
-msgstr ""
+msgstr "Các công việc đang chạy"
 
 #: inginious/frontend/templates/course_admin/download.html:53
 #: inginious/frontend/templates/course_admin/subproblems/code.html:22
@@ -1225,121 +1237,121 @@ msgstr ""
 #: inginious/frontend/templates/queue.html:28
 #: inginious/frontend/templates/queue.html:64
 msgid "Type"
-msgstr ""
+msgstr "Kiểu"
 
 #: inginious/frontend/templates/queue.html:29
 msgid "Local client"
-msgstr ""
+msgstr "Người dùng nội bộ"
 
 #: inginious/frontend/templates/queue.html:30
 msgid "Agent name"
-msgstr ""
+msgstr "Tên agent"
 
 #: inginious/frontend/templates/course_admin/settings.html:31
 #: inginious/frontend/templates/course_admin/task_edit.html:146
 #: inginious/frontend/templates/queue.html:31
 #: inginious/frontend/templates/queue.html:66
 msgid "Name"
-msgstr ""
+msgstr "Tên"
 
 #: inginious/frontend/templates/queue.html:32
 #: inginious/frontend/templates/queue.html:67
 msgid "Launcher name"
-msgstr ""
+msgstr "Tên của launcher"
 
 #: inginious/frontend/templates/queue.html:33
 msgid "Started at"
-msgstr ""
+msgstr "Bắt đầu vào lúc"
 
 #: inginious/frontend/templates/queue.html:34
 msgid "Timeout at"
-msgstr ""
+msgstr "Hết giờ vào lúc"
 
 #: inginious/frontend/templates/course_admin/settings.html:223
 #: inginious/frontend/templates/queue.html:41
 #: inginious/frontend/templates/queue.html:75
 msgid "Yes"
-msgstr ""
+msgstr "Có"
 
 #: inginious/frontend/templates/course_admin/settings.html:229
 #: inginious/frontend/templates/queue.html:43
 #: inginious/frontend/templates/queue.html:77
 msgid "No"
-msgstr ""
+msgstr "Không"
 
 #: inginious/frontend/templates/queue.html:53
 #: inginious/frontend/templates/queue.html:85
 msgid "No timeout set"
-msgstr ""
+msgstr "Không có giờ hết hạn"
 
 #: inginious/frontend/templates/queue.html:58
 msgid "There are no jobs running"
-msgstr ""
+msgstr "Không có công việc nào đang chạy"
 
 #: inginious/frontend/templates/queue.html:60
 msgid "Jobs in queue"
-msgstr ""
+msgstr "Các công việc trong hàng đợi"
 
 #: inginious/frontend/templates/queue.html:65
 msgid "Local"
-msgstr ""
+msgstr "Nội bộ"
 
 #: inginious/frontend/templates/queue.html:68
 msgid "Maximum runtime in seconds"
-msgstr ""
+msgstr "Thời gian chạy tối đa đo bằng giây"
 
 #: inginious/frontend/templates/queue.html:90
 msgid "There are no jobs waiting in queue"
-msgstr ""
+msgstr "Không có công việc nào ở trong hàng đợi"
 
 #: inginious/frontend/templates/register.html:24
 msgid "Register in INGInious"
-msgstr ""
+msgstr "Đăng ký vào INGInious"
 
 #: inginious/frontend/templates/register.html:28
 msgid "Username (min. 4 alphanumerical characters) :"
-msgstr ""
+msgstr "Tên đăng nhập (tối thiểu 4 kí tự chữ số):"
 
 #: inginious/frontend/templates/preferences/profile.html:49
 #: inginious/frontend/templates/register.html:32
 msgid "Complete name :"
-msgstr ""
+msgstr "Tên hoàn chỉnh :"
 
 #: inginious/frontend/templates/preferences/profile.html:53
 #: inginious/frontend/templates/register.html:36
 #: inginious/frontend/templates/register.html:58
 msgid "Email address :"
-msgstr ""
+msgstr "Địa chỉ email :"
 
 #: inginious/frontend/templates/register.html:40
 #: inginious/frontend/templates/register.html:81
 msgid "Password (min. 6 characters) :"
-msgstr ""
+msgstr "Mật khẩu (tối thiểu 6 kí tự) :"
 
 #: inginious/frontend/templates/register.html:44
 #: inginious/frontend/templates/register.html:85
 msgid "Confirm password :"
-msgstr ""
+msgstr "Xác nhận mật khẩu :"
 
 #: inginious/frontend/templates/register.html:48
 msgid "Sign up"
-msgstr ""
+msgstr "Đăng ký"
 
 #: inginious/frontend/templates/register.html:54
 msgid "Lost password ?"
-msgstr ""
+msgstr "Mất mất khẩu ?"
 
 #: inginious/frontend/templates/register.html:62
 msgid "Reset my password"
-msgstr ""
+msgstr "Khởi tạo lại mật khẩu"
 
 #: inginious/frontend/templates/register.html:75
 msgid "Set new password for {} [{}]"
-msgstr ""
+msgstr "Đặt mật khẩu mới cho {} [{}]"
 
 #: inginious/frontend/templates/register.html:90
 msgid "Set new password"
-msgstr ""
+msgstr "Đặt mật khẩu mới"
 
 #: inginious/frontend/templates/signin_button.html:10
 #: inginious/frontend/templates/signin_button_jinja.html:6
@@ -1347,172 +1359,179 @@ msgid ""
 "Please register or sign in to see the complete list of courses and be able "
 "to submit answers to problems."
 msgstr ""
+"Hãy đăng ký hoặc đăng nhập để có thể xem danh sách toàn bộ các khoá học và "
+"để có thể nộp các đáp án trả lời cho các vấn đề."
 
 #: inginious/frontend/templates/task.html:17
 msgid "Information"
-msgstr ""
+msgstr "Thông tin"
 
 #: inginious/frontend/templates/task.html:21
 msgid "Author(s)"
-msgstr ""
+msgstr "Tác giả"
 
 #: inginious/frontend/templates/task.html:26
 msgid "Contact"
-msgstr ""
+msgstr "Liên hệ"
 
 #: inginious/frontend/templates/task.html:27
 msgid "Contact link"
-msgstr ""
+msgstr "Đường dẫn liên hệ"
 
 #: inginious/frontend/templates/task.html:32
 #: inginious/frontend/templates/task.html:39
 msgid "Deadline"
-msgstr ""
+msgstr "Hạn chót"
 
 #: inginious/frontend/templates/task.html:46
 msgid "Status"
-msgstr ""
+msgstr "Trạng thái"
 
 #: inginious/frontend/templates/task.html:49
 msgid "Not yet attempted"
-msgstr ""
+msgstr "Chưa được thử"
 
 #: inginious/frontend/templates/course_admin/student_info.html:68
 #: inginious/frontend/templates/course_admin/submissions.html:376
 #: inginious/frontend/templates/task.html:51
 msgid "Succeeded"
-msgstr ""
+msgstr "Đã thành công"
 
 #: inginious/frontend/templates/task.html:59
 msgid "Waiting for verification"
-msgstr ""
+msgstr "Đang đợi xác thực"
 
 #: inginious/frontend/templates/course_admin/student_info.html:71
 #: inginious/frontend/templates/course_admin/submissions.html:380
 #: inginious/frontend/templates/task.html:61
 msgid "Failed"
-msgstr ""
+msgstr "Đã thất bại"
 
 #: inginious/frontend/templates/task.html:72
 msgid "Grading weight"
-msgstr ""
+msgstr "Trọng số điểm"
 
 #: inginious/frontend/templates/task.html:76
 msgid "Attempts"
-msgstr ""
+msgstr "Số lần thử"
 
 #: inginious/frontend/templates/task.html:82
 msgid "Submission limit"
-msgstr ""
+msgstr "Giới hạn nộp bài"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:115
 #: inginious/frontend/templates/task.html:86
 msgid "No limitation"
-msgstr ""
+msgstr "Không có giới hạn"
 
 #: inginious/frontend/templates/task.html:89
 msgid "{nb_submissions} submissions<br /> every {nb_hours} hour(s)"
-msgstr ""
+msgstr "{nb_submissions} bài nộp<br /> mỗi {nb_hours} giờ"
 
 #: inginious/frontend/templates/task.html:91
 msgid "{nb_submissions} submissions"
-msgstr ""
+msgstr "{nb_submissions} bài nộp"
 
 #: inginious/frontend/templates/task.html:102
 msgid "Category tags"
-msgstr ""
+msgstr "Các tag chuyên mục"
 
 #: inginious/frontend/templates/task.html:124
 msgid "Administration"
-msgstr ""
+msgstr "Quản trị"
 
 #: inginious/frontend/templates/task.html:127
 msgid ""
 "This course is currently invisible for students.  You can change this by "
 "modifying the \"accessible\" option in the configuration of the course."
 msgstr ""
+"Khoá học này hiện đang bị ẩn đi với sinh viên.  Bạn có thể thay đổi điều này "
+"bằng cách vào mục \"truy cập\" trong thiết lập của khoá học."
 
 #: inginious/frontend/templates/task.html:131
 msgid ""
 "This task is currently invisible for students. You can change this by "
 "modifying the \"accessible\" option in the configuration of the task."
 msgstr ""
+"Nhiệm vụ này hiện đang bị ẩn đi với sinh viên. Bạn có thể thay đổi điều này "
+"bằng cách thay đổi mục \"truy cập\" trong thiết lập của nhiệm vụ."
 
 #: inginious/frontend/templates/task.html:139
 msgid "Edit task"
-msgstr ""
+msgstr "Sửa nhiệm vụ"
 
 #: inginious/frontend/templates/task.html:142
 #: inginious/frontend/templates/task.html:328
 msgid "Debug information"
-msgstr ""
+msgstr "Thông tin gỡ lỗi"
 
 #: inginious/frontend/templates/task.html:146
 msgid "Submitting as"
-msgstr ""
+msgstr "Nộp bài với tư cách"
 
 #: inginious/frontend/templates/task.html:150
 msgid "Group"
-msgstr ""
+msgstr "Nhóm"
 
 #: inginious/frontend/templates/task.html:166
 msgid "For evaluation"
-msgstr ""
+msgstr "Dành cho đánh giá"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:154
 #: inginious/frontend/templates/task.html:170
 msgid "Last submission"
-msgstr ""
+msgstr "Lần nộp bài cuối"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:148
 #: inginious/frontend/templates/task.html:172
 msgid "Best submission"
-msgstr ""
+msgstr "Lần nộp bài tốt nhất"
 
 #: inginious/frontend/templates/task.html:174
 msgid "Selected submission"
-msgstr ""
+msgstr "Bài nộp đã được chọn"
 
 #: inginious/frontend/templates/task.html:182
 #: inginious/frontend/templates/task.html:237
 msgid "No submission"
-msgstr ""
+msgstr "Không có bài nộp"
 
 #: inginious/frontend/templates/task.html:187
 msgid "Share my result"
-msgstr ""
+msgstr "Chia sẻ kết quả của tôi"
 
 #: inginious/frontend/templates/task.html:191
 msgid "Submission history"
-msgstr ""
+msgstr "Lịch sử nộp bài"
 
 #: inginious/frontend/templates/task.html:277
 msgid "Collapse context"
-msgstr ""
+msgstr "Thu gọn bối cảnh"
 
 #: inginious/frontend/templates/task.html:279
 msgid "\"Previous task\""
-msgstr ""
+msgstr "\"Nhiệm vụ trước đó\""
 
 #: inginious/frontend/templates/task.html:281
 msgid "\"Next task\""
-msgstr ""
+msgstr "\"Nhiệm vụ tiếp theo\""
 
 #: inginious/frontend/templates/task.html:308
 msgid "Alternatively, you can also paste this command into your terminal:"
 msgstr ""
+"Theo một cách khác, bạn cũng có thể dán dòng lệnh này vào terminal của bạn:"
 
 #: inginious/frontend/templates/task.html:310
 msgid "Paste this command into your terminal:"
-msgstr ""
+msgstr "Dán dòng lệnh này vào terminal của bạn:"
 
 #: inginious/frontend/templates/task.html:313
 msgid "The password to connect is {}"
-msgstr ""
+msgstr "Mật khẩu để kết nối là {}"
 
 #: inginious/frontend/templates/task.html:316
 msgid "Please answer to all the questions."
-msgstr ""
+msgstr "Xin hãy trả lời tất cả các câu hỏi."
 
 #: inginious/frontend/templates/task.html:332
 msgid ""
@@ -1520,74 +1539,79 @@ msgid ""
 "the task.<br/> This box is only displayed because you are an administrator "
 "of this course. It is not displayed to students."
 msgstr ""
+"Các dữ liệu thô từ container sẽ được hiển thị tại đây, nhằm giúp bạn gỡ lỗi "
+"cho nhiệm vụ. <br /> Hộp thoại này chỉ hiển thị bởi vì bạn là quản trị viên "
+"của khoá học này. Nó không được hiển thị cho sinh viên."
 
 #: inginious/frontend/templates/task.html:365
 msgid "Question {}"
-msgstr ""
+msgstr "Câu hỏi {}"
 
 #: inginious/frontend/templates/task.html:379
 msgid "Please enroll in the course to submit."
-msgstr ""
+msgstr "Xin hãy đăng ký vào khoá học để có thể nộp bài."
 
 #: inginious/frontend/templates/task.html:385
 #: inginious/frontend/templates/task.html:395
 msgid "Submit"
-msgstr ""
+msgstr "Nộp bài"
 
 #: inginious/frontend/templates/task.html:389
 msgid "\"Start remote SSH console with this input\""
-msgstr ""
+msgstr "\"Bắt đầu cửa sổ SSH từ xa với đầu vào này\""
 
 #: inginious/frontend/templates/task.html:397
 msgid "The deadline is over, you cannot submit anymore"
-msgstr ""
+msgstr "Hạn chót đã qua, bạn không thể nộp bài nữa"
 
 #: inginious/frontend/templates/task.html:399
 msgid "Please register in a group"
-msgstr ""
+msgstr "Xin hãy đăng ký vào một nhóm"
 
 #: inginious/frontend/templates/task.html:402
 msgid "You have reached the submission limit."
-msgstr ""
+msgstr "Bạn đã đạt đến giới hạn nộp bài."
 
 #: inginious/frontend/templates/task.html:402
 msgid "Your group have reached the submission limit."
-msgstr ""
+msgstr "Nhóm của bạn đã đạt đến giới hạn nộp bài."
 
 #: inginious/frontend/templates/task.html:404
 msgid "It will be refilled within the next {} hour(s)"
-msgstr ""
+msgstr "Nó sẽ được làm đầy lại trong vòng {} giờ tới"
 
 #: inginious/frontend/templates/task.html:407
 msgid "You are not allowed to submit"
-msgstr ""
+msgstr "Bạn không được phép nộp bài"
 
 #: inginious/frontend/templates/task.html:417
 msgid "Share my result on: "
-msgstr ""
+msgstr "Chia sẻ kết quả của tôi ở: "
 
 #: inginious/frontend/templates/task_unavailable.html:6
 #: inginious/frontend/templates/task_unavailable.html:11
 msgid "Task unavailable"
-msgstr ""
+msgstr "Nhiệm vụ không tồn tại"
 
 #: inginious/frontend/templates/unregister_modal.html:14
 msgid "Unregister from {}"
-msgstr ""
+msgstr "Huỷ đăng ký khỏi {}"
 
 #: inginious/frontend/templates/unregister_modal.html:20
 msgid ""
 "This will keep your submissions saved but will remove you from your group."
 msgstr ""
+"Điều này sẽ lưu lại các bài nộp của bạn nhưng cũng sẽ xoá bạn khỏi nhóm của "
+"bạn."
 
 #: inginious/frontend/templates/unregister_modal.html:21
 msgid "Are you sure ?"
-msgstr ""
+msgstr "Bạn có chắc chắn ?"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:76
 #: inginious/frontend/templates/unregister_modal.html:25
 msgid "Unregister"
-msgstr ""
+msgstr "Hủy đăng ký"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:18
 #: inginious/frontend/templates/course_admin/audience_list.html:17
@@ -1604,78 +1628,78 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_edit.html:19
 #: inginious/frontend/templates/course_admin/task_list.html:17
 msgid "\"Administration\""
-msgstr ""
+msgstr "\"Quản trị\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:20
 msgid "\"Audiences\""
-msgstr ""
+msgstr "\"Các thính giả\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:22
 #: inginious/frontend/templates/course_admin/audience_edit.html:27
 msgid "Edit audience {}"
-msgstr ""
+msgstr "Sửa thính giả {}"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:44
 #: inginious/frontend/templates/course_admin/audience_edit.html:95
 #: inginious/frontend/templates/course_admin/groups_edit.html:73
 #: inginious/frontend/templates/course_admin/groups_edit.html:92
 msgid "Add student"
-msgstr ""
+msgstr "Thêm sinh viên"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:54
 msgid "Registered student"
-msgstr ""
+msgstr "Sinh viên đã đăng ký"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:58
 msgid "New student"
-msgstr ""
+msgstr "Sinh viên mới"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:66
 msgid "Choose student :"
-msgstr ""
+msgstr "Chọn sinh viên:"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:82
 #: inginious/frontend/templates/course_admin/groups_edit.html:81
 msgid "Student username (will be registered) :"
-msgstr ""
+msgstr "Tên đăng nhập của sinh viên (sẽ được đăng ký) :"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:107
 #: inginious/frontend/templates/course_admin/task_edit.html:47
 msgid "Basic settings"
-msgstr ""
+msgstr "Các tuỳ chỉnh cơ bản"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:111
 msgid "Audience description"
-msgstr ""
+msgstr "Mô tả thính giả"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:115
 msgid "\"Audience description\""
-msgstr ""
+msgstr "\"Mô tả thính giả\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:118
 msgid "Delete audience"
-msgstr ""
+msgstr "Xoá thính giả"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:125
 msgid "Tutor list"
-msgstr ""
+msgstr "Danh sách trợ giảng"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:152
 msgid "Add tutor"
-msgstr ""
+msgstr "Thêm trợ giảng"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:165
 msgid "Student list"
-msgstr ""
+msgstr "Danh sách sinh viên"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:179
 msgid "\"Remove student\""
-msgstr ""
+msgstr "\"Xoá sinh viên\""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:188
 #: inginious/frontend/templates/course_admin/groups_edit.html:242
 msgid "Update"
-msgstr ""
+msgstr "Cập nhật"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:31
 #: inginious/frontend/templates/course_admin/groups_edit.html:28
