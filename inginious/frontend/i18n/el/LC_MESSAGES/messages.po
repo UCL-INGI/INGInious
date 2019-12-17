@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-04 14:14+0100\n"
+"POT-Creation-Date: 2019-12-03 13:53+0100\n"
 "PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language-Team: Greek <http://weblate.info.ucl.ac.be/projects/inginious/"
@@ -67,6 +67,14 @@ msgstr "Καμία προθεσμία"
 #: inginious/frontend/tasks.py:87
 msgid "It's too late"
 msgstr "Είναι πολύ αργά"
+
+#: inginious/frontend/environment_types/docker.py:11
+msgid "Docker container"
+msgstr ""
+
+#: inginious/frontend/environment_types/mcq.py:11
+msgid "Multiple Choice Question solver"
+msgstr ""
 
 #: inginious/frontend/pages/group.py:50
 msgid "Couldn't register to the specified group."
@@ -222,17 +230,17 @@ msgstr "Λάθος κατατεμαχισμός για να ξαναρυθμίξ
 msgid "Your password has been successfully changed."
 msgstr "Ο κωδικός σας έχει αλλάξει επιτυχώς."
 
-#: inginious/frontend/pages/tasks.py:197
+#: inginious/frontend/pages/tasks.py:205
 msgid "You are not allowed to submit for this task."
 msgstr "Δεν μπορείτε να υποβάλετε για αυτή την άσκηση."
 
-#: inginious/frontend/pages/tasks.py:205
+#: inginious/frontend/pages/tasks.py:213
 msgid "Your task has been regenerated. This current task is outdated."
 msgstr ""
 "Την άσκηση ήνταν τροποποιημένη. Αυτή την εκδοχή της άσκησης δεν είναι "
 "ενημερωμένη."
 
-#: inginious/frontend/pages/tasks.py:216
+#: inginious/frontend/pages/tasks.py:224
 msgid ""
 "Please answer to all the questions and verify the extensions of the files "
 "you want to upload. Your responses were not tested."
@@ -240,63 +248,61 @@ msgstr ""
 "Να απαντήσετε σε όλες τις ερωτήσεις και να επιβεβαιώσετε την επέκταση "
 "αρχείου που θέλετε να ανεβάλετε. Δεν ελέγξατε τις απάντησες σας."
 
-#: inginious/frontend/pages/tasks.py:231 inginious/frontend/pages/tasks.py:337
+#: inginious/frontend/pages/tasks.py:239 inginious/frontend/pages/tasks.py:345
 msgid "<b>Your submission has been sent...</b>"
 msgstr "<b>Η υποβολή σας στάλθηκε...</b>"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
-#: inginious/frontend/pages/tasks.py:240 inginious/frontend/pages/tasks.py:256
+#: inginious/frontend/pages/tasks.py:248 inginious/frontend/pages/tasks.py:264
 msgid "Internal error"
 msgstr "Εσωτερικό σφάλμα"
 
-#: inginious/frontend/pages/tasks.py:306
-msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
-msgstr "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (σχεδόν τελείωσα)"
+#: inginious/frontend/pages/tasks.py:314
+msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
+msgstr ""
 
-#: inginious/frontend/pages/tasks.py:308
+#: inginious/frontend/pages/tasks.py:316
 msgid ""
-"<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} "
+"<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
-"<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (περίπου χρόνο αναμονής: {} "
-"δευτερόλεπτα)"
 
-#: inginious/frontend/pages/tasks.py:311
+#: inginious/frontend/pages/tasks.py:319
 msgid "<b>You are next in the waiting queue!</b>"
 msgstr "<b>Είστε επόμενος στην ουρά αναμονής!</b>"
 
-#: inginious/frontend/pages/tasks.py:313
+#: inginious/frontend/pages/tasks.py:321
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
 msgstr "<b>Υπάρχει μια δουλειά μπροστά σας στην ουρά αναμονής.</b>"
 
-#: inginious/frontend/pages/tasks.py:315
+#: inginious/frontend/pages/tasks.py:323
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
 msgstr "<b>Υπάρχουν {} δουλειές μπροστά σας στην ουρά αναμονής.</b>"
 
-#: inginious/frontend/pages/tasks.py:339
+#: inginious/frontend/pages/tasks.py:347
 msgid "There are some errors in your answer. Your score is {score}%."
 msgstr "Υπάρχουν λάθη στην απάντησή σας. Ο βαθμός σας είναι {score}%."
 
-#: inginious/frontend/pages/tasks.py:341
+#: inginious/frontend/pages/tasks.py:349
 msgid "Your answer passed the tests! Your score is {score}%."
 msgstr "Η απάντησή σας πέρασε τις δοκιμές! Ο βαθμός σας είναι {score}%."
 
-#: inginious/frontend/pages/tasks.py:343
+#: inginious/frontend/pages/tasks.py:351
 msgid "Your submission timed out. Your score is {score}%."
 msgstr "H υποβολή σας έληξε. Ο βαθμός σας είναι {score}%."
 
-#: inginious/frontend/pages/tasks.py:345
+#: inginious/frontend/pages/tasks.py:353
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr ""
 "H υποβολή σας προκάλεσε μια υπερχείλιση μνήμης. Ο βαθμός σας είναι {score}%."
 
-#: inginious/frontend/pages/tasks.py:347
+#: inginious/frontend/pages/tasks.py:355
 msgid "Your submission was killed."
 msgstr "H υποβολή σας σκοτώθηκε."
 
-#: inginious/frontend/pages/tasks.py:349
+#: inginious/frontend/pages/tasks.py:357
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, send "
 "an email to the course administrator."
@@ -304,11 +310,11 @@ msgstr ""
 "Υπάρχει ένα εσωτερικό σφάλμα. Να ξανακάνετε αργότερα. Αν το σφάλμα επιμένει, "
 "να στείλετε ένα email στο διαχειριστής μαθημάτος."
 
-#: inginious/frontend/pages/tasks.py:352
+#: inginious/frontend/pages/tasks.py:360
 msgid "[Submission #{submissionid}]"
 msgstr "[Υποβολή #{submissionid}]"
 
-#: inginious/frontend/pages/tasks.py:387 inginious/frontend/pages/tasks.py:389
+#: inginious/frontend/pages/tasks.py:395 inginious/frontend/pages/tasks.py:397
 msgid " <truncated>"
 msgstr " <μειωμένος>"
 
@@ -399,6 +405,11 @@ msgstr "όνομα χρήστη/αναγνωριστικό άσκησης"
 msgid "audience/taskid"
 msgstr "κοινό/σύνδεση άσκησης"
 
+#: inginious/frontend/pages/course_admin/download.py:53
+#: inginious/frontend/pages/course_admin/submissions.py:100
+msgid "The following submission could not be prepared for download: {}"
+msgstr ""
+
 #: inginious/frontend/pages/course_admin/group_edit.py:179
 msgid "Groups updated."
 msgstr "Επικαιροποιημένες ομάδες."
@@ -476,7 +487,7 @@ msgstr "Θα αξιολοξούμε {0} υποβολές."
 msgid "No submissions found"
 msgstr "Καμία υποβολή βρέθηκε"
 
-#: inginious/frontend/pages/course_admin/submissions.py:102
+#: inginious/frontend/pages/course_admin/submissions.py:106
 msgid ""
 "The result contains more than {0} submissions. The displayed submissions are "
 "truncated.\n"
@@ -496,46 +507,46 @@ msgstr "Δεν υπάρχει όλα τα πεδία ετικετών."
 msgid "Invalid tag id: {}"
 msgstr "Λάθος αναγνωριστικό ετικετάς: {}"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:134
+#: inginious/frontend/pages/course_admin/task_edit.py:141
 msgid "Invalid file type: {}"
 msgstr "Λάθος τύπος αρχείου: {}"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:150
+#: inginious/frontend/pages/course_admin/task_edit.py:157
 msgid "Unknown category tag."
 msgstr "Άγνωστη κατηγορία ετικετάς."
 
-#: inginious/frontend/pages/course_admin/task_edit.py:161
+#: inginious/frontend/pages/course_admin/task_edit.py:166
 msgid "Grade weight must be a floating-point number"
 msgstr "Το βάρος βαθμού πρέπει να είναι ένας αριθμός κινητής υποδιαστολής"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:174
-#: inginious/frontend/pages/course_admin/task_edit.py:177
+#: inginious/frontend/pages/course_admin/task_edit.py:179
+#: inginious/frontend/pages/course_admin/task_edit.py:182
 msgid "The number of stored submission must be positive!"
 msgstr "Ο αριθμός των αποθηκευμένων υποβολών πρέπει να είναι θετικός!"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:188
-#: inginious/frontend/pages/course_admin/task_edit.py:194
+#: inginious/frontend/pages/course_admin/task_edit.py:193
+#: inginious/frontend/pages/course_admin/task_edit.py:199
 msgid "Invalid submission limit!"
 msgstr "Λάθος όριο υποβολής!"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:219
+#: inginious/frontend/pages/course_admin/task_edit.py:224
 msgid "Your browser returned an invalid form ({})"
 msgstr "Το πρόγραμμα περιήγησής σας επέστρεψε μια λάθος φόρμα ({})"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:225
+#: inginious/frontend/pages/course_admin/task_edit.py:230
 msgid "Error while reading course's informations"
 msgstr "Λάθος όταν διαβάσατε τους πληροφορίες του μαθήματος"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:249
+#: inginious/frontend/pages/course_admin/task_edit.py:254
 msgid "Invalid data: {}"
 msgstr "Λάθος δεδομένα: {}"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:255
+#: inginious/frontend/pages/course_admin/task_edit.py:260
 msgid "Cannot read zip file. Files were not modified"
 msgstr ""
 "Δεν μπορείτε να διαβάσαμε του αρχείου zip. Τα αρχεία δεν τροποποιήθηκαν"
 
-#: inginious/frontend/pages/course_admin/task_edit.py:262
+#: inginious/frontend/pages/course_admin/task_edit.py:267
 msgid ""
 "There was a problem while extracting the zip archive. Some files may have "
 "been modified"
@@ -720,7 +731,6 @@ msgstr "Καλωσήρθες"
 
 #: inginious/frontend/templates/auth.html:17
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:23
-#: inginious/frontend/templates/register_modal.html:27
 msgid "Close"
 msgstr "λείνω"
 
@@ -731,8 +741,7 @@ msgstr "Όνομα χρήστη"
 
 #: inginious/frontend/templates/auth.html:27
 #: inginious/frontend/templates/course_admin/task_list.html:49
-#: inginious/frontend/templates/mycourses.html:124
-#: inginious/frontend/templates/register_modal.html:22
+#: inginious/frontend/templates/course_register.html:29
 msgid "Password"
 msgstr "Κωδικός πρόσβασης"
 
@@ -742,8 +751,11 @@ msgstr "Χαμένος κωδικός?"
 
 #: inginious/frontend/templates/auth.html:29
 #: inginious/frontend/templates/layout.html:144
+#: inginious/frontend/templates/layout_jinja.html:141
 #: inginious/frontend/templates/signin_button.html:8
 #: inginious/frontend/templates/signin_button.html:15
+#: inginious/frontend/templates/signin_button_jinja.html:4
+#: inginious/frontend/templates/signin_button_jinja.html:11
 msgid "Sign in"
 msgstr "Συνδεθείτε"
 
@@ -797,8 +809,7 @@ msgstr "Καταργήστε την εγγραφή από αυτό το μαθή
 
 #: inginious/frontend/templates/course.html:70
 #: inginious/frontend/templates/course.html:77
-#: inginious/frontend/templates/register_modal.html:14
-#: inginious/frontend/templates/register_modal.html:28
+#: inginious/frontend/templates/course_register.html:33
 #: inginious/frontend/templates/task.html:243
 #: inginious/frontend/templates/task.html:250
 msgid "Enroll in the course"
@@ -815,6 +826,8 @@ msgid "\"My courses\""
 msgstr "\"Τα μαθήματα μου\""
 
 #: inginious/frontend/templates/course.html:89
+#: inginious/frontend/templates/course_register.html:9
+#: inginious/frontend/templates/course_unavailable.html:9
 #: inginious/frontend/templates/task.html:262
 msgid "\"Course list\""
 msgstr "\"λίστα με τα μαθήματα\""
@@ -835,8 +848,9 @@ msgstr "\"λίστα με τα μαθήματα\""
 #: inginious/frontend/templates/course_admin/tags.html:19
 #: inginious/frontend/templates/course_admin/task_edit.html:23
 #: inginious/frontend/templates/course_admin/task_list.html:19
+#: inginious/frontend/templates/course_register.html:10
+#: inginious/frontend/templates/courselist.html:27
 #: inginious/frontend/templates/group.html:60
-#: inginious/frontend/templates/index.html:14
 #: inginious/frontend/templates/mycourses.html:14
 #: inginious/frontend/templates/preferences/bindings.html:18
 #: inginious/frontend/templates/preferences/profile.html:18
@@ -865,14 +879,96 @@ msgstr "Η άσκηση είναι κρυμμένη από τους μαθητέ
 msgid "deadline reached"
 msgstr "προθεσμία τελείωσε"
 
-#: inginious/frontend/templates/course_unavailable.html:11
+#: inginious/frontend/templates/course_register.html:5
+msgid "Register to course '{}'"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:11
+#: inginious/frontend/templates/layout.html:143
+#: inginious/frontend/templates/layout_jinja.html:139
+#: inginious/frontend/templates/register.html:8
+msgid "Register"
+msgstr "Εγγράφομαι"
+
+#: inginious/frontend/templates/course_register.html:19
+msgid "Enroll in the course '{}'"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:20
+msgid "This will enroll you in the course {}"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:23
+msgid "Invalid password."
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:5
+#: inginious/frontend/templates/course_unavailable.html:10
+msgid "Course unavailable"
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:19
 #: inginious/frontend/templates/task_unavailable.html:11
 msgid "Error 403"
 msgstr "Σφάλμα 403"
 
-#: inginious/frontend/templates/course_unavailable.html:11
+#: inginious/frontend/templates/course_unavailable.html:21
+msgid "This course is closed."
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:23
+msgid ""
+"This course must be accessed on an external platform. Read the course "
+"description or contact the teaching team for more information."
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:25
 msgid "You are not registered to this course."
 msgstr "Δεν είστε καταγεγραμμένος σε αυτό μάθημα."
+
+#: inginious/frontend/templates/courselist.html:5
+#: inginious/frontend/templates/courselist.html:26
+#: inginious/frontend/templates/courselist.html:33
+#: inginious/frontend/templates/layout.html:113
+#: inginious/frontend/templates/layout.html:140
+#: inginious/frontend/templates/layout_jinja.html:109
+#: inginious/frontend/templates/layout_jinja.html:137
+msgid "Course list"
+msgstr "Λίστα με τα μαθήματα"
+
+#: inginious/frontend/templates/courselist.html:10
+msgid "Public courses"
+msgstr "Δημόσιες μαθήματα"
+
+#: inginious/frontend/templates/courselist.html:12
+msgid ""
+"This page lists all the courses that are available now. If you are a course "
+"administrator, go to your 'My courses' page to see all of them."
+msgstr ""
+"Αυτός το περισσότερος απαριθμεί όλα τα μαθήματα που είναι διαθέσιμα τώρα. Αν "
+"είναι ένας βββββββ, να κάνετε κλικ στο 'Τα μαθήματα μου' περισσότερο για να "
+"τα όλα δείτε."
+
+#: inginious/frontend/templates/courselist.html:17
+#: inginious/frontend/templates/layout.html:119
+#: inginious/frontend/templates/layout_jinja.html:115
+#: inginious/frontend/templates/mycourses.html:8
+#: inginious/frontend/templates/mycourses.html:13
+#: inginious/frontend/templates/mycourses.html:47
+msgid "My courses"
+msgstr "Τα μαθήματα μου"
+
+#: inginious/frontend/templates/courselist.html:52
+msgid "External platform"
+msgstr "Εξωτερικό πλατφόρμα"
+
+#: inginious/frontend/templates/courselist.html:56
+msgid "Auto-registration"
+msgstr "Αυτόματη εγγραφή"
+
+#: inginious/frontend/templates/courselist.html:60
+msgid "Password needed"
+msgstr "Απαραίτητος κωδικός πρόσβασης"
 
 #: inginious/frontend/templates/group.html:57
 msgid "Register for a group"
@@ -942,43 +1038,6 @@ msgstr "(διαθέσιμος: {})"
 msgid "No registered member."
 msgstr "Κανένα εγγεγραμμένος μέλος."
 
-#: inginious/frontend/templates/index.html:8
-#: inginious/frontend/templates/index.html:13
-#: inginious/frontend/templates/index.html:38
-#: inginious/frontend/templates/layout.html:113
-#: inginious/frontend/templates/layout.html:140
-msgid "Course list"
-msgstr "Λίστα με τα μαθήματα"
-
-#: inginious/frontend/templates/index.html:24
-msgid "Public courses"
-msgstr "Δημόσιες μαθήματα"
-
-#: inginious/frontend/templates/index.html:26
-msgid ""
-"This page lists all the courses that are available now. If you are a course "
-"administrator, go to your 'My courses' page to see all of them."
-msgstr ""
-"Αυτός το περισσότερος απαριθμεί όλα τα μαθήματα που είναι διαθέσιμα τώρα. Αν "
-"είναι ένας βββββββ, να κάνετε κλικ στο 'Τα μαθήματα μου' περισσότερο για να "
-"τα όλα δείτε."
-
-#: inginious/frontend/templates/index.html:31
-msgid "My courses / Register for a course"
-msgstr "Τα μαθήματα μου / Καταθέτω για ένα μάθημα"
-
-#: inginious/frontend/templates/index.html:61
-msgid "External platform"
-msgstr "Εξωτερικό πλατφόρμα"
-
-#: inginious/frontend/templates/index.html:64
-msgid "Auto-registration"
-msgstr "Αυτόματη εγγραφή"
-
-#: inginious/frontend/templates/index.html:67
-msgid "Password needed"
-msgstr "Απαραίτητος κωδικός πρόσβασης"
-
 #: inginious/frontend/templates/internalerror.html:60
 msgid ""
 "<b>Internal error</b> Something bad happened. The error has been logged, "
@@ -989,47 +1048,38 @@ msgstr ""
 
 #: inginious/frontend/templates/internalerror.html:74
 #: inginious/frontend/templates/layout.html:173
+#: inginious/frontend/templates/layout_jinja.html:173
 #: inginious/frontend/templates/maintenance.html:70
 msgid "INGInious is distributed under AGPL license"
 msgstr "INGInious διανέμεται υπό την άδεια AGPL"
 
-#: inginious/frontend/templates/layout.html:119
-#: inginious/frontend/templates/mycourses.html:8
-#: inginious/frontend/templates/mycourses.html:13
-#: inginious/frontend/templates/mycourses.html:47
-msgid "My courses"
-msgstr "Τα μαθήματα μου"
-
 #: inginious/frontend/templates/layout.html:120
+#: inginious/frontend/templates/layout_jinja.html:116
 msgid "Preferences"
 msgstr "Προτίμησες"
 
 #: inginious/frontend/templates/layout.html:122
+#: inginious/frontend/templates/layout_jinja.html:118
 msgid "Service status"
 msgstr "Κατάσταση υπηρεσίας"
 
 #: inginious/frontend/templates/layout.html:124
+#: inginious/frontend/templates/layout_jinja.html:120
 msgid "Log out"
 msgstr "Αποσυνδέω"
 
 #: inginious/frontend/templates/layout.html:132
+#: inginious/frontend/templates/layout_jinja.html:128
 msgid "English"
 msgstr "Ελληνικά"
-
-#: inginious/frontend/templates/layout.html:143
-#: inginious/frontend/templates/mycourses.html:127
-#: inginious/frontend/templates/register.html:8
-msgid "Register"
-msgstr "Εγγράφομαι"
 
 #: inginious/frontend/templates/layout_lti.html:91
 msgid ""
 "Powered by <a href=\"http://www.inginious.org\" target=\"_blank\">INGInious</"
 "a>, a free and open-source grading tool."
 msgstr ""
-"Powered by <a href=\"http://www.inginious.org\" target=\"_blank\""
-">INGInious</a>, ένα δωρεάν εργαλείο βαθμολόγησης με λογισμικό ανοικτού "
-"κώδικα."
+"Powered by <a href=\"http://www.inginious.org\" target=\"_blank\">INGInious</"
+"a>, ένα δωρεάν εργαλείο βαθμολόγησης με λογισμικό ανοικτού κώδικα."
 
 #: inginious/frontend/templates/lti_bind.html:8
 msgid "Bind LTI"
@@ -1119,64 +1169,49 @@ msgstr ""
 "<b>Αυτή την INGInious περίπτωση είναι υπό συντήρηση.</b> Να γυρίσετε σε λίγα "
 "λεπτά!"
 
-#: inginious/frontend/templates/mycourses.html:61
+#: inginious/frontend/templates/mycourses.html:52
+msgid "Find new courses on the course list page"
+msgstr ""
+
+#: inginious/frontend/templates/mycourses.html:68
 msgid "LTI course"
 msgstr "Μάθημα LTI"
 
-#: inginious/frontend/templates/mycourses.html:63
+#: inginious/frontend/templates/mycourses.html:70
 msgid "Hidden course"
 msgstr "Κρυμμένα μάθημα"
 
-#: inginious/frontend/templates/mycourses.html:66
+#: inginious/frontend/templates/mycourses.html:73
 msgid "Administrator"
 msgstr "Διαχειριστής συστήματο"
 
-#: inginious/frontend/templates/mycourses.html:68
+#: inginious/frontend/templates/mycourses.html:75
 msgid "Tutor"
 msgstr "Καθηγητής"
 
-#: inginious/frontend/templates/mycourses.html:70
+#: inginious/frontend/templates/mycourses.html:77
 msgid "Student"
 msgstr "Μαθητής"
 
-#: inginious/frontend/templates/mycourses.html:76
+#: inginious/frontend/templates/mycourses.html:83
 msgid "You are not registered to any course"
 msgstr "Δεν είστε εγγεγραμμένος/η σε ένα μάθημα"
 
-#: inginious/frontend/templates/mycourses.html:83
+#: inginious/frontend/templates/mycourses.html:90
 msgid "Course created."
 msgstr "Δημιουργήσαμε ένα μάθημα."
 
-#: inginious/frontend/templates/mycourses.html:88
+#: inginious/frontend/templates/mycourses.html:95
 msgid "Failed to create the course."
 msgstr "Δεν καταφέρατε να δημιουργήσουμε το μάθημα."
 
-#: inginious/frontend/templates/mycourses.html:92
-#: inginious/frontend/templates/mycourses.html:113
+#: inginious/frontend/templates/mycourses.html:99
 msgid "Course"
 msgstr "Μάθημα"
 
-#: inginious/frontend/templates/mycourses.html:96
+#: inginious/frontend/templates/mycourses.html:103
 msgid "Create new course"
 msgstr "Δημιουργώ ένα νέο μάθημα"
-
-#: inginious/frontend/templates/mycourses.html:100
-msgid "Register for a course"
-msgstr "Γράφομαι σε ένα μάθημα"
-
-#: inginious/frontend/templates/mycourses.html:104
-msgid "Registration complete."
-msgstr "Τελειωμένη εγγραφή."
-
-#: inginious/frontend/templates/mycourses.html:109
-msgid "Registration failed. Please check that you properly typed the password."
-msgstr ""
-"Η εγγραφή δεν καταφέρε. Να ελέγξετε ότι δακτυλογραφήσατε τον σωστό κωδικό "
-"πρόσβασης."
-
-#: inginious/frontend/templates/mycourses.html:115
-msgid "Select a course"
-msgstr "Επιλέγω ένα μάθημα"
 
 #: inginious/frontend/templates/notfound.html:8
 #: inginious/frontend/templates/notfound.html:13
@@ -1199,11 +1234,11 @@ msgstr ""
 msgid "Running jobs"
 msgstr "Διαχείρισες δοθλειές"
 
-#: inginious/frontend/templates/course_admin/download.html:47
+#: inginious/frontend/templates/course_admin/download.html:53
 #: inginious/frontend/templates/course_admin/subproblems/code.html:22
 #: inginious/frontend/templates/course_admin/subproblems/file.html:27
 #: inginious/frontend/templates/queue.html:28
-#: inginious/frontend/templates/queue.html:59
+#: inginious/frontend/templates/queue.html:64
 msgid "Type"
 msgstr "Είδος"
 
@@ -1218,12 +1253,12 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/settings.html:31
 #: inginious/frontend/templates/course_admin/task_edit.html:146
 #: inginious/frontend/templates/queue.html:31
-#: inginious/frontend/templates/queue.html:61
+#: inginious/frontend/templates/queue.html:66
 msgid "Name"
 msgstr ""
 
 #: inginious/frontend/templates/queue.html:32
-#: inginious/frontend/templates/queue.html:62
+#: inginious/frontend/templates/queue.html:67
 msgid "Launcher name"
 msgstr ""
 
@@ -1237,33 +1272,38 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:223
 #: inginious/frontend/templates/queue.html:41
-#: inginious/frontend/templates/queue.html:70
+#: inginious/frontend/templates/queue.html:75
 msgid "Yes"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:229
 #: inginious/frontend/templates/queue.html:43
-#: inginious/frontend/templates/queue.html:72
+#: inginious/frontend/templates/queue.html:77
 msgid "No"
 msgstr ""
 
 #: inginious/frontend/templates/queue.html:53
+#: inginious/frontend/templates/queue.html:85
+msgid "No timeout set"
+msgstr ""
+
+#: inginious/frontend/templates/queue.html:58
 msgid "There are no jobs running"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:55
+#: inginious/frontend/templates/queue.html:60
 msgid "Jobs in queue"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:60
+#: inginious/frontend/templates/queue.html:65
 msgid "Local"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:63
+#: inginious/frontend/templates/queue.html:68
 msgid "Maximum runtime in seconds"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:80
+#: inginious/frontend/templates/queue.html:90
 msgid "There are no jobs waiting in queue"
 msgstr ""
 
@@ -1316,11 +1356,8 @@ msgstr ""
 msgid "Set new password"
 msgstr ""
 
-#: inginious/frontend/templates/register_modal.html:19
-msgid "This will enroll you in the course {}."
-msgstr ""
-
 #: inginious/frontend/templates/signin_button.html:10
+#: inginious/frontend/templates/signin_button_jinja.html:6
 msgid ""
 "Please register or sign in to see the complete list of courses and be able "
 "to submit answers to problems."
@@ -1821,29 +1858,29 @@ msgid ""
 "(including tasks and backups) from INGInious. Are you really sure ?</p>"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:31
+#: inginious/frontend/templates/course_admin/download.html:37
 #: inginious/frontend/templates/course_admin/replay.html:41
 msgid "Other options"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:35
+#: inginious/frontend/templates/course_admin/download.html:41
 #: inginious/frontend/templates/course_admin/submissions.html:235
 msgid "Folder format"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:54
+#: inginious/frontend/templates/course_admin/download.html:60
 msgid "Download only the evaluation submission for each task/user"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:54
+#: inginious/frontend/templates/course_admin/download.html:60
 msgid "audience"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:60
+#: inginious/frontend/templates/course_admin/download.html:66
 msgid "Download all the submissions"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:70
+#: inginious/frontend/templates/course_admin/download.html:76
 #: inginious/frontend/templates/course_admin/edit_tabs/files.html:18
 #: inginious/frontend/templates/course_admin/submissions.html:248
 msgid "Download"
@@ -2482,7 +2519,7 @@ msgid "View task"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/task_edit.html:50
-msgid "Container setup"
+msgid "Environment"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/task_edit.html:53
@@ -2680,38 +2717,38 @@ msgstr ""
 msgid "Regenerate input random"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:9
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:4
 msgid "Timeout limit (in seconds)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:15
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:10
 msgid "Hard timeout limit (in seconds) <small>Default to 3*timeout</small>"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:22
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:17
 msgid "Memory limit (in megabytes)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:28
-msgid "Output limit (in megabytes)"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:34
-msgid "Grading environment"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:46
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:23
 msgid "Allow internet access inside the grading container?"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:58
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:35
 msgid ""
 "Custom command to be run in container <small>(instead of running the run "
 "script)</small>"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:66
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:43
 msgid "Are the task's responses written in HTML instead of restructuredText?"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/edit_tabs/environment.html:9
+msgid "Grading environment type"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/edit_tabs/environment.html:24
+msgid "Grading environment"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:6
@@ -2958,6 +2995,34 @@ msgstr ""
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
 msgstr ""
+
+#~ msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
+#~ msgstr "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (σχεδόν τελείωσα)"
+
+#~ msgid ""
+#~ "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
+#~ "{} seconds)"
+#~ msgstr ""
+#~ "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (περίπου χρόνο αναμονής: "
+#~ "{} δευτερόλεπτα)"
+
+#~ msgid "My courses / Register for a course"
+#~ msgstr "Τα μαθήματα μου / Καταθέτω για ένα μάθημα"
+
+#~ msgid "Register for a course"
+#~ msgstr "Γράφομαι σε ένα μάθημα"
+
+#~ msgid "Registration complete."
+#~ msgstr "Τελειωμένη εγγραφή."
+
+#~ msgid ""
+#~ "Registration failed. Please check that you properly typed the password."
+#~ msgstr ""
+#~ "Η εγγραφή δεν καταφέρε. Να ελέγξετε ότι δακτυλογραφήσατε τον σωστό κωδικό "
+#~ "πρόσβασης."
+
+#~ msgid "Select a course"
+#~ msgstr "Επιλέγω ένα μάθημα"
 
 #~ msgid "Classroom with id {} not found."
 #~ msgstr "Η αίθουσα με τη σύνδεση {} δεν βρέθηκε."

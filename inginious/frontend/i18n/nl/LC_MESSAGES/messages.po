@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-04 14:14+0100\n"
+"POT-Creation-Date: 2019-12-03 13:53+0100\n"
 "PO-Revision-Date: 2019-10-16 22:04+0000\n"
 "Last-Translator: Kim Mens <kim.mens@uclouvain.be>\n"
 "Language-Team: Dutch <http://weblate.info.ucl.ac.be/projects/inginious/"
@@ -68,6 +68,14 @@ msgstr "Geen deadline"
 #: inginious/frontend/tasks.py:87
 msgid "It's too late"
 msgstr "Deadline is voorbij"
+
+#: inginious/frontend/environment_types/docker.py:11
+msgid "Docker container"
+msgstr ""
+
+#: inginious/frontend/environment_types/mcq.py:11
+msgid "Multiple Choice Question solver"
+msgstr ""
 
 #: inginious/frontend/pages/group.py:50
 msgid "Couldn't register to the specified group."
@@ -221,84 +229,84 @@ msgstr "Ongeldige herinitialisatie hash."
 msgid "Your password has been successfully changed."
 msgstr "Je paswoord werd met succes aangepast."
 
-#: inginious/frontend/pages/tasks.py:197
+#: inginious/frontend/pages/tasks.py:205
 msgid "You are not allowed to submit for this task."
 msgstr "Het is je niet toegestaan iets in te dienen voor deze taak."
 
-#: inginious/frontend/pages/tasks.py:205
+#: inginious/frontend/pages/tasks.py:213
 msgid "Your task has been regenerated. This current task is outdated."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:216
+#: inginious/frontend/pages/tasks.py:224
 msgid ""
 "Please answer to all the questions and verify the extensions of the files "
 "you want to upload. Your responses were not tested."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:231 inginious/frontend/pages/tasks.py:337
+#: inginious/frontend/pages/tasks.py:239 inginious/frontend/pages/tasks.py:345
 msgid "<b>Your submission has been sent...</b>"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
-#: inginious/frontend/pages/tasks.py:240 inginious/frontend/pages/tasks.py:256
+#: inginious/frontend/pages/tasks.py:248 inginious/frontend/pages/tasks.py:264
 msgid "Internal error"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:306
-msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
+#: inginious/frontend/pages/tasks.py:314
+msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:308
+#: inginious/frontend/pages/tasks.py:316
 msgid ""
-"<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} "
+"<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:311
+#: inginious/frontend/pages/tasks.py:319
 msgid "<b>You are next in the waiting queue!</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:313
+#: inginious/frontend/pages/tasks.py:321
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:315
+#: inginious/frontend/pages/tasks.py:323
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:339
+#: inginious/frontend/pages/tasks.py:347
 msgid "There are some errors in your answer. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:341
+#: inginious/frontend/pages/tasks.py:349
 msgid "Your answer passed the tests! Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:343
+#: inginious/frontend/pages/tasks.py:351
 msgid "Your submission timed out. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:345
+#: inginious/frontend/pages/tasks.py:353
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:347
+#: inginious/frontend/pages/tasks.py:355
 msgid "Your submission was killed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:349
+#: inginious/frontend/pages/tasks.py:357
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, send "
 "an email to the course administrator."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:352
+#: inginious/frontend/pages/tasks.py:360
 msgid "[Submission #{submissionid}]"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:387 inginious/frontend/pages/tasks.py:389
+#: inginious/frontend/pages/tasks.py:395 inginious/frontend/pages/tasks.py:397
 msgid " <truncated>"
 msgstr ""
 
@@ -388,6 +396,11 @@ msgstr ""
 msgid "audience/taskid"
 msgstr ""
 
+#: inginious/frontend/pages/course_admin/download.py:53
+#: inginious/frontend/pages/course_admin/submissions.py:100
+msgid "The following submission could not be prepared for download: {}"
+msgstr ""
+
 #: inginious/frontend/pages/course_admin/group_edit.py:179
 msgid "Groups updated."
 msgstr ""
@@ -465,7 +478,7 @@ msgstr ""
 msgid "No submissions found"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/submissions.py:102
+#: inginious/frontend/pages/course_admin/submissions.py:106
 msgid ""
 "The result contains more than {0} submissions. The displayed submissions are "
 "truncated.\n"
@@ -483,45 +496,45 @@ msgstr ""
 msgid "Invalid tag id: {}"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:134
+#: inginious/frontend/pages/course_admin/task_edit.py:141
 msgid "Invalid file type: {}"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:150
+#: inginious/frontend/pages/course_admin/task_edit.py:157
 msgid "Unknown category tag."
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:161
+#: inginious/frontend/pages/course_admin/task_edit.py:166
 msgid "Grade weight must be a floating-point number"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:174
-#: inginious/frontend/pages/course_admin/task_edit.py:177
+#: inginious/frontend/pages/course_admin/task_edit.py:179
+#: inginious/frontend/pages/course_admin/task_edit.py:182
 msgid "The number of stored submission must be positive!"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:188
-#: inginious/frontend/pages/course_admin/task_edit.py:194
+#: inginious/frontend/pages/course_admin/task_edit.py:193
+#: inginious/frontend/pages/course_admin/task_edit.py:199
 msgid "Invalid submission limit!"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:219
+#: inginious/frontend/pages/course_admin/task_edit.py:224
 msgid "Your browser returned an invalid form ({})"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:225
+#: inginious/frontend/pages/course_admin/task_edit.py:230
 msgid "Error while reading course's informations"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:249
+#: inginious/frontend/pages/course_admin/task_edit.py:254
 msgid "Invalid data: {}"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:255
+#: inginious/frontend/pages/course_admin/task_edit.py:260
 msgid "Cannot read zip file. Files were not modified"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/task_edit.py:262
+#: inginious/frontend/pages/course_admin/task_edit.py:267
 msgid ""
 "There was a problem while extracting the zip archive. Some files may have "
 "been modified"
@@ -701,7 +714,6 @@ msgstr ""
 
 #: inginious/frontend/templates/auth.html:17
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:23
-#: inginious/frontend/templates/register_modal.html:27
 msgid "Close"
 msgstr ""
 
@@ -712,8 +724,7 @@ msgstr ""
 
 #: inginious/frontend/templates/auth.html:27
 #: inginious/frontend/templates/course_admin/task_list.html:49
-#: inginious/frontend/templates/mycourses.html:124
-#: inginious/frontend/templates/register_modal.html:22
+#: inginious/frontend/templates/course_register.html:29
 msgid "Password"
 msgstr ""
 
@@ -723,8 +734,11 @@ msgstr ""
 
 #: inginious/frontend/templates/auth.html:29
 #: inginious/frontend/templates/layout.html:144
+#: inginious/frontend/templates/layout_jinja.html:141
 #: inginious/frontend/templates/signin_button.html:8
 #: inginious/frontend/templates/signin_button.html:15
+#: inginious/frontend/templates/signin_button_jinja.html:4
+#: inginious/frontend/templates/signin_button_jinja.html:11
 msgid "Sign in"
 msgstr ""
 
@@ -776,8 +790,7 @@ msgstr ""
 
 #: inginious/frontend/templates/course.html:70
 #: inginious/frontend/templates/course.html:77
-#: inginious/frontend/templates/register_modal.html:14
-#: inginious/frontend/templates/register_modal.html:28
+#: inginious/frontend/templates/course_register.html:33
 #: inginious/frontend/templates/task.html:243
 #: inginious/frontend/templates/task.html:250
 msgid "Enroll in the course"
@@ -794,6 +807,8 @@ msgid "\"My courses\""
 msgstr ""
 
 #: inginious/frontend/templates/course.html:89
+#: inginious/frontend/templates/course_register.html:9
+#: inginious/frontend/templates/course_unavailable.html:9
 #: inginious/frontend/templates/task.html:262
 msgid "\"Course list\""
 msgstr ""
@@ -814,8 +829,9 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/tags.html:19
 #: inginious/frontend/templates/course_admin/task_edit.html:23
 #: inginious/frontend/templates/course_admin/task_list.html:19
+#: inginious/frontend/templates/course_register.html:10
+#: inginious/frontend/templates/courselist.html:27
 #: inginious/frontend/templates/group.html:60
-#: inginious/frontend/templates/index.html:14
 #: inginious/frontend/templates/mycourses.html:14
 #: inginious/frontend/templates/preferences/bindings.html:18
 #: inginious/frontend/templates/preferences/profile.html:18
@@ -844,13 +860,92 @@ msgstr ""
 msgid "deadline reached"
 msgstr ""
 
-#: inginious/frontend/templates/course_unavailable.html:11
+#: inginious/frontend/templates/course_register.html:5
+msgid "Register to course '{}'"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:11
+#: inginious/frontend/templates/layout.html:143
+#: inginious/frontend/templates/layout_jinja.html:139
+#: inginious/frontend/templates/register.html:8
+msgid "Register"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:19
+msgid "Enroll in the course '{}'"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:20
+msgid "This will enroll you in the course {}"
+msgstr ""
+
+#: inginious/frontend/templates/course_register.html:23
+msgid "Invalid password."
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:5
+#: inginious/frontend/templates/course_unavailable.html:10
+msgid "Course unavailable"
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:19
 #: inginious/frontend/templates/task_unavailable.html:11
 msgid "Error 403"
 msgstr ""
 
-#: inginious/frontend/templates/course_unavailable.html:11
+#: inginious/frontend/templates/course_unavailable.html:21
+msgid "This course is closed."
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:23
+msgid ""
+"This course must be accessed on an external platform. Read the course "
+"description or contact the teaching team for more information."
+msgstr ""
+
+#: inginious/frontend/templates/course_unavailable.html:25
 msgid "You are not registered to this course."
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:5
+#: inginious/frontend/templates/courselist.html:26
+#: inginious/frontend/templates/courselist.html:33
+#: inginious/frontend/templates/layout.html:113
+#: inginious/frontend/templates/layout.html:140
+#: inginious/frontend/templates/layout_jinja.html:109
+#: inginious/frontend/templates/layout_jinja.html:137
+msgid "Course list"
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:10
+msgid "Public courses"
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:12
+msgid ""
+"This page lists all the courses that are available now. If you are a course "
+"administrator, go to your 'My courses' page to see all of them."
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:17
+#: inginious/frontend/templates/layout.html:119
+#: inginious/frontend/templates/layout_jinja.html:115
+#: inginious/frontend/templates/mycourses.html:8
+#: inginious/frontend/templates/mycourses.html:13
+#: inginious/frontend/templates/mycourses.html:47
+msgid "My courses"
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:52
+msgid "External platform"
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:56
+msgid "Auto-registration"
+msgstr ""
+
+#: inginious/frontend/templates/courselist.html:60
+msgid "Password needed"
 msgstr ""
 
 #: inginious/frontend/templates/group.html:57
@@ -911,40 +1006,6 @@ msgstr ""
 msgid "No registered member."
 msgstr ""
 
-#: inginious/frontend/templates/index.html:8
-#: inginious/frontend/templates/index.html:13
-#: inginious/frontend/templates/index.html:38
-#: inginious/frontend/templates/layout.html:113
-#: inginious/frontend/templates/layout.html:140
-msgid "Course list"
-msgstr ""
-
-#: inginious/frontend/templates/index.html:24
-msgid "Public courses"
-msgstr ""
-
-#: inginious/frontend/templates/index.html:26
-msgid ""
-"This page lists all the courses that are available now. If you are a course "
-"administrator, go to your 'My courses' page to see all of them."
-msgstr ""
-
-#: inginious/frontend/templates/index.html:31
-msgid "My courses / Register for a course"
-msgstr ""
-
-#: inginious/frontend/templates/index.html:61
-msgid "External platform"
-msgstr ""
-
-#: inginious/frontend/templates/index.html:64
-msgid "Auto-registration"
-msgstr ""
-
-#: inginious/frontend/templates/index.html:67
-msgid "Password needed"
-msgstr ""
-
 #: inginious/frontend/templates/internalerror.html:60
 msgid ""
 "<b>Internal error</b> Something bad happened. The error has been logged, "
@@ -953,37 +1014,29 @@ msgstr ""
 
 #: inginious/frontend/templates/internalerror.html:74
 #: inginious/frontend/templates/layout.html:173
+#: inginious/frontend/templates/layout_jinja.html:173
 #: inginious/frontend/templates/maintenance.html:70
 msgid "INGInious is distributed under AGPL license"
 msgstr ""
 
-#: inginious/frontend/templates/layout.html:119
-#: inginious/frontend/templates/mycourses.html:8
-#: inginious/frontend/templates/mycourses.html:13
-#: inginious/frontend/templates/mycourses.html:47
-msgid "My courses"
-msgstr ""
-
 #: inginious/frontend/templates/layout.html:120
+#: inginious/frontend/templates/layout_jinja.html:116
 msgid "Preferences"
 msgstr ""
 
 #: inginious/frontend/templates/layout.html:122
+#: inginious/frontend/templates/layout_jinja.html:118
 msgid "Service status"
 msgstr ""
 
 #: inginious/frontend/templates/layout.html:124
+#: inginious/frontend/templates/layout_jinja.html:120
 msgid "Log out"
 msgstr ""
 
 #: inginious/frontend/templates/layout.html:132
+#: inginious/frontend/templates/layout_jinja.html:128
 msgid "English"
-msgstr ""
-
-#: inginious/frontend/templates/layout.html:143
-#: inginious/frontend/templates/mycourses.html:127
-#: inginious/frontend/templates/register.html:8
-msgid "Register"
 msgstr ""
 
 #: inginious/frontend/templates/layout_lti.html:91
@@ -1074,61 +1127,48 @@ msgid ""
 "back in a few minutes!"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:61
-msgid "LTI course"
-msgstr ""
-
-#: inginious/frontend/templates/mycourses.html:63
-msgid "Hidden course"
-msgstr ""
-
-#: inginious/frontend/templates/mycourses.html:66
-msgid "Administrator"
+#: inginious/frontend/templates/mycourses.html:52
+msgid "Find new courses on the course list page"
 msgstr ""
 
 #: inginious/frontend/templates/mycourses.html:68
-msgid "Tutor"
+msgid "LTI course"
 msgstr ""
 
 #: inginious/frontend/templates/mycourses.html:70
+msgid "Hidden course"
+msgstr ""
+
+#: inginious/frontend/templates/mycourses.html:73
+msgid "Administrator"
+msgstr ""
+
+#: inginious/frontend/templates/mycourses.html:75
+msgid "Tutor"
+msgstr ""
+
+#: inginious/frontend/templates/mycourses.html:77
 msgid "Student"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:76
+#: inginious/frontend/templates/mycourses.html:83
 msgid "You are not registered to any course"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:83
+#: inginious/frontend/templates/mycourses.html:90
 msgid "Course created."
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:88
+#: inginious/frontend/templates/mycourses.html:95
 msgid "Failed to create the course."
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:92
-#: inginious/frontend/templates/mycourses.html:113
+#: inginious/frontend/templates/mycourses.html:99
 msgid "Course"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:96
+#: inginious/frontend/templates/mycourses.html:103
 msgid "Create new course"
-msgstr ""
-
-#: inginious/frontend/templates/mycourses.html:100
-msgid "Register for a course"
-msgstr ""
-
-#: inginious/frontend/templates/mycourses.html:104
-msgid "Registration complete."
-msgstr ""
-
-#: inginious/frontend/templates/mycourses.html:109
-msgid "Registration failed. Please check that you properly typed the password."
-msgstr ""
-
-#: inginious/frontend/templates/mycourses.html:115
-msgid "Select a course"
 msgstr ""
 
 #: inginious/frontend/templates/notfound.html:8
@@ -1150,11 +1190,11 @@ msgstr ""
 msgid "Running jobs"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:47
+#: inginious/frontend/templates/course_admin/download.html:53
 #: inginious/frontend/templates/course_admin/subproblems/code.html:22
 #: inginious/frontend/templates/course_admin/subproblems/file.html:27
 #: inginious/frontend/templates/queue.html:28
-#: inginious/frontend/templates/queue.html:59
+#: inginious/frontend/templates/queue.html:64
 msgid "Type"
 msgstr ""
 
@@ -1169,12 +1209,12 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/settings.html:31
 #: inginious/frontend/templates/course_admin/task_edit.html:146
 #: inginious/frontend/templates/queue.html:31
-#: inginious/frontend/templates/queue.html:61
+#: inginious/frontend/templates/queue.html:66
 msgid "Name"
 msgstr ""
 
 #: inginious/frontend/templates/queue.html:32
-#: inginious/frontend/templates/queue.html:62
+#: inginious/frontend/templates/queue.html:67
 msgid "Launcher name"
 msgstr ""
 
@@ -1188,33 +1228,38 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:223
 #: inginious/frontend/templates/queue.html:41
-#: inginious/frontend/templates/queue.html:70
+#: inginious/frontend/templates/queue.html:75
 msgid "Yes"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:229
 #: inginious/frontend/templates/queue.html:43
-#: inginious/frontend/templates/queue.html:72
+#: inginious/frontend/templates/queue.html:77
 msgid "No"
 msgstr ""
 
 #: inginious/frontend/templates/queue.html:53
+#: inginious/frontend/templates/queue.html:85
+msgid "No timeout set"
+msgstr ""
+
+#: inginious/frontend/templates/queue.html:58
 msgid "There are no jobs running"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:55
+#: inginious/frontend/templates/queue.html:60
 msgid "Jobs in queue"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:60
+#: inginious/frontend/templates/queue.html:65
 msgid "Local"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:63
+#: inginious/frontend/templates/queue.html:68
 msgid "Maximum runtime in seconds"
 msgstr ""
 
-#: inginious/frontend/templates/queue.html:80
+#: inginious/frontend/templates/queue.html:90
 msgid "There are no jobs waiting in queue"
 msgstr ""
 
@@ -1267,11 +1312,8 @@ msgstr ""
 msgid "Set new password"
 msgstr ""
 
-#: inginious/frontend/templates/register_modal.html:19
-msgid "This will enroll you in the course {}."
-msgstr ""
-
 #: inginious/frontend/templates/signin_button.html:10
+#: inginious/frontend/templates/signin_button_jinja.html:6
 msgid ""
 "Please register or sign in to see the complete list of courses and be able "
 "to submit answers to problems."
@@ -1772,29 +1814,29 @@ msgid ""
 "(including tasks and backups) from INGInious. Are you really sure ?</p>"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:31
+#: inginious/frontend/templates/course_admin/download.html:37
 #: inginious/frontend/templates/course_admin/replay.html:41
 msgid "Other options"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:35
+#: inginious/frontend/templates/course_admin/download.html:41
 #: inginious/frontend/templates/course_admin/submissions.html:235
 msgid "Folder format"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:54
+#: inginious/frontend/templates/course_admin/download.html:60
 msgid "Download only the evaluation submission for each task/user"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:54
+#: inginious/frontend/templates/course_admin/download.html:60
 msgid "audience"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:60
+#: inginious/frontend/templates/course_admin/download.html:66
 msgid "Download all the submissions"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/download.html:70
+#: inginious/frontend/templates/course_admin/download.html:76
 #: inginious/frontend/templates/course_admin/edit_tabs/files.html:18
 #: inginious/frontend/templates/course_admin/submissions.html:248
 msgid "Download"
@@ -2433,7 +2475,7 @@ msgid "View task"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/task_edit.html:50
-msgid "Container setup"
+msgid "Environment"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/task_edit.html:53
@@ -2631,38 +2673,38 @@ msgstr ""
 msgid "Regenerate input random"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:9
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:4
 msgid "Timeout limit (in seconds)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:15
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:10
 msgid "Hard timeout limit (in seconds) <small>Default to 3*timeout</small>"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:22
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:17
 msgid "Memory limit (in megabytes)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:28
-msgid "Output limit (in megabytes)"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:34
-msgid "Grading environment"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:46
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:23
 msgid "Allow internet access inside the grading container?"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:58
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:35
 msgid ""
 "Custom command to be run in container <small>(instead of running the run "
 "script)</small>"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/container.html:66
+#: inginious/frontend/templates/course_admin/edit_tabs/env_docker.html:43
 msgid "Are the task's responses written in HTML instead of restructuredText?"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/edit_tabs/environment.html:9
+msgid "Grading environment type"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/edit_tabs/environment.html:24
+msgid "Grading environment"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:6
