@@ -88,13 +88,13 @@ $if webdav_host:
     	<tr data-task-id="$taskid">
     		<td>
     			$data[taskid]["name"]
-                <input type="hidden" name="task" value="$taskid">
     		</td>
     		<td>$data[taskid]["viewed"]</td>
     		<td>$data[taskid]["attempted"]</td>
             <td>$data[taskid]["succeeded"]</td>
             <td>$data[taskid]["attempts"]</td>
     		<td style="min-width:120px">
+                <input type="hidden" name="task_id">
                 <div class="btn-group btn-group-sm" role="group">
                     $if is_admin:
                         <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary" title=$:_('"Edit task"') data-toggle="tooltip"
@@ -171,26 +171,16 @@ $$("#actionControlSelect").change(function () {
 });
 
 
-$$( "form" ).on("submit",function(){
-    $$(".sorted_table tr.table-active").each(function(e){
-            let task_id = $$(this).data("task-id");
-            $$("#selected_task_ids").val(function() {
-                if (this.value ===""){
-                    return task_id;
-                }else{
-                    return this.value +","+ task_id;
-                }
-            });
-    });
-});
-
 $$(".sorted_table tr").click(function (e) {
     if(active) {
         if($$(this).hasClass("table-active")) {
             $$(this).removeClass("table-active");
         }else{
             $$(this).addClass("table-active");
+            let tid = $$(this).data("task-id");
+            $$($$(this).find("input[name='task_id']")[0]).val(tid);
         }
+
 
     }
 });
