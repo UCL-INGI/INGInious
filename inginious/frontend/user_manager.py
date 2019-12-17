@@ -801,6 +801,15 @@ class UserManager:
         else:
             return l
 
+    def reset_user_task_state(self, courseid, taskid, username):
+
+        d = self._database.user_tasks.find_one_and_update(
+            {"username": username, "courseid": courseid, "taskid": taskid},
+            {"$set": {
+                "state": ""
+            }})
+
+
     ##############################################
     #             Rights management              #
     ##############################################

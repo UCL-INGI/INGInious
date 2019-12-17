@@ -26,62 +26,94 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Statistics for student {realname} ({username})").format(realname=user_realname, username=username)</h2>
-<table class="table">
-    <thead class="table-borderless">
-        <tr>
-            <th>$:_("task")</th>
-            <th>$:_("status")</th>
-            <th>$:_("# submissions")</th>
-            <th>
-                <div class="btn-group btn-group-sm" role="group">
-                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
-                       class="btn btn-danger" title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
-                       fa-download"></i></a>
-                    $if is_admin:
-                        <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Fusername&users=$username"
-                           class="btn btn-warning" title=$:_('"Replay all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
-                           fa-refresh"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs"
-                       title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                </div>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-    $for task in data:
-    	<tr
-            $if task["status"] == "notattempted":
-                class="table-warning"
-            $elif task["status"] == "succeeded":
-                class="table-success"
-            $elif task["status"] == "failed":
-                class="table-danger"
-        >
-    		<td>$task["name"]</td>
-    		<td>
-                $if task["status"] == "notviewed":
-                    $:_("Not viewed")
-                $elif task["status"] == "notattempted":
-                    $:_("Not attempted (viewed)")
+<form method="post">
+    <table class="table">
+        <thead class="table-borderless">
+            <tr>
+                <th>$:_("task")</th>
+                <th>$:_("status")</th>
+                <th>$:_("# submissions")</th>
+                <th>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
+                           class="btn btn-danger" title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
+                           fa-download"></i></a>
+                        $if is_admin:
+                            <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Fusername&users=$username"
+                               class="btn btn-warning" title=$:_('"Replay all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
+                               fa-refresh"></i></a>
+                        <a href="$get_homepath()/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs"
+                           title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        $for task in data:
+            <tr
+                $if task["status"] == "notattempted":
+                    class="table-warning"
                 $elif task["status"] == "succeeded":
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
-                        data-toggle="tooltip" data-placement="bottom">$:_("Succeeded") ($task["grade"]%)</a>
-                $else:
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
-                        data-toggle="tooltip" data-placement="bottom">$:_("Failed") ($task["grade"]%)</a>
-            </td>
-            <td>$task["tried"]</td>
-    		<td>
-                <div class="btn-group btn-group-sm" role="group">
-                    <a href="$get_homepath()/admin/${course.get_id()}/submissions$task['url']" class="btn btn-secondary" title=$:_('"View all submissions"')
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/download$task['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    $if is_admin:
-                        <a href="$get_homepath()/admin/${course.get_id()}/replay$task['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                    class="table-success"
+                $elif task["status"] == "failed":
+                    class="table-danger"
+            >
+                <td>$task["name"]</td>
+                <td>
+                    $if task["status"] == "notviewed":
+                        $:_("Not viewed")
+                    $elif task["status"] == "notattempted":
+                        $:_("Not attempted (viewed)")
+                    $elif task["status"] == "succeeded":
+                        <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
+                            data-toggle="tooltip" data-placement="bottom">$:_("Succeeded") ($task["grade"]%)</a>
+                    $else:
+                        <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
+                            data-toggle="tooltip" data-placement="bottom">$:_("Failed") ($task["grade"]%)</a>
+                </td>
+                <td>$task["tried"]</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="$get_homepath()/admin/${course.get_id()}/submissions$task['url']" class="btn btn-secondary" title=$:_('"View all submissions"')
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="$get_homepath()/admin/${course.get_id()}/download$task['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                        $if is_admin:
+                            <a href="$get_homepath()/admin/${course.get_id()}/replay$task['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
+                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                        <button type="button" data-toggle="modal" data-task="$task['name']" data-task_id="$task['taskid']" data-target="#reset_modal" class="btn btn-warning reset_state" title="Reset state"><i class="fa fa-eraser"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="reset_modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">$:_("Reset State") </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
-    		</td>
-    	</tr>
-    </tbody>
-</table>
+                <div class="modal-body">
+                    <p>$:_("This will reset the state for {}. Are you sure ?").format('<span class="taskname"></span>')</p>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="taskid" id="taskid">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="submit" name="reset" class="btn btn-danger">$:_("Reset")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $$('#reset_modal').on('show.bs.modal', function (event) {
+      $$('.modal-dialog .taskname').each(function (index) {
+          $$(this).text($$(event.relatedTarget).data('task'));
+      });
+      $$('.modal-dialog #taskname').val($$(event.relatedTarget).data('task_id'));
+    });
+    $$(".reset_modal").each(function(index) {
+        $$(this).tooltip({"placement": "bottom"});
+    });
+</script>
