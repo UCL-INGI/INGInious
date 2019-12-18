@@ -159,6 +159,19 @@ $$("#actionControlSelect").change(function () {
        active=true;
        $$("#action_task").val(this.value);
        $$("#message").html("<p>$:_('Please select task(s) and then click update button.')</p>");
+       $$(".sorted_table tr").click(function (e) {
+            if(active) {
+                if($$(this).hasClass("table-active")) {
+                    $$(this).removeClass("table-active");
+                }else{
+                    $$(this).addClass("table-active");
+                    let tid = $$(this).data("task-id");
+                    $$($$(this).find("input[name='task_id']")[0]).val(tid);
+                }
+
+
+            }
+        });
    }else{
        active=false;
        $$(".sorted_table tr").each(function(){
@@ -170,17 +183,5 @@ $$("#actionControlSelect").change(function () {
 });
 
 
-$$(".sorted_table tr").click(function (e) {
-    if(active) {
-        if($$(this).hasClass("table-active")) {
-            $$(this).removeClass("table-active");
-        }else{
-            $$(this).addClass("table-active");
-            let tid = $$(this).data("task-id");
-            $$($$(this).find("input[name='task_id']")[0]).val(tid);
-        }
 
-
-    }
-});
 </script>
