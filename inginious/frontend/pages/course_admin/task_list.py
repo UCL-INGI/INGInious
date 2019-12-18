@@ -34,8 +34,6 @@ class CourseTaskListPage(INGIniousAdminPage):
         if "task_id" in data and "action_task" in data:
             task_ids = data.task_id
             for taskid in task_ids:
-                if taskid == '':
-                    pass
                 try:
                     task = self.task_factory.get_task_descriptor_content(courseid, taskid)
                     if data["action_task"] == "accessible":

@@ -158,7 +158,7 @@ $$("#actionControlSelect").change(function () {
    if(this.value !== "def"){
        active=true;
        $$("#action_task").val(this.value);
-       $$("#message").html("<p>Please select task(s) and then click update button.</p>");
+       $$("#message").html("<p>$:_('Please select task(s) and then click update button.')</p>");
    }else{
        active=false;
        $$(".sorted_table tr").each(function(){
