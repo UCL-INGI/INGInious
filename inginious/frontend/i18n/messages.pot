@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-18 15:04+0100\n"
+"POT-Creation-Date: 2019-12-18 16:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -297,7 +297,14 @@ msgid ""
 "your account in your profile."
 msgstr ""
 
-#: inginious/frontend/pages/utils.py:191
+#: inginious/frontend/pages/utils.py:170
+msgid ""
+"Couldn't fetch the required information from the service. Please check "
+"the provided permissions (name, email) and contact your INGInious "
+"administrator if the error persists."
+msgstr ""
+
+#: inginious/frontend/pages/utils.py:194
 msgid "Invalid login/password"
 msgstr ""
 
