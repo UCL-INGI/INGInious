@@ -166,6 +166,9 @@ class INGIniousAuthPage(INGIniousPage):
             if "binderror" in web.input():
                 error = _("An account using this email already exists and is not bound with this service. "
                           "For security reasons, please log in via another method and bind your account in your profile.")
+            if "callbackerror" in web.input():
+                error = _("Couldn't fetch the required information from the service. Please check the provided "
+                          "permissions (name, email) and contact your INGInious administrator if the error persists.")
             return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), error)
 
     def POST(self, *args, **kwargs):

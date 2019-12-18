@@ -51,8 +51,10 @@ class CallbackPage(INGIniousPage):
                 auth_method.share(auth_storage, course, task, submission, self.user_manager.session_language())
             else:
                 raise web.notfound()
+        else:
+            raise web.seeother("/signin?callbackerror")
 
-        raise web.seeother(auth_storage.get("redir_url", "/?binderror"))
+        raise web.seeother(auth_storage.get("redir_url", "/"))
 
     def GET(self, auth_id):
         if self.user_manager.session_cookieless():

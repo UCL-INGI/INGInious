@@ -40,7 +40,7 @@ class FacebookAuthMethod(AuthMethod):
             auth_storage["oauth_state"] = facebook.state
             return str(profile["id"]), profile["name"], profile["email"], {}
         except:
-            return None, None
+            return None
 
     def share(self, auth_storage, course, task, submission, language):
         facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=web.ctx.home + self._callback_page)
