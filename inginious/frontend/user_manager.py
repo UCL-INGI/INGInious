@@ -360,7 +360,6 @@ class UserManager:
             apikey = retval["apikey"]
         return apikey
 
-
     def bind_user(self, auth_id, user):
         username, realname, email, additional = user
 
@@ -392,6 +391,7 @@ class UserManager:
             if user_profile:
                 # Found an email, existing user account, abort without binding
                 self._logger.exception("The binding email is already used by another account!")
+                return False
             else:
                 # New user, create an account using email address
                 self._database.users.insert({"username": "",
@@ -400,6 +400,8 @@ class UserManager:
                                             "bindings": {auth_id: [username, additional]},
                                             "language": self._session.get("language", "en")})
                 self.connect_user("", realname, email, self._session.get("language", "en"))
+
+        return True
 
     ##############################################
     #      User task/course info management      #
