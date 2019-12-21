@@ -5,6 +5,7 @@
 import asyncio
 import logging
 import gettext
+import builtins
 
 from inginious.agent import Agent, CannotCreateJobException
 from inginious import get_root_path
@@ -36,6 +37,11 @@ class MCQAgent(Agent):
         return {"mcq": {"id": "mcq", "created": 0, "type": "mcq"}}
 
     async def new_job(self, msg: BackendNewJob):
+        language = msg.inputdata.get("@lang", "")
+        translation = self._translations.get(language, gettext.NullTranslations())
+        #TODO: this would probably require a refactor
+        builtins.__dict__['_'] = translation.gettext
+
         try:
             self._logger.info("Received request for jobid %s", msg.job_id)
             task = self.course_factory.get_task(msg.course_id, msg.task_id)
@@ -44,10 +50,6 @@ class MCQAgent(Agent):
         except Exception as e:
             self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
             raise CannotCreateJobException("Task is not available on this agent")
-
-        language = msg.inputdata.get("@lang", "")
-        translation = self._translations.get(language, gettext.NullTranslations())
-        _ = translation.gettext
 
         result, need_emul, text, problems, error_count, mcq_error_count = task.check_answer(msg.inputdata, language)
 

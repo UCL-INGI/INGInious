@@ -18,6 +18,8 @@ from inginious.common.course_factory import create_factories
 from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.mcq_agent import MCQAgent
 from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
+from inginious.frontend.environment_types import register_env_type
+from inginious.frontend.environment_types.mcq import MCQEnvType
 
 
 def import_class(name):
@@ -63,6 +65,8 @@ if __name__ == "__main__":
 
     # create course factory
     course_factory, _ = create_factories(fsprovider, {problem_type.get_type(): problem_type for problem_type in ptypes})
+
+    register_env_type(MCQEnvType())
 
     closing = False
     while not closing:

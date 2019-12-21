@@ -18,7 +18,8 @@ import asyncio
 
 from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.docker_agent import DockerAgent
-
+from inginious.frontend.environment_types import register_env_type
+from inginious.frontend.environment_types.docker import DockerEnvType
 
 def check_range(value):
     value = value.split("-")
@@ -76,6 +77,8 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+
+    register_env_type(DockerEnvType())
 
     closing = False
     while not closing:
