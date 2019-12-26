@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-12-03 13:53+0100\n"
-"PO-Revision-Date: 2019-12-13 12:34+0000\n"
+"PO-Revision-Date: 2019-12-27 20:35+0000\n"
 "Last-Translator: HA Thi Ngoc Bao <thingocbaoha@gmail.com>\n"
 "Language-Team: Vietnamese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/vi/>\n"
@@ -1704,40 +1704,41 @@ msgstr "Cập nhật"
 #: inginious/frontend/templates/course_admin/audience_list.html:31
 #: inginious/frontend/templates/course_admin/groups_edit.html:28
 msgid "Upload structure"
-msgstr ""
+msgstr "Cấu trúc tải lên"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:32
 #: inginious/frontend/templates/course_admin/groups_edit.html:29
 msgid "Download structure"
-msgstr ""
+msgstr "Cấu trúc tải xuống"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:52
 #: inginious/frontend/templates/course_admin/groups_edit.html:39
 msgid "Upload course structure"
-msgstr ""
+msgstr "Cấu trúc tải khoá học lên"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:56
 #: inginious/frontend/templates/course_admin/groups_edit.html:43
 msgid "Note : Please refer to documentation for file format"
 msgstr ""
+"Lưu ý: Xin hãy tham khảo tài liệu hướng dẫn để biết về các định dạng tệp tin"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:58
 #: inginious/frontend/templates/course_admin/groups_edit.html:45
 msgid "Course structure"
-msgstr ""
+msgstr "Cấu trúc khoá học"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:63
 #: inginious/frontend/templates/course_admin/groups_edit.html:50
 msgid "Upload (will erase current settings)"
-msgstr ""
+msgstr "Tải lên (sẽ xoá các thiết lập hiện tại)"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:73
 msgid "Audience"
-msgstr ""
+msgstr "Thính giả"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:74
 msgid "# students"
-msgstr ""
+msgstr "# sinh viên"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:75
 #: inginious/frontend/templates/course_admin/student_list_table.html:19
