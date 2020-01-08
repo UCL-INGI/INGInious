@@ -10,7 +10,7 @@ class MCQEnvType(FrontendEnvType):
     def name(self):
         return _("Multiple Choice Question solver")
 
-    def load_task_environment_parameters(self, data):
+    def check_task_environment_parameters(self, data):
         return {}
 
     def studio_env_template(self, templator, task, allow_html):

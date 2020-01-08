@@ -7,6 +7,7 @@
 
 import gettext
 
+from inginious.frontend.environment_types import get_env_type
 from inginious.frontend.parsable_text import ParsableText
 from inginious.common.base import id_checker
 from inginious.common.tasks import Task
@@ -24,6 +25,14 @@ class WebAppTask(Task):
 
         super(WebAppTask, self).__init__(course, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types)
 
+        # Env type
+        env_type_obj = get_env_type(self._environment_type)
+        if env_type_obj is None:
+            raise Exception(_("Environment type {0} is unknown").format(self._environment_type))
+        # Ensure that the content of the dictionary is ok
+        self._environment_parameters = env_type_obj.check_task_environment_parameters(self._environment_parameters)
+
+        # Name and context
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
         self._context = self._data.get('context', "")

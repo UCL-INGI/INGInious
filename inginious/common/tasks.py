@@ -8,7 +8,6 @@ import gettext
 
 from inginious.common.base import id_checker
 from inginious.common.hook_manager import HookManager
-from inginious.frontend.environment_types import get_env_type
 
 
 class Task(object):
@@ -28,13 +27,7 @@ class Task(object):
         self._data = content
         self._environment_id = self._data.get('environment_id', 'default')
         self._environment_type = self._data.get('environment_type', 'unknown')
-
-        env_type_obj = get_env_type(self._environment_type)
-
-        if env_type_obj is None:
-            raise Exception(_("Environment type {0} is unknown").format(self._environment_type))
-        self._environment_parameters = env_type_obj.load_task_environment_parameters(self._data.get("environment_parameters", {}))
-
+        self._environment_parameters = self._data.get("environment_parameters", {})
         if "problems" not in self._data:
             raise Exception("Tasks must have some problems descriptions")
 
@@ -101,7 +94,7 @@ class Task(object):
         return self._course
 
     def get_environment_parameters(self):
-        """ Returns the environment parameters, as returned by the loader """
+        """ Returns the raw environment parameters, which is a dictionnary that is envtype dependent. """
         return self._environment_parameters
 
     def get_response_type(self):

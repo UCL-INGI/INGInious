@@ -16,7 +16,7 @@ class FrontendEnvType(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def load_task_environment_parameters(self, data):
+    def check_task_environment_parameters(self, data):
         """ Given the parameters stored somewhere, as a dict, returns the parameters cleaned up and verified.
             This function should raise Exception if something is wrong with the input.
         """

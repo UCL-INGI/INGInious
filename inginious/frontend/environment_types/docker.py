@@ -10,7 +10,7 @@ class DockerEnvType(FrontendEnvType):
     def name(self):
         return _("Docker container")
 
-    def load_task_environment_parameters(self, data):
+    def check_task_environment_parameters(self, data):
         out = {}
         # Ensure that run_cmd is in the correct format
         if data.get('run_cmd', '') == '':
