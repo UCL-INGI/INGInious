@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-03 13:53+0100\n"
+"POT-Creation-Date: 2019-12-18 16:06+0100\n"
 "PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language-Team: French <http://weblate.info.ucl.ac.be/projects/inginious/"
@@ -318,6 +318,24 @@ msgstr "[Soumission #{submissionid}]"
 #: inginious/frontend/pages/tasks.py:395 inginious/frontend/pages/tasks.py:397
 msgid " <truncated>"
 msgstr " <tronqué>"
+
+#: inginious/frontend/pages/utils.py:167
+msgid ""
+"An account using this email already exists and is not bound with this "
+"service. For security reasons, please log in via another method and bind "
+"your account in your profile."
+msgstr ""
+
+#: inginious/frontend/pages/utils.py:170
+msgid ""
+"Couldn't fetch the required information from the service. Please check the "
+"provided permissions (name, email) and contact your INGInious administrator "
+"if the error persists."
+msgstr ""
+
+#: inginious/frontend/pages/utils.py:194
+msgid "Invalid login/password"
+msgstr ""
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:129
 msgid "Audience with id {} not found."
@@ -1136,6 +1154,7 @@ msgstr "Lier mon compte"
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
 #: inginious/frontend/templates/course_admin/danger_zone.html:164
 #: inginious/frontend/templates/course_admin/groups_edit.html:91
+#: inginious/frontend/templates/course_admin/student_info.html:102
 #: inginious/frontend/templates/course_admin/student_list_table.html:85
 #: inginious/frontend/templates/course_admin/submissions.html:247
 #: inginious/frontend/templates/course_admin/task_edit.html:114
@@ -1400,7 +1419,7 @@ msgstr "Etat"
 msgid "Not yet attempted"
 msgstr "Pas encore essayé"
 
-#: inginious/frontend/templates/course_admin/student_info.html:68
+#: inginious/frontend/templates/course_admin/student_info.html:69
 #: inginious/frontend/templates/course_admin/submissions.html:376
 #: inginious/frontend/templates/task.html:51
 msgid "Succeeded"
@@ -1410,7 +1429,7 @@ msgstr "Réussi"
 msgid "Waiting for verification"
 msgstr "En attente de correction"
 
-#: inginious/frontend/templates/course_admin/student_info.html:71
+#: inginious/frontend/templates/course_admin/student_info.html:72
 #: inginious/frontend/templates/course_admin/submissions.html:380
 #: inginious/frontend/templates/task.html:61
 msgid "Failed"
@@ -1650,6 +1669,7 @@ msgstr "Éditer le public {}"
 #: inginious/frontend/templates/course_admin/audience_edit.html:95
 #: inginious/frontend/templates/course_admin/groups_edit.html:73
 #: inginious/frontend/templates/course_admin/groups_edit.html:92
+#: inginious/frontend/templates/course_admin/student_list.html:49
 msgid "Add student"
 msgstr "Ajouter un étudiant"
 
@@ -1758,13 +1778,13 @@ msgid "# task done"
 msgstr "# exercices effectués"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:80
-#: inginious/frontend/templates/course_admin/student_info.html:38
+#: inginious/frontend/templates/course_admin/student_info.html:39
 #: inginious/frontend/templates/course_admin/task_list.html:67
 msgid "\"Download all submissions\""
 msgstr "\"Télécharger toutes les soumissions\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:82
-#: inginious/frontend/templates/course_admin/student_info.html:45
+#: inginious/frontend/templates/course_admin/student_info.html:46
 #: inginious/frontend/templates/course_admin/student_list_table.html:27
 #: inginious/frontend/templates/course_admin/submissions.html:334
 #: inginious/frontend/templates/course_admin/task_list.html:69
@@ -1789,14 +1809,14 @@ msgid "\"View submissions\""
 msgstr "\"Voir les soumissions \""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:109
-#: inginious/frontend/templates/course_admin/student_info.html:78
+#: inginious/frontend/templates/course_admin/student_info.html:79
 #: inginious/frontend/templates/course_admin/student_list_table.html:59
 #: inginious/frontend/templates/course_admin/task_list.html:92
 msgid "\"Download submissions\""
 msgstr "\"Télécharger les soumissions\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:112
-#: inginious/frontend/templates/course_admin/student_info.html:81
+#: inginious/frontend/templates/course_admin/student_info.html:82
 #: inginious/frontend/templates/course_admin/student_list_table.html:62
 #: inginious/frontend/templates/course_admin/task_list.html:95
 msgid "\"Replay submissions\""
@@ -2197,33 +2217,46 @@ msgstr "\"Étudiants\""
 msgid "Statistics for student {realname} ({username})"
 msgstr "Statistiques pour l'étudiant {realname} ({username})"
 
-#: inginious/frontend/templates/course_admin/student_info.html:32
+#: inginious/frontend/templates/course_admin/student_info.html:33
 msgid "task"
 msgstr "exercice"
 
-#: inginious/frontend/templates/course_admin/student_info.html:33
+#: inginious/frontend/templates/course_admin/student_info.html:34
 msgid "status"
 msgstr "état"
 
-#: inginious/frontend/templates/course_admin/student_info.html:34
+#: inginious/frontend/templates/course_admin/student_info.html:35
 msgid "# submissions"
 msgstr "# soumissions"
 
-#: inginious/frontend/templates/course_admin/student_info.html:42
+#: inginious/frontend/templates/course_admin/student_info.html:43
 msgid "\"Replay all submissions\""
 msgstr "\"Rejouer toutes les soumissions\""
 
-#: inginious/frontend/templates/course_admin/student_info.html:63
+#: inginious/frontend/templates/course_admin/student_info.html:64
 msgid "Not viewed"
 msgstr "Non consulté"
 
-#: inginious/frontend/templates/course_admin/student_info.html:65
+#: inginious/frontend/templates/course_admin/student_info.html:66
 msgid "Not attempted (viewed)"
 msgstr "Non essayé (consulté)"
 
-#: inginious/frontend/templates/course_admin/student_info.html:76
+#: inginious/frontend/templates/course_admin/student_info.html:77
 msgid "\"View all submissions\""
 msgstr "\"Voir toutes les soumissions\""
+
+#: inginious/frontend/templates/course_admin/student_info.html:94
+msgid "Reset State"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:98
+msgid "This will reset the state for {}. Are you sure ?"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:103
+#: inginious/frontend/templates/course_admin/submissions.html:214
+msgid "Reset"
+msgstr "Reinitialiser"
 
 #: inginious/frontend/templates/course_admin/student_list.html:38
 msgid "Teaching staff"
@@ -2426,10 +2459,6 @@ msgstr "Avec statistiques pondérés"
 #: inginious/frontend/templates/course_admin/submissions.html:213
 msgid "Filter"
 msgstr "Filtrer"
-
-#: inginious/frontend/templates/course_admin/submissions.html:214
-msgid "Reset"
-msgstr "Reinitialiser"
 
 #: inginious/frontend/templates/course_admin/submissions.html:231
 msgid "Download format"
