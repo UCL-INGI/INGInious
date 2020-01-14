@@ -48,8 +48,11 @@ class Backend(object):
         self._registered_agents = {}  # addr of registered agents
         self._available_agents = []  # addr of available agents
         self._ping_count = {}  # ping count per addr of agents
+
+        # These two share the same objects! Tuples should never be recreated.
         self._waiting_jobs_pq = queue.PriorityQueue() # priority queue for waiting jobs
         self._waiting_jobs = {}  # mapping job to job message, with key: [(client_addr_as_bytes, ClientNewJob])]
+
         self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:(addr_as_bytes,ClientNewJob,start_time)}
 
     async def handle_agent_message(self, agent_addr, message):
@@ -167,7 +170,9 @@ class Backend(object):
 
         # Loop on available agents to maximize running jobs, and break if priority queue empty
         while len(self._available_agents) != 0 and not self._waiting_jobs_pq.empty():
-            priority, insert_time, client_addr, job_id, job_msg = self._waiting_jobs_pq.get()
+            # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
+            job = self._waiting_jobs_pq.get()
+            priority, insert_time, client_addr, job_id, job_msg = job
 
             # Killed job, removing it from the mapping
             if not job_msg:
@@ -182,7 +187,7 @@ class Backend(object):
                 # TODO this may be computationally expensive. If no agent can handle the queue, each update will visit
                 # it entirely. This however should never happen in an environment where enough agents are regularly
                 # processing the queue.
-                jobs_ignored.append((priority, insert_time, client_addr, job_id, job_msg))
+                jobs_ignored.append(job)  # put the original object! See doc for _waiting_jobs_pq.
                 self._logger.warning("No agent for job id %s, putting it back in the queue.", job_id)
                 continue
 
