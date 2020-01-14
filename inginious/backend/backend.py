@@ -163,11 +163,10 @@ class Backend(object):
         Send waiting jobs to available agents
         """
 
-        # Loop on available agents to maximize running jobs, and break if priority queue empty
-        for i in range(0, len(self._available_agents)):
-            if self._waiting_jobs_pq.empty():
-                break
+        jobs_ignored = []
 
+        # Loop on available agents to maximize running jobs, and break if priority queue empty
+        while len(self._available_agents) != 0 and not self._waiting_jobs_pq.empty():
             priority, insert_time, client_addr, job_id, job_msg = self._waiting_jobs_pq.get()
 
             # Killed job, removing it from the mapping
@@ -180,8 +179,10 @@ class Backend(object):
 
             # No agent available, put job back to queue with lower priority
             if not possible_agents:
-                job = (priority+1, insert_time, client_addr, job_id, job_msg)
-                self._waiting_jobs_pq.put(job)
+                # TODO this may be computationally expensive. If no agent can handle the queue, each update will visit
+                # it entirely. This however should never happen in an environment where enough agents are regularly
+                # processing the queue.
+                jobs_ignored.append((priority, insert_time, client_addr, job_id, job_msg))
                 self._logger.warning("No agent for job id %s, putting it back in the queue.", job_id)
                 continue
 
@@ -200,6 +201,10 @@ class Backend(object):
                                                                                         job_msg.inputdata, job_msg.environment,
                                                                                         job_msg.environment_parameters,
                                                                                         job_msg.debug))
+
+        # Let's not forget to add again the ignored jobs to the PQ.
+        for entry in jobs_ignored:
+            self._waiting_jobs_pq.put(entry)
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """
