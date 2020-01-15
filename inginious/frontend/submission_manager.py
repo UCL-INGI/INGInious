@@ -477,12 +477,21 @@ class WebAppSubmissionManager:
         """
         :param course: the course object linked to the submission
         :param submissions: a list of submissions
-        :param sub_folders: possible values:
-            []: put all submissions in /
-            ['taskid']: put all submissions for each task in a different directory /taskid/
-            ['username']: put all submissions for each user in a different directory /username/
-            ['taskid','username']: /taskid/username/
-            ['username','taskid']: /username/taskid/
+        :param sub_folders: a list of folders in which to place the submission. For example,
+            ["taskid", "submissionid"] place each submission inside a folder taskid/submissionid/ (with taskid replaced
+            with the actual task id, the same being true for submissionid). The possible values are:
+            - "taskid": replaced by the task id
+            - "submissionid": replaced by the submission id
+            - "audience": replaced by the name of the audience "audiencedesc_(audienceid)"
+            - "group": replaced by the list of username who submitted
+            - "username": replaced by the username
+            Some of these (like "username" and "audience") are not unique for a submission. If they are multiple answers
+            possible, the files are duplicated at multiple locations.
+
+            For example: given a submission #9083081 by the group ["a", "b"], and a sub_folders value of
+            ["username", "submissionid"], the archive will contain two folders:
+            - a/9083081/
+            - b/9083081/
         :return: a file-like object containing a tgz archive of all the submissions
         """
 
