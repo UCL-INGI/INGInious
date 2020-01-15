@@ -514,7 +514,9 @@ class WebAppSubmissionManager:
                                                       [(audience["description"] +" (" + str(audience["_id"]) + ")").replace(" ", "_")],
                                                       remaining_sub_folders[1:])
                     else:
-                        yield from generate_paths(submission, base_path + ['-'.join(submission['username'])], remaining_sub_folders[1:])
+                        yield from generate_paths(submission, base_path + ['-'.join(sorted(submission['username']))], remaining_sub_folders[1:])
+            elif remaining_sub_folders[0] == "group":
+                yield from generate_paths(submission, base_path + ['-'.join(sorted(submission['username']))], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "submissionid":
                 yield from generate_paths(submission, base_path + [str(submission['_id'])], remaining_sub_folders[1:])
             else:
