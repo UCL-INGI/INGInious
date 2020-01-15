@@ -44,7 +44,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
                                                     user_input.users, user_input.audiences, user_input.type)
 
         self._logger.info("Downloading %d submissions from course %s", len(submissions), courseid)
-        archive, error = self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), audiences)
+        archive, error = self.submission_manager.get_submission_archive(course, submissions, list(reversed(user_input.format.split('/')))+["submissionid"])
         if not error:
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
@@ -68,7 +68,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
             self._logger.info("Downloading submission %s - %s - %s - %s", submission['_id'], submission['courseid'],
                               submission['taskid'], submission['username'])
-            archive, error = self.submission_manager.get_submission_archive([submission], [], {})
+            archive, error = self.submission_manager.get_submission_archive(course, [submission], [])
             if not error:
                 web.header('Content-Type', 'application/x-gzip', unique=True)
                 web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
