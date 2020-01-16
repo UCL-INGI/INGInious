@@ -10,6 +10,7 @@ import csv
 import io
 from collections import OrderedDict
 
+import pymongo
 import web
 from bson.objectid import ObjectId
 
@@ -54,57 +55,107 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
     An INGIniousAdminPage containing some common methods between download/replay pages
     """
 
-    def _validate_list(self, usernames):
+    def _validate_list(self, list_of_ids):
         """ Prevent MongoDB injections by verifying arrays sent to it """
-        for i in usernames:
+        for i in list_of_ids:
             if not id_checker(i):
                 raise web.notfound()
 
-    def get_selected_submissions(self, course, filter_type, selected_tasks, users, audiences, stype):
+    def get_selected_submissions(self, course,
+                                 only_tasks=None, only_tasks_with_categories=None,
+                                 only_users=None, only_audiences=None,
+                                 with_tags=None,
+                                 grade_between=None, submit_time_between=None,
+                                 keep_only_evaluation_submissions=False,
+                                 sort_by=("submitted_on", True),
+                                 limit=None):
         """
-        Returns the submissions that have been selected by the admin
-        :param course: course
-        :param filter_type: users or audiences
-        :param selected_tasks: selected tasks id
-        :param users: selected usernames
-        :param audiences: selected audiences
-        :param stype: single or all submissions
-        :return:
+        All the parameters (excluding course, sort_by and keep_only_evaluation_submissions) can be None.
+        If that is the case, they are ignored.
+
+        :param course: the course
+        :param only_tasks: a list of task ids. Only submissions on these tasks will be loaded.
+        :param only_tasks_with_categories: keep only tasks that have a least one category in common with this list
+        :param only_users: a list of usernames. Only submissions from these users will be loaded.
+        :param only_audiences: a list of audience ids. Only submissions from users in these will be loaded
+        :param with_tags: a list of tags in the form [(tagid, present)], where present is a boolean indicating
+               whether the tag MUST be present or MUST NOT be present. If you don't mind if a tag is present or not,
+               just do not put it in the list.
+        :param grade_between: a tuple of two floating point number or None ([0.0, None], [None, 0.0] or [None, None])
+               that indicates bounds on the grade of the retrieved submissions
+        :param submit_time_between: a tuple of two dates or None ([datetime, None], [None, datetime] or [None, None])
+               that indicates bounds on the submission time of the submission. Format: "%Y-%m-%d %H:%M:%S"
+        :param keep_only_evaluation_submissions: True to keep only submissions that are counting for the evaluation
+        :param sort_by: a tuple (sort_column, ascending) where sort_column is in ["submitted_on", "username", "grade", "taskid"]
+               and ascending is either True or False.
+        :param limit: an integer representing the maximum number of submission to list.
+        :return: a list of submission filling the criterias above.
         """
-        if filter_type == "users":
-            self._validate_list(users)
-            audiences = list(self.database.audiences.find({"courseid": course.get_id(), "students": {"$in": users}}))
+        # Create the filter for the query. base_filter is used to also filter the collection user_tasks.
+        base_filter = {"courseid": course.get_id()}
+        filter = {}
 
-        else:
-            self._validate_list(audiences)
-            audiences = list(self.database.audiences.find({"_id": {"$in": [ObjectId(cid) for cid in audiences]}}))
+        # Tasks (with categories)
+        if only_tasks is not None and only_tasks_with_categories is None:
+            self._validate_list(only_tasks)
+            base_filter["taskid"] = {"$in": only_tasks}
+        elif only_tasks_with_categories is not None:
+            only_tasks_with_categories = set(only_tasks_with_categories)
+            more_tasks = {taskid for taskid, task in course.get_tasks().items() if
+                          only_tasks_with_categories.intersection(task.get_categories())}
+            if only_tasks is not None:
+                self._validate_list(only_tasks)
+                more_tasks.intersection_update(only_tasks)
+            base_filter["taskid"] = {"$in": list(more_tasks)}
 
-        audiences_id = [audience["_id"] for audience in audiences]
-        audiences_list = list(self.database.audiences.aggregate([
-            {"$match": {"_id": {"$in": audiences_id}}},
-            {"$unwind": "$students"},
-            {"$project": {
-                "audience": "$_id",
-                "students": 1
-            }}
-        ]))
-        audiences = {audience["_id"]: audience for audience in audiences}
-        audiences = {d["students"]: audiences[d["audience"]] for d in audiences_list}
+        # Users/audiences
+        if only_users is not None and only_audiences is None:
+            self._validate_list(only_users)
+            base_filter["username"] = {"$in": only_users}
+        elif only_audiences is not None:
+            list_audience_id = [ObjectId(o) for o in only_audiences]
+            students = set()
+            for audience in self.database.audiences.find({"_id": {"$in": list_audience_id}}):
+                students.update(audience["students"])
+            if only_users is not None:  # do the intersection
+                self._validate_list(only_users)
+                students.intersection_update(only_users)
+            base_filter["username"] = {"$in": list(students)}
 
-        if stype == "single":
-            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(audiences)},
-                                                             "taskid": {"$in": selected_tasks},
-                                                             "courseid": course.get_id()}))
+        # Tags
+        for tag_id, should_be_present in with_tags or []:
+            if id_checker(tag_id):
+                filter["tests." + tag_id] = {"$in": [None, False]} if not should_be_present else True
 
+        # Grades
+        if grade_between is not None and grade_between[0] is not None:
+            filter.setdefault("grade", {})["$gte"] = float(grade_between[0])
+        if grade_between is not None and grade_between[1] is not None:
+            filter.setdefault("grade", {})["$lte"] = float(grade_between[1])
+
+        # Submit time
+        if submit_time_between is not None and submit_time_between[0] is not None:
+            filter.setdefault("submitted_on", {})["$gte"] = datetime.strptime(submit_time_between[0], "%Y-%m-%d %H:%M:%S")
+        if submit_time_between is not None and submit_time_between[1] is not None:
+            filter.setdefault("submitted_on", {})["$lte"] = datetime.strptime(submit_time_between[1], "%Y-%m-%d %H:%M:%S")
+
+        # Only evaluation submissions
+        if keep_only_evaluation_submissions is True:
+            user_tasks = self.database.user_tasks.find(base_filter)
             submissionsid = [user_task['submissionid'] for user_task in user_tasks if user_task['submissionid'] is not None]
-            submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
-        else:
-            submissions = list(self.database.submissions.find({"username": {"$in": list(audiences)},
-                                                               "taskid": {"$in": selected_tasks},
-                                                               "courseid": course.get_id(),
-                                                               "status": {"$in": ["done", "error"]}}))
+            filter["_id"] = {"$in": submissionsid}
 
-        return submissions, audiences
+        filter.update(base_filter)
+        submissions = self.database.submissions.find(filter)
+
+        if sort_by[0] not in ["submitted_on", "username", "grade", "taskid"]:
+            sort_by[0] = "submitted_on"
+        submissions = submissions.sort(sort_by[0], pymongo.ASCENDING if sort_by[1] else pymongo.DESCENDING)
+
+        if limit is not None:
+            submissions.limit(limit)
+
+        return list(submissions)
 
     def show_page_params(self, course, user_input):
         tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))

@@ -40,8 +40,11 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
                 raise web.notfound()
 
         # Load submissions
-        submissions, audiences = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks,
-                                                    user_input.users, user_input.audiences, user_input.type)
+        submissions = self.get_selected_submissions(course,
+                                                    only_tasks=user_input.tasks or None,
+                                                    only_users=user_input.users or None,
+                                                    only_audiences=user_input.audiences or None,
+                                                    keep_only_evaluation_submissions=user_input.type == "single")
 
         self._logger.info("Downloading %d submissions from course %s", len(submissions), courseid)
         archive, error = self.submission_manager.get_submission_archive(course, submissions, list(reversed(user_input.format.split('/')))+["submissionid"])
