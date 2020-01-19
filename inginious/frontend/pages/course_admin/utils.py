@@ -9,6 +9,7 @@ import codecs
 import csv
 import io
 from collections import OrderedDict
+from datetime import datetime
 
 import pymongo
 import web
@@ -96,28 +97,28 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         filter = {}
 
         # Tasks (with categories)
-        if only_tasks is not None and only_tasks_with_categories is None:
+        if only_tasks and not only_tasks_with_categories:
             self._validate_list(only_tasks)
             base_filter["taskid"] = {"$in": only_tasks}
-        elif only_tasks_with_categories is not None:
+        elif only_tasks_with_categories:
             only_tasks_with_categories = set(only_tasks_with_categories)
             more_tasks = {taskid for taskid, task in course.get_tasks().items() if
                           only_tasks_with_categories.intersection(task.get_categories())}
-            if only_tasks is not None:
+            if only_tasks:
                 self._validate_list(only_tasks)
                 more_tasks.intersection_update(only_tasks)
             base_filter["taskid"] = {"$in": list(more_tasks)}
 
         # Users/audiences
-        if only_users is not None and only_audiences is None:
+        if only_users and not only_audiences:
             self._validate_list(only_users)
             base_filter["username"] = {"$in": only_users}
-        elif only_audiences is not None:
+        elif only_audiences:
             list_audience_id = [ObjectId(o) for o in only_audiences]
             students = set()
             for audience in self.database.audiences.find({"_id": {"$in": list_audience_id}}):
                 students.update(audience["students"])
-            if only_users is not None:  # do the intersection
+            if only_users:  # do the intersection
                 self._validate_list(only_users)
                 students.intersection_update(only_users)
             base_filter["username"] = {"$in": list(students)}
@@ -128,22 +129,29 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
                 filter["tests." + tag_id] = {"$in": [None, False]} if not should_be_present else True
 
         # Grades
-        if grade_between is not None and grade_between[0] is not None:
+        if grade_between and grade_between[0] is not None:
             filter.setdefault("grade", {})["$gte"] = float(grade_between[0])
-        if grade_between is not None and grade_between[1] is not None:
+        if grade_between and grade_between[1] is not None:
             filter.setdefault("grade", {})["$lte"] = float(grade_between[1])
 
         # Submit time
-        if submit_time_between is not None and submit_time_between[0] is not None:
-            filter.setdefault("submitted_on", {})["$gte"] = datetime.strptime(submit_time_between[0], "%Y-%m-%d %H:%M:%S")
-        if submit_time_between is not None and submit_time_between[1] is not None:
-            filter.setdefault("submitted_on", {})["$lte"] = datetime.strptime(submit_time_between[1], "%Y-%m-%d %H:%M:%S")
+        try:
+            if submit_time_between and submit_time_between[0] is not None:
+                filter.setdefault("submitted_on", {})["$gte"] = datetime.strptime(submit_time_between[0], "%Y-%m-%d %H:%M:%S")
+            if submit_time_between and submit_time_between[1] is not None:
+                filter.setdefault("submitted_on", {})["$lte"] = datetime.strptime(submit_time_between[1], "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            # TODO it would be nice to display this in the interface. However, this should never happen because
+            # we have a nice JS interface that prevents this.
+            pass
 
         # Only evaluation submissions
+        user_tasks = self.database.user_tasks.find(base_filter)
+        best_submissions_list = {user_task['submissionid'] for user_task in user_tasks if
+                                 user_task['submissionid'] is not None}
+
         if keep_only_evaluation_submissions is True:
-            user_tasks = self.database.user_tasks.find(base_filter)
-            submissionsid = [user_task['submissionid'] for user_task in user_tasks if user_task['submissionid'] is not None]
-            filter["_id"] = {"$in": submissionsid}
+            filter["_id"] = {"$in": list(best_submissions_list)}
 
         filter.update(base_filter)
         submissions = self.database.submissions.find(filter)
@@ -155,7 +163,12 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         if limit is not None:
             submissions.limit(limit)
 
-        return list(submissions)
+        out = list(submissions)
+
+        for d in out:
+            d["best"] = d["_id"] in best_submissions_list  # mark best submissions
+
+        return out
 
     def show_page_params(self, course, user_input):
         tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
