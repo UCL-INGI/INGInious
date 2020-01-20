@@ -285,20 +285,24 @@ class Backend(object):
         """Handle an AgentJobDone message. Send the data back to the client, and start new job if needed"""
 
         if agent_addr in self._registered_agents:
-            self._logger.info("Job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
 
-            # Remove the job from the list of running jobs
-            del self._job_running[message.job_id]
 
-            # Sent the data back to the client
+            if message.job_id in self._job_running:
+                self._logger.info("Job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
+                # Remove the job from the list of running jobs
+                del self._job_running[message.job_id]
+                # The agent is available now
+                self._available_agents.append(agent_addr)
+            else:
+                self._logger.warning("Job result %s %s from agent %s was not running", message.job_id[0], message.job_id[1], agent_addr)
+
+            # Sent the data back to the client, even if we didn't know the job. This ensure everything can recover
+            # in case of problems.
             await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
                                                                                                  message.grade, message.problems,
                                                                                                  message.tests, message.custom,
                                                                                                  message.state, message.archive,
                                                                                                  message.stdout, message.stderr))
-
-            # The agent is available now
-            self._available_agents.append(agent_addr)
         else:
             self._logger.warning("Job result %s %s from non-registered agent %s", message.job_id[0], message.job_id[1], agent_addr)
 
@@ -373,12 +377,12 @@ class Backend(object):
         """ Deletes an agent """
         self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
         del self._registered_agents[agent_addr]
-        await self._recover_jobs(agent_addr)
+        await self._recover_jobs()
 
-    async def _recover_jobs(self, agent_addr):
+    async def _recover_jobs(self):
         """ Recover the jobs sent to a crashed agent """
-        for (client_addr, job_id), (agent, job_msg, _) in reversed(list(self._job_running.items())):
-            if agent == agent_addr:
+        for (client_addr, job_id), (agent_addr, job_msg, _) in reversed(list(self._job_running.items())):
+            if agent_addr not in self._registered_agents:
                 await ZMQUtils.send_with_addr(self._client_socket, client_addr,
                                               BackendJobDone(job_id, ("crash", "Agent restarted"),
                                                              0.0, {}, {}, {}, "", None, None, None))

@@ -28,8 +28,9 @@ class ClientBuffer(object):
 
     def _callback(self, bjobid, result, grade, problems, tests, custom, archive, stdout, stderr):
         """ Callback for self._client.new_job """
-        self._jobs_done[str(bjobid)] = (result, grade, problems, tests, custom, archive, stdout, stderr)
-        self._waiting_jobs.remove(str(bjobid))
+        if str(bjobid) in self._waiting_jobs:
+            self._jobs_done[str(bjobid)] = (result, grade, problems, tests, custom, archive, stdout, stderr)
+            self._waiting_jobs.remove(str(bjobid))
 
     def is_waiting(self, bjobid):
         """ Return true if the job is in queue """

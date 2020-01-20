@@ -47,6 +47,10 @@ class WebAppSubmissionManager:
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
+
+        if "jobid" not in submission:
+            return  # ignore, duplicate message
+
         submission = self.get_input_from_submission(submission)
 
         data = {
