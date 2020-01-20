@@ -197,7 +197,7 @@ class Backend(object):
                     # Killed job, removing it from the mapping
                     if not job_msg:
                         del self._waiting_jobs[(client_addr, job_id)]
-                        continue  # repeat the while loop. we need a job
+                        job = None  # repeat the while loop. we need a job
             except queue.Empty:
                 continue  # skip agent, nothing to do!
 
