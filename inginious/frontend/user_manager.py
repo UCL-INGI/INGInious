@@ -651,6 +651,17 @@ class UserManager:
         """ Returns a list of the course audiences"""
         return natsorted(list(self._database.audiences.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
+    def get_course_audiences_per_student(self, course):
+        """ Returns a dictionnary mapping student -> list of audiences it belongs to, for a given course """
+        course_audiences = self.get_course_audiences(course)
+        student_audiences = {}
+        for audience in course_audiences:
+            for student in audience["students"]:
+                if student not in student_audiences:
+                    student_audiences[student] = []
+                student_audiences[student].append(audience)
+        return student_audiences
+
     def get_course_groups(self, course):
         """ Returns a list of the course groups"""
         return natsorted(list(self._database.groups.find({"courseid": course.get_id()})), key=lambda x: x["description"])
