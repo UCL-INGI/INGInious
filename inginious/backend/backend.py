@@ -9,6 +9,7 @@ import time
 import zmq
 from zmq.asyncio import Poller
 
+from inginious.backend.topic_priority_queue import TopicPriorityQueue
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDone, AgentJobSSHDebug, \
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, ClientNewJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, \
@@ -39,18 +40,28 @@ class Backend(object):
         self._poller.register(self._agent_socket, zmq.POLLIN)
         self._poller.register(self._client_socket, zmq.POLLIN)
 
-        # List of environments available
+        # Dict of available environments
         # {
         #     "name": ("last_id", "created_last", ["agent_addr1", "agent_addr2"], "type")
         # }
         self._environments = {}
         self._registered_clients = set()  # addr of registered clients
-        self._registered_agents = {}  # addr of registered agents
-        self._available_agents = []  # addr of available agents
-        self._ping_count = {}  # ping count per addr of agents
+
+        # Dict of registered agents
+        # {
+        #     agent_address: {"name": "friendly_name", "environments": environment_dict}
+        # } environment_dict is a described in AgentHello.
+        self._registered_agents = {}
+
+        # addr of available agents. May contain multiple times the same agent, because some agent can
+        # manage multiple jobs at once!
+        self._available_agents = []
+
+        # ping count per addr of agents
+        self._ping_count = {}
 
         # These two share the same objects! Tuples should never be recreated.
-        self._waiting_jobs_pq = queue.PriorityQueue() # priority queue for waiting jobs
+        self._waiting_jobs_pq = TopicPriorityQueue() # priority queue for waiting jobs
         self._waiting_jobs = {}  # mapping job to job message, with key: [(client_addr_as_bytes, ClientNewJob])]
 
         self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:(addr_as_bytes,ClientNewJob,start_time)}
@@ -115,7 +126,7 @@ class Backend(object):
 
         job = (message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[(client_addr, message.job_id)] = job
-        self._waiting_jobs_pq.put(job)
+        self._waiting_jobs_pq.put(message.environment, job)
 
         await self.update_queue()
 
@@ -145,7 +156,8 @@ class Backend(object):
         jobs_running = list()
 
         for backend_job_id, content in self._job_running.items():
-            jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, self._registered_agents[content[0]],
+            agent_friendly_name = self._registered_agents[content[0]]["name"]
+            jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, agent_friendly_name,
                                  content[1].course_id+"/"+content[1].task_id,
                                  content[1].launcher, int(content[2]), self._get_time_limit_estimate(content[1])))
 
@@ -168,31 +180,28 @@ class Backend(object):
 
         jobs_ignored = []
 
+        available_agents = list(self._available_agents) # do a copy to avoid bad things
+
         # Loop on available agents to maximize running jobs, and break if priority queue empty
-        while len(self._available_agents) != 0 and not self._waiting_jobs_pq.empty():
-            # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
-            job = self._waiting_jobs_pq.get()
-            priority, insert_time, client_addr, job_id, job_msg = job
+        for agent_addr in available_agents:
+            if self._waiting_jobs_pq.empty():
+                break  # nothing to do
 
-            # Killed job, removing it from the mapping
-            if not job_msg:
-                del self._waiting_jobs[(client_addr, job_id)]
-                continue
+            try:
+                job = None
+                while job is None:
+                    # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
+                    job = self._waiting_jobs_pq.get(self._registered_agents[agent_addr]["environments"].keys())
+                    priority, insert_time, client_addr, job_id, job_msg = job
 
-            # Find agents that can run this job
-            possible_agents = list(set(self._environments[job_msg.environment][2]).intersection(set(self._available_agents)))
+                    # Killed job, removing it from the mapping
+                    if not job_msg:
+                        del self._waiting_jobs[(client_addr, job_id)]
+                        continue  # repeat the while loop. we need a job
+            except queue.Empty:
+                continue  # skip agent, nothing to do!
 
-            # No agent available, put job back to queue with lower priority
-            if not possible_agents:
-                # TODO this may be computationally expensive. If no agent can handle the queue, each update will visit
-                # it entirely. This however should never happen in an environment where enough agents are regularly
-                # processing the queue.
-                jobs_ignored.append(job)  # put the original object! See doc for _waiting_jobs_pq.
-                self._logger.warning("No agent for job id %s, putting it back in the queue.", job_id)
-                continue
-
-            # Agent chosen, removing it from availability list
-            agent_addr = possible_agents[0]
+            # We have found a job, let's remove the agent from the available list
             self._available_agents.remove(agent_addr)
 
             # Remove the job from the queue
@@ -221,7 +230,7 @@ class Backend(object):
             # Delete previous instance of this agent, if any
             await self._delete_agent(agent_addr)
 
-        self._registered_agents[agent_addr] = message.friendly_name
+        self._registered_agents[agent_addr] = {"name": message.friendly_name, "environments": message.available_environments}
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
 
@@ -335,7 +344,9 @@ class Backend(object):
         """ Ping the agents """
 
         # the list() call here is needed, as we remove entries from _registered_agents!
-        for agent_addr, friendly_name in list(self._registered_agents.items()):
+        for agent_addr, agent_data in list(self._registered_agents.items()):
+            friendly_name = agent_data["name"]
+
             try:
                 ping_count = self._ping_count.get(agent_addr, 0)
                 if ping_count > 5:
