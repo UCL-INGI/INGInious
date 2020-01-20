@@ -73,7 +73,7 @@ class Agent(object, metaclass=ABCMeta):
         self.__running_job = {}
         self.__running_batch_job = set()
 
-        self.__last_ping = None
+        self.__backend_last_seen_time = None
 
         self.__asyncio_tasks_running = set()
 
@@ -110,7 +110,7 @@ class Agent(object, metaclass=ABCMeta):
         # Tell the backend we are up and have `concurrency` threads available
         self._logger.info("Saying hello to the backend")
         await ZMQUtils.send(self.__backend_socket, AgentHello(self.__friendly_name, self.__concurrency, self.environments))
-        self.__last_ping = time.time()
+        self.__backend_last_seen_time = time.time()
 
         run_listen = self._loop.create_task(self.__run_listen())
 
@@ -120,7 +120,7 @@ class Agent(object, metaclass=ABCMeta):
 
     async def __check_last_ping(self, run_listen):
         """ Check if the last timeout is too old. If it is, kills the run_listen task """
-        if self.__last_ping < time.time()-10:
+        if self.__backend_last_seen_time < time.time()-10:
             self._logger.warning("Last ping too old. Restarting the agent.")
             run_listen.cancel()
             self.__cancel_remaining_safe_tasks()
@@ -135,6 +135,7 @@ class Agent(object, metaclass=ABCMeta):
 
     async def __handle_backend_message(self, message):
         """ Dispatch messages received from clients to the right handlers """
+        self.__backend_last_seen_time = time.time()
         message_handlers = {
             BackendNewJob: self.__handle_new_job,
             BackendKillJob: self.kill_job,
@@ -148,7 +149,6 @@ class Agent(object, metaclass=ABCMeta):
 
     async def __handle_ping(self, _ : Ping):
         """ Handle a Ping message. Pong the backend """
-        self.__last_ping = time.time()
         await ZMQUtils.send(self.__backend_socket, Pong())
 
     async def __handle_new_job(self, message: BackendNewJob):
