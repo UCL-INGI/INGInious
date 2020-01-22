@@ -192,7 +192,7 @@ $if len(old_input.tasks) == 1:
                                 </div>
                                 <div class="col-xs-2 col-sm-2"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
                                     <label>$:_("Limit") *</label>
-                                    <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
+                                    <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$(old_input['limit'] or '500')"/>
                                 </div>
                                 <div class="col-xs-4 col-sm-4">
                                     <label>$:_("Statistics")</label>

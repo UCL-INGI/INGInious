@@ -58,7 +58,7 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
         msgs = msgs if msgs else []
 
         user_input = self.get_input()
-        data = self.submissions_from_user_input(course, user_input)  # ONLY audiences user wants to query
+        data, limit, above_limit = self.submissions_from_user_input(course, user_input, msgs)  # ONLY audiences user wants to query
         if len(data) == 0 and not self.show_collapse(user_input):
             msgs.append(_("No submissions found"))
 
@@ -88,14 +88,10 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
             else:
                 msgs.append(_("The following submission could not be prepared for download: {}").format(error))
 
-        if user_input.limit != '' and user_input.limit.isdigit():
-            data = data[:int(user_input.limit)]
-
-        if len(data) > self._trunc_limit:
+        if above_limit:
             msgs.append(
-                _("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(
-                    self._trunc_limit))
-            data = data[:self._trunc_limit]
+                _("The result contains more than {0} submissions. The displayed submissions are truncated. You can modify this value in the advanced query tab.\n").format(
+                    limit))
 
         course_audiences = self.user_manager.get_course_audiences(course)
         return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, course_audiences,
@@ -118,7 +114,7 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
             key=lambda k: k[1][0] if k[1] is not None else ""))
         return users
 
-    def submissions_from_user_input(self, course, user_input):
+    def submissions_from_user_input(self, course, user_input, msgs):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
         submit_time_between = [None, None]
@@ -128,7 +124,7 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
             if user_input.date_after:
                 submit_time_between[0] = user_input.date_after
         except ValueError:  # If match of datetime.strptime() fails
-            pass
+            msgs.append(_("Invalid dates"))
 
         tags = None
         if len(user_input.filter_tags) == len(user_input.filter_tags_presence):
@@ -136,6 +132,14 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
 
         must_keep_best_submissions_only = "eval" in user_input or (
                 "eval_dl" in user_input and "download" in web.input())
+
+        limit = self._trunc_limit
+        try:
+            ulimit = int(user_input.limit)
+            if ulimit > 0:
+                limit = ulimit
+        except ValueError:
+            msgs.append(_("Invalid limit"))
 
         data = self.get_selected_submissions(course, only_tasks=user_input.tasks,
                                              only_tasks_with_categories=user_input.org_tags,
@@ -149,10 +153,10 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
                                              submit_time_between=submit_time_between,
                                              keep_only_evaluation_submissions=must_keep_best_submissions_only,
                                              sort_by=(user_input.sort_by, user_input.order == "1"),
-                                             limit=self._trunc_limit)
+                                             limit=limit+1)
 
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
-        return data
+        return data[0:limit], limit, len(data) > limit
 
     def get_input(self):
         """ Loads web input, initialise default values and check/sanitise some inputs from users """
