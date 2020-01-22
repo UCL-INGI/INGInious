@@ -15,6 +15,8 @@ from natsort import natsorted
 
 import bson
 import web
+
+from inginious.common.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -41,6 +43,9 @@ class CourseEditTask(INGIniousAdminPage):
             task_data = None
         if task_data is None:
             task_data = {}
+
+        # Ensure retrocompatibility
+        task_data = _migrate_from_v_0_6(task_data)
 
         environment_types = self.environment_types
         environments = self.environments
