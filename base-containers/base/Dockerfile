@@ -35,7 +35,7 @@ RUN     mkdir -p /usr/lib/python3.6/site-packages/inginious && \
         echo "inginious" > /usr/lib/python3.6/site-packages/inginious.pth
 
 # Delete unneeded folders
-RUN     rm -R /INGInious
+RUN     rm -Rf /INGInious
 
 # Create worker user
 RUN     groupadd --gid 4242 worker && \
