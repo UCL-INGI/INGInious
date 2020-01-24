@@ -5,8 +5,13 @@
 #
 
 import os
+import gettext
+import builtins
 
 __version__ = "0.6.dev0"
+
+
+builtins.__dict__['_'] = gettext.gettext
 
 
 def get_root_path():
