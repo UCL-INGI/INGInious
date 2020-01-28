@@ -498,35 +498,35 @@ class WebAppSubmissionManager:
         if "audience" in sub_folders:
             student_audiences = self._user_manager.get_course_audiences_per_student(course)
 
-        def generate_paths(submission, base_path, remaining_sub_folders):
+        def generate_paths(sub, path, remaining_sub_folders):
             if len(remaining_sub_folders) == 0:
-                yield base_path
+                yield path
             elif remaining_sub_folders[0] == "taskid":
-                yield from generate_paths(submission, base_path + [submission['taskid']], remaining_sub_folders[1:])
+                yield from generate_paths(sub, path + [sub['taskid']], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "username":
-                for username in submission["username"]:
-                    yield from generate_paths(submission, base_path + [username], remaining_sub_folders[1:])
+                for username in sub["username"]:
+                    yield from generate_paths(sub, path + [username], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "audience":
-                for username in submission["username"]:
+                for username in sub["username"]:
                     if username in student_audiences:
                         for audience in student_audiences[username]:
-                            yield from generate_paths(submission, base_path +
+                            yield from generate_paths(sub, path +
                                                       [(audience["description"] +" (" + str(audience["_id"]) + ")").replace(" ", "_")],
                                                       remaining_sub_folders[1:])
                     else:
-                        yield from generate_paths(submission, base_path + ['-'.join(sorted(submission['username']))], remaining_sub_folders[1:])
+                        yield from generate_paths(sub, path + ['-'.join(sorted(sub['username']))], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "group":
-                yield from generate_paths(submission, base_path + ['-'.join(sorted(submission['username']))], remaining_sub_folders[1:])
+                yield from generate_paths(sub, path + ['-'.join(sorted(sub['username']))], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "submissionid":
-                yield from generate_paths(submission, base_path + [str(submission['_id'])], remaining_sub_folders[1:])
+                yield from generate_paths(sub, path + [str(sub['_id'])], remaining_sub_folders[1:])
             else:
-                yield from generate_paths(submission, base_path + [remaining_sub_folders[0]], remaining_sub_folders[1:])
+                yield from generate_paths(sub, path + [remaining_sub_folders[0]], remaining_sub_folders[1:])
 
         file_to_put = {}
         for submission in submissions:
             # generate all paths where the submission must belong
             for base_path in generate_paths(submission, [], sub_folders):
-                file_to_put = {"/".join(base_path): submission}
+                file_to_put["/".join(base_path)] = submission
 
         tmpfile = archive_file if archive_file is not None else tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
