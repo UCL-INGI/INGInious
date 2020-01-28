@@ -135,7 +135,7 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
 
         limit = self._trunc_limit
         try:
-            ulimit = int(user_input.limit)
+            ulimit = int(user_input.limit) if user_input.limit else 0
             if ulimit > 0:
                 limit = ulimit
         except ValueError:

@@ -42,12 +42,12 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         # Load submissions
         submissions = self.get_selected_submissions(course,
                                                     only_tasks=user_input.tasks or None,
-                                                    only_users=user_input.users or None,
-                                                    only_audiences=user_input.audiences or None,
+                                                    only_users=user_input.users if user_input.filter_type == "users" else None,
+                                                    only_audiences=user_input.audiences if user_input.filter_type != "users" else None,
                                                     keep_only_evaluation_submissions=user_input.type == "single")
 
         self._logger.info("Downloading %d submissions from course %s", len(submissions), courseid)
-        archive, error = self.submission_manager.get_submission_archive(course, submissions, list(reversed(user_input.format.split('/')))+["submissionid"])
+        archive, error = self.submission_manager.get_submission_archive(course, submissions, list(user_input.format.split('/'))+["submissionid"])
         if not error:
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
