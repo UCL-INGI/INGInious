@@ -103,7 +103,7 @@ class BaseTaskPage(object):
             self.user_manager.course_register_user(course, force=True)
 
         if not self.user_manager.course_is_open_to_user(course, username, is_LTI):
-            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
+            return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
         # Fetch the task
         try:
@@ -187,7 +187,7 @@ class BaseTaskPage(object):
 
         course = self.course_factory.get_course(courseid)
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
+            return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
         task = course.get_task(taskid)
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
