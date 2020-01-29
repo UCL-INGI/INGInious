@@ -5,12 +5,12 @@
 import asyncio
 import logging
 import gettext
-import builtins
 
 from inginious.agent import Agent, CannotCreateJobException
 from inginious import get_root_path
 from inginious.common.messages import BackendNewJob, BackendKillJob
 import os.path
+import builtins
 
 class MCQAgent(Agent):
     def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem, course_factory):
@@ -39,7 +39,8 @@ class MCQAgent(Agent):
     async def new_job(self, msg: BackendNewJob):
         language = msg.inputdata.get("@lang", "")
         translation = self._translations.get(language, gettext.NullTranslations())
-        #TODO: this would probably require a refactor
+        # TODO: this would probably require a refactor.
+        # This may pose problem with apps that start multiple MCQAgents in the same process...
         builtins.__dict__['_'] = translation.gettext
 
         try:
