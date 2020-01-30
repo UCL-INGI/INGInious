@@ -72,7 +72,7 @@ $if len(old_input.tasks) == 1:
             <!-- Tasks -->
             <div class="col-sm-8 form-group">
                 <label>$:_("Tasks")</label>
-                <select name="task" multiple size="9" class="form-control" id="select_task">
+                <select name="tasks" multiple size="9" class="form-control" id="select_task">
                 $for t in tasks:
                     <option value="$t" $('selected' if t in old_input['tasks'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
                 </select>
@@ -192,7 +192,7 @@ $if len(old_input.tasks) == 1:
                                 </div>
                                 <div class="col-xs-2 col-sm-2"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
                                     <label>$:_("Limit") *</label>
-                                    <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
+                                    <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$(old_input['limit'] or '500')"/>
                                 </div>
                                 <div class="col-xs-4 col-sm-4">
                                     <label>$:_("Statistics")</label>
@@ -359,10 +359,9 @@ $if statistics != None and len(data) > 0:
             <td>
                 $for user in submission["username"]:
                     $if "show_stud_name" in old_input:
-                        $(users[user][0] if users[user] != None and len(users[user]) > 0 else '?')<br>
+                        $(users[user][0] if user in users and users[user] != None and len(users[user]) > 0 else '?')<br>
                     $else:
                         $user<br>
-                        
             </td>
             $if "show_task_name" in old_input:
                 <td>$tasks[submission["taskid"]].get_name(user_manager.session_language())</td>

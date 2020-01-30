@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-12-03 13:53+0100\n"
-"PO-Revision-Date: 2019-12-03 07:24+0000\n"
-"Last-Translator: Felix Haase <felix.haase@stud.uni-bamberg.de>\n"
+"POT-Creation-Date: 2019-12-18 16:06+0100\n"
+"PO-Revision-Date: 2020-01-06 14:35+0000\n"
+"Last-Translator: Christian Klein <kleinchr@ludwig-geissler-schule.de>\n"
 "Language-Team: German <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/de/>\n"
 "Language: de\n"
@@ -70,7 +70,7 @@ msgstr "Zu spät"
 
 #: inginious/frontend/environment_types/docker.py:11
 msgid "Docker container"
-msgstr ""
+msgstr "Docker container"
 
 #: inginious/frontend/environment_types/mcq.py:11
 msgid "Multiple Choice Question solver"
@@ -253,45 +253,47 @@ msgstr ""
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
 #: inginious/frontend/pages/tasks.py:248 inginious/frontend/pages/tasks.py:264
 msgid "Internal error"
-msgstr ""
+msgstr "Interner Fehler"
 
 #: inginious/frontend/pages/tasks.py:314
 msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
-msgstr ""
+msgstr "<b>INGInious bewertet gerade Ihre Antworten.</b> (fast fertig)"
 
 #: inginious/frontend/pages/tasks.py:316
 msgid ""
 "<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
 "seconds)"
 msgstr ""
+"<b>INGInious bewertet gerade Ihre Antworten.</b> (Voraussichtliche Wartezeit:"
+" {} Sekunden)"
 
 #: inginious/frontend/pages/tasks.py:319
 msgid "<b>You are next in the waiting queue!</b>"
-msgstr ""
+msgstr "<b>Sie sind der nächste in der Warteschlange</b>"
 
 #: inginious/frontend/pages/tasks.py:321
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Es befindet sich eine Aufgabe vor Ihren in der Warteschlange.</b>"
 
 #: inginious/frontend/pages/tasks.py:323
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Es befinden sich {} Aufgaben vor Ihnen in der Warteschlange.</b>"
 
 #: inginious/frontend/pages/tasks.py:347
 msgid "There are some errors in your answer. Your score is {score}%."
-msgstr ""
+msgstr "Es sind Fehler in Ihrer Abgabe. Ihre Punktzahl ist {score}%."
 
 #: inginious/frontend/pages/tasks.py:349
 msgid "Your answer passed the tests! Your score is {score}%."
-msgstr ""
+msgstr "Ihre Abgabe hat bestanden! Ihre Punktzahl ist {score}%."
 
 #: inginious/frontend/pages/tasks.py:351
 msgid "Your submission timed out. Your score is {score}%."
-msgstr ""
+msgstr "Die Zeit Ihrer Abgabe wurde überschritten. Ihre Punktzahl ist {score}%."
 
 #: inginious/frontend/pages/tasks.py:353
 msgid "Your submission made an overflow. Your score is {score}%."
-msgstr ""
+msgstr "Ihre Abgabe hat einen Überlauf erzeugt. Ihre Punktzahl ist {score}&."
 
 #: inginious/frontend/pages/tasks.py:355
 msgid "Your submission was killed."
@@ -302,14 +304,35 @@ msgid ""
 "An internal error occurred. Please retry later. If the error persists, send "
 "an email to the course administrator."
 msgstr ""
+"Ein interner Fehler ist aufgetreten. Bitte versuchen Sie es später noch "
+"einmal. Wenn dieser Fehler erneut auftritt, senden Sie bitte eine E-Mail an "
+"den Kursverwalter."
 
 #: inginious/frontend/pages/tasks.py:360
 msgid "[Submission #{submissionid}]"
-msgstr ""
+msgstr "[Abgabe #{submissionid}]"
 
 #: inginious/frontend/pages/tasks.py:395 inginious/frontend/pages/tasks.py:397
 msgid " <truncated>"
+msgstr " <gekürzt>"
+
+#: inginious/frontend/pages/utils.py:167
+msgid ""
+"An account using this email already exists and is not bound with this "
+"service. For security reasons, please log in via another method and bind "
+"your account in your profile."
 msgstr ""
+
+#: inginious/frontend/pages/utils.py:170
+msgid ""
+"Couldn't fetch the required information from the service. Please check the "
+"provided permissions (name, email) and contact your INGInious administrator "
+"if the error persists."
+msgstr ""
+
+#: inginious/frontend/pages/utils.py:194
+msgid "Invalid login/password"
+msgstr "Ungültiger Login/Passwort"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:129
 msgid "Audience with id {} not found."
@@ -324,12 +347,12 @@ msgstr ""
 #: inginious/frontend/pages/course_admin/audience_edit.py:162
 #: inginious/frontend/pages/course_admin/group_edit.py:173
 msgid "Changes couldn't be applied for following students :"
-msgstr ""
+msgstr "Änderungen konnten für folgende Teilnehmer nicht übernommen werden:"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:170
 #: inginious/frontend/pages/course_admin/group_edit.py:182
 msgid "An error occurred while parsing the data."
-msgstr ""
+msgstr "Ein Fehler ist beim Parsen der Daten aufgetreten."
 
 #: inginious/frontend/pages/course_admin/audience_list.py:46
 msgid "New audience created."
@@ -350,16 +373,16 @@ msgstr ""
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:154
 msgid "Operation aborted due to invalid token."
-msgstr ""
+msgstr "Operation wegen eines ungültigen Tokens abgebrochen."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:158
 #: inginious/frontend/pages/course_admin/danger_zone.py:181
 msgid "Wrong course id."
-msgstr ""
+msgstr "Falsche Kurs-ID."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:163
 msgid "All course data have been deleted."
-msgstr ""
+msgstr "Alle Kursdaten wurden gelöscht."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:165
 msgid "An error occurred while dumping course from database."
@@ -367,15 +390,15 @@ msgstr ""
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:175
 msgid "Course restored to date : {}."
-msgstr ""
+msgstr "Kurs zurückgesetzt auf Datum: {}."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:177
 msgid "An error occurred while restoring backup."
-msgstr ""
+msgstr "Beim Zurückspielen der Sicherung ist ein Fehler aufgetreten."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:188
 msgid "An error occurred while deleting the course data."
-msgstr ""
+msgstr "Beim Löschen der Kursdaten ist ein Fehler aufgetreten."
 
 #: inginious/frontend/pages/course_admin/download.py:21
 #: inginious/frontend/pages/course_admin/submissions.py:26
@@ -1092,6 +1115,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
 #: inginious/frontend/templates/course_admin/danger_zone.html:164
 #: inginious/frontend/templates/course_admin/groups_edit.html:91
+#: inginious/frontend/templates/course_admin/student_info.html:102
 #: inginious/frontend/templates/course_admin/student_list_table.html:85
 #: inginious/frontend/templates/course_admin/submissions.html:247
 #: inginious/frontend/templates/course_admin/task_edit.html:114
@@ -1349,7 +1373,7 @@ msgstr ""
 msgid "Not yet attempted"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:68
+#: inginious/frontend/templates/course_admin/student_info.html:69
 #: inginious/frontend/templates/course_admin/submissions.html:376
 #: inginious/frontend/templates/task.html:51
 msgid "Succeeded"
@@ -1359,7 +1383,7 @@ msgstr ""
 msgid "Waiting for verification"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:71
+#: inginious/frontend/templates/course_admin/student_info.html:72
 #: inginious/frontend/templates/course_admin/submissions.html:380
 #: inginious/frontend/templates/task.html:61
 msgid "Failed"
@@ -1591,6 +1615,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/audience_edit.html:95
 #: inginious/frontend/templates/course_admin/groups_edit.html:73
 #: inginious/frontend/templates/course_admin/groups_edit.html:92
+#: inginious/frontend/templates/course_admin/student_list.html:49
 msgid "Add student"
 msgstr ""
 
@@ -1698,13 +1723,13 @@ msgid "# task done"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:80
-#: inginious/frontend/templates/course_admin/student_info.html:38
+#: inginious/frontend/templates/course_admin/student_info.html:39
 #: inginious/frontend/templates/course_admin/task_list.html:67
 msgid "\"Download all submissions\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:82
-#: inginious/frontend/templates/course_admin/student_info.html:45
+#: inginious/frontend/templates/course_admin/student_info.html:46
 #: inginious/frontend/templates/course_admin/student_list_table.html:27
 #: inginious/frontend/templates/course_admin/submissions.html:334
 #: inginious/frontend/templates/course_admin/task_list.html:69
@@ -1729,14 +1754,14 @@ msgid "\"View submissions\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:109
-#: inginious/frontend/templates/course_admin/student_info.html:78
+#: inginious/frontend/templates/course_admin/student_info.html:79
 #: inginious/frontend/templates/course_admin/student_list_table.html:59
 #: inginious/frontend/templates/course_admin/task_list.html:92
 msgid "\"Download submissions\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:112
-#: inginious/frontend/templates/course_admin/student_info.html:81
+#: inginious/frontend/templates/course_admin/student_info.html:82
 #: inginious/frontend/templates/course_admin/student_list_table.html:62
 #: inginious/frontend/templates/course_admin/task_list.html:95
 msgid "\"Replay submissions\""
@@ -2108,32 +2133,45 @@ msgstr ""
 msgid "Statistics for student {realname} ({username})"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:32
+#: inginious/frontend/templates/course_admin/student_info.html:33
 msgid "task"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:33
+#: inginious/frontend/templates/course_admin/student_info.html:34
 msgid "status"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:34
+#: inginious/frontend/templates/course_admin/student_info.html:35
 msgid "# submissions"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:42
+#: inginious/frontend/templates/course_admin/student_info.html:43
 msgid "\"Replay all submissions\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:63
+#: inginious/frontend/templates/course_admin/student_info.html:64
 msgid "Not viewed"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:65
+#: inginious/frontend/templates/course_admin/student_info.html:66
 msgid "Not attempted (viewed)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_info.html:76
+#: inginious/frontend/templates/course_admin/student_info.html:77
 msgid "\"View all submissions\""
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:94
+msgid "Reset State"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:98
+msgid "This will reset the state for {}. Are you sure ?"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:103
+#: inginious/frontend/templates/course_admin/submissions.html:214
+msgid "Reset"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/student_list.html:38
@@ -2334,10 +2372,6 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/submissions.html:213
 msgid "Filter"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/submissions.html:214
-msgid "Reset"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/submissions.html:231
