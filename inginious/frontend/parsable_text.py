@@ -7,6 +7,7 @@
 import html
 import gettext
 from datetime import datetime
+from urllib.parse import urlparse
 
 import tidylib
 from docutils import core, nodes
@@ -148,7 +149,18 @@ class _CustomHTMLWriter(html4css1.Writer, object):
             """ Ensures all links to outside this instance of INGInious have target='_blank' """
             if tagname == 'a' and "href" in attributes and not attributes["href"].startswith('#'):
                 attributes["target"] = "_blank"
+            if 'path' in web.ctx and '/lti/' in web.ctx.path:
+                if tagname == 'a' and 'href' in attributes:
+                    attributes['href'] = self.rewrite_lti_url(attributes['href'])
+                elif tagname == 'img' and 'src' in attributes:
+                    attributes['src'] = self.rewrite_lti_url(attributes['src'])
             return html4css1.HTMLTranslator.starttag(self, node, tagname, suffix, empty, **attributes)
+
+        @staticmethod
+        def rewrite_lti_url(url):
+            if urlparse(url).netloc: # If URL is absolute, don't do anything
+                return url
+            return 'asset/' + url
 
         def visit_table(self, node):
             """ Remove needless borders """

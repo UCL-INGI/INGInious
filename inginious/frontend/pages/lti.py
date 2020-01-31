@@ -30,6 +30,18 @@ class LTITaskPage(INGIniousAuthPage):
         return BaseTaskPage(self).POST(courseid, taskid, True)
 
 
+class LTIAssetPage(INGIniousAuthPage):
+    def is_lti_page(self):
+        return True
+
+    def GET_AUTH(self, asset_url):
+        data = self.user_manager.session_lti_info()
+        if data is None:
+            raise web.notfound()
+        (courseid, _) = data['task']
+        raise web.redirect(self.app.get_homepath() + "/course/{courseid}/{asset_url}".format(courseid=courseid, asset_url=asset_url))
+
+
 class LTIBindPage(INGIniousAuthPage):
     def is_lti_page(self):
         return False
