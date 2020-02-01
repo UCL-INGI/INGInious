@@ -130,15 +130,16 @@ class CookieLessCompatibleApplication(web.application):
         else:
             self._session.load(args[0][2:len(args[0])-1])
 
+        # Find best possible default language
+        for lang in re.split("[,;]+", web.ctx.environ.get("HTTP_ACCEPT_LANGUAGE", "")):
+            if lang in self._translations.keys():
+                web.ctx.base_lang = lang
+                break
+
         # Switch language if specified
         input_data = web.input()
         if "lang" in input_data:
             self._session.language = input_data["lang"]
-        elif "language" not in self._session:
-            for lang in re.split("[,;]+", web.ctx.environ.get("HTTP_ACCEPT_LANGUAGE", "")):
-                if lang in self._translations.keys():
-                    self._session.language = lang
-                    break
 
         return super(CookieLessCompatibleApplication, self)._delegate(f, fvars, args[1:])
 
@@ -184,7 +185,12 @@ class CookieLessCompatibleSession(object):
             app.add_processor(self._processor)
 
     def __contains__(self, name):
-        return name in self._data
+        return name in self._data or name == "language"
+
+    def get(self, what, default=None):
+        if what == "language":
+            return self.language or default
+        return self._data.get(what, default)
 
     def __getattr__(self, name):
         return getattr(self._data, name)
@@ -246,6 +252,9 @@ class CookieLessCompatibleSession(object):
                 elif hasattr(self._initializer, '__call__'):
                     self._initializer()
 
+        if "language" not in self._data and self._get_language_from_cookie() is not None:
+            self._data["language"] = self._get_language_from_cookie()
+
         self._data["ip"] = web.ctx.ip
 
     def _check_expiry(self):
@@ -264,14 +273,28 @@ class CookieLessCompatibleSession(object):
 
     def _save_cookieless(self):
         if not self._data.get('_killed') and self._data["session_id"] is not None:
-            self.store[self._data["session_id"]] = dict(self._data)
+            self._save_to_store()
 
     def _save_cookie(self):
+        self._set_language_in_cookie()
+
         if not self.get('_killed'):
-            self._setcookie(self._data["session_id"])
-            self.store[self._data["session_id"]] = dict(self._data)
+            # We only store the session id in a cookie if it's needed
+            # that is, if someone modified the session.
+            if self._data["session_id"] in self.store or any(x not in ["session_id", "cookieless", "ip", "language"]
+                                                             for x in self._data.keys()):
+                self._setcookie(self._data["session_id"])
+                self._save_to_store()
         else:
             self._setcookie(self._data["session_id"], expires=-1)
+
+    def _save_to_store(self):
+        to_store = dict(self._data)
+        for key in ["cookieless", "language", "session_id"]:
+            if key in to_store:
+                del to_store[key]
+
+        self.store[self._data["session_id"]] = to_store
 
     def save(self):
         if self._data.get("cookieless", False):
@@ -321,3 +344,26 @@ class CookieLessCompatibleSession(object):
         """Kill the session, make it no longer available"""
         del self.store[self.session_id]
         self._data["_killed"] = True
+
+    def _get_language(self):
+        if "language" in self._data:
+            return self._data["language"]
+        if "base_lang" in web.ctx:
+            return web.ctx.base_lang
+        return ""
+
+    def _set_language(self, lang):
+        self._data["language"] = lang
+
+    language = property(_get_language, _set_language)
+
+    def _get_language_from_cookie(self):
+        return web.cookies().get("language")
+
+    def _set_language_in_cookie(self):
+        if "language" in self._data:
+            web.setcookie("language", self._data["language"],
+                          expires='', domain=self._config.cookie_domain,
+                          httponly=self._config.httponly,
+                          secure=self._config.secure,
+                          path=self._config.cookie_path)
