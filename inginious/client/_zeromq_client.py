@@ -108,7 +108,9 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         """
         Handle a pong
         """
-        self._ping_count = 0
+        # this is done when a packet is received, not need to redo it here
+        # self._ping_count = 0
+        pass
 
     async def _handle_unknown(self, _):
         """
@@ -206,6 +208,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         try:
             while True:
                 message = await ZMQUtils.recv(self._socket)
+                self._ping_count = 0  # restart ping count
                 msg_class = message.__msgtype__
                 if msg_class in self._handlers_registered:
                     # If a handler is registered, give the message to it

@@ -268,6 +268,8 @@ class Client(BetterParanoidPirateClient):
             test is a dict of tests made in the environment
             custom is a dict containing random things set in the environment
             archive is either None or a bytes containing a tgz archive of files from the job
+
+            The function may be called more than once. You should ignore the duplicate calls.
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
