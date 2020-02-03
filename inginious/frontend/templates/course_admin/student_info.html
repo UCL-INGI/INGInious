@@ -65,10 +65,10 @@ $var Navbar: $:NavbarF()
                     $elif task["status"] == "notattempted":
                         $:_("Not attempted (viewed)")
                     $elif task["status"] == "succeeded":
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
+                        <a href="$get_homepath()/submission/$task['submissionid']" title="$:_('View evaluation submission')"
                             data-toggle="tooltip" data-placement="bottom">$:_("Succeeded") ($task["grade"]%)</a>
                     $else:
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
+                        <a href="$get_homepath()/submission/$task['submissionid']" title="$:_('View evaluation submission')"
                             data-toggle="tooltip" data-placement="bottom">$:_("Failed") ($task["grade"]%)</a>
                 </td>
                 <td>$task["tried"]</td>
