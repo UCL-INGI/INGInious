@@ -53,56 +53,6 @@ class test_tasks_basic(object):
         except TaskUnreadableException:
             return
         assert False
-    # TODO - Probably not necessary anymore as get_limits was deleted
-    # def test_invalid_limits_1(self):
-    #     try:
-    #         t = inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-    #                                         {"environment_id": "default", "environment_type": "docker",
-    #                                          "environment_parameters": {
-    #                                              "run_cmd": '',
-    #                                              "limits": 'a string',
-    #                                              "time": '30',
-    #                                              "memory": '100',
-    #                                              "hard_time": '',
-    #                                          },
-    #                                          "problems": {"q1": {"default": '',
-    #                                                              "language": "python",
-    #                                                              "header": "header",
-    #                                                              "type": "code", "name": ""}}
-    #
-    #                                          },
-    #                                         LocalFSProvider('fake_path'), None, HookManager(), problem_types)
-    #         a = t.get_limits()
-    #         print(a)
-    #     except Exception as e:
-    #         assert str(e) == "Invalid limit"
-    #         return
-    #     assert False
-    #
-
-    # TODO - Do we still check inputs?
-    # def test_invalid_limits_2(self):
-    #     try:
-    #         inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-    #                                     {"environment_id": "default",
-    #                                      "environment_type": "docker",
-    #                                      "environment_parameters": {
-    #                                          "run_cmd": '',
-    #                                          "limits": -1,
-    #                                          "time": -30,
-    #                                          "memory": -100,
-    #                                          "hard_time": '',
-    #                                      },
-    #                                      "problems": {"q1": {"default": '',
-    #                                                          "language": "python",
-    #                                                          "header": "header",
-    #                                                          "type": "code", "name": ""}}
-    #                                      },
-    #                                     LocalFSProvider('fake_path'), None, HookManager(), problem_types)
-    #     except Exception as e:
-    #         assert str(e) == "Invalid limit"
-    #         return
-    #     assert False
 
     def test_no_problems(self):
         try:
