@@ -31,6 +31,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId and gridfs.exists(submission[key]):
                     gridfs.delete(submission[key])
 
+        self.database.courses.update_one({"_id": courseid}, {"$set": {"students": []}})
         self.database.audiences.remove({"courseid": courseid})
         self.database.groups.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
@@ -46,6 +47,9 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
+            students = self.database.courses.find_one({"_id": courseid}).get("students", [])
+            zipf.writestr("students.json", bson.json_util.dumps(students), zipfile.ZIP_DEFLATED)
+
             audiences = self.database.audiences.find({"courseid": courseid})
             zipf.writestr("audiences.json", bson.json_util.dumps(audiences), zipfile.ZIP_DEFLATED)
 
@@ -83,6 +87,10 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
         filepath = os.path.join(self.backup_dir, courseid, backup + ".zip")
         with zipfile.ZipFile(filepath, "r") as zipf:
+
+            students = bson.json_util.loads(zipf.read("students.json").decode("utf-8"))
+            if len(students) > 0:
+                self.database.courses.update_one({"_id": courseid}, {"$set": {"students": students}}, upsert=True)
 
             audiences = bson.json_util.loads(zipf.read("audiences.json").decode("utf-8"))
             if len(audiences) > 0:
@@ -162,8 +170,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 try:
                     self.dump_course(courseid)
                     msg = _("All course data have been deleted.")
-                except:
-                    msg = _("An error occurred while dumping course from database.")
+                except Exception as ex:
+                    msg = _("An error occurred while dumping course from database: {}").format(repr(ex))
                     error = True
         elif "restore" in data:
             if "backupdate" not in data:
@@ -174,8 +182,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     dt = datetime.datetime.strptime(data["backupdate"], "%Y%m%d.%H%M%S")
                     self.restore_course(courseid, data["backupdate"])
                     msg = _("Course restored to date : {}.").format(dt.strftime("%Y-%m-%d %H:%M:%S"))
-                except:
-                    msg = _("An error occurred while restoring backup.")
+                except Exception as ex:
+                    msg = _("An error occurred while restoring backup: {}").format(repr(ex))
                     error = True
         elif "deleteall" in data:
             if not data.get("courseid", "") == courseid:
@@ -185,8 +193,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 try:
                     self.delete_course(courseid)
                     web.seeother(self.app.get_homepath() + '/index')
-                except:
-                    msg = _("An error occurred while deleting the course data.")
+                except Exception as ex:
+                    msg = _("An error occurred while deleting the course data: {}").format(repr(ex))
                     error = True
 
         return self.page(course, msg, error)
