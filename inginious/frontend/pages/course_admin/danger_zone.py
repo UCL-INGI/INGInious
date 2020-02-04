@@ -55,7 +55,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
             user_tasks = self.database.user_tasks.find({"courseid": courseid})
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
 
-            submissions = self.database.submissions.find({"courseid": courseid})
+            # Fetching input data  while looping on submissions can trigger a mongo cursor timeout
+            submissions = self.database.submissions.find({"courseid": courseid}, no_cursor_timeout=True)
             erroneous_subs = set()
 
             for submission in submissions:
