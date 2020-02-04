@@ -89,7 +89,8 @@ urls = (
     r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.pages.lti.LTILaunchPage',
     r'/lti/bind', 'inginious.frontend.pages.lti.LTIBindPage',
     r'/lti/task', 'inginious.frontend.pages.lti.LTITaskPage',
-    r'/lti/login', 'inginious.frontend.pages.lti.LTILoginPage'
+    r'/lti/login', 'inginious.frontend.pages.lti.LTILoginPage',
+    r'/lti/asset/(.*)', 'inginious.frontend.pages.lti.LTIAssetPage'
 )
 
 urls_maintenance = (
