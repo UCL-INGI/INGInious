@@ -15,7 +15,8 @@ from inginious.common.hook_manager import HookManager
 from inginious.common.tasks_problems import *
 
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
-                         "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
+                 "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
+
 
 class test_tasks_basic(object):
     def setUp(self):
@@ -31,7 +32,8 @@ class test_tasks_basic(object):
         assert t.get_course_id() == 'test'
         assert t.get_response_type() == 'rst'
 
-        lim = t.get_limits()
+        env_param = t.get_environment_parameters()
+        lim = env_param['limits']
         assert lim['disk'] == 100
         assert lim['memory'] == 32
         assert lim['time'] == 60
@@ -52,30 +54,19 @@ class test_tasks_basic(object):
             return
         assert False
 
-    def test_invalid_limits_1(self):
-        try:
-            t = inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                            {"environment": "default", "limits": {"time": "a string!"}},
-                                            'fake_path', None, HookManager(), problem_types)
-            a = t.get_limits()
-            print(a)
-        except Exception as e:
-            assert str(e) == "Invalid limit"
-            return
-        assert False
-
-    def test_invalid_limits_2(self):
-        try:
-            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                        {"environment": "default", "limits": {"time": -1}}, 'fake_path', None, HookManager(), problem_types)
-        except Exception as e:
-            assert str(e) == "Invalid limit"
-            return
-        assert False
-
     def test_no_problems(self):
         try:
-            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"}, 'fake_path', None, HookManager(), problem_types)
+            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
+                                        {"environment_id": "default",
+                                         "environment_type": "docker",
+                                         "environment_parameters": {
+                                             "run_cmd": '',
+                                             "limits": '0',
+                                             "time": '30',
+                                             "memory": '100',
+                                             "hard_time": '',
+                                         }
+                                         }, 'fake_path', None, HookManager(), problem_types)
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return
@@ -101,7 +92,8 @@ class test_tasks_basic(object):
     def test_check_answer_1(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest": ["0", "1"]}, "")
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer(
+            {"unittest": ["0", "1"]}, "")
         assert valid is True
         assert need_launch is False
         assert error_count == 0
@@ -110,7 +102,8 @@ class test_tasks_basic(object):
     def test_check_answer_2(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest": ["0"]}, "")
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer(
+            {"unittest": ["0"]}, "")
         assert valid is False
         assert need_launch is False
         assert error_count == 1
@@ -184,8 +177,8 @@ class test_tasks_problems(object):
         # Check random form input
         assert p.input_is_consistent({"unittest": {"filename": "test.txt", "value": "test"}}, [".txt"], 100)
         assert not p.input_is_consistent({"unittest": {"filename": "test.txt", "value": "test"}}, [".nottxt"],
-                                           100)
+                                         100)
         assert not p.input_is_consistent({"unittest": {"filename": "test.txt", "value": "test"}}, [".txt"], 1)
         assert not p.input_is_consistent({"unittest": {"filename": "test.txt", "content": "test"}}, [".txt"],
-                                           100)
+                                         100)
         assert not p.input_is_consistent({"unittest": "text"}, [".txt"], 100)
