@@ -165,7 +165,7 @@ class DockerAgent(Agent):
         environment_name = message.environment
 
         try:
-            enable_network = message.environment_parameters.get("enable_network", False)
+            enable_network = message.environment_parameters.get("network_grading", False)
             limits = message.environment_parameters.get("limits", {})
             time_limit = int(limits.get("time_limit", 30))
             hard_time_limit = int(limits.get("hard_time_limit", None) or time_limit * 3)
