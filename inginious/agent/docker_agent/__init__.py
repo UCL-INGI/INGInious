@@ -167,9 +167,9 @@ class DockerAgent(Agent):
         try:
             enable_network = message.environment_parameters.get("network_grading", False)
             limits = message.environment_parameters.get("limits", {})
-            time_limit = int(limits.get("time_limit", 30))
-            hard_time_limit = int(limits.get("hard_time_limit", None) or time_limit * 3)
-            mem_limit = int(limits.get("mem_limit", 200))
+            time_limit = int(limits.get("time", 30))
+            hard_time_limit = int(limits.get("hard_time", None) or time_limit * 3)
+            mem_limit = int(limits.get("memory", 200))
             run_cmd = message.environment_parameters.get("run_cmd", '')
         except:
             raise CannotCreateJobException('The agent is unable to parse the parameters')
