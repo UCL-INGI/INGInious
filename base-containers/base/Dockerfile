@@ -12,7 +12,7 @@ RUN     yum clean metadata && \
         yum -y install epel-release && \
         yum -y upgrade && \
         yum -y install python python36-pip python36 zip unzip tar sed openssh-server openssl bind-utils iproute file && \
-        pip3.6 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator ipython && \
+        pip3.6 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator ipython mypy && \
         sed -i "s/override_install_langs=en_US.utf8/#override_install_langs=en_US.utf8/g" /etc/yum.conf && \
         yum -y reinstall glibc-common && \
         yum clean all
