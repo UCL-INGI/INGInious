@@ -30,7 +30,7 @@ The previously mentioned dependencies can be installed, for Cent OS 7.0+ :
 
     # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
     # yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm
-    # yum install -y git mongodb mongodb-server gcc libtidy python35u python35u-pip python35u-devel zeromq-devel
+    # yum install -y git mongodb mongodb-server gcc libtidy python3 python3-devel python3-pip zeromq-devel 
 
 Or, for Fedora 24+:
 ::
@@ -51,7 +51,7 @@ You can now start and enable the ``mongod`` and ``docker`` services:
     # systemctl enable mongod
     # systemctl start docker
     # systemctl enable docker
-
+    
 Ubuntu 16.04+
 `````````````
 
@@ -235,7 +235,7 @@ Webserver configuration
 -----------------------
 
 The following guides suggest to run the INGInious webapp on http port and WebDAV on port 8080 on the same host.
-You are free to adapt thm to your use case (for instance, adding SSL support or using two hostnames).
+You are free to adapt them to your use case (for instance, adding SSL support or using two hostnames).
 
 .. _lighttpd:
 
@@ -294,7 +294,7 @@ You can then add virtual host entries in a ``/etc/lighttpd/vhosts.d/inginious.co
 
     $SERVER["socket"] == ":80" {
         alias.url = (
-            "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static/"
+            "/static/" => "/usr/lib/python3.6/site-packages/inginious/frontend/static/"
         )
 
         fastcgi.server = ( "/inginious-webapp" =>
@@ -338,6 +338,29 @@ You can then add virtual host entries in a ``/etc/lighttpd/vhosts.d/inginious.co
         )
     }
 
+
+In your lighttpd configuration  ``/etc/lighttpd/lighttpd.conf`` change these lines:
+::
+
+   server.document-root = server_root + "/INGInious"
+
+Also append this at the end of ``/etc/lighttpd/lighttpd.conf``:
+::
+   
+   include "/etc/lighttpd/vhosts.d/inginious.conf"
+
+.. note::
+
+   Make sure that INGInious static directory path is executable by Ligttpd by giving the right permission with ``chmod``
+   
+   In some cases docker won't be able to run INGInious containers due to invalid temp directory just
+make sure you append this in your INGInious configuration.yaml
+
+   ::
+   
+   local-config:
+       tmp_dir: /var/www/INGInious/agent_tmp
+
 The ``INGINIOUS_WEBAPP`` and ``INGINIOUS_WEBDAV`` prefixed environment variables are used to replace the default command line parameters.
 See :ref:`inginious-webapp` for more details.
 
@@ -345,6 +368,7 @@ The ``REAL_SCRIPT_NAME`` environment variable must be specified under lighttpd i
 from another path than the specified one. In this case, lighttpd forces to set a non-root path ``/inginious-webapp``,
 while a root access if wanted, in order to serve static files correctly. Therefore, this environment variable is set
 to an empty string in addition to the rewrite rule.
+
 
 Finally, start the server:
 
@@ -406,7 +430,7 @@ You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`
         WSGIScriptAlias / "/usr/bin/inginious-webapp"
         WSGIScriptReloading On
 
-        Alias /static /usr/lib/python3.5/site-packages/inginious/frontend/static
+        Alias /static /usr/lib/python3.6/site-packages/inginious/frontend/static
 
         <Directory "/usr/bin">
             <Files "inginious-webapp">
@@ -414,14 +438,14 @@ You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`
             </Files>
         </Directory>
 
-        <DirectoryMatch "/usr/lib/python3.5/site-packages/inginious/frontend/static">
+        <DirectoryMatch "/usr/lib/python3.6/site-packages/inginious/frontend/static">
             Require all granted
         </DirectoryMatch>
     </VirtualHost>
 
     <VirtualHost *:8080>
         ServerName my_inginious_domain
-        LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
+        LoadModule wsgi_module /usr/lib64/python3.6/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
 
         WSGIScriptAlias / "/usr/bin/inginious-webdav"
         WSGIScriptReloading On
