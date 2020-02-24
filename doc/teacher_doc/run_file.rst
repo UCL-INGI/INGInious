@@ -733,7 +733,7 @@ the examples below, please check the API directly for more information.
         # runs student/script.sh in another safe container, with a timeout of 60 seconds,
         # and stores the output in the variables `stdout` and `stderr`, and the return value
         # inside the variable `retval`.
-        stdout, stderr, retval = run_student_simple("student/script.sh", time=60)
+        stdout, stderr, retval = run_student_simple("student/script.sh", time_limit=60)
 
     .. code-tab:: py
 
@@ -742,7 +742,7 @@ the examples below, please check the API directly for more information.
         # runs student/script.sh in another safe container, with a timeout of 60 seconds,
         # and stores the output in the variables `stdout` and `stderr`, and the return value
         # inside the variable `retval`.
-        stdout, stderr, retval = run_student.run_student_simple("student/script.sh", time=60)
+        stdout, stderr, retval = run_student.run_student_simple("student/script.sh", time_limit=60)
 
     .. code-tab:: bash
 
