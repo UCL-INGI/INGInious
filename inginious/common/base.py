@@ -9,22 +9,23 @@ import json
 import os.path
 import hashlib
 import re
+from typing import Dict, Any, Union, IO, Tuple, List, Optional
 
 import inginious.common.custom_yaml
 from collections import OrderedDict
 
 
-def id_checker(id_to_test):
+def id_checker(id_to_test: str) -> bool:
     """Checks if a id is correct"""
     return bool(re.match(r'[a-z0-9\-_]+$', id_to_test, re.IGNORECASE))
 
 
-def id_checker_tests(id_to_test):
+def id_checker_tests(id_to_test: str) -> bool:
     """Checks if a id is correct"""
     return bool(re.match(r'[a-z0-9\-_*]+$', id_to_test, re.IGNORECASE))
     
 
-def load_json_or_yaml(file_path):
+def load_json_or_yaml(file_path: str) -> Dict[Any, Any]:
     """ Load JSON or YAML depending on the file extension. Returns a dict """
     with open(file_path, "r") as f:
         if os.path.splitext(file_path)[1] == ".json":
@@ -33,7 +34,7 @@ def load_json_or_yaml(file_path):
             return inginious.common.custom_yaml.load(f)
 
 
-def loads_json_or_yaml(file_path, content):
+def loads_json_or_yaml(file_path: str, content: Union[str, bytes, bytearray]) -> Dict[Any, Any]:
     """ Load JSON or YAML depending on the file extension. Returns a dict """
     if os.path.splitext(file_path)[1] == ".json":
         return json.loads(content)
@@ -41,13 +42,13 @@ def loads_json_or_yaml(file_path, content):
         return inginious.common.custom_yaml.load(content)
 
 
-def write_json_or_yaml(file_path, content):
+def write_json_or_yaml(file_path: str, content: Dict[Any, Any]):
     """ Write JSON or YAML depending on the file extension. """
     with codecs.open(file_path, "w", "utf-8") as f:
         f.write(get_json_or_yaml(file_path, content))
 
 
-def get_json_or_yaml(file_path, content):
+def get_json_or_yaml(file_path: str, content: Dict[Any, Any]) -> str:
     """ Generate JSON or YAML depending on the file extension. """
     if os.path.splitext(file_path)[1] == ".json":
         return json.dumps(content, sort_keys=False, indent=4, separators=(',', ': '))
@@ -55,7 +56,7 @@ def get_json_or_yaml(file_path, content):
         return inginious.common.custom_yaml.dump(content)
 
 
-def hash_file(fileobj):
+def hash_file(fileobj: IO) -> str:
     """
     :param fileobj: a file object
     :return: a hash of the file content
@@ -68,7 +69,7 @@ def hash_file(fileobj):
     return hasher.hexdigest()
 
 
-def directory_content_with_hash(directory):
+def directory_content_with_hash(directory: str) -> Dict[str, Tuple[str, int]]:
     """
     :param directory: directory in which the function list the files
     :return: dict in the form {file: (hash of the file, stat of the file)}
@@ -83,7 +84,7 @@ def directory_content_with_hash(directory):
     return output
 
 
-def directory_compare_from_hash(from_directory, to_directory):
+def directory_compare_from_hash(from_directory: Dict[str, Tuple[str, int]], to_directory: Dict[str, Tuple[str, int]]) -> Tuple[List[str], List[str]]:
     """
     :param from_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
     :param to_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
@@ -103,7 +104,7 @@ def directory_compare_from_hash(from_directory, to_directory):
     return (to_upload, to_delete)
 
 
-def dict_from_prefix(prefix, dictionary):
+def dict_from_prefix(prefix: str, dictionary: Dict[str, int]) -> Optional[Union[int, Dict[Any, Any]]]:
     """
         >>> from collections import OrderedDict
         >>> od = OrderedDict()

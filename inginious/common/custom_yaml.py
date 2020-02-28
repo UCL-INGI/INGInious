@@ -6,15 +6,17 @@
 """ A custom YAML based on PyYAML, that provides Ordered Dicts """
 # Most ideas for this implementation comes from http://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts
 from collections import OrderedDict
+from typing import IO, Dict, Any, Optional
 
 import yaml as original_yaml
 try:
     from yaml import CSafeLoader as SafeLoader
     from yaml import CSafeDumper as SafeDumper
 except ImportError:
-    from yaml import SafeLoader, SafeDumper
+    from yaml import SafeLoader, SafeDumper  # type: ignore
 
-def load(stream):
+
+def load(stream: IO) -> Dict[Any, Any]:
     """
         Parse the first YAML document in a stream
         and produce the corresponding Python
@@ -37,7 +39,7 @@ def load(stream):
     return original_yaml.load(stream, OrderedLoader)
 
 
-def dump(data, stream=None, **kwds):
+def dump(data: Dict[Any, Any], stream: Optional[IO] = None, **kwds) -> Optional[str]:
     """
         Serialize a Python object into a YAML stream.
         If stream is None, return the produced string instead.
@@ -84,4 +86,4 @@ def dump(data, stream=None, **kwds):
     if s is not None:
         return s.decode('utf-8')
     else:
-        return
+        return None

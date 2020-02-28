@@ -33,7 +33,7 @@ class CustomLogMiddleware:
     """ WSGI middleware for logging the status in webpy"""
 
     def __init__(self, app, logger):
-        import web
+        import web  # type: ignore
         self.debug_web = web.debug
         self.app = app
         self.logger = logger

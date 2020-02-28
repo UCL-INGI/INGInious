@@ -8,8 +8,12 @@ import gettext
 import sys
 import re
 from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING, Type, Tuple, Optional, Dict, Any, Union
 
 from inginious.common.base import id_checker
+if TYPE_CHECKING:
+    from inginious.common.tasks import Task
+    from gettext import GNUTranslations, NullTranslations
 
 
 class Problem(object, metaclass=ABCMeta):
@@ -17,22 +21,22 @@ class Problem(object, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def get_type(cls):
+    def get_type(cls) -> str:
         """ Returns the type of the problem """
-        return None
+        raise NotImplementedError
 
     @abstractmethod
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size) -> bool:
         """ Check if an input for this problem is consistent. Return true if this is case, false else """
         return False
 
     @abstractmethod
-    def input_type(self):
+    def input_type(self) -> str:
         """ Indicates if problem input type """
-        return str
+        raise NotImplementedError
 
     @abstractmethod
-    def check_answer(self, task_input, language):
+    def check_answer(self, task_input: Dict[str, Any], language) -> Tuple[Optional[bool], Optional[str], Optional[str], int]:
         """
             Check the answer. Returns four values:
             the first is either True, False or None, indicating respectively that the answer is valid, invalid, or need to be sent to VM
@@ -44,28 +48,28 @@ class Problem(object, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def get_text_fields(cls):
+    def get_text_fields(cls) -> Dict[str, bool]:
         """ Returns a dict whose keys are the keys of content dict
         and val is True if value of content[key] is human-readable text """
         return {"name": True}
 
-    def get_id(self):
+    def get_id(self) -> str:
         """ Get the id of this problem """
         return self._id
 
-    def get_task(self):
+    def get_task(self) -> 'Task':
         """ Get the task containing this problem """
         return self._task
 
-    def get_name(self, language=None):
+    def get_name(self, language: str) -> str:
         """ Get the name of this problem """
         return self.gettext(language, self._name) if self._name else ""
 
-    def get_original_content(self):
+    def get_original_content(self) -> Dict[str, Any]:
         """ Get a dict fully describing this sub-problem """
         return dict(self._original_content)
 
-    def __init__(self, task, problemid, content):
+    def __init__(self, task: 'Task', problemid: str, content: Dict[str, Any]):
         if not id_checker(problemid):
             raise Exception("Invalid problem _id: " + problemid)
 
@@ -75,7 +79,7 @@ class Problem(object, metaclass=ABCMeta):
         self._original_content = content
 
     @classmethod
-    def parse_problem(self, problem_content):
+    def parse_problem(self, problem_content: Dict[str, Any]):
         if "limit" in problem_content:
             try:
                 problem_content["limit"] = int(problem_content["limit"])
@@ -83,10 +87,10 @@ class Problem(object, metaclass=ABCMeta):
                 del problem_content["limit"]
         return problem_content
 
-    def get_translation_obj(self, language=None):
+    def get_translation_obj(self, language: str) -> Union['GNUTranslations', 'NullTranslations']:
         return self._task.get_translation_obj(language)
 
-    def gettext(self, language, *args, **kwargs):
+    def gettext(self, language: str, *args, **kwargs) -> str:
         return self.get_translation_obj(language).gettext(*args, **kwargs)
 
 

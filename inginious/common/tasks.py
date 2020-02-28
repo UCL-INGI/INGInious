@@ -4,10 +4,18 @@
 # more information about the licensing of this file.
 
 """ Task """
+
+from typing import Dict, Type, List, Any, Tuple, Union, Optional
 import gettext
 
 from inginious.common.base import id_checker
 from inginious.common.hook_manager import HookManager
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from inginious.common.courses import Course
+    from inginious.common.filesystems.provider import FileSystemProvider
+    from inginious.common.tasks_problems import Problem
 
 
 def _migrate_from_v_0_6(content):
@@ -26,7 +34,7 @@ def _migrate_from_v_0_6(content):
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, task_fs, translations_fs, hook_manager: HookManager, task_problem_types):
+    def __init__(self, course: 'Course', taskid: str, content: Dict[str, Any], task_fs: 'FileSystemProvider', translations_fs: 'FileSystemProvider', hook_manager: HookManager, task_problem_types: Dict[str, Type['Problem']]):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
@@ -46,7 +54,7 @@ class Task(object):
 
         # i18n
         self._translations_fs = translations_fs
-        self._translations = {}
+        self._translations: Dict[str, Union[gettext.GNUTranslations, gettext.NullTranslations]] = {}
         if not translations_fs:
             translations_fs = task_fs.from_subfolder("$i18n")
         if translations_fs.exists():
@@ -58,75 +66,75 @@ class Task(object):
                     self._translations[lang] = gettext.NullTranslations()
 
         # Check all problems
-        self._problems = []
+        self._problems: List['Problem'] = []
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
         # Order
         self._order = int(self._data.get('order', -1))
 
-    def get_translation_obj(self, language):
+    def get_translation_obj(self, language: str) -> Union[gettext.GNUTranslations, gettext.NullTranslations]:
         return self._translations.get(language, gettext.NullTranslations())
 
-    def gettext(self, language, *args, **kwargs):
+    def gettext(self, language: str, *args, **kwargs):
         return self.get_translation_obj(language).gettext(*args, **kwargs)
 
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+    def input_is_consistent(self, task_input: Dict[str, Any], default_allowed_extension, default_max_size) -> bool:
         """ Check if an input for a task is consistent. Return true if this is case, false else """
         for problem in self._problems:
             if not problem.input_is_consistent(task_input, default_allowed_extension, default_max_size):
                 return False
         return True
 
-    def get_order(self):
+    def get_order(self) -> int:
         """ Get the position of this task in the course """
         return self._order
 
-    def get_environment_id(self):
+    def get_environment_id(self) -> str:
         """ Returns the environment in which the agent have to launch this task"""
         return self._environment_id
 
-    def get_environment_type(self):
+    def get_environment_type(self) -> str:
         """ Returns the environment type in which the agent have to launch this task"""
         return self._environment_type
 
-    def get_id(self):
+    def get_id(self) -> str:
         """ Get the id of this task """
         return self._taskid
 
-    def get_problems(self):
+    def get_problems(self) -> List['Problem']:
         """ Get problems contained in this task """
         return self._problems
 
-    def get_course_id(self):
+    def get_course_id(self) -> str:
         """ Return the courseid of the course that contains this task """
         return self._course.get_id()
 
-    def get_course(self):
+    def get_course(self) -> 'Course':
         """ Return the course that contains this task """
         return self._course
 
-    def get_environment_parameters(self):
+    def get_environment_parameters(self) -> Dict[Any, Any]:
         """ Returns the raw environment parameters, which is a dictionnary that is envtype dependent. """
         return self._environment_parameters
 
-    def get_response_type(self):
+    def get_response_type(self) -> str:
         """ Returns the method used to parse the output of the task: HTML or rst """
         return "HTML" if self._environment_parameters.get('response_is_html', False) else "rst"
 
-    def get_fs(self):
+    def get_fs(self) -> 'FileSystemProvider':
         """ Returns a FileSystemProvider which points to the folder of this task """
         return self._fs
 
-    def get_hook(self):
+    def get_hook(self) -> 'HookManager':
         """ Returns the hook manager parameter for this task"""
         return self._hook_manager
 
-    def get_translation_fs(self):
+    def get_translation_fs(self) -> 'FileSystemProvider':
         """ Return the translation_fs parameter for this task"""
         return self._translations_fs
 
-    def check_answer(self, task_input, language):
+    def check_answer(self, task_input, language) -> Tuple[bool, bool, List[str], Dict[str, Tuple[str, str]], int, int]:
         """
             Verify the answers in task_input. Returns six values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
@@ -156,7 +164,7 @@ class Task(object):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count
 
-    def _create_task_problem(self, problemid, problem_content, task_problem_types):
+    def _create_task_problem(self, problemid: str, problem_content: Dict[str, Any], task_problem_types: Dict[str, Type['Problem']]) -> 'Problem':
         """Creates a new instance of the right class for a given problem."""
         # Basic checks
         if not id_checker(problemid):

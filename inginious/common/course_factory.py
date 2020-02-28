@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
+from typing import Type, Dict, Any, Optional, TYPE_CHECKING, Tuple
+
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
@@ -13,18 +15,21 @@ from inginious.common.tasks import Task
 from inginious.common.hook_manager import HookManager
 from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException, CourseAlreadyExistsException
 
+if TYPE_CHECKING:
+    from inginious.common.tasks_problems import Problem
+
 
 class CourseFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, filesystem: FileSystemProvider, task_factory, hook_manager, course_class=Course):
+    def __init__(self, filesystem: FileSystemProvider, task_factory: TaskFactory, hook_manager: HookManager, course_class: Type = Course):
         self._filesystem = filesystem
         self._task_factory = task_factory
         self._hook_manager = hook_manager
         self._course_class = course_class
-        self._cache = {}
+        self._cache: Dict[str, Tuple[Course, Dict[str, float]]] = {}
 
-    def get_course(self, courseid):
+    def get_course(self, courseid: str) -> Course:
         """
         :param courseid: the course id of the course
         :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
@@ -37,7 +42,7 @@ class CourseFactory(object):
 
         return self._cache[courseid][0]
 
-    def get_task(self, courseid, taskid):
+    def get_task(self, courseid: str, taskid: str) -> Task:
         """
         Shorthand for CourseFactory.get_course(courseid).get_task(taskid)
         :param courseid: the course id of the course
@@ -47,13 +52,13 @@ class CourseFactory(object):
         """
         return self.get_course(courseid).get_task(taskid)
 
-    def get_task_factory(self):
+    def get_task_factory(self) -> TaskFactory:
         """
         :return: the associated task factory
         """
         return self._task_factory
 
-    def get_course_descriptor_content(self, courseid):
+    def get_course_descriptor_content(self, courseid: str) -> Dict[str, Any]:
         """
         :param courseid: the course id of the course
         :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
@@ -62,7 +67,7 @@ class CourseFactory(object):
         path = self._get_course_descriptor_path(courseid)
         return loads_json_or_yaml(path, self._filesystem.get(path).decode("utf-8"))
 
-    def update_course_descriptor_content(self, courseid, content):
+    def update_course_descriptor_content(self, courseid: str, content: Dict[str, Any]):
         """
         Updates the content of the dict that describes the course
         :param courseid: the course id of the course
@@ -72,7 +77,7 @@ class CourseFactory(object):
         path = self._get_course_descriptor_path(courseid)
         self._filesystem.put(path, get_json_or_yaml(path, content))
 
-    def get_course_fs(self, courseid):
+    def get_course_fs(self, courseid: str) -> FileSystemProvider:
         """
         :param courseid: 
         :return: a FileSystemProvider pointing to the directory of the course 
@@ -81,9 +86,9 @@ class CourseFactory(object):
             raise InvalidNameException("Course with invalid name: " + courseid)
         return self._filesystem.from_subfolder(courseid)
 
-    def get_all_courses(self):
+    def get_all_courses(self) -> Dict[str, Course]:
         """
-        :return: a table containing courseid=>Course pairs
+        :return: a dict of courseid to Course pairs
         """
         course_ids = [f[0:len(f)-1] for f in self._filesystem.list(folders=True, files=False, recursive=False)]  # remove trailing "/"
         output = {}
@@ -94,7 +99,7 @@ class CourseFactory(object):
                 get_course_logger(courseid).warning("Cannot open course", exc_info=True)
         return output
 
-    def _get_course_descriptor_path(self, courseid):
+    def _get_course_descriptor_path(self, courseid: str) -> str:
         """
         :param courseid: the course id of the course
         :raise InvalidNameException, CourseNotFoundException
@@ -109,7 +114,7 @@ class CourseFactory(object):
             return courseid+"/course.json"
         raise CourseNotFoundException()
 
-    def create_course(self, courseid, init_content):
+    def create_course(self, courseid: str, init_content: Dict[str, Any]):
         """
         :param courseid: the course id of the course
         :param init_content: initial descriptor content
@@ -129,7 +134,7 @@ class CourseFactory(object):
 
         get_course_logger(courseid).info("Course %s created in the factory.", courseid)
 
-    def delete_course(self, courseid):
+    def delete_course(self, courseid: str):
         """
         :param courseid: the course id of the course
         :raise InvalidNameException or CourseNotFoundException
@@ -147,7 +152,7 @@ class CourseFactory(object):
 
         get_course_logger(courseid).info("Course %s erased from the factory.", courseid)
 
-    def _cache_update_needed(self, courseid):
+    def _cache_update_needed(self, courseid: str) -> bool:
         """
         :param courseid: the (valid) course id of the course
         :raise InvalidNameException, CourseNotFoundException
@@ -175,7 +180,7 @@ class CourseFactory(object):
 
         return False
 
-    def _update_cache(self, courseid):
+    def _update_cache(self, courseid: str):
         """
         Updates the cache
         :param courseid: the (valid) course id of the course
@@ -203,7 +208,7 @@ class CourseFactory(object):
         self._task_factory.update_cache_for_course(courseid)
 
 
-def create_factories(fs_provider, task_problem_types, hook_manager=None, course_class=Course, task_class=Task):
+def create_factories(fs_provider: FileSystemProvider, task_problem_types: Dict[str, Type['Problem']], hook_manager: Optional[HookManager] = None, course_class: Type = Course, task_class: Type['Task'] = Task):
     """
     Shorthand for creating Factories
     :param fs_provider: A FileSystemProvider leading to the courses
