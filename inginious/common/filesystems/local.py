@@ -3,9 +3,9 @@ import mimetypes
 import os
 import shutil
 from datetime import datetime
-
-import zipstream
 from typing import Dict, Tuple, Union, Optional, IO, List, Type
+
+import zipstream  # type: ignore
 
 from inginious.common.filesystems.provider import FileSystemProvider, NotFoundException
 
@@ -30,7 +30,7 @@ class LocalFSProvider(FileSystemProvider):
         }
 
     @classmethod
-    def init_from_args(cls, location: str) -> 'LocalFSProvider':  # pylint: disable=arguments-differ
+    def init_from_args(cls, location, **args):  # pylint: disable=arguments-differ
         """ Given the args from get_needed_args, creates the FileSystemProvider """
         return LocalFSProvider(location)
 
@@ -72,11 +72,11 @@ class LocalFSProvider(FileSystemProvider):
     def list(self, folders: bool = True, files: bool = True, recursive: bool = False) -> List[str]:
         if recursive:
             output: List[str] = []
-            for root, subdirs, files in os.walk(self.prefix):
+            for root, subdirs, _files in os.walk(self.prefix):
                 if folders:
                     output += [root+"/"+d for d in subdirs]
-                if files:
-                    output += [root+"/"+f for f in files]
+                if _files:
+                    output += [root+"/"+f for f in _files]
             output = [os.path.relpath(f, self.prefix) for f in output]
         else:
             if files and folders:
@@ -169,3 +169,4 @@ class LocalFSProvider(FileSystemProvider):
             mimetypes.init()
             mime_type = mimetypes.guess_type(path)
             return ("local", mime_type[0], open(path, 'rb'))
+        return "invalid", None, None

@@ -29,7 +29,7 @@ class FileSystemProvider(object, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def init_from_args(cls, **args):
+    def init_from_args(cls, **args):  # type: ignore
         """ Given the args from get_needed_args, creates the FileSystemProvider """
         pass
 
