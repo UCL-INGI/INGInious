@@ -1,6 +1,7 @@
 # coding=utf-8
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+from typing import Dict, Tuple, Union, Optional, IO, Type, List
 
 
 class NotFoundException(Exception):
@@ -14,7 +15,7 @@ class FileSystemProvider(object, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def get_needed_args(cls):
+    def get_needed_args(cls) -> Dict[str, Tuple[Union[Type[int], Type[str]], bool, str]]:
         """ Returns a list of arguments needed to create a FileSystemProvider. In the form 
             {
                 "arg1": (int, False, "description1"),
@@ -32,26 +33,26 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         """ Given the args from get_needed_args, creates the FileSystemProvider """
         pass
 
-    def __init__(self, prefix):
+    def __init__(self, prefix: str):
         """ Init the filesystem provider with a given prefix. """
         self.prefix = prefix
         if not self.prefix.endswith("/"):
             self.prefix += "/"
 
-    def _checkpath(self, path):
+    def _checkpath(self, path: str):
         """ Checks that a given path is valid. If it's not, raises NotFoundException """
         if path.startswith("/") or ".." in path or path.strip() != path:
             raise NotFoundException()
 
     @abstractmethod
-    def from_subfolder(self, subfolder):
+    def from_subfolder(self, subfolder: str) -> 'FileSystemProvider':
         """
         Returns a new FileSystemProvider, with subfolder as prefix
         """
         pass
 
     @abstractmethod
-    def exists(self, path=None):
+    def exists(self, path: Optional[str] = None) -> bool:
         """
         Check that the file at the given path exists. If the path is not given, then checks the existence of the prefix.
         """
@@ -63,11 +64,11 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def put(self, filepath, content):
+    def put(self, filepath: str, content: Union[str, bytes]):
         pass
 
     @abstractmethod
-    def get_fd(self, filepath, timestamp:datetime=None):
+    def get_fd(self, filepath: str, timestamp: Optional[datetime] = None):
         """ Returns a file descriptor. Raises NotFoundException if the file does not exists or cannot be retrieved.
             If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant)
             filesystem since the timestamp.
@@ -75,7 +76,7 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get(self, filepath, timestamp:datetime=None):
+    def get(self, filepath: str, timestamp: Optional[datetime] = None):
         """ Get the content of a file. Raises NotFoundException if the file does not exists or cannot be retrieved.
             If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant) 
             filesystem since the timestamp.
@@ -83,37 +84,37 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def list(self, folders=True, files=True, recursive=False):
+    def list(self, folders: bool = True, files: bool = True, recursive: bool = False) -> List[str]:
         """ List all the files/folder in this prefix. Folders are always ending with a '/' """
         pass
 
     @abstractmethod
-    def delete(self, filepath=None):
+    def delete(self, filepath: Optional[str] = None):
         """ Delete a path recursively. If filepath is None, then the prefix will be deleted. """
         pass
 
     @abstractmethod
-    def get_last_modification_time(self, filepath):
+    def get_last_modification_time(self, filepath: str) -> float:
         """ Get a timestamp representing the time of the last modification of the file at filepath """
         pass
 
     @abstractmethod
-    def move(self, src, dest):
+    def move(self, src: str, dest: str):
         """ Move path src to path dest, recursively. Dest must not exist """
         pass
 
     @abstractmethod
-    def copy_to(self, src_disk, dest=None):
+    def copy_to(self, src_disk: str, dest: Optional[str] = None):
         """ Copy the content of *on-disk folder* src_disk into dir dest. If dest is None, copy to the prefix."""
         pass
 
     @abstractmethod
-    def copy_from(self, src, dest_disk):
+    def copy_from(self, src: Optional[str], dest_disk: str):
         """ Copy the content of src into the *on-disk folder* dest_disk. If src is None, copy from the prefix. """
         pass
 
     @abstractmethod
-    def distribute(self, filepath, allow_folders=True):
+    def distribute(self, filepath: str, allow_folders=True) -> Tuple[str, Optional[str], Union[IO, str, None]]:
         """ Give information on how to distribute a file. Provides Zip files of folders. Can return:
             ("file", mimetype, fileobj) where fileobj is an object-like file (with read()) and mimetype its mime-type.
             ("url", None, url) where url is a url to a distant server which possess the file.

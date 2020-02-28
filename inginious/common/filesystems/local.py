@@ -2,7 +2,10 @@
 import mimetypes
 import os
 import shutil
+from datetime import datetime
+
 import zipstream
+from typing import Dict, Tuple, Union, Optional, IO, List, Type
 
 from inginious.common.filesystems.provider import FileSystemProvider, NotFoundException
 
@@ -12,7 +15,7 @@ class LocalFSProvider(FileSystemProvider):
     A FileSystemProvider that uses a real on-disk filesystem
     """
     @classmethod
-    def get_needed_args(cls):
+    def get_needed_args(cls) -> Dict[str, Tuple[Union[Type[int], Type[str]], bool, str]]:
         """ Returns a list of arguments needed to create a FileSystemProvider. In the form 
             {
                 "arg1": (int, False, "description1"),
@@ -27,18 +30,18 @@ class LocalFSProvider(FileSystemProvider):
         }
 
     @classmethod
-    def init_from_args(cls, location):  # pylint: disable=arguments-differ
+    def init_from_args(cls, location: str) -> 'LocalFSProvider':  # pylint: disable=arguments-differ
         """ Given the args from get_needed_args, creates the FileSystemProvider """
         return LocalFSProvider(location)
 
-    def __init__(self, prefix):
+    def __init__(self, prefix: str):
         super().__init__(prefix)
 
-    def from_subfolder(self, subfolder):
+    def from_subfolder(self, subfolder: str) -> 'LocalFSProvider':
         self._checkpath(subfolder)
         return LocalFSProvider(self.prefix + "/" + subfolder)
 
-    def exists(self, path=None):
+    def exists(self, path: Optional[str] = None) -> bool:
         if path is None:
             path = self.prefix
         else:
@@ -49,7 +52,7 @@ class LocalFSProvider(FileSystemProvider):
         if not os.path.exists(self.prefix):
             os.makedirs(self.prefix)
 
-    def put(self, filepath, content):
+    def put(self, filepath: str, content: Union[str, bytes]):
         self._checkpath(filepath)
         fullpath = os.path.join(self.prefix, filepath)
         if "/" in fullpath:
@@ -59,16 +62,16 @@ class LocalFSProvider(FileSystemProvider):
             content = content.encode("utf-8")
         open(fullpath, 'wb').write(content)
 
-    def get_fd(self, filepath, timestamp=None):
+    def get_fd(self, filepath: str, timestamp: Optional[datetime] = None):
         self._checkpath(filepath)
         return open(os.path.join(self.prefix, filepath), 'rb')
 
-    def get(self, filepath, timestamp=None):
+    def get(self, filepath: str, timestamp: Optional[datetime] = None):
         return self.get_fd(filepath, timestamp).read()
 
-    def list(self, folders=True, files=True, recursive=False):
+    def list(self, folders: bool = True, files: bool = True, recursive: bool = False) -> List[str]:
         if recursive:
-            output = []
+            output: List[str] = []
             for root, subdirs, files in os.walk(self.prefix):
                 if folders:
                     output += [root+"/"+d for d in subdirs]
@@ -88,7 +91,7 @@ class LocalFSProvider(FileSystemProvider):
         isdir = lambda x: '/' if os.path.isdir(os.path.join(self.prefix, x)) else ''
         return [f+isdir(f) for f in output]
 
-    def delete(self, filepath=None):
+    def delete(self, filepath: Optional[str] = None):
         if filepath is None:
             filepath = self.prefix
         else:
@@ -100,21 +103,21 @@ class LocalFSProvider(FileSystemProvider):
         else:
             os.unlink(filepath)
 
-    def get_last_modification_time(self, filepath):
+    def get_last_modification_time(self, filepath: str) -> float:
         self._checkpath(filepath)
         try:
             return os.stat(os.path.join(self.prefix, filepath)).st_mtime
         except:
             raise NotFoundException()
 
-    def move(self, src, dest):
+    def move(self, src: str, dest: str):
         self._checkpath(src)
         self._checkpath(dest)
         if "/" in dest:
             os.makedirs(os.path.join(self.prefix, *(os.path.split(dest)[:-1])), exist_ok=True)
         shutil.move(os.path.join(self.prefix, src), os.path.join(self.prefix, dest))
 
-    def copy_to(self, src_disk, dest=None):
+    def copy_to(self, src_disk: str, dest: Optional[str] = None):
         if dest is None:
             dest = self.prefix
         else:
@@ -123,7 +126,7 @@ class LocalFSProvider(FileSystemProvider):
 
         self._recursive_overwrite(src_disk, dest)
 
-    def copy_from(self, src, dest_disk):
+    def copy_from(self, src: Optional[str], dest_disk: str):
         if src is None:
             src = self.prefix
         else:
@@ -131,7 +134,7 @@ class LocalFSProvider(FileSystemProvider):
             src = os.path.join(self.prefix, src)
         self._recursive_overwrite(src, dest_disk)
 
-    def _recursive_overwrite(self, src, dest):
+    def _recursive_overwrite(self, src: str, dest: str):
         """
         Copy src to dest, recursively and with file overwrite.
         """
@@ -145,7 +148,7 @@ class LocalFSProvider(FileSystemProvider):
         else:
             shutil.copyfile(src, dest, follow_symlinks=False)
 
-    def distribute(self, filepath, allow_folders=True):
+    def distribute(self, filepath: str, allow_folders=True) -> Tuple[str, Optional[str], Union[IO, str, None]]:
         self._checkpath(filepath)
         path = os.path.abspath(os.path.join(self.prefix, filepath))
         if not os.path.exists(path):
