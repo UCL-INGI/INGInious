@@ -38,7 +38,17 @@
         <div class="card m-2">
             <div class="card-body">
                 <h5 class="card-title">
-                    <a href="{{ get_homepath()+'/course/'+courseid }}">{{course.get_name(user_manager.session_language())}}</a>
+                    {% if course.is_lti() %}
+                        {% if course.lti_url() %}
+                            <a target="_blank" href="{{ course.lti_url() }}">
+                        {% endif %}
+                        {{course.get_name(user_manager.session_language())}}
+                        {% if course.lti_url() %}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ get_homepath()+'/course/'+courseid }}">{{course.get_name(user_manager.session_language())}}</a>
+                    {% endif %}
                 </h5>
                 <p class="card-text">
                     {{ course.get_description(user_manager.session_language()) }}

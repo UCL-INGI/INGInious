@@ -80,6 +80,7 @@ class CourseSettings(INGIniousAdminPage):
             course_content['registration_ac_list'] = data['registration_ac_list'].splitlines()
 
             course_content['is_lti'] = 'lti' in data and data['lti'] == "true"
+            course_content['lti_url'] = data.get("lti_url", "")
             course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].splitlines() if x])
 
             for lti_key in course_content['lti_keys'].keys():

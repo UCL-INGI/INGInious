@@ -44,6 +44,7 @@ class WebAppCourse(Course):
             self._allow_unregister = self._content.get('allow_unregister', True)
             self._allow_preview = self._content.get('allow_preview', False)
             self._is_lti = self._content.get('is_lti', False)
+            self._lti_url = self._content.get('lti_url', '')
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
@@ -61,6 +62,7 @@ class WebAppCourse(Course):
             self._allow_unregister = False
         else:
             self._lti_keys = {}
+            self._lti_url = ''
             self._lti_send_back_grade = False
 
     def get_staff(self):
@@ -122,6 +124,10 @@ class WebAppCourse(Course):
     def lti_keys(self):
         """ {name: key} for the LTI customers """
         return self._lti_keys if self._is_lti else {}
+
+    def lti_url(self):
+        """ Returns the URL to the external platform the course is hosted on """
+        return self._lti_url
 
     def lti_send_back_grade(self):
         """ True if the current course should send back grade to the LTI Tool Consumer """
