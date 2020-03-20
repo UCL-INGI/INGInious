@@ -76,14 +76,14 @@ def run_student(cmd, container=None,
         zmq_socket.send(msgpack.dumps({"type": "run_student", "environment": container,
                                    "time_limit": time_limit, "hard_time_limit": hard_time_limit,
                                    "memory_limit": memory_limit, "share_network": share_network,
-                                   "socket_id": socket_id}, encoding="utf8", use_bin_type=True))
+                                   "socket_id": socket_id}, use_bin_type=True))
 
         # Check if the container was correctly started
-        message = msgpack.loads(zmq_socket.recv(), encoding="utf8", use_list=False)
+        message = msgpack.loads(zmq_socket.recv(), use_list=False)
         assert message["type"] == "run_student_started"
 
         # Send a dummy message to ask for retval
-        zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, encoding="utf8", use_bin_type=True))
+        zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, use_bin_type=True))
 
         # Serve one and only one connection
         connection, addr = server.accept()
@@ -94,7 +94,7 @@ def run_student(cmd, container=None,
 
         # send the fds and the command/workdir
         connection.sendmsg([b'S'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [stdin, stdout, stderr]))])
-        connection.send(msgpack.dumps({"command": cmd, "working_dir": working_dir}, encoding="utf8"))
+        connection.send(msgpack.dumps({"command": cmd, "working_dir": working_dir}))
 
         # Allow to send signals
         if signal_handler_callback is not None:
@@ -105,7 +105,7 @@ def run_student(cmd, container=None,
             signal_handler_callback(receive_signal)
 
         # Wait for everything to end
-        message = msgpack.loads(zmq_socket.recv(), encoding="utf8", use_list=False)
+        message = msgpack.loads(zmq_socket.recv(), use_list=False)
 
         # Unlink unneeded files
         try:
