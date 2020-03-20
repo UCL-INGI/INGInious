@@ -128,7 +128,7 @@ class INGIniousMainRunner(object):
                 buf = bytearray()
                 while len(buf) != length:
                     buf += await reader.read(length-len(buf))
-                message = msgpack.unpackb(bytes(buf), encoding="utf8", use_list=False)
+                message = msgpack.unpackb(bytes(buf), use_list=False)
                 await self.handle_stdin_message(message)
         except asyncio.CancelledError:
             return
@@ -139,7 +139,7 @@ class INGIniousMainRunner(object):
             os._exit(1)  # DIE!
 
     async def send_intern_message(self, msg):
-        await self.internal_socket_send.send(msgpack.dumps(msg, encoding="utf8", use_bin_type=True))
+        await self.internal_socket_send.send(msgpack.dumps(msg, use_bin_type=True))
         await self.internal_socket_send.recv()  # ignore return
 
     async def serve(self):
@@ -167,7 +167,7 @@ class INGIniousMainRunner(object):
                 # New message from process in the container
                 if self.intern in socks:
                     addr, empty, msg_enc = await self.intern.recv_multipart()
-                    msg = msgpack.loads(msg_enc, encoding="utf8", use_list=False)
+                    msg = msgpack.loads(msg_enc, use_list=False)
                     close = await self.handle_intern_message(addr, msg)
                     if close:
                         return
@@ -179,7 +179,7 @@ class INGIniousMainRunner(object):
             self._logger.exception("An exception occured while serving")
 
     async def write_stdout(self, o):
-        msg = msgpack.dumps(o, encoding="utf-8", use_bin_type=True)
+        msg = msgpack.dumps(o, use_bin_type=True)
         self.stdout.write(struct.pack('I', len(msg)))
         self.stdout.write(msg)
         await self.stdout.drain()
@@ -192,13 +192,13 @@ class INGIniousMainRunner(object):
             if message["type"] == "run_student_started":
                 if message["socket_id"] in self.running_student_container:
                     addr = self.running_student_container[message["socket_id"]]
-                    await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_started"}, encoding="utf8", use_bin_type=True)])
+                    await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_started"}, use_bin_type=True)])
             if message["type"] == "run_student_retval":
                 if message["socket_id"] in self.running_student_container:
                     addr = self.running_student_container[message["socket_id"]]
                     del self.running_student_container[message["socket_id"]]
                     await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_retval", "retval": message["retval"]},
-                                                                               encoding="utf8", use_bin_type=True)])
+                                                                               use_bin_type=True)])
         except:
             self._logger.exception("An exception occured while reading stdin")
 
@@ -208,7 +208,7 @@ class INGIniousMainRunner(object):
             if message["type"] == "ssh_key":
                 # copy the dict manually to ensure the corectness of the message
                 await self.write_stdout({"type": "ssh_key", "ssh_key": message["ssh_key"]})
-                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, encoding="utf8", use_bin_type=True)])
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return False
             if message["type"] == "run_student":
                 # copy the dict manually to ensure the corectness of the message
@@ -222,7 +222,7 @@ class INGIniousMainRunner(object):
                 # ignore, just a dummy message
                 return False
             if message["type"] == "done":
-                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, encoding="utf8", use_bin_type=True)])
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return True
             return False
         except:

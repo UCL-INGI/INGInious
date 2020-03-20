@@ -214,7 +214,7 @@ def run_tests():
 
     print("----------------- Invalid dump 3 (invalid content)")
     try:
-        invalid_dump3 = msgpack.dumps({"type": "kill_container", "container_id": 2}, encoding="utf8")
+        invalid_dump3 = msgpack.dumps({"type": "kill_container", "container_id": 2})
         obj6 = MessageMeta.load(invalid_dump3)
         print(type(obj6))
         print(obj6.container_id)
