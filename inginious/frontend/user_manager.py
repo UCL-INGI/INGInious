@@ -436,6 +436,9 @@ class UserManager:
 
             Note that only the task already seen at least one time will be present in the dict task_grades.
         """
+        if usernames is None:
+            usernames = self.get_course_registered_users(course=course, with_admins=False)
+
 
         match = {"courseid": course.get_id()}
         if usernames is not None:
