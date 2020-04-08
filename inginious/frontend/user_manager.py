@@ -275,7 +275,8 @@ class UserManager:
         user = self._database.users.find_one(
             {"username": username, "password": password_hash, "activate": {"$exists": False}})
 
-        return user if user is not None and self.connect_user(username, user["realname"], user["email"], user["language"]) else None
+        return user if user is not None and self.connect_user(username, user["realname"], user["email"],
+                                                              user["language"]) else None
 
     def connect_user(self, username, realname, email, language):
         """
@@ -285,7 +286,8 @@ class UserManager:
         :param email: User email
         """
 
-        self._database.users.update_one({"email": email}, {"$set": {"realname": realname, "username": username, "language": language}},
+        self._database.users.update_one({"email": email},
+                                        {"$set": {"realname": realname, "username": username, "language": language}},
                                         upsert=True)
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
         self._set_session(username, realname, email, language)
@@ -297,7 +299,8 @@ class UserManager:
         :param ip_addr: the ip address of the client, that will be logged
         """
         if self.session_logged_in():
-            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), web.ctx.ip)
+            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(),
+                              self.session_email(), web.ctx.ip)
         self._destroy_session()
 
     def get_users_info(self, usernames):
@@ -372,7 +375,8 @@ class UserManager:
 
         if user_profile and not self.session_logged_in():
             # Sign in
-            self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
+            self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"],
+                              user_profile["language"])
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
             self._database.users.find_one_and_update({"username": self.session_username()},
@@ -383,7 +387,7 @@ class UserManager:
         elif self.session_logged_in():
             # No binding, but logged: add new binding
             self._database.users.find_one_and_update({"username": self.session_username()},
-                                                    {"$set": {"bindings." + auth_id: [username, additional]}})
+                                                     {"$set": {"bindings." + auth_id: [username, additional]}})
 
         else:
             # No binding, check for email
@@ -395,10 +399,10 @@ class UserManager:
             else:
                 # New user, create an account using email address
                 self._database.users.insert({"username": "",
-                                            "realname": realname,
-                                            "email": email,
-                                            "bindings": {auth_id: [username, additional]},
-                                            "language": self._session.get("language", "en")})
+                                             "realname": realname,
+                                             "email": email,
+                                             "bindings": {auth_id: [username, additional]},
+                                             "language": self._session.get("language", "en")})
                 self.connect_user("", realname, email, self._session.get("language", "en"))
 
         return True
@@ -423,7 +427,7 @@ class UserManager:
 
     def get_course_caches(self, usernames, course):
         """
-        :param username: List of username for which we want info. If usernames is None, data from all users will be returned.
+        :param usernames: List of username for which we want info. If usernames is None, data from all users will be returned.
         :param course: A Course object
         :return:
             Returns data of the specified users for a specific course. users is a list of username.
@@ -459,13 +463,18 @@ class UserManager:
 
         student_visible_taskids = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
         course_staff = course.get_staff()
+
+        if usernames is None:
+            usernames = self.get_course_registered_users(course=course, with_admins=False)
+
         retval = {username: {"task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
 
         for result in data:
             username = result["_id"]
             visible_tasks = student_visible_taskids if username not in course_staff else taskids
             result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(visible_tasks))
-            result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if dg["taskid"] in visible_tasks}
+            result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if
+                                     dg["taskid"] in visible_tasks}
 
             total_weight = 0
             grade = 0
@@ -521,7 +530,8 @@ class UserManager:
         """ Set in the database that the user has viewed this task """
         self._database.user_tasks.update({"username": username, "courseid": courseid, "taskid": taskid},
                                          {"$setOnInsert": {"username": username, "courseid": courseid, "taskid": taskid,
-                                                           "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None, "state": ""}},
+                                                           "tried": 0, "succeeded": False, "grade": 0.0,
+                                                           "submissionid": None, "state": ""}},
                                          upsert=True)
 
     def update_user_stats(self, username, task, submission, result_str, grade, state, newsub):
@@ -530,7 +540,8 @@ class UserManager:
 
         if newsub:
             old_submission = self._database.user_tasks.find_one_and_update(
-                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
+                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                {"$inc": {"tried": 1, "tokens.amount": 1}})
 
             # Check if the submission is the default download
             set_default = task.get_evaluate() == 'last' or \
@@ -540,7 +551,8 @@ class UserManager:
             if set_default:
                 self._database.user_tasks.find_one_and_update(
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                    {"$set": {"succeeded": result_str == "success", "grade": grade, "state": state, "submissionid": submission['_id']}})
+                    {"$set": {"succeeded": result_str == "success", "grade": grade, "state": state,
+                              "submissionid": submission['_id']}})
         else:
             old_submission = self._database.user_tasks.find_one(
                 {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]})
@@ -580,7 +592,8 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username, lti) and task.get_accessible_time().after_start()) or \
+        return (self.course_is_open_to_user(task.get_course(), username,
+                                            lti) and task.get_accessible_time().after_start()) or \
                self.has_staff_rights_on_course(task.get_course(), username)
 
     def task_can_user_submit(self, task, username=None, only_check=None, lti=None):
@@ -612,7 +625,6 @@ class UserManager:
 
         students = group["students"] if (group is not None and task.is_group_task()) else [self.session_username()]
 
-
         # Check for token availability
         enough_tokens = True
         timenow = datetime.now()
@@ -632,24 +644,28 @@ class UserManager:
                     token_dict = user_task.get("tokens", {"amount": 0, "date": datetime.fromtimestamp(0)})
                     tokens_ok = token_dict.get("amount", 0) < submission_limit["amount"]
                     date_limited = submission_limit["period"] > 0
-                    need_reset = token_dict.get("date", datetime.fromtimestamp(0)) < timenow - timedelta(hours=submission_limit["period"])
+                    need_reset = token_dict.get("date", datetime.fromtimestamp(0)) < timenow - timedelta(
+                        hours=submission_limit["period"])
 
                     if date_limited and need_reset:
                         # time limit for the tokens is reached; reset the tokens
-                        self._database.user_tasks.find_one_and_update(user_task, {"$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+                        self._database.user_tasks.find_one_and_update(user_task, {
+                            "$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
                         return True
                     elif tokens_ok:
                         return True
                     else:
                         return False
 
-                enough_tokens = reduce(lambda old,user_task: old and check_tokens_for_user_task(user_task), user_tasks, True)
+                enough_tokens = reduce(lambda old, user_task: old and check_tokens_for_user_task(user_task), user_tasks,
+                                       True)
 
         return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
     def get_course_audiences(self, course):
         """ Returns a list of the course audiences"""
-        return natsorted(list(self._database.audiences.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+        return natsorted(list(self._database.audiences.find({"courseid": course.get_id()})),
+                         key=lambda x: x["description"])
 
     def get_course_audiences_per_student(self, course):
         """ Returns a dictionnary mapping student -> list of audiences it belongs to, for a given course """
@@ -664,7 +680,8 @@ class UserManager:
 
     def get_course_groups(self, course):
         """ Returns a list of the course groups"""
-        return natsorted(list(self._database.groups.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+        return natsorted(list(self._database.groups.find({"courseid": course.get_id()})),
+                         key=lambda x: x["description"])
 
     def get_course_user_group(self, course, username=None):
         """ Returns the audience whose username belongs to
@@ -689,7 +706,7 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        user_info = self._database.users.find_one({"username":username})
+        user_info = self._database.users.find_one({"username": username})
 
         # Do not continue registering the user in the course if username is empty.
         if not username:
@@ -703,7 +720,8 @@ class UserManager:
         if self.course_is_user_registered(course, username):
             return False  # already registered?
 
-        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$push": {"students": username}}, upsert=True)
+        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$push": {"students": username}},
+                                                   upsert=True)
 
         self._logger.info("User %s registered to course %s", username, course.get_id())
         return True
@@ -821,7 +839,6 @@ class UserManager:
             {"$set": {
                 "state": ""
             }})
-
 
     ##############################################
     #             Rights management              #
