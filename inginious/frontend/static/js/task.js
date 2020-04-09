@@ -926,84 +926,39 @@ function updateTagsToNewSubmission(elem, data){
     }
 }
 
+/*
+ * Loads the submission form from the local storage
+ * and calls the load input functions for each subproblem type
+ */
 function load_from_storage(courseid,taskid){
     if (typeof(Storage) !== "undefined") {
+        var indict = JSON.parse(localStorage[courseid+"/"+taskid]);
         for(var problemid in problems_types) {
-              window["load_webstorage_" + problems_types[problemid]](courseid,taskid,problemid);
+            // Submissionid is only used for files that can't be stored here
+            // It is set to null here.
+            window["load_input_" + problems_types[problemid]](null, problemid, indict);
         }
     } else {
-      // Sorry! No Web Storage support..
-        console.log("Your browser doesn't support web storage");
+        alert("Your browser doesn't support web storage");
     }
-
-
 }
 
+/*
+ * Saves a serialized version of the form which is typically
+ * how the submission input is stored and passed to the load input function.
+ */
 function save_to_storage(courseid,taskid){
     if (typeof(Storage) !== "undefined") {
-        for(var problemid in problems_types) {
-              try{
-                  window["save_webstorage_" + problems_types[problemid]](courseid,taskid,problemid);
-              }catch(error) {
-                console.error(error);
-                // expected output: ReferenceError: nonExistentFunction is not defined
-                }
-
-        }
-
+        var data = $('form').serializeArray().reduce(function(obj, item) {
+            if(item.name in obj)
+                // Should be in an array case
+                obj[item.name].push(item.value);
+            else
+                obj[item.name] = Boolean(is_input_list[item.name]) ? [item.value] : item.value;
+            return obj;
+        }, {});
+        localStorage.setItem(courseid+"/"+taskid, JSON.stringify(data));
     } else {
-      // Sorry! No Web Storage support..
-        console.log("Your browser doesn't support web storage");
+        alert("Your browser doesn't support web storage");
     }
-}
-function save_webstorage_code(courseid,taskid,problemid){
-        var saved_name = courseid+"/"+taskid+"/"+problemid;
-        localStorage.setItem(saved_name, codeEditors[problemid].getTextArea().value);
-}
-
-function load_webstorage_code(courseid,taskid,problemid){
-
-       codeEditors[problemid].setValue(localStorage[courseid+"/"+taskid+"/"+problemid]);
-}
-function save_webstorage_multiple_choice(courseid,problemid){
-    $(".problem input[name='" + problemid + "']").each(function(){
-        if(this.checked){
-            var name = courseid+"/"+taskid+"/"+($(this).attr("id"));
-            localStorage.setItem(name, "true");
-
-        }
-    });
-
-}
-
-function load_webstorage_multiple_choice(courseid,taskid,problemid){
-    $(".problem input[name='" + problemid + "']").each(function(){
-        var name = courseid+"/"+taskid+"/"+($(this).attr("id"));
-        if(localStorage[name]==="true"){
-            this.checked=true;
-        }
-    });
-
-}
-
-function save_webstorage_code_single_line(courseid,taskid,problemid){
-    var elem = $(".problem input[name='" + problemid + "']");
-    var name = courseid+"/"+taskid+"/"+(elem.attr("name"));
-    localStorage.setItem(name,elem.val());
-
-}
-function save_webstorage_match(courseid,taskid,problemid){
-    save_webstorage_code_single_line(courseid,problemid);
-
-}
-
-function load_webstorage_code_single_line(courseid,taskid,problemid){
-    var elem = $(".problem input[name='" + problemid + "']");
-    var name = courseid+"/"+taskid+"/"+(elem.attr("name"));
-    elem.val(localStorage[name]);
-
-}
-function load_webstorage_match(courseid,taskid,problemid){
-    load_webstorage_code_single_line(courseid,problemid);
-
 }
