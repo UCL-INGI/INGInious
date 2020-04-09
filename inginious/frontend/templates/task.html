@@ -274,8 +274,8 @@ $# Start content
         $if not is_lti():
             <div class="pull-right">
                 <div class="btn-group">
-                    <button type="button" id="load_loc" class="btn btn-info mr-1" onclick="load_from_storage('$course.get_id()','$task.get_id()')"><i class="fa fa-arrow-circle-o-down"></i></button>
-                    <button type="button" id="save_loc" class="btn btn-info mr-1" onclick="save_to_storage('$course.get_id()','$task.get_id()')"><i class="fa fa-save"></i></button>
+                    <button type="button" id="load_loc" class="btn btn-info mr-1" onclick="load_from_storage('$course.get_id()','$task.get_id()')" title=$:_('"Load my work from memory"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-circle-o-down"></i></button>
+                    <button type="button" id="save_loc" class="btn btn-info mr-1" onclick="save_to_storage('$course.get_id()','$task.get_id()')" title=$:_('"Save my work in memory"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-save"></i></button>
                     <button type="button" class="btn btn-info mr-1" data-toggle="collapse" data-target="#task_context">$:_("Collapse context")</button>
                     $if previous_taskid:
                         <a class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$previous_taskid" title=$:_('"Previous task"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-left"></i></a>
