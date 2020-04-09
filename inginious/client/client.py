@@ -115,8 +115,9 @@ class AbstractClient(object, metaclass=ABCMeta):
         """
         pass
 
+
 class Client(BetterParanoidPirateClient):
-    def __init__(self, context, backend_addr, queue_update = 10):
+    def __init__(self, context, backend_addr, queue_update=10):
         """
         Init a new RRR.
         :param context: 0MQ context
@@ -136,7 +137,7 @@ class Client(BetterParanoidPirateClient):
                                    ])
 
         self._queue_update_timer = queue_update
-        self._queue_update_last_attempt = 0              # nb of time we waited _queue_update_timer seconds for a reply
+        self._queue_update_last_attempt = 0  # nb of time we waited _queue_update_timer seconds for a reply
         self._queue_update_last_attempt_max = 3
         self._queue_cache = None
         self._queue_job_cache = {} #format is job_id: (nb_tasks_before (can be -1 == running), approx_wait_time_in_seconds)
@@ -203,7 +204,8 @@ class Client(BetterParanoidPirateClient):
     async def _handle_job_started(self, message: BackendJobStarted, **kwargs):  # pylint: disable=unused-argument
         self._logger.debug("Job %s started", message.job_id)
 
-    async def _handle_job_done(self, message: BackendJobDone, task, callback, ssh_callback):  # pylint: disable=unused-argument
+    async def _handle_job_done(self, message: BackendJobDone, task, callback,
+                               ssh_callback):  # pylint: disable=unused-argument
         self._logger.debug("Job %s done", message.job_id)
         job_id = message.job_id
 
@@ -216,19 +218,24 @@ class Client(BetterParanoidPirateClient):
 
         # Call the callback
         try:
-            callback(message.result, message.grade, message.problems, message.tests, message.custom, message.state, message.archive, message.stdout, message.stderr)
+            callback(message.result, message.grade, message.problems, message.tests, message.custom, message.state,
+                     message.archive, message.stdout, message.stderr)
         except Exception as e:
-            self._logger.exception("Failed to call the callback function for jobid %s: %s", job_id, repr(e), exc_info=True)
+            self._logger.exception("Failed to call the callback function for jobid %s: %s", job_id, repr(e),
+                                   exc_info=True)
 
-    async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug, ssh_callback, **kwargs):  # pylint: disable=unused-argument
+    async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug, ssh_callback,
+                                    **kwargs):  # pylint: disable=unused-argument
         try:
             await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.password))
         except:
             self._logger.exception("Error occurred while calling ssh_callback for job %s", message.job_id)
 
     async def _handle_job_abort(self, job_id: str, task, callback, ssh_callback):
-        await self._handle_job_done(BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}, {}, "", None, "", ""), task, callback,
-                                    ssh_callback)
+        await self._handle_job_done(
+            BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}, {}, "", None, "", ""),
+            task, callback,
+            ssh_callback)
 
     async def _on_disconnect(self):
         self._logger.warning("Disconnected from backend, retrying...")
@@ -291,7 +298,8 @@ class Client(BetterParanoidPirateClient):
 
         environment = task.get_environment_id()
         if environment not in self._available_environments:
-            self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
+            self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(),
+                                 task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
             callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return
@@ -302,14 +310,17 @@ class Client(BetterParanoidPirateClient):
                                  environment, environment_type, self._available_environments[environment],
                                  task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {}, "", {}, None, "", "")
+            callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {},
+                     "", {}, None, "", "")
             return
 
         environment_parameters = task.get_environment_parameters()
 
-        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, environment_parameters, debug, launcher_name)
-        self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
-                                                                                        ssh_callback=ssh_callback))
+        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment,
+                           environment_parameters, debug, launcher_name)
+        self._loop.call_soon_threadsafe(asyncio.ensure_future,
+                                        self._create_transaction(msg, task=task, callback=callback,
+                                                                 ssh_callback=ssh_callback))
 
         return job_id
 

@@ -32,6 +32,7 @@ $if jobs_running is not None and len(jobs_running) > 0:
             <th>$:_("Launcher name")</th>
             <th>$:_("Started at")</th>
             <th>$:_("Timeout at")</th>
+            <th>$:_("Action")</th>
         </tr>
         $for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time) in jobs_running:
             <tr>
@@ -52,6 +53,13 @@ $if jobs_running is not None and len(jobs_running) > 0:
                     $else:
                         $:_("No timeout set")
                 </td>
+                <td>
+                $if user_manager.user_is_superadmin():
+                    <button type="button" data-toggle="modal" data-job_id="$job_id" data-target="#kill_modal" class="btn btn-warning" title="Kill Job">
+                        <i class="fa fa-remove">
+                        </i>
+                    </button>
+                </td>
             </tr>
     </table>
 $else:
@@ -66,6 +74,7 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
             <th>$:_("Name")</th>
             <th>$:_("Launcher name")</th>
             <th>$:_("Maximum runtime in seconds")</th>
+            <th>$:_("Action")</th>
         </tr>
         $for (job_id, is_current_client_job, info, launcher, max_time) in jobs_waiting:
         <tr>
@@ -84,7 +93,41 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
                 $else:
                     $:_("No timeout set")
             </td>
+            <td>
+            $if user_manager.user_is_superadmin():
+                <button type="button" data-toggle="modal" data-job_id="$job_id" data-target="#kill_modal" class="btn btn-warning" title="Kill Job">
+                    <i class="fa fa-remove">
+                    </i>
+                </button>
+            </td>
         </tr>
     </table>
 $else:
     <p>$:_("There are no jobs waiting in queue")</p>
+
+<div id="kill_modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">$:_("Kill job") </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>$:_("Are you sure ?")</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post">
+                        <input type="hidden" name="jobid" id="jobid">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                        <button type="submit" name="reset" class="btn btn-danger">$:_("Kill")</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+
+<script type="text/javascript">
+    $$('#kill_modal').on('show.bs.modal', function (event) {
+      $$('#jobid').val($$(event.relatedTarget).data('job_id'));
+    });
+</script>
