@@ -925,3 +925,40 @@ function updateTagsToNewSubmission(elem, data){
         badge.attr('data-original-title', tags_ok.join(", "));
     }
 }
+
+/*
+ * Loads the submission form from the local storage
+ * and calls the load input functions for each subproblem type
+ */
+function load_from_storage(courseid,taskid){
+    if (typeof(Storage) !== "undefined") {
+        var indict = JSON.parse(localStorage[courseid+"/"+taskid]);
+        for(var problemid in problems_types) {
+            // Submissionid is only used for files that can't be stored here
+            // It is set to null here.
+            window["load_input_" + problems_types[problemid]](null, problemid, indict);
+        }
+    } else {
+        alert("Your browser doesn't support web storage");
+    }
+}
+
+/*
+ * Saves a serialized version of the form which is typically
+ * how the submission input is stored and passed to the load input function.
+ */
+function save_to_storage(courseid,taskid){
+    if (typeof(Storage) !== "undefined") {
+        var data = $('form').serializeArray().reduce(function(obj, item) {
+            if(item.name in obj)
+                // Should be in an array case
+                obj[item.name].push(item.value);
+            else
+                obj[item.name] = Boolean(is_input_list[item.name]) ? [item.value] : item.value;
+            return obj;
+        }, {});
+        localStorage.setItem(courseid+"/"+taskid, JSON.stringify(data));
+    } else {
+        alert("Your browser doesn't support web storage");
+    }
+}
