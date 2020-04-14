@@ -25,13 +25,11 @@ $var Navbar: $:NavbarF()
 <h2>$:_("Tasks")
     <div class="pull-right">
         <div class="btn-group btn-group-sm">
-            <div>
-                <select class="form-control" id="actionControlSelect">
-                    <option value="def" selected>$:_("Action")</option>
-                    <option value="accessible">$:_("Accessible")</option>
-                    <option value="inaccessible">$:_("Inaccessible")</option>
-                </select>
-            </div>
+            <select class="form-control mr-1" id="actionControlSelect">
+                <option value="def" selected>$:_("Grouped action")</option>
+                <option value="accessible">$:_("Make accessible")</option>
+                <option value="inaccessible">$:_("Make inaccessible")</option>
+            </select>
             <button type="button" id="switch" class="btn btn-default"><i class="fa fa-list-ol"></i> $:_("Change task order")</button>
             <button type="submit" id="switch" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update")</button>
             </div>
