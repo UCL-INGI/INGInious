@@ -31,7 +31,7 @@ $var Navbar: $:NavbarF()
                 <option value="inaccessible">$:_("Make inaccessible")</option>
             </select>
             <button type="button" id="switch" class="btn btn-default"><i class="fa fa-list-ol"></i> $:_("Change task order")</button>
-            <button type="submit" id="switch" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update")</button>
+            <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update")</button>
             </div>
     </div>
 </h2>
@@ -60,11 +60,10 @@ $if webdav_host:
         </div>
     </div>
 
-<input type="hidden" id="selected_task_ids" name="selected_task_ids" value="">
-<input type="hidden" id="action_task" name="action_task" value="">
 <table class="table sorted_table">
     <thead class="table-borderless">
         <tr>
+            <th></th>
             <th>$:_("task name")</th>
             <th>$:_("# student viewed")</th>
             <th>$:_("# student attempted")</th>
@@ -83,6 +82,7 @@ $if webdav_host:
     <tbody>
     $for taskid in data:
     	<tr data-task-id="$taskid">
+            <td><input class="cbox-task" id="cbox-$taskid" name="cbox-$taskid" data-selected-task-id="$taskid" type="checkbox" style="display:none;"></td>
     		<td>
     			$data[taskid]["name"]
     		</td>
@@ -91,7 +91,6 @@ $if webdav_host:
             <td>$data[taskid]["succeeded"]</td>
             <td>$data[taskid]["attempts"]</td>
     		<td style="min-width:120px">
-                <input type="hidden" name="task_id">
                 <div class="btn-group btn-group-sm" role="group">
                     $if is_admin:
                         <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary" title=$:_('"Edit task"') data-toggle="tooltip"
@@ -157,26 +156,12 @@ $$("#actionControlSelect").change(function () {
        active=true;
        $$("#action_task").val(this.value);
        $$("#message").html("<p>$:_('Please select task(s) and then click update button.')</p>");
-       $$(".sorted_table tr").click(function (e) {
-            if(active) {
-                if($$(this).hasClass("table-active")) {
-                    $$(this).removeClass("table-active");
-                }else{
-                    $$(this).addClass("table-active");
-                    let tid = $$(this).data("task-id");
-                    $$($$(this).find("input[name='task_id']")[0]).val(tid);
-                }
-
-
-            }
-        });
+       $$(".cbox-task").show();
    }else{
        active=false;
-       $$(".sorted_table tr").each(function(){
-           $$(this).removeClass("table-active");
-       });
        $$("#message").html("");
        $$("#action_task").val("");
+       $$(".cbox-task").hide();
    }
 });
 

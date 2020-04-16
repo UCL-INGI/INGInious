@@ -21,7 +21,7 @@ class CourseTaskListPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, __ = self.get_course_and_check_rights(courseid)
-        data = web.input(task=[],task_id=[])
+        data = web.input(task=[])
         if "task" in data:
             # Change tasks order
             for index, taskid in enumerate(data["task"]):
@@ -31,20 +31,15 @@ class CourseTaskListPage(INGIniousAdminPage):
                     self.task_factory.update_task_descriptor_content(courseid, taskid, task)
                 except:
                     pass
-        if "task_id" in data and "action_task" in data:
-            task_ids = data.task_id
-            for taskid in task_ids:
-                try:
-                    task = self.task_factory.get_task_descriptor_content(courseid, taskid)
-                    if data["action_task"] == "accessible":
-                        task["accessible"] = True
-                    else:
-                        task["accessible"] = False
-
-                    self.task_factory.update_task_descriptor_content(courseid, taskid, task)
-                except:
-                    pass
-
+        if "action_task" in data and data["action_task"] != "":
+            for elem in data:
+                if elem.startswith("cbox-"):
+                    try:
+                        task = self.task_factory.get_task_descriptor_content(courseid, elem[5:])
+                        task["accessible"] = True if data["action_task"] == "accessible" else False
+                        self.task_factory.update_task_descriptor_content(courseid, elem[5:], task)
+                    except:
+                        pass
         return self.page(course)
 
     def submission_url_generator(self, taskid):
@@ -88,7 +83,8 @@ class CourseTaskListPage(INGIniousAdminPage):
         # Now load additional information
         result = OrderedDict()
         for taskid in tasks:
-            result[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0,
+            result[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()), "viewed": 0,
+                              "attempted": 0, "attempts": 0, "succeeded": 0,
                               "url": self.submission_url_generator(taskid)}
         for entry in data:
             if entry["_id"] in result:
