@@ -17,7 +17,7 @@ function groups_prepare_submit()
 
         $(this).find(".group-entry").each(function (j) {
             var username = $(this).data('username');
-            group_students.push(username);
+            group_students.push(String(username));
         });
 
         var audiences = [];

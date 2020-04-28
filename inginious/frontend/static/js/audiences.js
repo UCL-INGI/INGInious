@@ -9,13 +9,13 @@ function audiences_prepare_submit()
     var students = [];
     $(".group-entry").each(function(i) {
             var username = $(this).data('username');
-            students.push(username);
+            students.push(String(username));
     });
 
     var tutors = [];
     $(".tutor").each(function(i) {
         var tutor = $(this).find("input").val();
-        tutors.push(tutor);
+        tutors.push(String(tutor));
     });
 
     var id = $("#_id").val();
