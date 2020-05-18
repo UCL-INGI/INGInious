@@ -152,6 +152,7 @@ class CourseSubmissionsPage(INGIniousSubmissionAdminPage):
                                              ],
                                              submit_time_between=submit_time_between,
                                              keep_only_evaluation_submissions=must_keep_best_submissions_only,
+                                             keep_only_crashes="crashes_only" in user_input,
                                              sort_by=(user_input.sort_by, user_input.order == "1"),
                                              limit=limit+1)
 

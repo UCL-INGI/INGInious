@@ -68,6 +68,7 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
                                  with_tags=None,
                                  grade_between=None, submit_time_between=None,
                                  keep_only_evaluation_submissions=False,
+                                 keep_only_crashes=False,
                                  sort_by=("submitted_on", True),
                                  limit=None):
         """
@@ -87,6 +88,7 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         :param submit_time_between: a tuple of two dates or None ([datetime, None], [None, datetime] or [None, None])
                that indicates bounds on the submission time of the submission. Format: "%Y-%m-%d %H:%M:%S"
         :param keep_only_evaluation_submissions: True to keep only submissions that are counting for the evaluation
+        :param keep_only_crashes: True to keep only submissions that timed out or crashed
         :param sort_by: a tuple (sort_column, ascending) where sort_column is in ["submitted_on", "username", "grade", "taskid"]
                and ascending is either True or False.
         :param limit: an integer representing the maximum number of submission to list.
@@ -144,6 +146,10 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             # TODO it would be nice to display this in the interface. However, this should never happen because
             # we have a nice JS interface that prevents this.
             pass
+
+        # Only crashed or timed-out submissions
+        if keep_only_crashes:
+            filter["result"] = {"$in": ["crash", "timeout"]}
 
         # Only evaluation submissions
         user_tasks = self.database.user_tasks.find(base_filter)
