@@ -618,6 +618,24 @@ If the submission is made as a user, it will contain the username. It it's made 
 it will contain the list of the user's usernames in the
 group, joined with ','.
 
+You can retrieve the email of the user that submitted the task with the
+following lines. If this is a group submission, this will give a list of
+the user's emails in the group, joined with ','.
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        username = get_input("@email")
+
+    .. code-tab:: py
+
+        username = input.get_input("@email")
+
+    .. code-tab:: bash
+
+        getinput @email
+
 The four letter code of the student's language (for example `en_US` or `fr_FR`) can also be retrieved using
 
 .. tabs::
