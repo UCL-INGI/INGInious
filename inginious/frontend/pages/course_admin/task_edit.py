@@ -218,6 +218,10 @@ class CourseEditTask(INGIniousAdminPage):
             del data["accessible_start"]
             del data["accessible_end"]
             del data["accessible_soft_end"]
+            try:
+                AccessibleTime(data["accessible"])
+            except Exception as message:
+                return json.dumps({"status": "error", "message": _("Invalid task accessibility ({})").format(message)})
 
             # Checkboxes
             if data.get("responseIsHTML"):
