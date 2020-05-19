@@ -260,6 +260,7 @@ class WebAppSubmissionManager:
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
+        inputdata["@time"] = str(obj["submitted_on"])
         my_user_task = self._database.user_tasks.find_one(
             {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"tried": 1, "_id": 0})
         tried_count = my_user_task["tried"]
