@@ -212,6 +212,10 @@ class DockerInterface(object):  # pragma: no cover
         """
         return self._docker.containers.get(container_id).stats(decode=True)
 
+    def list_running_containers(self):
+        """ Returns a set of running container ids """
+        return {x.attrs.get('Id') for x in self._docker.containers.list(all=False, sparse=True)}
+
     def remove_container(self, container_id):
         """
         Removes a container (with fire)
@@ -225,14 +229,15 @@ class DockerInterface(object):  # pragma: no cover
         """
         self._docker.containers.get(container_id).kill(signal)
 
-    def event_stream(self, filters=None):
+    def event_stream(self, filters=None, since=None):
         """
         :param filters: filters to apply on messages. See docker api.
+        :param since: time since when the events should be sent. See docker api.
         :return: an iterable that contains events from docker. See the docker api for content.
         """
         if filters is None:
             filters = {}
-        return self._docker.events(decode=True, filters=filters)
+        return self._docker.events(decode=True, filters=filters, since=since)
 
     def list_runtimes(self) -> Dict[str, str]:
         """
