@@ -161,41 +161,49 @@ class DockerAgent(Agent):
         return self._containers
 
     async def _watch_docker_events(self):
-        """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """
-        try:
-            source = AsyncIteratorWrapper(self._docker.sync.event_stream(filters={"event": ["die", "oom"]}))
-            async for i in source:
-                if i["Type"] == "container" and i["status"] == "die":
-                    container_id = i["id"]
-                    try:
-                        retval = int(i["Actor"]["Attributes"]["exitCode"])
-                    except asyncio.CancelledError:
-                        raise
-                    except:
-                        self._logger.exception("Cannot parse exitCode for container %s", container_id)
-                        retval = -1
-
-                    if container_id in self._containers_running:
-                        self._create_safe_task(self.handle_job_closing(container_id, retval))
-                    elif container_id in self._student_containers_running:
-                        self._create_safe_task(self.handle_student_job_closing(container_id, retval))
-                elif i["Type"] == "container" and i["status"] == "oom":
-                    container_id = i["id"]
-                    if container_id in self._containers_running or container_id in self._student_containers_running:
-                        self._logger.info("Container %s did OOM, killing it", container_id)
-                        self._containers_killed[container_id] = "overflow"
+        """
+            Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber.
+            This function should always be active while the agent is itself active, hence the while True.
+        """
+        shutdown = False
+        while not shutdown:
+            try:
+                source = AsyncIteratorWrapper(self._docker.sync.event_stream(filters={"event": ["die", "oom"]}))
+                self._logger.info("Docker event stream started")
+                async for i in source:
+                    if i["Type"] == "container" and i["status"] == "die":
+                        container_id = i["id"]
                         try:
-                            self._create_safe_task(self._docker.kill_container(container_id))
+                            retval = int(i["Actor"]["Attributes"]["exitCode"])
                         except asyncio.CancelledError:
                             raise
-                        except:  # this call can sometimes fail, and that is normal.
-                            pass
-                else:
-                    raise TypeError(str(i))
-        except asyncio.CancelledError:
-            pass
-        except:
-            self._logger.exception("Exception in _watch_docker_events")
+                        except:
+                            self._logger.exception("Cannot parse exitCode for container %s", container_id)
+                            retval = -1
+
+                        if container_id in self._containers_running:
+                            self._create_safe_task(self.handle_job_closing(container_id, retval))
+                        elif container_id in self._student_containers_running:
+                            self._create_safe_task(self.handle_student_job_closing(container_id, retval))
+                    elif i["Type"] == "container" and i["status"] == "oom":
+                        container_id = i["id"]
+                        if container_id in self._containers_running or container_id in self._student_containers_running:
+                            self._logger.info("Container %s did OOM, killing it", container_id)
+                            self._containers_killed[container_id] = "overflow"
+                            try:
+                                self._create_safe_task(self._docker.kill_container(container_id))
+                            except asyncio.CancelledError:
+                                raise
+                            except:  # this call can sometimes fail, and that is normal.
+                                pass
+                    else:
+                        raise TypeError(str(i))
+                raise Exception("Docker stopped feeding the event stream. This should not happen. Restarting the event stream...")
+            except asyncio.CancelledError:
+                shutdown = True
+            except:
+                self._logger.exception("Exception in _watch_docker_events")
+
 
     def __new_job_sync(self, message: BackendNewJob, future_results):
         """ Synchronous part of _new_job. Creates needed directories, copy files, and starts the container. """
