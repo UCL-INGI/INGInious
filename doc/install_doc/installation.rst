@@ -369,7 +369,14 @@ from another path than the specified one. In this case, lighttpd forces to set a
 while a root access if wanted, in order to serve static files correctly. Therefore, this environment variable is set
 to an empty string in addition to the rewrite rule.
 
+.. note::
 
+   The Default configuration doesn't optimize Inginious for performance, please refer to 
+   https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_Performance for more about performance optimising
+   you may also change 'max-procs' and append "PHP_FCGI_CHILDREN" => "someValue" inside "bin-environment"
+   for more about these values check https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_PerformanceFastCGI
+ 
+   
 Finally, start the server:
 
 ::
