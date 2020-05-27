@@ -36,7 +36,7 @@ class CourseTaskListPage(INGIniousAdminPage):
                 if elem.startswith("cbox-"):
                     try:
                         task = self.task_factory.get_task_descriptor_content(courseid, elem[5:])
-                        task["accessible"] = True if data["action_task"] == "accessible" else False
+                        task["accessible"] = data["action_task"] == "accessible"
                         self.task_factory.update_task_descriptor_content(courseid, elem[5:], task)
                     except:
                         pass
