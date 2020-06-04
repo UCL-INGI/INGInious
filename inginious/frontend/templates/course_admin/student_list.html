@@ -41,7 +41,10 @@ $var Navbar: $:NavbarF()
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="card-body tab-pane active" id="tab_students">
-            $:include.course_admin.student_list_table(course,user_data[len(course.get_staff()):len(user_data)], False)
+            $ len_all_users = len(user_data)
+            $ len_staff = len(course.get_staff())
+            <p>Number of students : $(len_all_users-len_staff)</p>
+            $:include.course_admin.student_list_table(course,user_data[len_staff:len_all_users], False)
             $if user_manager.has_admin_rights_on_course(course):
                 <form method="post">
                     <div class="form-group row">
