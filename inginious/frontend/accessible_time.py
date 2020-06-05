@@ -68,7 +68,7 @@ class AccessibleTime(object):
 
         # Having a soft deadline after the hard one does not make sense
         if self._soft_end > self._val[1]:
-            self._soft_end = self._val[1]
+            raise ValueError(_("Cannot have a soft deadline after the hard one"))
 
     def before_start(self, when=None):
         """ Returns True if the task/course is not yet accessible """
