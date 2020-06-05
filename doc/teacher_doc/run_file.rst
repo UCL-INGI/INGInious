@@ -656,11 +656,11 @@ With python or ipython, you can directly retrieve the submission time as a `date
 
     .. code-tab:: ipython3
 
-        submission_time = get_time()
+        submission_time = get_submission_time()
 
     .. code-tab:: py
 
-        submission_time = input.get_time()
+        submission_time = input.get_submission_time()
 
 Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
 

@@ -25,7 +25,7 @@ def get_username():
     return get_input("@username")
 
 
-def get_time():
+def get_submission_time():
     """Returns the submission time of the current submission"""
     return datetime.datetime.strptime(get_input("@time"), "%Y-%m-%d %H:%M:%S.%f")
 
