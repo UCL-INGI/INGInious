@@ -6,6 +6,7 @@
 import os
 import re
 import json
+import datetime
 
 import inginious_container_api
 
@@ -22,6 +23,11 @@ def _load_input():
 def get_username():
     """ Returns the username of the current user being graded """
     return get_input("@username")
+
+
+def get_time():
+    """Returns the submission time of the current submission"""
+    return datetime.datetime.strptime(get_input("@time"), "%Y-%m-%d %H:%M:%S.%f")
 
 
 def get_lang():

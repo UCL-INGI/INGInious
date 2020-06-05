@@ -634,6 +634,34 @@ The four letter code of the student's language (for example `en_US` or `fr_FR`) 
 
         getinput @lang
 
+The submission time, following the datetime format "%Y-%M-%D %H:%M:%S.%f", can be retrieved using
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        submission_time = get_input("@time")
+
+    .. code-tab:: py
+
+        submission_time = input.get_input("@time")
+
+    .. code-tab:: bash
+
+        getinput @time
+
+With python or ipython, you can directly retrieve the submission time as a `datetime.datetime` object by using:
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        submission_time = get_time()
+
+    .. code-tab:: py
+
+        submission_time = input.get_time()
+
 Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
 
 parsetemplate
