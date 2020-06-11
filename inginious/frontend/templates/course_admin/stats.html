@@ -9,6 +9,8 @@ $var title: $:course.get_name(user_manager.session_language())
 
 $var header:
     <script src="$get_homepath(True)/static/js/libs/chart.min.js"></script>
+    <script src="$get_homepath(True)/static/js/libs/hammerjs.js"></script>
+    <script src="$get_homepath(True)/static/js/libs/chartjs-plugin-zoom.js"></script>
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='stats')
 
@@ -45,6 +47,7 @@ $var Navbar: $:NavbarF()
 <h2>$:_("Stats between {} and {}").format(daterange[0].strftime("%d/%m/%Y %H:%M:%S"), daterange[1].strftime("%d/%m/%Y %H:%M:%S"))</h2>
 
 <h3>$:_("Submissions")</h3>
+<button onclick="resetZoom()">Reset Zoom</button>
 <canvas id="canvas"></canvas>
 <script type="text/javascript">"use strict";
     function submitStats() {
@@ -117,6 +120,20 @@ $var Navbar: $:NavbarF()
                         labelString: '# submissions'
                     }
                 }]
+            },
+            plugins: {
+                zoom: {
+                    zoom: {
+                        // Boolean to enable zooming
+                        enabled: true,
+                        // Enable drag-to-zoom behavior
+                        drag: true,
+                        mode: 'x',
+                        // Speed of zoom via mouse wheel
+                        // (percentage of zoom on a wheel event)
+                        speed: 0.1,
+                    }
+                }
             }
         }
     };
@@ -125,6 +142,10 @@ $var Navbar: $:NavbarF()
         var ctx = document.getElementById('canvas').getContext('2d');
         window.myLine = new Chart(ctx, config);
     };
+    window.resetZoom = function() {
+        window.myLine.resetZoom();
+    };
+
 </script>
 <h3>$:_("Tasks")</h3>
 <table class="table">
