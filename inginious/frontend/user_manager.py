@@ -565,8 +565,8 @@ class UserManager:
 
             elif task.get_evaluate() == 'last':  # if last, update cache with last submission
                 def_sub = list(self._database.submissions.find(
-                    {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(),
-                     "status": "done"}).sort([("submitted_on", pymongo.DESCENDING)]).limit(1))
+                    {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()})
+                               .sort([("submitted_on", pymongo.DESCENDING)]).limit(1))
 
             if len(def_sub) > 0:
                 self._database.user_tasks.find_one_and_update(
