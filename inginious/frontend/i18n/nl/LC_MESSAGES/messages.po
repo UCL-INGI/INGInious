@@ -73,6 +73,10 @@ msgstr "Deadline is voorbij"
 msgid "Docker container"
 msgstr ""
 
+#: inginious/frontend/environment_types/kata.py:11
+msgid "Kata container"
+msgstr ""
+
 #: inginious/frontend/environment_types/mcq.py:11
 msgid "Multiple Choice Question solver"
 msgstr ""
