@@ -1,0 +1,52 @@
+$def with (env_params, contains_is_html)
+
+<div class="form-group row">
+    <label for="docker-limit-time" class="col-sm-4 control-label">$:_("Timeout limit (in seconds)")</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" id="docker-limit-time" name="envparams[docker][limits][time]" placeholder="30" value="${env_params.get('limits',{}).get('time',30)}"/>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="docker-limit-hard-time" class="col-sm-4 control-label">$:_("Hard timeout limit (in seconds) <small>Default to 3*timeout</small>")</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" id="docker-limit-hard-time" name="envparams[docker][limits][hard_time]"
+               placeholder="" value="${env_params.get('limits',{}).get('hard_time','')}"/>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="docker-limit-memory" class="col-sm-4 control-label">$:_("Memory limit (in megabytes)")</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" id="docker-limit-memory" name="envparams[docker][limits][memory]" placeholder="30" value="${env_params.get('limits',{}).get('memory',100)}"/>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="docker-network-grading" class="col-sm-4 control-label">$:_("Allow internet access inside the grading container?")</label>
+
+    <div class="col-sm-8">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="docker-network-grading" name="envparams[docker][network_grading]"
+                   $if env_params.get('network_grading',False):
+                       checked="checked"
+            />&nbsp;
+        </label></div>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="docker-run-cmd" class="col-sm-4 control-label">$:_("Custom command to be run in container <small>(instead of running the run script)</small>")</label>
+
+    <div class="col-sm-8">
+        <input type="text" class="form-control" id="docker-run-cmd" name="envparams[docker][run_cmd]" placeholder="Optional" value="${env_params.get('run_cmd',"")}"/>
+    </div>
+</div>
+$if contains_is_html:
+    <div class="form-group row">
+        <label for="docker-responseIsHTML" class="col-sm-4 control-label">$:_("Are the task's responses written in HTML instead of restructuredText?")</label>
+        <div class="col-sm-8">
+            <div class="checkbox"><label>
+                <input type="checkbox" id="docker-responseIsHTML" name="envparams[docker][responseIsHTML]"
+                    $if env_params.get('responseIsHTML',False):
+                        checked="checked"
+                />&nbsp;
+            </label></div>
+        </div>
+    </div>
