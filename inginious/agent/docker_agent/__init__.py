@@ -25,7 +25,7 @@ from inginious.common.messages import BackendNewJob, BackendKillJob
 
 
 class DockerAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, filesystem, address_host=None, external_ports=None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp", type="docker", runtime="runc"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -35,9 +35,11 @@ class DockerAgent(Agent):
         :param address_host: hostname/ip/... to which external client should connect to access to the docker
         :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
+        :param type: type of the container
+        :param runtime: runtime used by docker
         """
-        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, filesystem)
-        self._logger = logging.getLogger("inginious.agent.docker")
+        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
+        self._logger = logging.getLogger("inginious.agent.{}".format(type))
 
         self._max_memory_per_slot = int(psutil.virtual_memory().total / concurrency / 1024 / 1024)
 
@@ -51,6 +53,9 @@ class DockerAgent(Agent):
         # Async proxy to os
         self._aos = AsyncProxy(os)
         self._ashutil = AsyncProxy(shutil)
+
+        self.type = type
+        self.runtime = runtime
 
     async def _init_clean(self):
         """ Must be called when the agent is starting """
@@ -75,13 +80,13 @@ class DockerAgent(Agent):
             pass
 
         # Docker
-        self._docker = AsyncProxy(DockerInterface())
+        self._docker = AsyncProxy(DockerInterface(self.type, self.runtime))
 
         # Auto discover containers
         self._logger.info("Discovering containers")
         self._containers = await self._docker.get_containers()
         for idx in self._containers:
-            self._containers[idx]["type"] = "docker" # type is not given by self._docker.get_containers()
+            self._containers[idx]["type"] = self.type # type is not given by self._docker.get_containers()
 
         self._assigned_external_ports = {}  # container_id : [external_ports]
 

@@ -11,7 +11,6 @@ import threading
 from zmq.asyncio import ZMQEventLoop, Context
 
 from inginious.agent.docker_agent import DockerAgent
-from inginious.agent.kata_agent import KataAgent
 from inginious.agent.mcq_agent import MCQAgent
 from inginious.backend.backend import Backend
 from inginious.client.client import Client
@@ -92,8 +91,8 @@ def create_arch(configuration, tasks_fs, context, course_factory):
         client = Client(context, "inproc://backend_client")
         backend = Backend(context, "inproc://backend_agent", "inproc://backend_client")
         agent_docker = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, tasks_fs, debug_host, debug_ports, tmp_dir)
-        agent_kata = KataAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, tasks_fs, debug_host, debug_ports, tmp_dir)
-        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", 1, tasks_fs, course_factory, course_factory.get_task_factory().get_problem_types())
+        agent_kata = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, tasks_fs, debug_host, debug_ports, tmp_dir, type="kata", runtime="kata-qemu")
+        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", tasks_fs, course_factory, course_factory.get_task_factory().get_problem_types())
 
         asyncio.ensure_future(_restart_on_cancel(logger, agent_docker))
         asyncio.ensure_future(_restart_on_cancel(logger, agent_kata))

@@ -21,6 +21,14 @@ class DockerInterface(object):  # pragma: no cover
         Docker-py itself is already well tested.
     """
 
+    def __init__(self, type, runtime):
+        """
+        :param type: type of the container
+        :param runtime: runtime used by docker
+        """
+        self.type = type
+        self.runtime = runtime
+
     @property
     def _docker(self):
         return docker.from_env()
@@ -44,11 +52,11 @@ class DockerInterface(object):  # pragma: no cover
             try:
                 title = x.labels["org.inginious.grading.name"]
 
-                if x.labels.get("org.inginious.grading.agent") == "docker" :
+                if x.labels.get("org.inginious.grading.agent") == self.type :
                     if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
                         logging.getLogger("inginious.agent").warning(
-                            "Container %s is made for an old/newer version of the docker agent (container version is %s, "
-                            "but it should be %i). INGInious will ignore the container.", title,
+                            "Container %s is made for an old/newer version of the %s agent (container version is %s, "
+                            "but it should be %i). INGInious will ignore the container.", self.type, title,
                             str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
                         continue
 
@@ -115,7 +123,8 @@ class DockerInterface(object):  # pragma: no cover
                 sockets_path: {'bind': '/sockets'},
                 course_common_path: {'bind': '/course/common', 'mode': 'ro'},
                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
-            }
+            },
+            runtime=self.runtime
         )
         return response.id
 
@@ -151,7 +160,8 @@ class DockerInterface(object):  # pragma: no cover
                  socket_path: {'bind': '/__parent.sock'},
                  systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
                  course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
-            }
+            },
+            runtime=self.runtime
         )
         return response.id
 
