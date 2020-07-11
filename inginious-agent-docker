@@ -62,6 +62,7 @@ if __name__ == "__main__":
                         action="store_true")
     parser.add_argument("--debugmode", help="Enables debug mode. For developers only.", action="store_true")
     parser.add_argument("--disable-autorestart", help="Disables the auto restart on agent failure.", action="store_true")
+    parser.add_argument("--kata", help="Uses kata-containers as runtime", action="store_true")
 
     (args, fsprovider) = get_args_and_filesystem(parser)
 
@@ -87,8 +88,12 @@ if __name__ == "__main__":
         context = Context()
 
         # Create agent
-        agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider, address_host=args.debug_host,
-                            external_ports=args.debug_ports, tmp_dir=args.tmpdir)
+        if args.kata:
+            agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider, address_host=args.debug_host,
+                                external_ports=args.debug_ports, tmp_dir=args.tmpdir, type="kata", runtime="kata-qemu")
+        else:
+            agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider, address_host=args.debug_host,
+                                external_ports=args.debug_ports, tmp_dir=args.tmpdir)
 
         # Run!
         try:
