@@ -35,8 +35,8 @@ class DockerAgent(Agent):
         :param address_host: hostname/ip/... to which external client should connect to access to the docker
         :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
-        :param type: type of the container
-        :param runtime: runtime used by docker
+        :param type: type of the container ("docker" or "kata")
+        :param runtime: runtime used by docker (for example, "runc" with docker or "kata-qemu" with kata)
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
         self._logger = logging.getLogger("inginious.agent.{}".format(type))

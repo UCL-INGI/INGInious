@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 import docker
 import logging
+import sys
 
 DOCKER_AGENT_VERSION = 2
 
@@ -23,11 +24,19 @@ class DockerInterface(object):  # pragma: no cover
 
     def __init__(self, type, runtime):
         """
-        :param type: type of the container
-        :param runtime: runtime used by docker
+        :param type: type of the container ("docker" or "kata")
+        :param runtime: runtime used by docker (for example, "runc" with docker or "kata-qemu" with kata)
         """
-        self.type = type
-        self.runtime = runtime
+        runtimes = {
+            "docker": ["runc", "crun"],
+            "kata": ["kata-qemu", "kata-fc"]
+        }
+        if type in runtimes and runtime in runtimes[type]:
+            self.type = type
+            self.runtime = runtime
+        else:
+            logging.getLogger("inginious.agent").exception("Type of agent %s does not support runtime %s", type, runtime)
+            sys.exit("Bad runtime")
 
     @property
     def _docker(self):
@@ -161,7 +170,8 @@ class DockerInterface(object):  # pragma: no cover
                  systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
                  course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
-            runtime=self.runtime
+            runtime = self.runtime
+
         )
         return response.id
 
