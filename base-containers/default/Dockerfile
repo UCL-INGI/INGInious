@@ -4,4 +4,3 @@
 ARG   VERSION=latest
 FROM  ingi/inginious-c-base:${VERSION}
 LABEL org.inginious.grading.name="default"
-LABEL org.inginious.grading.agent="docker"

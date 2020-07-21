@@ -305,7 +305,7 @@ class Client(BetterParanoidPirateClient):
             return None
 
         environment_type = task.get_environment_type()
-        if self._available_environments[environment] != environment_type:
+        if environment_type not in self._available_environments[environment]:
             self._logger.warning("Env %s does not have the expected type %s, but rather %s, in task %s/%s",
                                  environment, environment_type, self._available_environments[environment],
                                  task.get_course_id(), task.get_id())

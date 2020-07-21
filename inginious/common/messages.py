@@ -101,7 +101,7 @@ class BackendUpdateEnvironments(metaclass=MessageMeta, msgtype="backend_update_e
         Update the information about the environments on the client, from the informations retrieved from the agents
     """
 
-    def __init__(self, available_environments: Dict[str, str]):
+    def __init__(self, available_environments: Dict[str, List[str]]):
         """
             :param available_environments: dict of available environment aliases (as keys) and type of the related agent (as value)
         """
