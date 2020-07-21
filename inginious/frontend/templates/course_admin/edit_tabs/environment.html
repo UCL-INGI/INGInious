@@ -25,7 +25,7 @@ $for envtype, envtypeobj in environment_types.items():
             <div class="col-sm-8">
                 <select id="environment-id-$envtype" class="form-control" name="environment_id[$envtype]">
                     $for env, env_envtype in environments.items():
-                        $if envtype == env_envtype:
+                        $if envtype in env_envtype:
                             <option value="$env"
                                 $if env == task_data.get('environment_id'):
                                     selected="selected"

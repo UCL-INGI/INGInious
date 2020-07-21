@@ -10,14 +10,23 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
 
 ::
 
-    inginious-agent-docker [-h] [--debug-host DEBUG_HOST]
+    inginious-agent-docker [-h] [--friendly-name FRIENDLY_NAME]
+                           [--debug-host DEBUG_HOST]
                            [--debug-ports DEBUG_PORTS] [--tmpdir TMPDIR]
-                           [--tasks TASKS] [--concurrency CONCURRENCY] [-v]
+                           [--concurrency CONCURRENCY] [-v] [--debugmode]
+                           [--disable-autorestart]
+                           [--tasks TASKS | --fs {local}] [--fs-help]
+                           [--kata]
                            backend
+
 
 .. option:: -h, --help
 
    Display the help message.
+
+.. option:: --friendly-name
+
+   Friendly name to help identify agent.
 
 .. option:: --debug-host DEBUG_HOST
 
@@ -43,7 +52,19 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
 
 .. option:: -v, --verbose
 
-   Increase output verbosity: logging level to DEBUG.
+   Increases output verbosity: logging level to DEBUG.
+
+.. option:: --debugmode
+
+   Enables debug mode. For developers only.
+
+.. option:: --disable-autorestart
+
+   Disables the auto restart on agent failure.
+
+.. option:: --kata
+
+   Uses kata-containers as runtime
 
 .. option:: backend
 

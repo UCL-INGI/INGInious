@@ -61,11 +61,12 @@ class DockerInterface(object):  # pragma: no cover
             try:
                 title = x.labels["org.inginious.grading.name"]
 
-                if x.labels.get("org.inginious.grading.agent") == self.type :
+                if self.type != "docker" or "org.inginious.grading.need_root" not in x.labels:
+                    logging.getLogger("inginious.agent").info("%s contains: %s", self.type, title)
                     if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
                         logging.getLogger("inginious.agent").warning(
                             "Container %s is made for an old/newer version of the %s agent (container version is %s, "
-                            "but it should be %i). INGInious will ignore the container.", self.type, title,
+                            "but it should be %i). INGInious will ignore the container.", title, self.type,
                             str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
                         continue
 
@@ -154,7 +155,6 @@ class DockerInterface(object):  # pragma: no cover
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
         course_common_student_path = os.path.abspath(course_common_student_path)
-
         response = self._docker.containers.create(
             environment,
             stdin_open=True,
@@ -170,8 +170,7 @@ class DockerInterface(object):  # pragma: no cover
                  systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
                  course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
-            runtime = self.runtime
-
+            runtime=self.runtime
         )
         return response.id
 

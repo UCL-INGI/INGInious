@@ -237,8 +237,12 @@ class Backend(object):
         # update information about available environments
         for environment_name, environment_info in message.available_environments.items():
             if environment_name in self._environments:
+                # check if the agent is the same
+                if self._environments[environment_name][3] != environment_info["type"]:
+                    # add this type of agent
+                    self._environments[environment_name][3].append(environment_info["type"])
                 # check if the id is the same
-                if self._environments[environment_name][0] == environment_info["id"]:
+                elif self._environments[environment_name][0] == environment_info["id"]:
                     # ok, just add the agent to the list of agents that have the environment
                     self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
                     self._environments[environment_name][2].append(agent_addr)
@@ -268,7 +272,7 @@ class Backend(object):
                 # just add it
                 self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
                 self._environments[environment_name] = (environment_info["id"], environment_info["created"], [agent_addr],
-                                                    environment_info["type"])
+                                                    [environment_info["type"]])
 
         # update the queue
         await self.update_queue()
