@@ -143,6 +143,20 @@ function filter_tag(tag) {
         }
     });
 }
+
+// Show and hide the section when click on dropdown button
+function dropdown(header) {
+    const content_div = $$(header).closest(".section").children(".content");
+    const button = $$(header).children(".dropdown_button")
+
+    if ($$(button).hasClass("fa-caret-down")) {
+        $$(button).removeClass("fa-caret-down").addClass("fa-caret-left");
+        content_div.slideUp('fast')
+    } else {
+        $$(button).removeClass("fa-caret-left").addClass("fa-caret-down");
+        content_div.slideDown('fast')
+    }
+}
 </script>
 
 <style>
@@ -156,6 +170,11 @@ function filter_tag(tag) {
       flex-grow: 1;
       border-bottom: 1px solid lightgrey;
       margin: 5px
+    }
+
+    /* Pointer for dropdown */
+    .section_header {
+        cursor: pointer;
     }
 </style>
 
@@ -175,6 +194,9 @@ $def print_non_terminal_section(section, level):
                 $:_(section.get_title())
             </span>
             <span class="divider"></span>
+
+            <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close pl-3">
+            </span>
         </div>
         <div class="content ml-4">
             $:print_section(section.get_sections_list(), level +1)
@@ -187,6 +209,9 @@ $def print_terminal_section(section, level):
         <div class="section_header card-header d-flex justify-content-between pr-3" onclick="dropdown(this)">
             <span class="title">
                 $:_(section.get_title())
+            </span>
+
+            <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close">
             </span>
         </div>
         <div class="content list-group list-group-flush">
