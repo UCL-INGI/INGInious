@@ -36,3 +36,7 @@ class TaskReaderNotFoundException(Exception):
 
 class ImportCourseException(Exception):
     pass
+
+
+class InvalidTocException(Exception):
+    pass
