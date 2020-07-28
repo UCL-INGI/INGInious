@@ -38,6 +38,14 @@ class SectionsList(object):
             tasks += section.get_tasks()
         return tasks
 
+    def remove_task(self, taskid):
+        """
+        Remve the task from the structure
+        :param taskid: the task id of the task
+        """
+        for section in self._sections:
+            section.remove_task(taskid)
+
     def to_structure(self):
         """
         :return: The structure in YAML format
@@ -95,6 +103,13 @@ class NonTerminalSection(Section):
         """
         return self._sections_list.get_tasks()
 
+    def remove_task(self, taskid):
+        """
+        Remve the task from the structure
+        :param taskid: the task id of the task
+        """
+        self._sections_list.remove_task(taskid)
+
     def to_structure(self, rank):
         """
         :return: The structure in YAML format
@@ -121,6 +136,14 @@ class TerminalSection(Section):
         :return: True if the section is empty false otherwise
         """
         return len(self._task_list) == 0
+
+    def remove_task(self, taskid):
+        """
+        Remve the task from the list of tasks if present
+        :param taskid: the task id of the task
+        """
+        if taskid in self._task_list:
+            self._task_list.remove(taskid)
 
     def to_structure(self, rank):
         """

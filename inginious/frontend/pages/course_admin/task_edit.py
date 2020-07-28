@@ -114,6 +114,9 @@ class CourseEditTask(INGIniousAdminPage):
 
         # Delete task ?
         if "delete" in data:
+            toc = course.get_toc()
+            toc.remove_task(taskid)
+            self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
             self.task_factory.delete_task(courseid, taskid)
             if data.get("wipe", False):
                 self.wipe_task(courseid, taskid)

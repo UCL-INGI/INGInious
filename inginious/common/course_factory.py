@@ -72,6 +72,18 @@ class CourseFactory(object):
         path = self._get_course_descriptor_path(courseid)
         self._filesystem.put(path, get_json_or_yaml(path, content))
 
+    def update_course_descriptor_element(self, courseid, key, value):
+        """
+        Updates the value for the key in the dict that describes the course
+        :param courseid: the course id of the course
+        :param key: the element to change in the dict
+        :param value: the new value that replaces the old one
+        :raise InvalidNameException, CourseNotFoundException
+        """
+        course_structure = self.get_course_descriptor_content(courseid)
+        course_structure[key] = value
+        self.update_course_descriptor_content(courseid, course_structure)
+
     def get_course_fs(self, courseid):
         """
         :param courseid: 
