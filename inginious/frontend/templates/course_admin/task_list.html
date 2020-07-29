@@ -117,7 +117,9 @@ $def section_menu(tasks_list_option, sections_list_option):
                 class="button fa fa-bars close border-transparent" data-toggle="dropdown">
         </button>
         <div class="dropdown-menu dropdown-menu-right rounded">
-
+            <a class="rename dropdown-item" onclick="rename_section($$(this).closest('.section_header').children('.title'))">
+                <i class="fa fa-pencil"></i> $:_("Rename")
+            </a>
         </div>
     </div>
 

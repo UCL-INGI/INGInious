@@ -3,6 +3,28 @@
 // more information about the licensing of this file.
 //
 
+/*****************************
+ *     Renaming Elements     *
+ *****************************/
+function rename_section(element) {
+    element.hide();
+
+    input = $("<input>").attr({value: element.text().trim(), class: "form-control"}).insertBefore(element);
+    input.focus().select();
+
+    quit = function () {
+        element.text(input.val()).show();
+        input.remove();
+    };
+
+    input.focusout(quit);
+    input.keyup(function (e) {
+        if (e.keyCode === 13) {
+            quit();
+        }
+    });
+}
+
 /**********************
  *  Submit structure  *
  **********************/
