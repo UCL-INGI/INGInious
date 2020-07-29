@@ -63,9 +63,6 @@ class Task(object):
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
-        # Order
-        self._order = int(self._data.get('order', -1))
-
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 
@@ -81,7 +78,11 @@ class Task(object):
 
     def get_order(self):
         """ Get the position of this task in the course """
-        return self._order
+        tasks_id = self._course.get_toc().get_tasks()
+        if self._taskid in tasks_id:
+            return tasks_id.index(self._taskid)
+        else:
+            return len(tasks_id)
 
     def get_environment_id(self):
         """ Returns the environment in which the agent have to launch this task"""
