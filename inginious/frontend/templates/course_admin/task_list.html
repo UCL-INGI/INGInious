@@ -1,4 +1,4 @@
-$def with (course, course_structure, tasks, errors)
+$def with (course, course_structure, tasks, errors, validated)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -137,8 +137,21 @@ $def task_buttons(taskid):
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                 $error
             </div>
+    $elif validated:
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            $:_("Change saved.")
+        </div>
 
     <div class="content">
         $:print_section(course_structure, 3)
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-primary btn-block" onclick="submit();">
+            <i class="fa fa-download"></i> $:_("Save changes")
+        </button>
     </div>
 </div>
