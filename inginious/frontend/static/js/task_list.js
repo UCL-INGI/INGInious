@@ -40,6 +40,63 @@ function create_section(parent) {
     rename_section(section.find(".title"), true);
 }
 
+/*****************************
+ *  Adding task to sections  *
+ *****************************/
+function open_task_modal(target) {
+    $('#submit_new_tasks').attr('data-target', target.closest('.section').id);
+    $('#new_task_id').attr('data-target', target.closest('.section').id.to_section_id());
+
+    var placed_task = [];
+    $('.task').each(function () {
+        placed_task.push(this.id.to_taskid());
+    });
+
+    $("#modal_task_list .modal_task").filter(function () {
+        // remove task already placed in the structure
+        const is_placed = placed_task.includes($(this).children("input").val());
+        $(this).toggle(!is_placed);
+        $(this).toggleClass("disable", is_placed);
+
+        // reset the selection
+        $(this).children("input").attr("checked", false);
+        $(this).removeClass("bg-primary text-white");
+    });
+
+    var no_task_avalaible = $("#modal_task_list .modal_task").not(".disable").length === 0;
+    $("#searchTask").val("").toggle(!no_task_avalaible);
+    $("#no_task_available").toggle(no_task_avalaible);
+}
+
+function search_task(search_field) {
+    var value = $(search_field).val().toLowerCase();
+    $("#modal_task_list .modal_task").filter(function () {
+        const match_search = $(this).children(".task_name").text().toLowerCase().indexOf(value) > -1;
+        const is_unplaced = !$(this).hasClass("disable");
+        $(this).toggle(match_search && is_unplaced);
+    });
+}
+
+function click_modal_task(task) {
+    $(task).toggleClass("bg-primary text-white");
+    const input = $(task).find("input");
+    input.attr("checked", !input.attr("checked"));
+}
+
+function add_tasks_to_section(button) {
+    var selected_tasks = [];
+    $.each($("input[name='task']:checked"), function () {
+        selected_tasks.push($(this).val());
+    });
+
+    const section = $("#" + $(button).attr('data-target'));
+    const content = section.children(".content");
+
+    for (var i = 0; i < selected_tasks.length; i++) {
+        content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
+    }
+}
+
 /**********************
  *  Submit structure  *
  **********************/

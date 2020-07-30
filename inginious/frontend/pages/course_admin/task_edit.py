@@ -59,6 +59,7 @@ class CourseEditTask(INGIniousAdminPage):
 
         additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
                                                         task_data=task_data, template_helper=self.template_helper)
+        sectionid = web.input().get("sectionid", None)
 
         return self.template_helper.get_renderer().course_admin.task_edit(
             course,
@@ -73,7 +74,8 @@ class CourseEditTask(INGIniousAdminPage):
             available_filetypes,
             AccessibleTime,
             CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
-            additional_tabs
+            additional_tabs,
+            sectionid
         )
 
     @classmethod
@@ -281,5 +283,9 @@ class CourseEditTask(INGIniousAdminPage):
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
+        if "sectionid" in data:
+            toc = course.get_toc()
+            toc.add_task(taskid, data["sectionid"])
+            self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
 
         return json.dumps({"status": "ok"})

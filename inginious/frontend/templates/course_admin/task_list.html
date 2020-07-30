@@ -34,8 +34,15 @@ $var Navbar: $:NavbarF()
       margin: 5px
     }
 
+    /* limit modal size */
+    #modal_task_list {
+        max-height: 400px;
+        overflow: auto
+    }
+
     /* only display option applicable to the type of section */
-    .sections_list_option { display: none; }
+    .tasks_list_option, .sections_list_option { display: none; }
+    .tasks_list >div>div>div> .tasks_list_option { display: block; }
     .sections_list >div>div>div> .sections_list_option { display: block; }
 </style>
 
@@ -121,6 +128,9 @@ $def section_menu(tasks_list_option, sections_list_option):
                 class="button fa fa-bars close border-transparent" data-toggle="dropdown">
         </button>
         <div class="dropdown-menu dropdown-menu-right rounded">
+            <a class="add_task tasks_list_option dropdown-item" onclick="open_task_modal(this)" data-toggle="modal" data-target="#addTaskModal">
+                <i class="fa fa-plus"></i> $:_("Add tasks")
+            </a>
             <a class="add_section sections_list_option dropdown-item" onclick="create_section($$(this).closest('.section'))">
                 <i class="fa fa-plus"></i> $:_("Add subsection")
             </a>
@@ -175,5 +185,53 @@ $def task_buttons(taskid):
     </div>
 </div>
 
+<!-- Modals -->
+<div class="modal fade" id="addTaskModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">$_("Add tasks")</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body list-group">
+                <h4>$_("Create new task")</h4>
+                <div class="form-group row">
+                    <div class="col-sm-8"><input type="text" class="form-control" id="new_task_id" placeholder=$:_('"New task id"')/></div>
+                    <div class="col-sm-4"><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">$:_("Create new task")</a></div>
+                </div>
+                <h4>$_("Import from course filesystem")</h4>
+                <input id="searchTask" class="form-control" type="text" placeholder='$_("Search..")' onkeyup="search_task(this)">
+                <p id="no_task_available" class="text-center align-middle font-weight-bold">
+                    $_("No unassigned tasks in the filesystem of this course")
+                </p>
+                <br>
+                <div id="modal_task_list">
+                    $for taskid in tasks
+                    <div class="modal_task list-group-item list-group-item-action" onclick="click_modal_task(this)">
+                        <span class="task_name"> $tasks[taskid]["name"]</span> <br>
+                        <input style="display: none" type="checkbox" name="task" value="$:(taskid)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="submit_new_tasks" onclick="add_tasks_to_section(this)" type="button" class="btn btn-success" data-dismiss="modal">$_("Add")</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <!-- Invisible element (for copy) -->
 $:print_empty_section("empty_section", "New section",  0, hidden=True)
+
+<div id="all_tasks" style="display: none">
+    $for taskid in tasks
+    <div id="task_$:(taskid)_clone" class="task handle list-group-item list-group-item-action d-flex">
+        <div class="task_name p-0">
+            $tasks[taskid]["name"]
+        </div>
+        <div class="ml-auto">
+            $:task_buttons(taskid)
+        </div>
+    </div>
+</div>
