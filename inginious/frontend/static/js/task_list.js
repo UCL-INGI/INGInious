@@ -40,6 +40,7 @@ function create_section(parent) {
     const section = $("#empty_section").clone().show().appendTo(parent.children(".content"));
     section.attr("data-level", level + 1);
 
+    content_modified(parent);
     rename_section(section.find(".title"), true);
 }
 
@@ -98,6 +99,8 @@ function add_tasks_to_section(button) {
     for (var i = 0; i < selected_tasks.length; i++) {
         content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
     }
+
+    content_modified(section);
 }
 
 /*********************
@@ -116,6 +119,7 @@ function open_delete_modal(button) {
 
 function delete_section(button, keep_files=false) {
     const section = $("#" + button.getAttribute('data-target'));
+    const parent = section.parent().closest(".sections_list");
     const wipe = $('#delete_section_modal .wipe_tasks').prop("checked");
 
 
@@ -130,6 +134,8 @@ function delete_section(button, keep_files=false) {
         }
     });
     section.remove()
+
+    content_modified(parent);
 }
 
 function delete_task(button, keep_files=false, taskid=""){
@@ -146,7 +152,53 @@ function delete_task(button, keep_files=false, taskid=""){
     if(wipe){
         wiped_tasks.push(taskid)
     }
-    $("#task_" + taskid).remove()
+    const task = $("#task_" + taskid);
+    const parent = task.closest(".tasks_list");
+    task.remove()
+    content_modified(parent);
+}
+
+/*******************************
+ *  Adapt structure to change  *
+ *******************************/
+function content_modified(section) {
+    if(section.hasClass("sections_list") && section.hasClass("tasks_list")){
+        if(section.children(".content").children(".section").length){
+            empty_to_subsections(section);
+        }
+        if(section.children(".content").children(".task").length){
+            empty_to_tasks(section);
+        }
+    } else if (section.hasClass("section") && section.children(".content").children().length === 0){
+        section_to_empty(section);
+    }
+}
+
+function section_to_empty(section) {
+    section.addClass("sections_list tasks_list card");
+    const header = section.children(".section_header").removeClass("divided").addClass("card-header");
+    header.children(".title").attr("class", "title");
+    header.children(".divider").hide();
+
+    const text_placeholder = $("#empty_section").find(".section_placeholder").html().trim();
+    const para = $("<p>").attr("class", "section_placeholder text-center align-middle m-2").html(text_placeholder);
+    section.children(".content").removeClass("ml-4").addClass("list-group list-group-flush").append(para);
+}
+
+function empty_to_subsections(section) {
+    const  level = Number($(section).attr("data-level"));
+
+    section.removeClass("tasks_list card");
+    const section_header = section.children(".section_header").removeClass("card-header").addClass("divided");
+    section_header.children(".title").attr("class", "title h" + level + " mr-3");
+    section_header.children(".divider").show();
+
+    section.children(".content").removeClass("list-group list-group-flush").addClass("ml-4").children(".section_placeholder").remove();
+}
+
+function empty_to_tasks(section) {
+    section.removeClass("sections_list");
+    section.find(".section_placeholder").remove();
 }
 
 /**********************
