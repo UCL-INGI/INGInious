@@ -9,6 +9,7 @@ var dragged_from;
 var draggable_sections = {};
 var draggable_tasks = {};
 var timeouts = [],  lastenter;
+var warn_before_exit = false;
 
 /*****************************
  *     Renaming Elements     *
@@ -29,6 +30,7 @@ function rename_section(element, new_section = false) {
             draggable_sections[section[0].id] = make_sections_list_sortable(section);
             draggable_tasks[section[0].id] = make_tasks_list_sortable(section);
         }
+        warn_before_exit = true;
     };
 
     input.focusout(quit);
@@ -46,6 +48,7 @@ function create_section(parent) {
     const level = Number(parent.attr("data-level"));
 
     const section = $("#empty_section").clone().show().appendTo(parent.children(".content"));
+    warn_before_exit = true;
     section.attr("data-level", level + 1);
 
     content_modified(parent);
@@ -105,6 +108,7 @@ function add_tasks_to_section(button) {
     const content = section.children(".content");
 
     for (var i = 0; i < selected_tasks.length; i++) {
+        warn_before_exit = true;
         content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
     }
 
@@ -143,6 +147,7 @@ function delete_section(button, keep_files=false) {
     });
     section.remove()
 
+    warn_before_exit = true;
     content_modified(parent);
 }
 
@@ -163,6 +168,8 @@ function delete_task(button, keep_files=false, taskid=""){
     const task = $("#task_" + taskid);
     const parent = task.closest(".tasks_list");
     task.remove()
+
+    warn_before_exit = true;
     content_modified(parent);
 }
 
@@ -280,6 +287,7 @@ function make_tasks_list_sortable(element) {
         onEnd: function (evt) {
             $('.tasks_list').children('.content').slideDown('fast');
             $('.tasks_list').children('.section_header').off('dragenter').off('dragleave');
+            warn_before_exit = true;
             evt.to.parentElement.scrollIntoView();
         },
     });
@@ -302,6 +310,7 @@ function make_sections_list_sortable(element) {
         onEnd: function (evt) {
             $(evt.item).children('.content').slideDown('fast');
             $('.tasks_list').children('.content').slideDown('fast');
+            warn_before_exit = true;
             evt.item.scrollIntoView();
         },
         onChange: function (evt) {
@@ -345,6 +354,7 @@ function get_tasks_list(element) {
 
 function submit() {
     const structure_json = JSON.stringify(get_sections_list($('#course_structure').children(".content")));
+    warn_before_exit = false;
     $("<form>").attr("method", "post").appendTo($("#course_structure")).hide()
         .append($("<input>").attr("name", "course_structure").val(structure_json))
         .append($("<input>").attr("name", "deleted_tasks").val(JSON.stringify(deleted_tasks)))
@@ -373,3 +383,14 @@ String.prototype.to_taskid = function () {
 String.prototype.to_section_id = function () {
     return this.slice(8);
 };
+
+/************************
+ *   Warn before exit   *
+ ************************/
+$(window).bind('beforeunload', function(){
+    if(warn_before_exit){
+        return 'All change will be lost! Are you sure you want to leave?';
+    } else {
+        return undefined;
+    }
+});
