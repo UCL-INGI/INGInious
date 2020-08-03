@@ -3,6 +3,9 @@
 // more information about the licensing of this file.
 //
 
+var deleted_tasks = [];
+var wiped_tasks = [];
+
 /*****************************
  *     Renaming Elements     *
  *****************************/
@@ -97,6 +100,55 @@ function add_tasks_to_section(button) {
     }
 }
 
+/*********************
+ *  Delete elements  *
+ *********************/
+function open_delete_modal(button) {
+    if($(button).hasClass("delete_section")) {
+        $('#delete_section_modal .submit').attr('data-target', button.closest('.section').id);
+        $('#delete_section_modal .wipe_tasks').prop("checked", false);
+
+    } else if($(button).hasClass("delete_task")){
+        $('#delete_task_modal .submit').attr('data-target', button.closest('.task').id);
+        $('#delete_task_modal .wipe_tasks').prop("checked", false);
+    }
+}
+
+function delete_section(button, keep_files=false) {
+    const section = $("#" + button.getAttribute('data-target'));
+    const wipe = $('#delete_section_modal .wipe_tasks').prop("checked");
+
+
+    section.find(".task").each(function () {
+        const taskid = this.id.to_taskid();
+        if(!keep_files){
+            $("#modal_task_" + taskid).remove()
+            deleted_tasks.push(taskid)
+        }
+        if(wipe){
+            wiped_tasks.push(taskid)
+        }
+    });
+    section.remove()
+}
+
+function delete_task(button, keep_files=false, taskid=""){
+    $(button).mouseleave().focusout();
+    var wipe = false;
+    if(!taskid) {
+        taskid = button.getAttribute('data-target').to_taskid();
+        wipe = $('#delete_task_modal .wipe_tasks').prop("checked");
+    }
+    if(!keep_files){
+        $("#modal_task_" + taskid).remove()
+        deleted_tasks.push(taskid)
+    }
+    if(wipe){
+        wiped_tasks.push(taskid)
+    }
+    $("#task_" + taskid).remove()
+}
+
 /**********************
  *  Submit structure  *
  **********************/
@@ -128,7 +180,9 @@ function get_tasks_list(element) {
 function submit() {
     const structure_json = JSON.stringify(get_sections_list($('#course_structure').children(".content")));
     $("<form>").attr("method", "post").appendTo($("#course_structure")).hide()
-        .append($("<input>").attr("name", "course_structure").val(structure_json)).submit();
+        .append($("<input>").attr("name", "course_structure").val(structure_json))
+        .append($("<input>").attr("name", "deleted_tasks").val(JSON.stringify(deleted_tasks)))
+        .append($("<input>").attr("name", "wiped_tasks").val(JSON.stringify(wiped_tasks))).submit();
 }
 
 /************************

@@ -100,6 +100,10 @@ $def print_terminal_section(section, level):
                             $_("No valid task with id:") $taskid
                         </div>
                         <div class="ml-auto">
+                            <button class="delete_task btn bg-transparent p-0" onclick="delete_task(this, true, this.closest('.task').id.to_taskid())"
+                                    title=$:_('"Delete invalid task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
+                                <i class="fa fa-trash text-muted "></i>
+                            </button>
                         </div>
                     </div>
         </div>
@@ -137,6 +141,9 @@ $def section_menu(tasks_list_option, sections_list_option):
             <a class="rename dropdown-item" onclick="rename_section($$(this).closest('.section_header').children('.title'))">
                 <i class="fa fa-pencil"></i> $:_("Rename")
             </a>
+            <a class="delete_section dropdown-item" data-toggle="modal" data-target="#delete_section_modal" onclick="open_delete_modal(this)">
+                <i class="fa fa-trash"></i> $:_("Delete")
+            </a>
         </div>
     </div>
 
@@ -145,6 +152,10 @@ $def task_buttons(taskid):
             title=$:_('"Edit task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-pencil text-muted "></i>
     </a>
+    <button class="delete_task btn bg-transparent p-0" data-toggle="modal" data-target="#delete_task_modal" onclick="open_delete_modal(this)"
+            title=$:_('"Delete task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
+        <i class="fa fa-trash text-muted "></i>
+    </button>
 
 <!-- Content -->
 <div id="course_structure" data-level="2" class="sections_list pb-3">
@@ -185,7 +196,45 @@ $def task_buttons(taskid):
     </div>
 </div>
 
-<!-- Modals -->
+$def delete_modal(section=True):
+    <div id="$('delete_section_modal' if section else 'delete_task_modal')" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        $if section:
+                            <h4 class="modal-title">$:_("Delete section")</h4>
+                        $else:
+                            <h4 class="modal-title">$:_("Delete task")</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        $if section:
+                            <p>$:_("Once saved, this will <b>permanently</b> delete this section, all its subsections and remove all the tasks and their files from INGInious.")</p>
+                        $else:
+                            <p>$:_("Once saved, this will <b>permanently</b> remove the task and its files from INGInious.")</p>
+
+                        <div class="form-check">
+                            <input class="wipe_tasks form-check-input" type="checkbox">
+                            <label  class="form-check-label">$:_("Wipe all submissions")</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
+                        $if section:
+                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_section(this, true)">$:_("Keep files")</button>
+                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_section(this)">$:_("Delete section")</button>
+                        $else:
+                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_task(this, true)">$:_("Keep files")</button>
+                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_task(this)">$:_("Delete task")</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+$:delete_modal()
+$:delete_modal(section=False)
+
+
 <div class="modal fade" id="addTaskModal" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -207,7 +256,7 @@ $def task_buttons(taskid):
                 <br>
                 <div id="modal_task_list">
                     $for taskid in tasks
-                    <div class="modal_task list-group-item list-group-item-action" onclick="click_modal_task(this)">
+                    <div id= "modal_task_$:(taskid)" class="modal_task list-group-item list-group-item-action" onclick="click_modal_task(this)">
                         <span class="task_name"> $tasks[taskid]["name"]</span> <br>
                         <input style="display: none" type="checkbox" name="task" value="$:(taskid)">
                     </div>

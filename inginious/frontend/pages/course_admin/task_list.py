@@ -3,8 +3,10 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 import json
+import logging
 from collections import OrderedDict
 
+import bson
 import web
 
 from inginious.common.toc import check_toc
@@ -23,8 +25,8 @@ class CourseTaskListPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         errors = []
+        user_input = web.input()
         try:
-            user_input = web.input()
             new_toc = json.loads(user_input["course_structure"])
             valid, message = check_toc(new_toc)
             if valid:
@@ -35,11 +37,35 @@ class CourseTaskListPage(INGIniousAdminPage):
         except:
             errors.append("Something wrong happened")
 
+        for taskid in json.loads(user_input["deleted_tasks"]):
+            try:
+                self.task_factory.delete_task(courseid, taskid)
+            except:
+                errors.append("Couldn't delete task: " + taskid)
+        for taskid in json.loads(user_input["wiped_tasks"]):
+            try:
+                self.wipe_task(courseid, taskid)
+            except:
+                errors.append("Couldn't wipe task: " + taskid)
+
         return self.page(course, errors, not errors)
 
     def submission_url_generator(self, taskid):
         """ Generates a submission url """
         return "?format=taskid%2Fusername&tasks=" + taskid
+
+    def wipe_task(self, courseid, taskid):
+        """ Wipe the data associated to the taskid from DB"""
+        submissions = self.database.submissions.find({"courseid": courseid, "taskid": taskid})
+        for submission in submissions:
+            for key in ["input", "archive"]:
+                if key in submission and type(submission[key]) == bson.objectid.ObjectId:
+                    self.submission_manager.get_gridfs().delete(submission[key])
+
+        self.database.user_tasks.remove({"courseid": courseid, "taskid": taskid})
+        self.database.submissions.remove({"courseid": courseid, "taskid": taskid})
+
+        logging.getLogger("inginious.webapp.task_edit").info("Task %s/%s wiped.", courseid, taskid)
 
     def page(self, course, errors=None, validated=False):
         """ Get all data and display the page """
