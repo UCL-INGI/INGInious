@@ -23,6 +23,10 @@ $var Navbar: $:NavbarF()
 
 
 <style>
+    /* remove ghost when dragging and change cursor for draggable element */
+    .sortable-drag { opacity: 0; }
+    .handle { cursor: move; }
+
     /* line for sections */
     .divided {
       display: flex;
@@ -45,6 +49,14 @@ $var Navbar: $:NavbarF()
     .tasks_list >div>div>div> .tasks_list_option { display: block; }
     .sections_list >div>div>div> .sections_list_option { display: block; }
 </style>
+
+<script>
+    $$(function () {
+        $$(".tasks_list").each(function(){
+            draggable_tasks[this.id] = make_tasks_list_sortable($$(this));
+        });
+    });
+</script>
 
 <!-- Methods to print structure -->
 $def print_section(sections, level):
@@ -121,7 +133,7 @@ $def print_empty_section(id, title, level, hidden=False):
         </div>
         <div data-level="0" class="content list-group list-group-flush">
             <p class="section_placeholder text-center align-middle m-2">
-                $:_("This section is empty.")
+                $:_("Drag tasks here.")
             </p>
         </div>
     </div>

@@ -5,6 +5,9 @@
 
 var deleted_tasks = [];
 var wiped_tasks = [];
+var dragged_from;
+var draggable_tasks = {};
+var timeouts = [],  lastenter;
 
 /*****************************
  *     Renaming Elements     *
@@ -19,7 +22,8 @@ function rename_section(element, new_section = false) {
         element.text(input.val()).show();
         input.remove();
         if(new_section) {
-            $(element).closest(".section").attr("id","section_"+string_to_id(input.val()));
+            var section = $(element).closest(".section").attr("id","section_"+string_to_id(input.val()));
+            draggable_tasks[section[0].id] = make_tasks_list_sortable(section);
         }
     };
 
@@ -165,11 +169,15 @@ function content_modified(section) {
     if(section.hasClass("sections_list") && section.hasClass("tasks_list")){
         if(section.children(".content").children(".section").length){
             empty_to_subsections(section);
+            draggable_tasks[section[0].id].option("disabled", true);
         }
         if(section.children(".content").children(".task").length){
             empty_to_tasks(section);
         }
     } else if (section.hasClass("section") && section.children(".content").children().length === 0){
+        if(section.hasClass("sections_list")) {
+            draggable_tasks[section[0].id] = make_tasks_list_sortable(section);
+        }
         section_to_empty(section);
     }
 }
@@ -200,6 +208,60 @@ function empty_to_tasks(section) {
     section.removeClass("sections_list");
     section.find(".section_placeholder").remove();
 }
+
+/****************************
+ *  Drag and drop elements  *
+ ****************************/
+function make_tasks_list_sortable(element) {
+    return new Sortable(element.children(".content")[0], {
+        group: 'tasks_list',
+        animation: 150,
+        fallbackOnBody: false,
+        swapThreshold: 0.1,
+        dragoverBubble: true,
+        handle: ".handle",
+        onStart: function (evt) {
+            dragged_from = evt.from;
+
+            // open sections when exo hover it for more than 0.7s
+            $('.tasks_list').children('.section_header').on({
+                dragenter: function(event){
+                    const list = $(this).closest(".section").children('.content');
+                    lastenter = event.target;
+                    timeouts.push(setTimeout(function(){
+                        list.slideDown('fast');
+                    }, 700));
+
+                },
+                dragleave: function(event){
+                    // dragleave is fired when hover child
+                    if(event.target == lastenter) {
+                        for (var i=0; i<timeouts.length; i++) {
+                          clearTimeout(timeouts[i]);
+                        }
+                    }
+                }});
+        },
+        onChange: function (evt) {
+            content_modified($(dragged_from).closest(".section"));
+            content_modified($(evt.to).closest(".section"));
+
+            $('.tasks_list').children('.content').each(function(){
+                if(this != evt.to ){
+                    $(this).slideUp('fast');
+                }
+            });
+
+            dragged_from = evt.to;
+        },
+        onEnd: function (evt) {
+            $('.tasks_list').children('.content').slideDown('fast');
+            $('.tasks_list').children('.section_header').off('dragenter').off('dragleave');
+            evt.to.parentElement.scrollIntoView();
+        },
+    });
+}
+
 
 /**********************
  *  Submit structure  *
