@@ -6,6 +6,7 @@
 var deleted_tasks = [];
 var wiped_tasks = [];
 var dragged_from;
+var draggable_sections = {};
 var draggable_tasks = {};
 var timeouts = [],  lastenter;
 
@@ -13,6 +14,7 @@ var timeouts = [],  lastenter;
  *     Renaming Elements     *
  *****************************/
 function rename_section(element, new_section = false) {
+    handle = $(element).closest(".handle").removeClass("handle");
     element.hide();
 
     input = $("<input>").attr({value: element.text().trim(), class: "form-control"}).insertBefore(element);
@@ -21,8 +23,10 @@ function rename_section(element, new_section = false) {
     quit = function () {
         element.text(input.val()).show();
         input.remove();
+        handle.addClass("handle");
         if(new_section) {
             var section = $(element).closest(".section").attr("id","section_"+string_to_id(input.val()));
+            draggable_sections[section[0].id] = make_sections_list_sortable(section);
             draggable_tasks[section[0].id] = make_tasks_list_sortable(section);
         }
     };
@@ -165,6 +169,21 @@ function delete_task(button, keep_files=false, taskid=""){
 /*******************************
  *  Adapt structure to change  *
  *******************************/
+function adapt_size(element) {
+    const level = Number($(element).parent().closest(".sections_list").attr("data-level")) + 1;
+    $(element).attr("data-level", level);
+
+    const title = $(element).children(".section_header").find(".title");
+    if (/h\d/.test(title.attr("class"))) {
+        title.attr("class", "title h" + level + " mr-3")
+    }
+
+    $(element).children(".content").children(".section").each(function () {
+        adapt_size(this, level + 1)
+    });
+}
+
+
 function content_modified(section) {
     if(section.hasClass("sections_list") && section.hasClass("tasks_list")){
         if(section.children(".content").children(".section").length){
@@ -173,10 +192,14 @@ function content_modified(section) {
         }
         if(section.children(".content").children(".task").length){
             empty_to_tasks(section);
+            draggable_sections[section[0].id].option("disabled", true);
         }
     } else if (section.hasClass("section") && section.children(".content").children().length === 0){
         if(section.hasClass("sections_list")) {
             draggable_tasks[section[0].id] = make_tasks_list_sortable(section);
+        }
+        if(section.hasClass("tasks_list")) {
+            draggable_sections[section[0].id] = make_sections_list_sortable(section);
         }
         section_to_empty(section);
     }
@@ -259,6 +282,35 @@ function make_tasks_list_sortable(element) {
             $('.tasks_list').children('.section_header').off('dragenter').off('dragleave');
             evt.to.parentElement.scrollIntoView();
         },
+    });
+}
+
+
+function make_sections_list_sortable(element) {
+    return new Sortable(element.children(".content")[0], {
+        group: 'sections_list',
+        animation: 150,
+        fallbackOnBody: false,
+        swapThreshold: 0.1,
+        dragoverBubble: true,
+        handle: ".handle",
+        onStart: function (evt) {
+            $(evt.item).children('.content').slideUp('fast');
+            $('.tasks_list').not('.sections_list').children('.content').slideUp('fast');
+            dragged_from = evt.from;
+        },
+        onEnd: function (evt) {
+            $(evt.item).children('.content').slideDown('fast');
+            $('.tasks_list').children('.content').slideDown('fast');
+            evt.item.scrollIntoView();
+        },
+        onChange: function (evt) {
+            adapt_size(evt.item);
+            content_modified($(dragged_from).closest(".section"));
+            content_modified($(evt.to).closest(".section"));
+
+            dragged_from = evt.to;
+        }
     });
 }
 
