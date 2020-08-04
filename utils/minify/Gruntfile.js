@@ -17,7 +17,6 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/libs/bootstrap.min.js',
                         '../../inginious/frontend/static/js/libs/moment.min.js',
                         '../../inginious/frontend/static/js/libs/bootstrap-datetimepicker.min.js',
-                        '../../inginious/frontend/static/js/libs/jquery-sortable.min.js',
                         '../../inginious/frontend/static/js/libs/Sortable.min.js',
                         '../../inginious/frontend/static/js/codemirror/codemirror.js',
                         '../../inginious/frontend/static/js/codemirror/mode/meta.js',

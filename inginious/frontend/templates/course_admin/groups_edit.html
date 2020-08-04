@@ -242,13 +242,21 @@ $elif msg:
     <button name="update" class="btn btn-primary btn-block" onclick="javascript:groups_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
 </form>
 
+<style>
+    /* remove ghost when dragging and change cursor for draggable element */
+    .sortable-drag { opacity: 0; }
+    .handle { cursor: move; }
+</style>
+
 <!-- Javascript for managing student lists -->
 <script type="text/javascript">
 $$(document).ready(function() {
     if(!$$("#audience_list").val())
         $$("#audience_list").prop("disabled", true);
 
-    $$("ul.students").sortable({group:"students"});
+    $$("ul.students").each(function(){
+        new Sortable(this, {group:"students"})
+    });
     $$("ul.students").bind("DOMSubtreeModified", function() {group_update($$(this).parent())});
     $$("input[id='size']").on('keyup click',function() {group_update($$(this).rparent(5))});
 });
