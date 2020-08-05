@@ -52,7 +52,7 @@ class MCQAgent(Agent):
             self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
             raise CannotCreateJobException("Task is not available on this agent")
 
-        result, need_emul, text, problems, error_count, mcq_error_count = task.check_answer(msg.inputdata, language)
+        result, need_emul, text, problems, error_count, mcq_error_count, state = task.check_answer(msg.inputdata, language)
 
         internal_messages = {
             "_wrong_answer_multiple": _("Wrong answer. Make sure to select all the valid possibilities"),
@@ -80,7 +80,7 @@ class MCQAgent(Agent):
             await self.send_job_result(msg.job_id, "crashed", "\n".join(text), grade, problems, {}, {}, "", None)
         else:
             grade = 100.0 * float(nb_subproblems - error_count) / float(nb_subproblems)
-            await self.send_job_result(msg.job_id, ("success" if result else "failed"), "\n".join(text), grade, problems, {}, {}, "", None)
+            await self.send_job_result(msg.job_id, ("success" if result else "failed"), "\n".join(text), grade, problems, {}, {}, state, None)
 
     async def kill_job(self, message: BackendKillJob):
         pass

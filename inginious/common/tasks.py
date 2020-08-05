@@ -5,6 +5,7 @@
 
 """ Task """
 import gettext
+import json
 
 from inginious.common.base import id_checker
 from inginious.common.hook_manager import HookManager
@@ -142,8 +143,10 @@ class Task(object):
         problem_messages = {}
         error_count = 0
         multiple_choice_error_count = 0
+        states = {}
         for problem in self._problems:
-            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input, language)
+            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count, state = problem.check_answer(task_input, language)
+            states[problem.get_id()] = state
             if problem_is_valid is None:
                 need_launch = True
             elif problem_is_valid == False:
@@ -154,7 +157,7 @@ class Task(object):
             if problem_s_messages is not None:
                 problem_messages[problem.get_id()] = (("success" if problem_is_valid else "failed"), problem_s_messages)
             multiple_choice_error_count += problem_mc_error_count
-        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count
+        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, json.dumps(states)
 
     def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""

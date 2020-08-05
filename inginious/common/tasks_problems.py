@@ -39,8 +39,9 @@ class Problem(object, metaclass=ABCMeta):
             the second is the error message assigned to the task, if any (unused for now)
             the third is the error message assigned to this problem, if any
             the fourth is the number of errors in MCQ; should be zero when not a MCQ.
+            the fifth is the problem state (a string send in the input at next submission).
         """
-        return True, None, None, 0
+        return True, None, None, 0, ""
 
     @classmethod
     @abstractmethod
@@ -115,7 +116,7 @@ class CodeProblem(Problem):
         return "code"
 
     def check_answer(self, _, __):
-        return None, None, None, 0
+        return None, None, None, 0, ""
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         try:
@@ -164,7 +165,7 @@ class FileProblem(Problem):
         return dict
 
     def check_answer(self, _, __):
-        return None, None, None, 0
+        return None, None, None, 0, ""
 
     @classmethod
     def get_type(cls):
@@ -316,17 +317,17 @@ class MultipleChoiceProblem(Problem):
                 msgs = ["_wrong_answer_multiple" if self._multiple else "_wrong_answer"] + msgs
 
             if len(msgs) != 0:
-                return False, None, msgs, invalid_count
+                return False, None, msgs, invalid_count, ""
             else:
-                return False, None, None, invalid_count
+                return False, None, None, invalid_count, ""
 
         if self._success_message is not None:
             msgs = [self.gettext(language, self._success_message)] + msgs
 
         if len(msgs) != 0:
-            return True, None, msgs, 0
+            return True, None, msgs, 0, ""
         else:
-            return True, None, None, 0
+            return True, None, None, 0, ""
 
     @classmethod
     def parse_problem(self, problem_content):
@@ -380,9 +381,9 @@ class MatchProblem(Problem):
 
     def check_answer(self, task_input, language):
         if task_input[self.get_id()].strip() == self._answer:
-            return True, None, ["_correct_answer"], 0
+            return True, None, ["_correct_answer"], 0, ""
         else:
-            return False, None, ["_wrong_answer"], 0
+            return False, None, ["_wrong_answer"], 0, ""
 
     @classmethod
     def parse_problem(self, problem_content):
