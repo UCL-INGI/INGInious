@@ -30,7 +30,7 @@ class DockerEnvType(FrontendEnvType):
             try:
                 limits['time'] = int(data["limits"].get("time", 20))
                 hard_time = data["limits"].get("hard_time", '')
-                if hard_time.strip() == '':
+                if str(hard_time).strip() == '':
                     hard_time = 3*limits['time']
                 else:
                     hard_time = int(hard_time)
