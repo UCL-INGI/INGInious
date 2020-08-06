@@ -1,18 +1,101 @@
-$def with ()
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-
-$var title: $:_("Marketplace")
-
-$def NavbarF():
+{% extends "layout_jinja.html" %}
+{% block title %}{{_("Marketplace") }}{% endblock %}}
+{% block column %}
+    {% if not user_manager.session_logged_in() %}
+        {% include "signin_button_jinja.html" %}
+    {% else %}
+        <h3> {{ _("How to use") }}</h3>
+        <div class="alert alert-warning" role="alert">
+            {{ _("This page list all the course that are publicly avalaible. When you click import, it will create a new course on your INGInious instance. You will be admin of this new course and it will contain all the tasks and the structure of the imported course") }}
+        </div>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/mycourses">
+                <i class="fa fa-fw fa-th-list"></i>
+                {{ _("My courses") }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-shopping-bag"></i> $:_("Marketplace")
-                <span class="sr-only">$:_("(current)")</span></a>
-            </li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}
+                <span class="sr-only">{{_("(current)")}}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
+
+{% block content %}
+    <h2>{{ _("Marketplace") }}</h2>
+    {% for error in errors %}
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ error }}
+        </div>
+    {% endfor %}
+    <div id="templates_div" class="card-deck m-0">
+        {% set username = user_manager.session_username() %}
+        {% if courses |length !=0 %}
+            {% for courseid, course in courses.items() %}
+                <div class="card m-2">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{{ get_homepath() + "/marketplace/" + courseid }}">{{ course.get_name(user_manager.session_language()) }}</a>
+                        </h5>
+                        <span class="card-text m-0 wrap-h6">
+                            {{ course.get_short_desc(user_manager.session_language()) }}
+                        </span>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <a href="#" data-toggle="modal" data-target="#exportModal"
+                                onclick="$('#courseid').val('{{ course.get_id() }}')">
+                                <i class="fa fa-fw fa-download"></i> {{ _("Import course") }}<br/>
+                            </a>
+                        </small>
+                    </div>
+                </div>
+                {# Resizing logic #}
+                <div class="w-100 d-none d-sm-block d-md-none"><!-- wrap every one on sm--></div>
+                {% if loop.index % 2 == 0 %}
+                    <div class="w-100 d-none d-md-block d-lg-none"><!-- wrap every 2 on md--></div>
+                {%  endif %}
+                {% if loop.index % 3 == 0 %}
+                    <div class="w-100 d-none d-lg-block d-xl-none"><!-- wrap every 3 on lg--></div>
+                {% endif %}
+                {% if loop.index % 4 == 0 %}
+                    <div class="w-100 d-none d-xl-block"><!-- wrap every 4 on xl--></div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <span class="list-group-item list-group-item-action disabled">{{ _("No public courses available") }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Modal -->
+    <div id="exportModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <form method="post" class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ _("Import this course") }}</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+
+                    <p>{{ _('This will create a new course with the ID bellow. This new course will contain the tasks and structure of the selected course') }}</p>
+                    <input class="form-control" type="text" name="new_courseid" placeholder="{{ _('Course ID') }}">
+                    <input id="courseid" type="hidden" name="courseid">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">{{ _("Create course") }}</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}
