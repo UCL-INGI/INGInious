@@ -6,7 +6,9 @@
 """ Course page """
 import web
 
+from inginious.common.exceptions import ImportCourseException
 from inginious.frontend.marketplace_courses import get_marketplace_course
+from inginious.frontend.pages.marketplace import import_course
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
@@ -38,7 +40,17 @@ class MarketplaceCourse(INGIniousAuthPage):
             raise web.notfound()
 
         course = self.get_course(courseid)
-        return self.show_page(course)
+        user_input = web.input()
+        errors = []
+        if "new_courseid" in user_input:
+            new_courseid = user_input["new_courseid"]
+            try:
+                import_course(course, new_courseid, self.user_manager.session_username(), self.course_factory)
+            except ImportCourseException as e:
+                errors.append(str(e))
+            if not errors:
+                raise web.redirect(self.app.get_homepath() + "/admin/{}".format(new_courseid))
+        return self.show_page(course, errors)
 
     def show_page(self, course, errors=None):
         """ Prepares and shows the course marketplace """

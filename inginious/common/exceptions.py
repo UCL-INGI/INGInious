@@ -32,3 +32,7 @@ class TaskUnreadableException(Exception):
 
 class TaskReaderNotFoundException(Exception):
     pass
+
+
+class ImportCourseException(Exception):
+    pass
