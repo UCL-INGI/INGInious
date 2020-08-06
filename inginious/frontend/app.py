@@ -91,7 +91,8 @@ urls = (
     r'/lti/task', 'inginious.frontend.pages.lti.LTITaskPage',
     r'/lti/login', 'inginious.frontend.pages.lti.LTILoginPage',
     r'/lti/asset/(.*)', 'inginious.frontend.pages.lti.LTIAssetPage',
-    r'/marketplace', 'inginious.frontend.pages.marketplace.Marketplace'
+    r'/marketplace', 'inginious.frontend.pages.marketplace.Marketplace',
+    r'/marketplace/([^/]+)', 'inginious.frontend.pages.marketplace_course.MarketplaceCourse'
 )
 
 urls_maintenance = (
