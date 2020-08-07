@@ -5,8 +5,9 @@
 
 """ A class for the course from the marketplace  """
 import logging
+import requests
 
-from inginious.common.base import load_json_or_yaml
+from inginious.common.base import loads_json_or_yaml
 from inginious.common.exceptions import CourseNotFoundException
 from inginious.frontend.parsable_text import ParsableText
 
@@ -78,8 +79,8 @@ class MarketplaceCourse(object):
 
 
 def get_all_marketplace_courses():
-    # Replace with remote access
-    marketplace_file = load_json_or_yaml("/path/to/marketplace.json")
+    r = requests.get("https://ucl-ingi.github.io/INGInious-courses/marketplace.json")
+    marketplace_file = loads_json_or_yaml("marketplace.json", r.content)
     try:
         return {course["id"]: MarketplaceCourse(course) for course in marketplace_file}
     except:
