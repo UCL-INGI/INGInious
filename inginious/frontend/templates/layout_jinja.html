@@ -106,6 +106,10 @@
             {% block navbar %}{% endblock %}
             {% if user_manager.session_logged_in() %}
                 <ul class="nav navbar-nav navbar-right ml-auto">
+                    {# Change to teacher privilege when created #}
+                    {% if user_manager.user_is_superadmin() %}
+                        <li class="nav-item"><a href="{{ get_homepath() }}/marketplace" class="nav-link"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a></li>
+                    {% endif %}
                     <li class="nav-item"><a href="{{ get_homepath() }}/courselist" class="nav-link"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownMenuButton">
