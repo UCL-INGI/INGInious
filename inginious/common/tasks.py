@@ -76,14 +76,6 @@ class Task(object):
                 return False
         return True
 
-    def get_order(self):
-        """ Get the position of this task in the course """
-        tasks_id = self._course.get_toc().get_tasks()
-        if self._taskid in tasks_id:
-            return tasks_id.index(self._taskid)
-        else:
-            return len(tasks_id)
-
     def get_environment_id(self):
         """ Returns the environment in which the agent have to launch this task"""
         return self._environment_id
