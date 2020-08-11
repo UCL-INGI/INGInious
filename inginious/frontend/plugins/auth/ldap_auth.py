@@ -15,7 +15,6 @@ from inginious.frontend.user_manager import AuthMethod
 
 logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
 
-
 class LdapAuthMethod(AuthMethod):
     """
     LDAP auth method
@@ -87,9 +86,11 @@ class LDAPAuthenticationPage(AuthenticationPage):
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
                 settings, "Cannot contact host")
 
+        attr_cn = settings.get("cn", "cn")
+        attr_mail = settings.get("mail", "mail")
         try:
             request = settings["request"].format(login)
-            conn.search(settings["base_dn"], request, attributes=["cn", "mail"])
+            conn.search(settings["base_dn"], request, attributes=[attr_cn, attr_mail])
             user_data = conn.response[0]
         except Exception as ex:
             logger.exception("Can't get user data : " + str(ex))
@@ -99,9 +100,14 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
         if conn.rebind(user_data['dn'], password=password):
             try:
-                email = user_data["attributes"][settings.get("mail", "mail")][0]
+                email = user_data['attributes'][attr_mail]
+                if isinstance(email, list):
+                    email = email[0]
                 username = login
-                realname = user_data["attributes"][settings.get("cn", "cn")][0]
+                realname = user_data["attributes"][attr_cn]
+                if isinstance(realname, list):
+                    realname = realname[0]
+
             except KeyError as e:
                 logger.exception("Can't get field " + str(e) + " from your LDAP server")
                 return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
