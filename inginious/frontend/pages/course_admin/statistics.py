@@ -150,7 +150,7 @@ class CourseStatisticsPage(INGIniousAdminPage):
             try:
                 daterange = [datetime.strptime(x[0:16], "%Y-%m-%dT%H:%M") for x in (f,t)]
             except:
-                error = "Invalid dates"
+                error = _("Invalid dates")
                 daterange = [now - timedelta(days=14), now]
 
         stats_tasks = self._tasks_stats(courseid, tasks, daterange)

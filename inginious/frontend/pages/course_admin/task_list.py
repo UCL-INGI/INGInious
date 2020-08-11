@@ -33,20 +33,20 @@ class CourseTaskListPage(INGIniousAdminPage):
                 self.course_factory.update_course_descriptor_element(courseid, 'toc', new_toc)
                 course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
             else:
-                errors.append("Invalid table of content: " + message)
+                errors.append(_("Invalid table of content: ") + message)
         except:
-            errors.append("Something wrong happened")
+            errors.append(_("Something wrong happened"))
 
         for taskid in json.loads(user_input["deleted_tasks"]):
             try:
                 self.task_factory.delete_task(courseid, taskid)
             except:
-                errors.append("Couldn't delete task: " + taskid)
+                errors.append(_("Couldn't delete task: ") + taskid)
         for taskid in json.loads(user_input["wiped_tasks"]):
             try:
                 self.wipe_task(courseid, taskid)
             except:
-                errors.append("Couldn't wipe task: " + taskid)
+                errors.append(_("Couldn't wipe task: ") + taskid)
 
         return self.page(course, errors, not errors)
 
