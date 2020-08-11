@@ -77,9 +77,15 @@ class LDAPAuthenticationPage(AuthenticationPage):
         try:
             # Connect to the ldap
             logger.debug('Connecting to ' + settings['host'] + ", port " + str(settings['port']))
+            if "bind_dn" in settings:
+                bind_dn = {"user": settings["bind_dn"].format(login), "password": password}
+            else:
+                bind_dn = {}
+
+            auto_bind = settings.get("auto_bind", True)
             conn = ldap3.Connection(
                 ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
-                             get_info=ldap3.ALL), auto_bind=True)
+                             get_info=ldap3.ALL), auto_bind=auto_bind, **bind_dn)
             logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
         except Exception as e:
             logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))

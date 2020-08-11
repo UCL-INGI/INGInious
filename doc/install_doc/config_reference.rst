@@ -166,6 +166,27 @@ Most of the parameters are self-explaining, but:
 ``request``
     is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
 
+Additional parameters to fine tune ldap authentication -- normally not necessary:
+
+``cn``
+    the ldap attribute with the real name
+
+``mail``
+    the ldap attribute with the email address
+
+``auto_bind``
+    see auto_bind at https://ldap3.readthedocs.io/en/latest/connection.html
+
+    possible values: 'NO_TLS', 'TLS_AFTER_BIND', 'TLS_BEFORE_BIND', False  (same as 'NONE'),
+    default: True (same as 'NO_TLS')
+
+``bind_dn``
+    some ldap server do not allow access without authentication.
+    'bind_dn' is a format string to convert the login name to a full ldap name for authentication,
+    "{}" is replaced by the login name.
+
+        bind_dn: "cn={},ou=People,dc=info,dc=ucl,dc=ac,dc=be"
+
 SAML2/Shibboleth
 !!!!!!!!!!!!!!!!
 
