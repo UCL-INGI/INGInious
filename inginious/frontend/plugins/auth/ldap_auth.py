@@ -9,6 +9,7 @@ import logging
 
 import ldap3
 import web
+from ldap3.core.exceptions import LDAPException
 
 from inginious.frontend.pages.social import AuthenticationPage
 from inginious.frontend.user_manager import AuthMethod
@@ -87,7 +88,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
                 ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
                              get_info=ldap3.ALL), auto_bind=auto_bind, **bind_dn)
             logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
-        except Exception as e:
+        except LDAPException as e:
             logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
                 settings, "Cannot contact host")
@@ -98,7 +99,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
             request = settings["request"].format(login)
             conn.search(settings["base_dn"], request, attributes=[attr_cn, attr_mail])
             user_data = conn.response[0]
-        except Exception as ex:
+        except LDAPException as ex:
             logger.exception("Can't get user data : " + str(ex))
             conn.unbind()
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
@@ -118,12 +119,12 @@ class LDAPAuthenticationPage(AuthenticationPage):
                 logger.exception("Can't get field " + str(e) + " from your LDAP server")
                 return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
                     settings, "Can't get field " + str(e) + " from your LDAP server")
-            except Exception as e:
+            except LDAPException as e:
                 logger.exception("Can't get some user fields")
                 return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Can't get some user fields")
-
-            conn.unbind()
+                    settings, "Can't get some user fields")
+            finally:
+                conn.unbind()
 
             if not self.user_manager.bind_user(id, (username, realname, email, {})):
                 raise web.seeother("/signin?binderror")
