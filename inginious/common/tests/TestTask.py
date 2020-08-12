@@ -92,7 +92,7 @@ class test_tasks_basic(object):
     def test_check_answer_1(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer(
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, state = t.check_answer(
             {"unittest": ["0", "1"]}, "")
         assert valid is True
         assert need_launch is False
@@ -102,7 +102,7 @@ class test_tasks_basic(object):
     def test_check_answer_2(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer(
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, state = t.check_answer(
             {"unittest": ["0"]}, "")
         assert valid is False
         assert need_launch is False
