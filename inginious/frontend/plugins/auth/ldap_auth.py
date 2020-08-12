@@ -9,12 +9,12 @@ import logging
 
 import ldap3
 import web
+from ldap3.core.exceptions import LDAPException
 
 from inginious.frontend.pages.social import AuthenticationPage
 from inginious.frontend.user_manager import AuthMethod
 
 logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
-
 
 class LdapAuthMethod(AuthMethod):
     """
@@ -78,20 +78,28 @@ class LDAPAuthenticationPage(AuthenticationPage):
         try:
             # Connect to the ldap
             logger.debug('Connecting to ' + settings['host'] + ", port " + str(settings['port']))
+            if "bind_dn" in settings:
+                bind_dn = {"user": settings["bind_dn"].format(login), "password": password}
+            else:
+                bind_dn = {}
+
+            auto_bind = settings.get("auto_bind", True)
             conn = ldap3.Connection(
                 ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
-                             get_info=ldap3.ALL), auto_bind=True)
+                             get_info=ldap3.ALL), auto_bind=auto_bind, **bind_dn)
             logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
-        except Exception as e:
+        except LDAPException as e:
             logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
                 settings, "Cannot contact host")
 
+        attr_cn = settings.get("cn", "cn")
+        attr_mail = settings.get("mail", "mail")
         try:
             request = settings["request"].format(login)
-            conn.search(settings["base_dn"], request, attributes=["cn", "mail"])
+            conn.search(settings["base_dn"], request, attributes=[attr_cn, attr_mail])
             user_data = conn.response[0]
-        except Exception as ex:
+        except LDAPException as ex:
             logger.exception("Can't get user data : " + str(ex))
             conn.unbind()
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
@@ -99,19 +107,24 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
         if conn.rebind(user_data['dn'], password=password):
             try:
-                email = user_data["attributes"][settings.get("mail", "mail")][0]
+                email = user_data['attributes'][attr_mail]
+                if isinstance(email, list):
+                    email = email[0]
                 username = login
-                realname = user_data["attributes"][settings.get("cn", "cn")][0]
+                realname = user_data["attributes"][attr_cn]
+                if isinstance(realname, list):
+                    realname = realname[0]
+
             except KeyError as e:
                 logger.exception("Can't get field " + str(e) + " from your LDAP server")
                 return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
                     settings, "Can't get field " + str(e) + " from your LDAP server")
-            except Exception as e:
+            except LDAPException as e:
                 logger.exception("Can't get some user fields")
                 return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Can't get some user fields")
-
-            conn.unbind()
+                    settings, "Can't get some user fields")
+            finally:
+                conn.unbind()
 
             if not self.user_manager.bind_user(id, (username, realname, email, {})):
                 raise web.seeother("/signin?binderror")
