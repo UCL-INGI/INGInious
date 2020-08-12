@@ -4,7 +4,11 @@
 # more information about the licensing of this file.
 
 """ Utilities for computation of statistics  """
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+from collections import OrderedDict
+
+import web
+
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, make_csv
 from datetime import datetime, date, timedelta
 
 
@@ -93,6 +97,46 @@ class CourseStatisticsPage(INGIniousAdminPage):
         valid_submissions = sorted(valid_submissions.items())
         return (all_submissions, valid_submissions)
 
+    def submission_url_generator(self, taskid):
+        """ Generates a submission url """
+        return "?format=taskid%2Fusername&tasks=" + taskid
+
+    def _progress_stats(self, course):
+        data = list(self.database.user_tasks.aggregate(
+            [
+                {
+                    "$match":
+                        {
+                            "courseid": course.get_id(),
+                            "username": {"$in": self.user_manager.get_course_registered_users(course, False)}
+                        }
+                },
+                {
+                    "$group":
+                        {
+                            "_id": "$taskid",
+                            "viewed": {"$sum": 1},
+                            "attempted": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
+                            "attempts": {"$sum": "$tried"},
+                            "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
+                        }
+                }
+            ]))
+        tasks = OrderedDict(sorted(list(course.get_tasks().items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+
+        # Now load additional information
+        result = OrderedDict()
+        for taskid in tasks:
+            result[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()), "viewed": 0,
+                              "attempted": 0, "attempts": 0, "succeeded": 0, "url": self.submission_url_generator(taskid)}
+        for entry in data:
+            if entry["_id"] in result:
+                result[entry["_id"]]["viewed"] = entry["viewed"]
+                result[entry["_id"]]["attempted"] = entry["attempted"]
+                result[entry["_id"]]["attempts"] = entry["attempts"]
+                result[entry["_id"]]["succeeded"] = entry["succeeded"]
+        return result
+
     def GET_AUTH(self, courseid, f=None, t=None):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
@@ -106,14 +150,18 @@ class CourseStatisticsPage(INGIniousAdminPage):
             try:
                 daterange = [datetime.strptime(x[0:16], "%Y-%m-%dT%H:%M") for x in (f,t)]
             except:
-                error = "Invalid dates"
+                error = _("Invalid dates")
                 daterange = [now - timedelta(days=14), now]
 
         stats_tasks = self._tasks_stats(courseid, tasks, daterange)
         stats_users = self._users_stats(courseid, daterange)
         stats_graph = self._graph_stats(courseid, daterange)
+        stats_progress = self._progress_stats(course)
 
-        return self.template_helper.get_renderer().course_admin.stats(course, stats_graph, stats_tasks, stats_users, daterange, error)
+        if "progress_csv" in web.input():
+            return make_csv(stats_progress)
+
+        return self.template_helper.get_renderer().course_admin.stats(course, stats_graph, stats_tasks, stats_users, stats_progress, daterange, error)
 
 
 def compute_statistics(tasks, data, ponderation):

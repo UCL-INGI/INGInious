@@ -11,6 +11,7 @@ from natsort import natsorted
 
 from inginious.common.courses import Course
 from inginious.common.tags import Tag
+from inginious.common.toc import SectionsList
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
 
@@ -48,6 +49,11 @@ class WebAppCourse(Course):
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
+            self._toc = SectionsList(self._content.get('toc',
+                       [{"id": "tasks-list",
+                         "title": _("List of exercises"),
+                         "rank": 0,
+                         "tasks_list": {taskid: rank for rank, taskid in enumerate(Course.get_tasks(self).keys())}}]))
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
 
@@ -166,3 +172,9 @@ class WebAppCourse(Course):
 
     def get_tags(self):
         return self._tags
+
+    def get_toc(self):
+        """
+       :return: the structure of the course
+       """
+        return self._toc

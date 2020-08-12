@@ -189,12 +189,29 @@ $elif msg:
 
 </form>
 
+<style>
+    /* remove ghost when dragging and change cursor for draggable element */
+    .sortable-drag { opacity: 0; }
+    .handle { cursor: move; }
+</style>
+
 <!-- Javascript for managing student/tutor lists -->
 <script type="text/javascript">
+        $$(function () {
+        $$(".tasks_list").each(function(){
+            draggable_tasks[this.id] = make_tasks_list_sortable($$(this));
+        });
+
+        $$(".sections_list").each(function(){
+            draggable_sections[this.id] = make_sections_list_sortable($$(this));
+        });
+    });
 $$(document).ready(function() {
     if(!$$("#tutor_list").val())
         $$("#tutor_list").prop("disabled", true);
 
-    $$("ul.students").sortable({group:"students"});
+    $$("ul.students").each(function(){
+        new Sortable(this, {group:"students"})
+    });
 });
 </script>

@@ -1,4 +1,4 @@
-$def with (user_info, course, submissions, tasks, tasks_data, grade, tag_filter_list)
+$def with (user_info, course, submissions, tasks, toc, tasks_data, grade, tag_filter_list)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -93,7 +93,21 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$:course.get_name(user_manager.session_language())</h2>
+<div class="row pr-3">
+    <div class="col-md-8">
+        <h2>$:course.get_name(user_manager.session_language())</h2>
+    </div>
+
+    $if tag_filter_list:
+        <div class="col-md-4  p-3">
+            <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
+                <option value="">$:_("Filter tasks by tags")</option>
+                $for key, tag in tag_filter_list.items():
+                    $if tag.get_type() in [0, 2] and tag.is_visible_for_student():
+                        <option value="$tag.get_id()">$tag.get_name(user_manager.session_language())</option>
+            </select>
+        </div>
+</div>
 
 $if course.get_descriptor().get("description", ""):
     <div class="mb-3" id="desc_accord" role="tablist" aria-multiselectable="true">
@@ -114,7 +128,7 @@ $if course.get_descriptor().get("description", ""):
 <script>
 function filter_tag(tag) {
     tag = tag.value;
-    $$("a", "#tasks-list").each(function(idx, elem) {
+    $$("a", ".tasks-list").each(function(idx, elem) {
         var task = $$(elem);
         var found=false;
         $$("div[id='tag']", task).each(function() {
@@ -129,58 +143,116 @@ function filter_tag(tag) {
         }
     });
 }
+
+// Show and hide the section when click on dropdown button
+function dropdown(header) {
+    const content_div = $$(header).closest(".section").children(".content");
+    const button = $$(header).children(".dropdown_button")
+
+    if ($$(button).hasClass("fa-caret-down")) {
+        $$(button).removeClass("fa-caret-down").addClass("fa-caret-left");
+        content_div.slideUp('fast')
+    } else {
+        $$(button).removeClass("fa-caret-left").addClass("fa-caret-down");
+        content_div.slideDown('fast')
+    }
+}
 </script>
 
-<div class="card">
-    <div class="card-header">
-        <div class="row">
-            <div class="col-md-8">$:_("List of exercises")</div>
-            $if tag_filter_list:
-                <div class="col-md-4">
-                    <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
-                        <option value="">$:_("Filter tasks by tags")</option>
-                        $for key, tag in tag_filter_list.items():
-                            $if tag.get_type() in [0, 2] and tag.is_visible_for_student():
-                                <option value="$tag.get_id()">$tag.get_name(user_manager.session_language())</option>
-                    </select>
-                </div>
+<style>
+    /* Add line after section title */
+    .divided {
+      display: flex;
+      align-items: center;
+    }
+
+    .divider {
+      flex-grow: 1;
+      border-bottom: 1px solid lightgrey;
+      margin: 5px
+    }
+
+    /* Pointer for dropdown */
+    .section_header {
+        cursor: pointer;
+    }
+</style>
+
+$# Recursively print a list of sections and their content
+$def print_section(sections, level=3):
+    $for section in sections:
+        $if section.is_terminal():
+            $:print_terminal_section(section, level)
+        $else:
+            $:print_non_terminal_section(section, level)
+
+$# Print a non terminal section and the sections it contains
+$def print_non_terminal_section(section, level):
+    <div id="section_$:_(section.get_id())" class="section sections-list mb-4">
+        <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
+            <span class="title h$level mr-3">
+                $:_(section.get_title())
+            </span>
+            <span class="divider"></span>
+
+            <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close pl-3">
+            </span>
+        </div>
+        <div class="content ml-4">
+            $:print_section(section.get_sections_list(), level +1)
         </div>
     </div>
-    <div id="tasks-list" class="list-group list-group-flush">
-        $for taskid, task in tasks.items()
-            $if tasks_data[taskid]["visible"]:
-                $ succeeded=tasks_data[taskid]["succeeded"]
-                $ completion=tasks_data[taskid]["grade"]
-                <a href="$get_homepath()/course/$course.get_id()/$taskid" class="list-group-item list-group-item-action
-                    $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
-                        disabled
-                    ">
-                    <div class="row">
-                        <div class="col-xs-12 col-md-7 pl-1">
-                            <i style="color: $('#468847;' if succeeded else 'transparent')" class="fa fa-check"></i>
-                            $task.get_name(user_manager.session_language())
-                            $if not task.is_visible_by_students():
-                                - <b>$:_("task hidden to students")</b>
-                            $if not task.get_accessible_time().is_open():
-                                - <b>$:_("deadline reached")</b>
-                        </div>
-                        <div class="col-xs-12 col-md-5">
-                            $if registered:
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                                        $(int(completion) if completion.is_integer() else completion)%
-                                    </div>
+
+$# print a terminal section and the tasks it contains
+$def print_terminal_section(section, level):
+    <div id="section_$:_(section.get_id())" class="section tasks_list card mb-4">
+        <div class="section_header card-header d-flex justify-content-between pr-3" onclick="dropdown(this)">
+            <span class="title">
+                $:_(section.get_title())
+            </span>
+
+            <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close">
+            </span>
+        </div>
+        <div class="content list-group list-group-flush">
+            $for taskid in section.get_tasks()
+                $if taskid in tasks:
+                    $ task = tasks[taskid]
+                    $if tasks_data[taskid]["visible"]:
+                        $ succeeded=tasks_data[taskid]["succeeded"]
+                        $ completion=tasks_data[taskid]["grade"]
+                        <a href="$get_homepath()/course/$course.get_id()/$taskid" class="list-group-item list-group-item-action
+                            $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
+                                disabled
+                            ">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-7 pl-1">
+                                    <i style="color: $('#468847;' if succeeded else 'transparent')" class="fa fa-check"></i>
+                                    $task.get_name(user_manager.session_language())
+                                    $if not task.is_visible_by_students():
+                                        - <b>$:_("task hidden to students")</b>
+                                    $if not task.get_accessible_time().is_open():
+                                        - <b>$:_("deadline reached")</b>
                                 </div>
-                        </div>
-                    </div>
-                    <div id="tags_of_task" style="display:none;">
-                        $for category in task.get_categories():
-                            $ tag = tag_filter_list[category]
-                            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-                                <div id="tag" data-tag-name="$:tag.get_id()"></div>
-                    </div>
-                </a>
+                                <div class="col-xs-12 col-md-5">
+                                    $if registered:
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                                                $(int(completion) if completion.is_integer() else completion)%
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                            <div id="tags_of_task" style="display:none;">
+                                $for category in task.get_categories():
+                                    $ tag = tag_filter_list[category]
+                                    $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                                        <div id="tag" data-tag-name="$:tag.get_id()"></div>
+                            </div>
+                        </a>
+        </div>
     </div>
-</div>
+
+$:print_section(toc)
 
 $:include.unregister_modal(course)

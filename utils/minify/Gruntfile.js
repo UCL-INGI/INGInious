@@ -17,7 +17,7 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/libs/bootstrap.min.js',
                         '../../inginious/frontend/static/js/libs/moment.min.js',
                         '../../inginious/frontend/static/js/libs/bootstrap-datetimepicker.min.js',
-                        '../../inginious/frontend/static/js/libs/jquery-sortable.min.js',
+                        '../../inginious/frontend/static/js/libs/Sortable.min.js',
                         '../../inginious/frontend/static/js/codemirror/codemirror.js',
                         '../../inginious/frontend/static/js/codemirror/mode/meta.js',
                         '../../inginious/frontend/static/js/common.js',
@@ -26,7 +26,8 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/studio.js',
                         '../../inginious/frontend/static/js/audiences.js',
                         '../../inginious/frontend/static/js/groups.js',
-                        '../../inginious/frontend/static/js/checked-list-group.js'
+                        '../../inginious/frontend/static/js/checked-list-group.js',
+                        '../../inginious/frontend/static/js/task_list.js'
                     ]
                 }
             }

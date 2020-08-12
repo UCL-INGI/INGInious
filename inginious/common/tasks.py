@@ -63,9 +63,6 @@ class Task(object):
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
-        # Order
-        self._order = int(self._data.get('order', -1))
-
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 
@@ -78,10 +75,6 @@ class Task(object):
             if not problem.input_is_consistent(task_input, default_allowed_extension, default_max_size):
                 return False
         return True
-
-    def get_order(self):
-        """ Get the position of this task in the course """
-        return self._order
 
     def get_environment_id(self):
         """ Returns the environment in which the agent have to launch this task"""
