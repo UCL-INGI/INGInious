@@ -9,6 +9,7 @@ import gettext
 import builtins
 
 __version__ = "0.6.dev0"
+MARKETPLACE_URL = "https://marketplace.inginious.org/marketplace.json"
 
 
 builtins.__dict__['_'] = gettext.gettext

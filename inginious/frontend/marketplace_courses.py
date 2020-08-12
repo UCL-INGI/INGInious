@@ -7,6 +7,7 @@
 import logging
 import requests
 
+from inginious import MARKETPLACE_URL
 from inginious.common.base import loads_json_or_yaml
 from inginious.common.exceptions import CourseNotFoundException
 from inginious.frontend.parsable_text import ParsableText
@@ -79,7 +80,7 @@ class MarketplaceCourse(object):
 
 
 def get_all_marketplace_courses():
-    r = requests.get("https://ucl-ingi.github.io/INGInious-courses/marketplace.json")
+    r = requests.get(MARKETPLACE_URL)
     marketplace_file = loads_json_or_yaml("marketplace.json", r.content)
     try:
         return {course["id"]: MarketplaceCourse(course) for course in marketplace_file}
