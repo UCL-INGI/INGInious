@@ -1,4 +1,4 @@
-$def with (course, users, tutored_users, audiences, tutored_audiences, old_params, msgs)
+$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -96,6 +96,59 @@ $var Navbar: $:NavbarF()
                                     </li>
                             </ul>
                     </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Tasks -->
+                <div class="col-sm-8">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <span class="nav-link active" href="#" role="tab" data-toggle="tab">$:_("Select tasks")</span>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select(true, this)">$:_("Select all")</button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <ul class="list-group list-group-flush checked-list-box">
+                        $for taskid, task in tasks.items():
+                            <li class="list-group-item" data-value="$taskid" data-name="tasks" data-checked="$('true' if taskid in old_params['tasks'] else 'false')"
+                            >$task.get_name(user_manager.session_language())</li>
+                    </ul>
+                </div>
+                </div>
+
+                <!-- Organisational Tags -->
+                <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <span class="nav-link active" href="#" role="tab" data-toggle="tab">$:_("Select tags")</span>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select(true, this)">$:_("Select all")</button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <ul class="list-group list-group-flush checked-list-box">
+                        $for key, t in course.get_tags().items():
+                            $if t.get_type() == 2:
+                                <li class="list-group-item" data-value="$key" data-name="org_tags" data-checked="$('true' if key in old_params['org_tags'] else 'false')"
+                                >$:_(t.get_name(user_manager.session_language()))</li>
+                    </ul>
+                </div>
                 </div>
             </div>
         </form>
