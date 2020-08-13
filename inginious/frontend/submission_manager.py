@@ -146,7 +146,7 @@ class WebAppSubmissionManager:
             if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
                 group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
                 users = self._database.users.find({"username": {"$in": group["students"]}})
-                inputdata["username"] = ','.join(group["students"])
+                inputdata["@username"] = ','.join(group["students"])
                 inputdata["@email"] = ','.join([user["email"] for user in users])
 
         return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
