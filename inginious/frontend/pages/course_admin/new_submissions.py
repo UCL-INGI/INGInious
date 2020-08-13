@@ -27,9 +27,18 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             tasks=[],
             org_tags=[]
         )
-        params = self.get_params(user_input, course)
 
-        return self.page(course, params, msgs)
+        if "page" in user_input:
+            params = self.get_params(json.loads(user_input["displayed_selection"]), course)
+            try:
+                page = int(user_input["page"])
+            except TypeError:
+                page = 1
+            return self.page(course, params, page=page, msgs=msgs)
+
+        else:
+            params = self.get_params(user_input, course)
+            return self.page(course, params, msgs=msgs)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
@@ -44,7 +53,7 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
 
         return self.page(course, params)
 
-    def page(self, course, params, msgs=None):
+    def page(self, course, params, page=1, msgs=None):
         """ Get all data and display the page """
         msgs = msgs if msgs else []
 
@@ -59,17 +68,13 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             if self.user_manager.session_username() in audience["tutors"]:
                 tutored_users += audience["students"]
 
-        try:
-            new_limit = int(params.get("limit", 50))
-            limit = new_limit if new_limit > 0 else 50
-        except TypeError:
-            limit = 50
+        limit = params.get("limit", 50) if params.get("limit", 50) > 0 else 50
 
-        data = self.submissions_from_user_input(course, params, msgs, limit)
+        data, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
 
         return self.template_helper.get_renderer().course_admin.new_submissions(course, users, tutored_users, audiences,
                                                                                 tutored_audiences, tasks, params, data,
-                                                                                json.dumps(params), msgs)
+                                                                                json.dumps(params), pages, page, msgs)
 
     def get_users(self, course):
         user_ids = self.user_manager.get_course_registered_users(course)
@@ -133,11 +138,11 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             try:
                 user_input["limit"] = int(user_input["limit"])
             except:
-                user_input["limit"] = 500
+                user_input["limit"] = 50
 
         return user_input
 
-    def submissions_from_user_input(self, course, user_input, msgs, limit=None):
+    def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
         submit_time_between = [None, None]
@@ -152,6 +157,10 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
         must_keep_best_submissions_only = "eval" in user_input or (
                 "eval_dl" in user_input and "download" in web.input())
 
+        skip = None
+        if page and limit:
+            skip = (page-1) * limit
+
         return self.get_selected_submissions(course, only_tasks=user_input["tasks"],
                                              only_tasks_with_categories=user_input["org_tags"],
                                              only_users=user_input["users"],
@@ -164,7 +173,8 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
                                              keep_only_evaluation_submissions=must_keep_best_submissions_only,
                                              keep_only_crashes="crashes_only" in user_input,
                                              sort_by=(user_input.get('sort_by', 'submitted_on'), user_input.get('order', 0) == 1),
-                                             limit=limit)
+                                             limit=limit,
+                                             skip=skip)
 
     def _validate_list(self, list_of_ids):
         """ Prevent MongoDB injections by verifying arrays sent to it """
@@ -180,7 +190,7 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
                                  keep_only_evaluation_submissions=False,
                                  keep_only_crashes=False,
                                  sort_by=("submitted_on", True),
-                                 limit=None):
+                                 limit=None, skip=None):
         """
         All the parameters (excluding course, sort_by and keep_only_evaluation_submissions) can be None.
         If that is the case, they are ignored.
@@ -271,10 +281,14 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
 
         filter.update(base_filter)
         submissions = self.database.submissions.find(filter)
+        submissions_count = submissions.count()
 
         if sort_by[0] not in ["submitted_on", "username", "grade", "taskid"]:
             sort_by[0] = "submitted_on"
         submissions = submissions.sort(sort_by[0], pymongo.ASCENDING if sort_by[1] else pymongo.DESCENDING)
+
+        if skip is not None and skip < submissions_count:
+            submissions.skip(skip)
 
         if limit is not None:
             submissions.limit(limit)
@@ -284,4 +298,5 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
         for d in out:
             d["best"] = d["_id"] in best_submissions_list  # mark best submissions
 
-        return out
+        number_of_pages = submissions_count // limit + (submissions_count % limit > 0)
+        return out, number_of_pages

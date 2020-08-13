@@ -1,4 +1,4 @@
-$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, data, displayed_selection, msgs)
+$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, data, displayed_selection, number_of_pages, page_number, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -233,7 +233,7 @@ $var Navbar: $:NavbarF()
                                     </select>
                                 </div>
                                 <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
-                                    <label>$:_("Limit") *</label>
+                                    <label>$:_("Submissions per page") *</label>
                                     <input name="limit" class="form-control" type="number" id="select_limit" value="$old_params.get('limit', '50')"/>
                                 </div>
                             </div>
@@ -371,3 +371,28 @@ $var Navbar: $:NavbarF()
         </tr>
     </tbody>
 </table>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-center">
+    <ul id="pagination" class="pagination-sm"></ul>
+    <form id="page_form" method="post" action="new_submissions#alerts">
+        <input type="hidden" name="displayed_selection" value="$displayed_selection">
+        <input id="page_input" type="hidden" name="page" value="1">
+    </form>
+</div>
+
+<script>
+    $$('#pagination').twbsPagination({
+        totalPages: $number_of_pages,
+        startPage: $page_number,
+        visiblePages: 5,
+
+        onPageClick: function (event, page) {
+            if(page != $page_number) {
+                $$("#page_input").val(page)
+                $$("#page_form").submit();
+            }
+
+        }
+    });
+</script>
