@@ -10,7 +10,7 @@ from bson import ObjectId
 from datetime import datetime
 
 from inginious.common.base import id_checker
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, make_csv
 
 
 class CourseSubmissionsNewPage(INGIniousAdminPage):
@@ -28,14 +28,46 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             org_tags=[]
         )
 
-        if "page" in user_input:
+        if "csv" in user_input or "download" in user_input or "replay" in user_input:
+            best_only = "eval_dl" in user_input and "download" in user_input
+            params = self.get_params(json.loads(user_input.get("displayed_selection", "")), course)
+            data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
+
+            if "csv" in user_input:
+                return make_csv(data)
+
+            elif "download" in user_input:
+                download_type = user_input.get("download_type", "")
+                if download_type not in ["taskid/username", "taskid/audience", "username/taskid", "audience/taskid"]:
+                    download_type = "taskid/username"
+                archive, error = self.submission_manager.get_submission_archive(course, data,
+                                                                                list(download_type.split('/'))+["submissionid"])
+                if not error:
+                    # self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
+                    web.header('Content-Type', 'application/x-gzip', unique=True)
+                    web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
+                    return archive
+                else:
+                    msgs.append(_("The following submission could not be prepared for download: {}").format(error))
+                    return self.page(course, params, msgs=msgs)
+
+            elif "replay" in user_input:
+                if not self.user_manager.has_admin_rights_on_course(course):
+                    raise web.notfound()
+
+                tasks = course.get_tasks()
+                for submission in data:
+                    self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
+                msgs.append(_("{0} selected submissions were set for replay.").format(str(len(data))))
+                return self.page(course, params, msgs=msgs)
+
+        elif "page" in user_input:
             params = self.get_params(json.loads(user_input["displayed_selection"]), course)
             try:
                 page = int(user_input["page"])
             except TypeError:
                 page = 1
             return self.page(course, params, page=page, msgs=msgs)
-
         else:
             params = self.get_params(user_input, course)
             return self.page(course, params, msgs=msgs)
@@ -142,7 +174,7 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
 
         return user_input
 
-    def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None):
+    def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None, best_only=False):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
         submit_time_between = [None, None]
@@ -154,8 +186,7 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
         except ValueError:  # If match of datetime.strptime() fails
             msgs.append(_("Invalid dates"))
 
-        must_keep_best_submissions_only = "eval" in user_input or (
-                "eval_dl" in user_input and "download" in web.input())
+        must_keep_best_submissions_only = "eval" in user_input or best_only
 
         skip = None
         if page and limit:
@@ -298,5 +329,8 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
         for d in out:
             d["best"] = d["_id"] in best_submissions_list  # mark best submissions
 
-        number_of_pages = submissions_count // limit + (submissions_count % limit > 0)
-        return out, number_of_pages
+        if limit is not None:
+            number_of_pages = submissions_count // limit + (submissions_count % limit > 0)
+            return out, number_of_pages
+        else:
+            return out
