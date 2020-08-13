@@ -66,7 +66,6 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
         users = self.get_users(course)
         audiences = self.user_manager.get_course_audiences(course)
         tasks = course.get_tasks()
-        print(user_input)
 
         # Sanitise user
         if not user_input.get("users", []) and not user_input.get("audiences", []):
@@ -92,8 +91,34 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             user_input["tasks"] = []
         if len(user_input.get("org_tags", [])) == 1 and "," in user_input["org_tags"][0]:
             user_input["org_tags"] = user_input["org_tags"][0].split(',')
-        print(course.get_tasks())
         user_input["org_tags"] = [org_tag for org_tag in user_input["org_tags"] if org_tag in course.get_tags()]
 
-        print(user_input)
+        # Sanitise grade
+        if "grade_min" in user_input:
+            try:
+                user_input["grade_min"] = int(user_input["grade_min"])
+            except:
+                user_input["grade_min"] = ''
+        if "grade_max" in user_input:
+            try:
+                user_input["grade_max"] = int(user_input["grade_max"])
+            except:
+                user_input["grade_max"] = ''
+
+        # Sanitise order
+        if "sort_by" in user_input and user_input["sort_by"] not in ["submitted_on", "username", "grade", "taskid"]:
+            user_input["sort_by"] = "submitted_on"
+        if "order" in user_input:
+            try:
+                user_input["order"] = 1 if int(user_input["order"]) == 1 else 0
+            except:
+                user_input["order"] = 0
+
+        # Sanitise limit
+        if "limit" in user_input:
+            try:
+                user_input["limit"] = int(user_input["limit"])
+            except:
+                user_input["limit"] = 500
+
         return user_input

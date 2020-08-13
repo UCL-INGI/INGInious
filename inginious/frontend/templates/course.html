@@ -144,19 +144,6 @@ function filter_tag(tag) {
     });
 }
 
-// Show and hide the section when click on dropdown button
-function dropdown(header) {
-    const content_div = $$(header).closest(".section").children(".content");
-    const button = $$(header).children(".dropdown_button")
-
-    if ($$(button).hasClass("fa-caret-down")) {
-        $$(button).removeClass("fa-caret-down").addClass("fa-caret-left");
-        content_div.slideUp('fast')
-    } else {
-        $$(button).removeClass("fa-caret-left").addClass("fa-caret-down");
-        content_div.slideDown('fast')
-    }
-}
 </script>
 
 <style>

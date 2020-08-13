@@ -184,3 +184,20 @@ function download_page_select_tutored(panel_member)
     $('input[name="audiences"], input[name="users"]', panel_member).not('.tutored').prop('checked', false).change();
     $('input[name="audiences"].tutored, input[name="users"].tutored', panel_member).prop('checked', true).change();
 }
+
+/**
+ * Show and hide the section when click on dropdown button
+ * @param header: the header on which we click
+ */
+function dropdown(header) {
+    const content_div = $(header).closest(".section").children(".content");
+    const button = $(header).children(".dropdown_button")
+
+    if ($(button).hasClass("fa-caret-down")) {
+        $(button).removeClass("fa-caret-down").addClass("fa-caret-left");
+        content_div.slideUp('fast')
+    } else {
+        $(button).removeClass("fa-caret-left").addClass("fa-caret-down");
+        content_div.slideDown('fast')
+    }
+}

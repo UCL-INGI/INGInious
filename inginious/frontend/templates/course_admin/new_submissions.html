@@ -26,6 +26,9 @@ $var Navbar: $:NavbarF()
 
 <script>
     $$(function() {
+        $$('#date_before_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        $$('#date_after_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+
         $$('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
         {
             if($$(e.target).attr('href') == "#audience_filter")  $$('input[type="checkbox"]', $$('#user_filter')).prop('checked', false).change()
@@ -149,6 +152,93 @@ $var Navbar: $:NavbarF()
                                 >$:_(t.get_name(user_manager.session_language()))</li>
                     </ul>
                 </div>
+                </div>
+            </div>
+
+            <!-- Advanced query -->
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <div class="card section">
+                        <div class="card-header" onclick="dropdown(this)">
+                            <span class="title"> $:_("Advanced query") </span>
+                            <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-left close"> </span>
+                        </div>
+                        <div class="content card-body" style="display: none">
+                            <!-- Checkboxs -->
+                            $ list_checkboxes = [("eval", _("Only evaluation submissions")),
+                            $                    ("crashes_only", _("Only timeouts and crashes")),
+                            $                    ("show_tags", _("Show tags")),
+                            $                    ("show_id", _("Show submission id")),
+                            $                    ("show_task_name", _("Show task name")),
+                            $                    ("show_stud_name", _("Show student name"))]
+                            <div class="col-xs-12 form-group">
+                                $for c in list_checkboxes:
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label"></label>
+                                        <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_params else '')> $c[1]
+                                    </div>
+                            </div>
+
+                            <!-- Grade -->
+                            <div class="col-xs-4 form-group row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("Min grade")</label>
+                                    <input name="grade_min" class="form-control" type="number" id="select_grade_min" placeholder="0" value="$old_params.get('grade_min', '')"/>
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("Max grade")</label>
+                                    <input name="grade_max" class="form-control" type="number" id="select_grade_max" placeholder="100" value="$old_params.get('grade_max', '')"/>
+                                </div>
+                            </div>
+                            <!-- Date -->
+                            <div class="col-xs-8 form-group row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("After date")</label>
+                                    <div class="input-group date" id="date_after_picker" data-target-input="nearest">
+                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_params.get('date_after', '')" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <div class="input-group-append" data-target="#date_after_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("Before date")</label>
+                                    <div class="input-group date" id="date_before_picker" data-target-input="nearest">
+                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_params.get('date_before', '')" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
+                                        <div class="input-group-append" data-target="#date_before_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sort by -->
+                            <div class="col-xs-12 form-group row">
+                                <div class="col-xs-3 col-sm-3">
+                                    <label>$:_("Sort by")</label>
+                                    <select name="sort_by" class="form-control" id="select_sort_by">
+                                    $ allowed_sort = [("submitted_on", _("Submitted on")),
+                                    $                 ("username", _("User")),
+                                    $                 ("grade", _("Grade")),
+                                    $                 ("taskid", _("Task id"))]
+                                    $for value, name in allowed_sort:
+                                        <option value="$value" $('selected' if old_params.get('sort_by', 'submitted_on') == value else '')>$name</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3 col-sm-3">
+                                    <label>$:_("Order")</label>
+                                    <select name="order" class="form-control" id="select_order">
+                                        <option value="0" $('selected' if old_params.get('order', 0) == 0 else '')>$:_("Descending")</option>
+                                        <option value="1" $('selected' if old_params.get('order', 0) == 1 else '')>$:_("Ascending")</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
+                                    <label>$:_("Limit") *</label>
+                                    <input name="limit" class="form-control" type="number" id="select_limit" value="$old_params.get('limit', '50')"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
