@@ -322,6 +322,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
         default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks"))]
 
     default_entries += [("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),
+                        ("new_submissions", "<i class='fa fa-cloud-download fa-fw'></i>&nbsp; " + _("Submissions")),
                         ("submissions", "<i class='fa fa-search fa-fw'></i>&nbsp; " + _("View submissions")),
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; " + _("Download submissions"))]
 
