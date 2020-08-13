@@ -2,8 +2,9 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-import pymongo
 import web
+import json
+import pymongo
 from collections import OrderedDict
 from bson import ObjectId
 from datetime import datetime
@@ -68,7 +69,7 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
 
         return self.template_helper.get_renderer().course_admin.new_submissions(course, users, tutored_users, audiences,
                                                                                 tutored_audiences, tasks, params, data,
-                                                                                msgs)
+                                                                                json.dumps(params), msgs)
 
     def get_users(self, course):
         user_ids = self.user_manager.get_course_registered_users(course)

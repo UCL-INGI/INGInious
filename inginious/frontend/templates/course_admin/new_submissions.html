@@ -1,4 +1,4 @@
-$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, data, msgs)
+$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, data, displayed_selection, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -241,6 +241,16 @@ $var Navbar: $:NavbarF()
                     </div>
                 </div>
             </div>
+
+            <!-- Validate -->
+            <div class="btn-group pull-right mb-2">
+                <button type="button" class="btn btn-danger btn-block m-1 p-2 pl-4 pr-4" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/new_submissions'">
+                    <i class="fa fa-undo"></i> $:_("Reset")
+                </button>
+                <button type="submit" class="btn btn-primary btn-block m-1 p-2 pl-4 pr-4">
+                    <i class="fa fa-check"></i> $:_("Filter")
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -253,3 +263,111 @@ $var Navbar: $:NavbarF()
         $msg
     </div>
 </div>
+
+<!-- Submission table -->
+<table class="table">
+    <thead class="table-borderless">
+        <tr>
+            <th></th>
+            $if "show_stud_name" in old_params:
+                <th>$:_("student name")</th>
+            $else:
+                <th>$:_("username")</th>
+            $if "show_task_name" in old_params:
+                <th>$:_("task name")</th>
+            $else:
+                <th>$:_("taskid")</th>
+            $if "show_id" in old_params:
+                <th>$:_("id")</th>
+            <th>$:_("submitted on")</th>
+            <th>$:_("result")</th>
+            $if "show_tags" in old_params:
+                <th>$:_("tags")</th>
+            <th>
+                <form method="post" action="new_submissions#alerts">
+                    <input type="hidden" name="displayed_selection" value="$displayed_selection">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-info" type="submit" name="csv" formmethod="post" title="$:_('Download CSV')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
+                        <div class="btn btn-danger" data-toggle="modal" data-target="#download_modal">
+                            <div data-toggle="tooltip" data-placement="top" title="$:_('Download current selection')"><i class="fa fa-download"></i></div>
+                        </div>
+                        $if is_admin:
+                            <button class="btn btn-warning" type="submit" name="replay" formmethod="post" title="$:_('Replay current selection')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
+                    </div>
+                </form>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    $for submission in data:
+        $ succeeded = "result" in submission and submission["result"] == "success"
+        <tr class="$('table-success' if succeeded else 'table-warning' if submission['status'] == 'waiting' else 'table-danger')">
+            <td>
+                $if "best" in submission and submission["best"]:
+                    <i class="fa fa-star" title=$submission["_id"] data-toggle="tooltip" data-placement="bottom"></i>
+            </td>
+            <td>
+                $for user in submission["username"]:
+                    $if "show_stud_name" in old_params:
+                        $(users[user] if user in users else '?')<br>
+                    $else:
+                        $user<br>
+            </td>
+            $if "show_task_name" in old_params:
+                <td>$tasks[submission["taskid"]].get_name(user_manager.session_language())</td>
+            $else:
+                <td>$submission["taskid"]</td>
+            $if "show_id" in old_params:
+                <td>$submission["_id"]</td>
+            <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
+            <td id="status">
+                $if succeeded:
+                    $:_("Succeeded")
+                $elif submission['status'] == 'waiting':
+                    $:_("Waiting")
+                $else:
+                    $:_("Failed")
+                ($submission.get("grade",0.0)%)
+            </td>
+
+            <!-- TAGS td -->
+            $if "show_tags" in old_params:
+                <td>
+                $ course_tags = course.get_tags()
+                $for key in course.get_task(submission['taskid']).get_categories()
+                    $ tag = course_tags[key]
+                    $if tag.get_type() == 0 :
+                        <span style="line-height: 18px;">
+                            <span class="badge alert-success" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                        </span>
+                    $elif tag.get_type() == 1:
+                        <span style="line-height: 18px;">
+                            <span class="badge alert-danger" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                        </span>
+                $# Auto-tags not defined in task
+                $if "tests" in submission:
+                    $for tag in submission["tests"]:
+                        $if tag.startswith("*auto-tag-"):
+                            <span style="line-height: 18px;">
+                                $if len(submission["tests"][tag]) > 30:
+                                    <span class="badge alert-default" data-toggle="tooltip" data-placement="left" data-original-title="$submission['tests'][tag]">$submission["tests"][tag][:30]…</span>
+                                $else:
+                                    <span class="badge alert-default">$submission["tests"][tag]</span>
+                            </span>
+                </td>
+            <!-- END TAGS td -->
+
+            <td>
+                <div class="btn-group btn-group-sm" role="group">
+                    <a href="$get_homepath()/submission/$submission['_id']"
+                       class="btn btn-secondary" title=$:_('"View submission"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="$get_homepath()/admin/${course.get_id()}/new_submissions?download_submission=$submission['_id']" class="btn btn-secondary" title=$:_('"Download submission"') data-toggle="tooltip"
+                       data-placement="bottom"><i class="fa fa-download"></i></a>
+                    $if is_admin:
+                        <a href="#" class="replay btn btn-secondary" title=$:_('"Replay submission"') data-toggle="tooltip" data-submissionid="$submission['_id']"
+                           data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
