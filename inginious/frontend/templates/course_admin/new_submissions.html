@@ -1,4 +1,4 @@
-$def with (course, msgs)
+$def with (course, users, tutored_users, audiences, tutored_audiences, old_params, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -23,3 +23,90 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Submissions")</h2>
+
+<script>
+    $$(function() {
+        $$('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
+        {
+            if($$(e.target).attr('href') == "#audience_filter")  $$('input[type="checkbox"]', $$('#user_filter')).prop('checked', false).change()
+            else $$('input[type="checkbox"]', $$('#audience_filter')).prop('checked', false).change();
+        });
+
+    });
+</script>
+
+<!-- Query submissions -->
+<div class="card mb-3">
+    <div class="card-header">
+        $:_("Query submissions")
+    </div>
+
+    <div class="card-body">
+        <form id="select_form" method="post" action="new_submissions#alerts">
+            <!-- Users -->
+            $ show_audiences = not old_params["users"] and old_params["audiences"]
+            <div id="panel-user-audience" class="card mb-3">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li role="presentation" class="nav-item">
+                            <a class="nav-link $('active' if not show_audiences else '')" href="#user_filter" aria-controls="user_filter"
+                               role="tab" data-toggle="tab">$:_("Select students")</a>
+                        </li>
+                        <li role="presentation" class="nav-item">
+                            <a class="nav-link $('active' if show_audiences else '')" href="#audience_filter" aria-controls="audience_filter"
+                               role="tab" data-toggle="tab">$:_('Select audiences')</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select_active(true, this)">$:_("Select all")</button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_active(false, this)">$:_("Deselect all")</button>
+                        </li>
+                        $if len(tutored_users) != 0 or len(tutored_audiences) != 0:
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutored(this)">Tutored only</button>
+                            </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane $('active' if not show_audiences else '')" id="user_filter">
+                        $if len(users) == 0:
+                            <div class="alert alert-warning">$:_("No user to display")</div>
+                        $else:
+                            <ul class="list-group list-group-flush checked-list-box">
+                                $for userid, username in users.items():
+                                    <li class="list-group-item" data-class="$('tutored' if userid in tutored_users else '')"
+                                        data-checked="$('true' if userid in old_params['users'] and not show_audiences else 'false')"
+                                        data-value="$userid" data-name="users">$username ($userid)</li>
+                            </ul>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane $('active' if show_audiences else '')" id="audience_filter">
+                        $if len(audiences) == 0:
+                            <div class="alert alert-warning">$:_('No audience to display')</div>
+                        $else:
+                            <ul class="list-group list-group-flush checked-list-box">
+                                $for audience in audiences:
+                                    <li class="list-group-item" data-value="$audience['_id']" data-name="audiences"
+                                        data-class="$('tutored' if str(audience['_id']) in tutored_audiences else '')"
+                                        data-checked="$('true' if str(audience['_id']) in old_params['audiences'] and show_audiences else 'false')">
+                                        $audience['description']
+                                    </li>
+                            </ul>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Alerts -->
+<div id="alerts">
+    $for msg in msgs:
+    <div class="alert alert-warning alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $msg
+    </div>
+</div>

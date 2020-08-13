@@ -12,6 +12,8 @@ $(function()
             $checkbox.attr('name', $widget.data('name'));
         if($widget.data('value'))
             $checkbox.attr('value', $widget.data('value'));
+        if($widget.data('class'))
+            $checkbox.addClass($widget.data('class'));
         var color = ($widget.data('color') ? $widget.data('color') : "primary"),
             style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
             settings = {

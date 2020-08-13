@@ -148,6 +148,17 @@ function download_page_select(select, panel_member)
 }
 
 /**
+ * Select/deselect all the checkboxes of the active panel
+ * @param select: boolean indicating if we should select or deselect
+ * @param panel_member: a child of the panel in which is the list
+ */
+function download_page_select_active(select, panel_member)
+{
+    panel_member = $(panel_member).closest('.card').find(".tab-content .active");
+    $('input[type="checkbox"]', panel_member).prop('checked', select).change();
+}
+
+/**
  * Select/deselect all the checkboxes of the panel depending on a list of users and groups tutored.
  * @param panel_member: a child of the panel in which is the list
  * @param users: a list of usernames
@@ -161,4 +172,15 @@ function download_page_select_tutor(panel_member, users, groups)
     $('input[name="audiences"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
     $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
     $('input[type="checkbox"]', panel_member).trigger('change');
+}
+
+/**
+ * Select/deselect all the checkboxes of the active panel depending on the presence of the class tutored.
+ * @param panel_member: a child of the panel in which is the list
+ */
+function download_page_select_tutored(panel_member)
+{
+    panel_member = $(panel_member).closest('.card').find(".tab-content .active");
+    $('input[name="audiences"], input[name="users"]', panel_member).not('.tutored').prop('checked', false).change();
+    $('input[name="audiences"].tutored, input[name="users"].tutored', panel_member).prop('checked', true).change();
 }
