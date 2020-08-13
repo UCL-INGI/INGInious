@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 import web
 import json
+import logging
 import pymongo
 from collections import OrderedDict
 from bson import ObjectId
@@ -15,6 +16,7 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, make
 
 class CourseSubmissionsNewPage(INGIniousAdminPage):
     """ Page that allow search, view, replay an download of submisssions done by students """
+    _logger = logging.getLogger("inginious.webapp.submissions")
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
@@ -28,7 +30,17 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             org_tags=[]
         )
 
-        if "csv" in user_input or "download" in user_input or "replay" in user_input:
+        if "replay_submission" in user_input:
+            # Replay a unique submission
+            submission = self.database.submissions.find_one({"_id": ObjectId(user_input["replay_submission"])})
+            if submission is None:
+                raise web.notfound()
+
+            web.header('Content-Type', 'application/json')
+            self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission)
+            return json.dumps({"status": "waiting"})
+
+        elif "csv" in user_input or "download" in user_input or "replay" in user_input:
             best_only = "eval_dl" in user_input and "download" in user_input
             params = self.get_params(json.loads(user_input.get("displayed_selection", "")), course)
             data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
@@ -81,8 +93,23 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
             tasks=[],
             org_tags=[]
         )
-        params = self.get_params(user_input, course)
 
+        if "download_submission" in user_input:
+            submission = self.database.submissions.find_one({"_id": ObjectId(user_input["download_submission"]),
+                                                             "courseid": course.get_id(),
+                                                             "status": {"$in": ["done", "error"]}})
+            if submission is None:
+                raise web.notfound()
+
+            self._logger.info("Downloading submission %s - %s - %s - %s", submission['_id'], submission['courseid'],
+                              submission['taskid'], submission['username'])
+            archive, error = self.submission_manager.get_submission_archive(course, [submission], [])
+            if not error:
+                web.header('Content-Type', 'application/x-gzip', unique=True)
+                web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
+                return archive
+
+        params = self.get_params(user_input, course)
         return self.page(course, params)
 
     def page(self, course, params, page=1, msgs=None):

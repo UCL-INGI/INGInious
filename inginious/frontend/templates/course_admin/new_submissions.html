@@ -361,10 +361,10 @@ $var Navbar: $:NavbarF()
                 <div class="btn-group btn-group-sm" role="group">
                     <a href="$get_homepath()/submission/$submission['_id']"
                        class="btn btn-secondary" title=$:_('"View submission"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/new_submissions?download_submission=$submission['_id']" class="btn btn-secondary" title=$:_('"Download submission"') data-toggle="tooltip"
+                    <a href="$get_homepath()/admin/${course.get_id()}/new_submissions?download_submission=$submission['_id']#alerts" class="btn btn-secondary" title=$:_('"Download submission"') data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
                     $if is_admin:
-                        <a href="#" class="replay btn btn-secondary" title=$:_('"Replay submission"') data-toggle="tooltip" data-submissionid="$submission['_id']"
+                        <a href="#alerts" class="replay btn btn-secondary" title=$:_('"Replay submission"') data-toggle="tooltip" data-submissionid="$submission['_id']"
                            data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>
@@ -429,3 +429,20 @@ $var Navbar: $:NavbarF()
     </div>
 </div>
 <!-- Modal to download submissions END -->
+
+<script>
+    $if is_admin:
+        $$(".replay").click (function (event) {
+            var row = $$(this).rparent(3);
+            $$.ajax({
+                type: "POST",
+                url: "/admin/${course.get_id()}/new_submissions",
+                data: "replay_submission=" + $$(this).data("submissionid"),
+                success: function(data) {
+                    row.find("#status").text($:_('"Waiting"') + " (0.0%)");
+                    row.removeClass();
+                    row.addClass("table-warning");
+                }
+            });
+        });
+</script>
