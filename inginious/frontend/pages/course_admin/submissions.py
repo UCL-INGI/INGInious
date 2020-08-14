@@ -52,7 +52,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
                 if (best_only or "eval" in params) and "simplify" in user_input:
                     sub_folders = list(download_type.split('/'))
                 else:
-                    sub_folders = list(download_type.split('/')) + ["submissionid"]
+                    sub_folders = list(download_type.split('/')) + ["submissiondateid"]
                 archive, error = self.submission_manager.get_submission_archive(course, data, sub_folders, simplify="simplify" in user_input)
                 if not error:
                     # self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())

@@ -545,6 +545,8 @@ class WebAppSubmissionManager:
                 yield from generate_paths(sub, path + ['-'.join(sorted(sub['username']))], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "submissionid":
                 yield from generate_paths(sub, path + [str(sub['_id'])], remaining_sub_folders[1:])
+            elif remaining_sub_folders[0] == "submissiondateid":
+                yield from generate_paths(sub, path + [(sub['submitted_on']).strftime("%Y-%m-%d-%H:%M:%S")], remaining_sub_folders[1:])
             else:
                 yield from generate_paths(sub, path + [remaining_sub_folders[0]], remaining_sub_folders[1:])
 
@@ -552,7 +554,12 @@ class WebAppSubmissionManager:
         for submission in submissions:
             # generate all paths where the submission must belong
             for base_path in generate_paths(submission, [], sub_folders):
-                file_to_put["/".join(base_path)] = submission
+                base_path = "/".join(base_path)
+                path, i = base_path, 1
+                while path in file_to_put:
+                    path = base_path + "-" + str(i)
+                    i += 1
+                file_to_put[path] = submission
 
         tmpfile = archive_file if archive_file is not None else tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
