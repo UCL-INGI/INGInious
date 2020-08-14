@@ -101,7 +101,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
 
         all_submissions = sorted(all_submissions.items())
         valid_submissions = sorted(valid_submissions.items())
-        return (all_submissions, valid_submissions)
+        return all_submissions, valid_submissions
 
     def submission_url_generator(self, taskid):
         """ Generates a submission url """
@@ -187,13 +187,10 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
         daterange = [None, None]
         try:
             if params.get('date_before', ''):
-                print("ah:" + str(params["date_before"]))
                 daterange[1] = datetime.strptime(params["date_before"], "%Y-%m-%d %H:%M:%S")
-                print("bh:" + str(daterange[1]))
             if params.get('date_after', ''):
                 daterange[0] = datetime.strptime(params["date_after"], "%Y-%m-%d %H:%M:%S")
-        except ValueError as e:  # If match of datetime.strptime() fails
-            print(str(e))
+        except ValueError:  # If match of datetime.strptime() fails
             msgs.append(_("Invalid dates"))
 
         if daterange[0] is None or daterange[1] is None:
@@ -202,6 +199,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
 
         params["date_before"] = daterange[1].strftime("%Y-%m-%d %H:%M:%S")
         params["date_after"] = daterange[0].strftime("%Y-%m-%d %H:%M:%S")
+        display_hours = (daterange[1] - daterange[0]).days < 4
 
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
@@ -228,7 +226,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
         return self.template_helper.get_renderer().course_admin.stats(course, users, tutored_users, audiences,
                                                                       tutored_audiences, tasks, params, stats_graph,
                                                                       stats_tasks, stats_users, stats_progress,
-                                                                      stats_global, msgs)
+                                                                      stats_global, display_hours, msgs)
 
 
 def compute_statistics(tasks, data, ponderation):

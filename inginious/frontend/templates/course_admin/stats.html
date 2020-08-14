@@ -1,4 +1,4 @@
-$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, stats_graph, stats_tasks, stats_users, stats_progress, stats_global, msgs)
+$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, stats_graph, stats_tasks, stats_users, stats_progress, stats_global, display_hour, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -152,14 +152,6 @@ $var Navbar: $:NavbarF()
             <h3>$:_("Submissions")</h3>
             <canvas id="canvas"></canvas>
             <script type="text/javascript">"use strict";
-                function submitStats() {
-                    var a = $$("#stats_from").val();
-                    var b = $$("#stats_to").val();
-                    var redirectTo = "$get_homepath(True)/admin/$course.get_id()/stats/"+a+"/"+b;
-                    console.log(redirectTo);
-                    window.location.pathname = redirectTo;
-                    return false;
-                }
 
                 var color = Chart.helpers.color;
                 var config = {
@@ -213,6 +205,13 @@ $var Navbar: $:NavbarF()
                                         fontStyle: 'bold',
                                         fontColor: '#FF0000'
                                     }
+                                },
+                                time: {
+                                    displayFormats: {
+                                        'hour': 'ddd H:mm'
+                                    }
+                                    $if not display_hour:
+                                        ,minUnit: 'day'
                                 }
                             }],
                             yAxes: [{
