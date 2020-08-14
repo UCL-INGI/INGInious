@@ -318,8 +318,6 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     default_entries += [("stats", "<i class='fa fa-area-chart fa-fw'></i>&nbsp; " + _("Stats")),
                         ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students"))]
 
-    if not course.is_lti():
-        default_entries += [("groups", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Groups"))]
     if user_manager.has_admin_rights_on_course(course):
         default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks"))]
 
