@@ -11,10 +11,10 @@ from bson import ObjectId
 from datetime import datetime
 
 from inginious.common.base import id_checker
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, make_csv
+from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousSubmissionsAdminPage
 
 
-class CourseSubmissionsNewPage(INGIniousAdminPage):
+class CourseSubmissionsNewPage(INGIniousSubmissionsAdminPage):
     """ Page that allow search, view, replay an download of submisssions done by students """
     _logger = logging.getLogger("inginious.webapp.submissions")
 
@@ -42,7 +42,7 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
 
         elif "csv" in user_input or "download" in user_input or "replay" in user_input:
             best_only = "eval_dl" in user_input and "download" in user_input
-            params = self.get_params(json.loads(user_input.get("displayed_selection", "")), course)
+            params = self.get_input_params(json.loads(user_input.get("displayed_selection", "")), course)
             data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
 
             if "csv" in user_input:
@@ -74,14 +74,14 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
                 return self.page(course, params, msgs=msgs)
 
         elif "page" in user_input:
-            params = self.get_params(json.loads(user_input["displayed_selection"]), course)
+            params = self.get_input_params(json.loads(user_input["displayed_selection"]), course)
             try:
                 page = int(user_input["page"])
             except TypeError:
                 page = 1
             return self.page(course, params, page=page, msgs=msgs)
         else:
-            params = self.get_params(user_input, course)
+            params = self.get_input_params(user_input, course)
             return self.page(course, params, msgs=msgs)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
@@ -109,97 +109,20 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
                 web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
                 return archive
 
-        params = self.get_params(user_input, course)
+        params = self.get_input_params(user_input, course)
         return self.page(course, params)
 
     def page(self, course, params, page=1, msgs=None):
         """ Get all data and display the page """
         msgs = msgs if msgs else []
 
-        users = self.get_users(course)
-        audiences = self.user_manager.get_course_audiences(course)
-        tasks = course.get_tasks()
-
-        tutored_audiences = [str(audience["_id"]) for audience in audiences if
-                             self.user_manager.session_username() in audience["tutors"]]
-        tutored_users = []
-        for audience in audiences:
-            if self.user_manager.session_username() in audience["tutors"]:
-                tutored_users += audience["students"]
-
-        limit = params.get("limit", 50) if params.get("limit", 50) > 0 else 50
+        users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
         data, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
 
         return self.template_helper.get_renderer().course_admin.new_submissions(course, users, tutored_users, audiences,
                                                                                 tutored_audiences, tasks, params, data,
                                                                                 json.dumps(params), pages, page, msgs)
-
-    def get_users(self, course):
-        user_ids = self.user_manager.get_course_registered_users(course)
-        users = {user: self.user_manager.get_user_realname(user) for user in user_ids}
-        return OrderedDict(sorted(users.items(), key=lambda x: x[1]))
-
-    def get_params(self, user_input, course):
-        users = self.get_users(course)
-        audiences = self.user_manager.get_course_audiences(course)
-        tasks = course.get_tasks()
-
-        # Sanitise user
-        if not user_input.get("users", []) and not user_input.get("audiences", []):
-            user_input["users"] = list(users.keys())
-        if len(user_input.get("users", [])) == 1 and "," in user_input["users"][0]:
-            user_input["users"] = user_input["users"][0].split(',')
-        user_input["users"] = [user for user in user_input["users"] if user in users]
-
-        # Sanitise audiences
-        if len(user_input.get("audiences", [])) == 1 and "," in user_input["audiences"][0]:
-            user_input["audiences"] = user_input["audiences"][0].split(',')
-        user_input["audiences"] = [audience for audience in user_input["audiences"] if any(str(a["_id"]) == audience for a in audiences)]
-
-        # Sanitise tasks
-        if not user_input.get("tasks", []):
-            user_input["tasks"] = list(tasks.keys())
-        if len(user_input.get("tasks", [])) == 1 and "," in user_input["tasks"][0]:
-            user_input["tasks"] = user_input["tasks"][0].split(',')
-        user_input["tasks"] = [task for task in user_input["tasks"] if task in tasks]
-
-        # Sanitise tags
-        if not user_input.get("tasks", []):
-            user_input["tasks"] = []
-        if len(user_input.get("org_tags", [])) == 1 and "," in user_input["org_tags"][0]:
-            user_input["org_tags"] = user_input["org_tags"][0].split(',')
-        user_input["org_tags"] = [org_tag for org_tag in user_input["org_tags"] if org_tag in course.get_tags()]
-
-        # Sanitise grade
-        if "grade_min" in user_input:
-            try:
-                user_input["grade_min"] = int(user_input["grade_min"])
-            except:
-                user_input["grade_min"] = ''
-        if "grade_max" in user_input:
-            try:
-                user_input["grade_max"] = int(user_input["grade_max"])
-            except:
-                user_input["grade_max"] = ''
-
-        # Sanitise order
-        if "sort_by" in user_input and user_input["sort_by"] not in ["submitted_on", "username", "grade", "taskid"]:
-            user_input["sort_by"] = "submitted_on"
-        if "order" in user_input:
-            try:
-                user_input["order"] = 1 if int(user_input["order"]) == 1 else 0
-            except:
-                user_input["order"] = 0
-
-        # Sanitise limit
-        if "limit" in user_input:
-            try:
-                user_input["limit"] = int(user_input["limit"])
-            except:
-                user_input["limit"] = 50
-
-        return user_input
 
     def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None, best_only=False):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
@@ -234,12 +157,6 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
                                              limit=limit,
                                              skip=skip)
 
-    def _validate_list(self, list_of_ids):
-        """ Prevent MongoDB injections by verifying arrays sent to it """
-        for i in list_of_ids:
-            if not id_checker(i):
-                raise web.notfound()
-
     def get_selected_submissions(self, course,
                                  only_tasks=None, only_tasks_with_categories=None,
                                  only_users=None, only_audiences=None,
@@ -272,72 +189,16 @@ class CourseSubmissionsNewPage(INGIniousAdminPage):
         :param limit: an integer representing the maximum number of submission to list.
         :return: a list of submission filling the criterias above.
         """
-        # Create the filter for the query. base_filter is used to also filter the collection user_tasks.
-        base_filter = {"courseid": course.get_id()}
-        filter = {}
 
-        # Tasks (with categories)
-        if only_tasks and not only_tasks_with_categories:
-            self._validate_list(only_tasks)
-            base_filter["taskid"] = {"$in": only_tasks}
-        elif only_tasks_with_categories:
-            only_tasks_with_categories = set(only_tasks_with_categories)
-            more_tasks = {taskid for taskid, task in course.get_tasks().items() if
-                          only_tasks_with_categories.intersection(task.get_categories())}
-            if only_tasks:
-                self._validate_list(only_tasks)
-                more_tasks.intersection_update(only_tasks)
-            base_filter["taskid"] = {"$in": list(more_tasks)}
+        filter, best_submissions_list = self.get_submissions_filter(course, only_tasks=only_tasks,
+                                                                    only_tasks_with_categories=only_tasks_with_categories,
+                                                                    only_users=only_users,
+                                                                    only_audiences=only_audiences, with_tags=with_tags,
+                                                                    grade_between=grade_between,
+                                                                    submit_time_between=submit_time_between,
+                                                                    keep_only_evaluation_submissions=keep_only_evaluation_submissions,
+                                                                    keep_only_crashes=keep_only_crashes)
 
-        # Users/audiences
-        if only_users and not only_audiences:
-            self._validate_list(only_users)
-            base_filter["username"] = {"$in": only_users}
-        elif only_audiences:
-            list_audience_id = [ObjectId(o) for o in only_audiences]
-            students = set()
-            for audience in self.database.audiences.find({"_id": {"$in": list_audience_id}}):
-                students.update(audience["students"])
-            if only_users:  # do the intersection
-                self._validate_list(only_users)
-                students.intersection_update(only_users)
-            base_filter["username"] = {"$in": list(students)}
-
-        # Tags
-        for tag_id, should_be_present in with_tags or []:
-            if id_checker(tag_id):
-                filter["tests." + tag_id] = {"$in": [None, False]} if not should_be_present else True
-
-        # Grades
-        if grade_between and grade_between[0] is not None:
-            filter.setdefault("grade", {})["$gte"] = float(grade_between[0])
-        if grade_between and grade_between[1] is not None:
-            filter.setdefault("grade", {})["$lte"] = float(grade_between[1])
-
-        # Submit time
-        try:
-            if submit_time_between and submit_time_between[0] is not None:
-                filter.setdefault("submitted_on", {})["$gte"] = datetime.strptime(submit_time_between[0], "%Y-%m-%d %H:%M:%S")
-            if submit_time_between and submit_time_between[1] is not None:
-                filter.setdefault("submitted_on", {})["$lte"] = datetime.strptime(submit_time_between[1], "%Y-%m-%d %H:%M:%S")
-        except ValueError:
-            # TODO it would be nice to display this in the interface. However, this should never happen because
-            # we have a nice JS interface that prevents this.
-            pass
-
-        # Only crashed or timed-out submissions
-        if keep_only_crashes:
-            filter["result"] = {"$in": ["crash", "timeout"]}
-
-        # Only evaluation submissions
-        user_tasks = self.database.user_tasks.find(base_filter)
-        best_submissions_list = {user_task['submissionid'] for user_task in user_tasks if
-                                 user_task['submissionid'] is not None}
-
-        if keep_only_evaluation_submissions is True:
-            filter["_id"] = {"$in": list(best_submissions_list)}
-
-        filter.update(base_filter)
         submissions = self.database.submissions.find(filter)
         submissions_count = submissions.count()
 

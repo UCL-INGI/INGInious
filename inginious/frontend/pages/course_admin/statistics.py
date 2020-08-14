@@ -8,14 +8,15 @@ from collections import OrderedDict
 
 import web
 
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage, make_csv
+from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousSubmissionsAdminPage
 from datetime import datetime, date, timedelta
 
 
-class CourseStatisticsPage(INGIniousAdminPage):
-    def _tasks_stats(self, courseid, tasks, daterange):
+class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
+    def _tasks_stats(self, tasks, filter, limit):
         stats_tasks = self.database.submissions.aggregate(
-            [{"$match": {"submitted_on": {"$gte": daterange[0], "$lt": daterange[1]}, "courseid": courseid}},
+            [{"$match": filter},
+             {"$limit": limit},
              {"$project": {"taskid": "$taskid", "result": "$result"}},
              {"$group": {"_id": "$taskid", "submissions": {"$sum": 1}, "validSubmissions":
                  {"$sum": {"$cond": {"if": {"$eq": ["$result", "success"]}, "then": 1, "else": 0}}}}
@@ -29,14 +30,16 @@ class CourseStatisticsPage(INGIniousAdminPage):
             for x in stats_tasks
         ]
 
-    def _users_stats(self, courseid, daterange):
+    def _users_stats(self, filter, limit):
         stats_users = self.database.submissions.aggregate([
-            {"$match": {"submitted_on": {"$gte": daterange[0], "$lt": daterange[1]}, "courseid": courseid}},
+            {"$match": filter},
+            {"$limit": limit},
             {"$project": {"username": "$username", "result": "$result"}},
             {"$unwind": "$username"},
             {"$group": {"_id": "$username", "submissions": {"$sum": 1}, "validSubmissions":
                 {"$sum": {"$cond": {"if": {"$eq": ["$result", "success"]}, "then": 1, "else": 0}}}}
              },
+            {"$limit": limit},
             {"$sort": {"submissions": -1}}])
 
         return [
@@ -46,7 +49,7 @@ class CourseStatisticsPage(INGIniousAdminPage):
             for x in stats_users
         ]
 
-    def _graph_stats(self, courseid, daterange):
+    def _graph_stats(self, daterange, filter, limit):
         project = {
             "year": {"$year": "$submitted_on"},
             "month": {"$month": "$submitted_on"},
@@ -69,8 +72,11 @@ class CourseStatisticsPage(INGIniousAdminPage):
             max_date = max_date.replace(hour=0)
             delta1 = timedelta(days=1)
 
+        filter["submitted_on"] = {"$gte": min_date, "$lt": max_date+delta1}
+
         stats_graph = self.database.submissions.aggregate(
-            [{"$match": {"submitted_on": {"$gte": min_date, "$lt": max_date+delta1}, "courseid": courseid}},
+            [{"$match": filter},
+             {"$limit": limit},
              {"$project": project},
              {"$group": {"_id": groupby, "submissions": {"$sum": 1}, "validSubmissions":
                  {"$sum": {"$cond": {"if": {"$eq": ["$result", "success"]}, "then": 1, "else": 0}}}}
@@ -137,31 +143,89 @@ class CourseStatisticsPage(INGIniousAdminPage):
                 result[entry["_id"]]["succeeded"] = entry["succeeded"]
         return result
 
-    def GET_AUTH(self, courseid, f=None, t=None):  # pylint: disable=arguments-differ
+    def _global_stats(self, tasks, filter, limit, best_submissions_list, pond_stat):
+        submissions = self.database.submissions.find(filter)
+        if limit is not None:
+            submissions.limit(limit)
+
+        data = list(submissions)
+        for d in data:
+            d["best"] = d["_id"] in best_submissions_list  # mark best submissions
+
+        return compute_statistics(tasks, data, pond_stat)
+
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
-        tasks = course.get_tasks()
-        now = datetime.now().replace(minute=0, second=0, microsecond=0)
 
-        error = None
-        if f == None and t == None:
+        user_input = web.input(
+            users=[],
+            audiences=[],
+            tasks=[],
+            org_tags=[]
+        )
+        params = self.get_input_params(user_input, course, 500)
+
+        return self.page(course, params)
+
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
+        """ GET request """
+        course, __ = self.get_course_and_check_rights(courseid)
+
+        user_input = web.input(
+            users=[],
+            audiences=[],
+            tasks=[],
+            org_tags=[]
+        )
+        params = self.get_input_params(user_input, course, 500)
+
+        return self.page(course, params)
+
+    def page(self, course, params):
+        msgs = []
+        daterange = [None, None]
+        try:
+            if params.get('date_before', ''):
+                print("ah:" + str(params["date_before"]))
+                daterange[1] = datetime.strptime(params["date_before"], "%Y-%m-%d %H:%M:%S")
+                print("bh:" + str(daterange[1]))
+            if params.get('date_after', ''):
+                daterange[0] = datetime.strptime(params["date_after"], "%Y-%m-%d %H:%M:%S")
+        except ValueError as e:  # If match of datetime.strptime() fails
+            print(str(e))
+            msgs.append(_("Invalid dates"))
+
+        if daterange[0] is None or daterange[1] is None:
+            now = datetime.now().replace(minute=0, second=0, microsecond=0)
             daterange = [now - timedelta(days=14), now]
-        else:
-            try:
-                daterange = [datetime.strptime(x[0:16], "%Y-%m-%dT%H:%M") for x in (f,t)]
-            except:
-                error = _("Invalid dates")
-                daterange = [now - timedelta(days=14), now]
 
-        stats_tasks = self._tasks_stats(courseid, tasks, daterange)
-        stats_users = self._users_stats(courseid, daterange)
-        stats_graph = self._graph_stats(courseid, daterange)
+        users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
+
+        filter, best_submissions_list = self.get_submissions_filter(course, only_tasks=params["tasks"],
+                                             only_tasks_with_categories=params["org_tags"],
+                                             only_users=params["users"],
+                                             only_audiences=params["audiences"],
+                                             grade_between=[
+                                                 float(params["grade_min"]) if params.get('grade_min', '') else None,
+                                                 float(params["grade_max"]) if params.get('grade_max', '') else None
+                                             ],
+                                             submit_time_between=[x.strftime("%Y-%m-%d %H:%M:%S") for x in daterange],
+                                             keep_only_crashes="crashes_only" in params)
+
+        stats_tasks = self._tasks_stats(tasks, filter, limit)
+        stats_users = self._users_stats(filter, limit)
+        stats_graph = self._graph_stats(daterange, filter, limit)
         stats_progress = self._progress_stats(course)
+        stats_global = self._global_stats(tasks, filter, limit, best_submissions_list, params.get('stat', 'normal') == 'pond_stat')
 
         if "progress_csv" in web.input():
             return make_csv(stats_progress)
 
-        return self.template_helper.get_renderer().course_admin.stats(course, stats_graph, stats_tasks, stats_users, stats_progress, daterange, error)
+        return self.template_helper.get_renderer().course_admin.stats(course, users, tutored_users, audiences,
+                                                                      tutored_audiences, tasks, params, stats_graph,
+                                                                      stats_tasks, stats_users, stats_progress,
+                                                                      stats_global, msgs)
 
 
 def compute_statistics(tasks, data, ponderation):
