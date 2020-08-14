@@ -138,7 +138,7 @@ class CourseEditAudience(INGIniousAdminPage):
                     msg = _("Audience updated.")
 
             if audienceid and audienceid in data["delete"]:
-                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/audiences")
+                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
 
         try:
             if "upload" in data:

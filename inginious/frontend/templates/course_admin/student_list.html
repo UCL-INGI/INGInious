@@ -1,4 +1,4 @@
-$def with (course,user_data,error,post)
+$def with (course,user_data,audiences,active_tab,error,msg)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -8,6 +8,8 @@ $#
 $var title: $:course.get_name(user_manager.session_language())
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+
+$ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <nav aria-label="breadcrumb">
@@ -37,6 +39,10 @@ $var Navbar: $:NavbarF()
                 <a href="#tab_staff" class="nav-link" aria-controls="staff" role="tab" data-toggle="tab">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Teaching staff")</a>
             </li>
+            <li class="nav-item">
+                <a href="#tab_audiences" class="nav-link" aria-controls="staff" role="tab" data-toggle="tab">
+                <i class="fa fa-users fa-fw"></i>&nbsp; $:_("Audiences")</a>
+            </li>
         </ul>
     </div>
     <div class="tab-content">
@@ -46,12 +52,117 @@ $var Navbar: $:NavbarF()
                 <form method="post">
                     <div class="form-group row">
                         <div class="col-sm-9"><input class="form-control" name="username" placeholder="Student username" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAkCAYAAADo6zjiAAAAAXNSR0IArs4c6QAAAbNJREFUWAntV8FqwkAQnaymUkpChB7tKSfxWCie/Yb+gbdeCqGf0YsQ+hU95QNyDoWCF/HkqdeiIaEUqyZ1ArvodrOHxanQOiCzO28y781skKwFW3scPV1/febP69XqarNeNTB2KGs07U3Ttt/Ozp3bh/u7V7muheQf6ftLUWyYDB5yz1ijuPAub2QRDDunJsdGkAO55KYYjl0OUu1VXOzQZ64Tr+IiPXedGI79bQHdbheCIAD0dUY6gV6vB67rAvo6IxVgWVbFy71KBKkAFaEc2xPQarXA931ot9tyHphiPwpJgSbfe54Hw+EQHMfZ/msVEEURjMfjCjbFeG2dFxPo9/sVOSYzxmAwGIjnTDFRQLMQAjQ5pJAQkCQJ5HlekeERxHEsiE0xUUCzEO9AmqYQhiF0Oh2Yz+ewWCzEY6aYKKBZCAGYs1wuYTabKdNNMWWxnaA4gp3Yry5JBZRlWTXDvaozUgGTyQSyLAP0dbb3DtQlmcan0yngT2ekE9ARc+z4AvC7nauh9iouhpcGamJeX8XF8MaClwaeROWRA7nk+tUnyzGvZrKg0/40gdME/t8EvgG0/NOS6v9NHQAAAABJRU5ErkJggg==&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; cursor: auto;" autocomplete="off" type="text"></div>
-                        <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i>$:_("Add student")</button></div>
+                        <div class="col-sm-3"><button name="register_student" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i>$:_("Add student")</button></div>
                     </div>
                 </form>
         </div>
         <div role="tabpanel" class="card-body tab-pane" id="tab_staff">
             $:include.course_admin.student_list_table(course,user_data[0:len(course.get_staff())], True)
         </div>
+        <div role="tabpanel" class="card-body tab-pane" id="tab_audiences">
+            <div class="pull-right">
+                <div class="btn-group btn-group-sm">
+                    <button type="submit" id="switch" class="btn btn-danger" data-toggle="modal" data-target="#upload_modal"><i class="fa fa-upload"></i>  $:_("Upload structure")</button>
+                    <a href="?download_audiences" class="btn btn-success"><i class="fa fa-download"></i>  $:_("Download structure")</a>
+                </div>
+            </div>
+            $if "audiences" in error:
+                <div class="alert alert-danger alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    $msg["audiences"]
+                </div>
+            $elif "audiences" in msg:
+                <div class="alert alert-success alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    $msg["audiences"]
+                </div>
+
+            <div class="modal fade" id="upload_modal">
+                <form method="post" enctype="multipart/form-data" action="edit/audiences">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title"> $:_("Upload course structure")</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <p> $:_("Note : Please refer to documentation for file format")</p>
+                                <div class="form-group">
+                                    <label for="name" class="col-sm-2 control-label"> $:_("Course structure")</label>
+                                    <input name="audiencefile" type="file">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button name="upload" class="btn btn-danger btn-block" type="submit"><i class="fa fa-upload"></i>  $:_("Upload (will erase current settings)")</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <table class="table">
+                <thead class="table-borderless">
+                    <tr>
+                        <th>$:_("Audience")</th>
+                        <th>$:_("# students")</th>
+                        <th>$:_("# task tried")</th>
+                        <th>$:_("# task done")</th>
+                        <th>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faudience" class="btn btn-danger btn-xs"
+                                   title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                <a href="$get_homepath()/admin/${course.get_id()}/students?csv_audiences" class="btn btn-info btn-xs"
+                                   title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                $ text = [_("My audience(s)"), _("Other audience(s)")]
+                $for ind in range(0,2):
+                    $if len(audiences[ind]) > 0:
+                        $if len(audiences[0]) > 0 and len(audiences[1]) > 0:
+                            <tr>
+                                <th colspan="5">$text[ind]</th>
+                            </tr>
+                        $for audience in audiences[ind]:
+                            <tr>
+                                <td>
+                                    $audience["description"]
+                                </td>
+                                <td>$(len(audience["students"]))</td>
+                                <td>$audience["tried"]</td>
+                                <td>$audience["done"]</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="$get_homepath()/admin/${course.get_id()}/edit/audience/$audience['_id']" class="btn btn-primary" title=$:_('"Edit audience"') data-toggle="tooltip"
+                                           data-placement="bottom"><i class="fa fa-edit"></i></a>
+                                        <a href="$get_homepath()/admin/${course.get_id()}/submissions$audience['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
+                                           data-placement="bottom"><i class="fa fa-search"></i></a>
+                                        <a href="$get_homepath()/admin/${course.get_id()}/download$audience['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
+                                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                        $if is_admin:
+                                            <a href="$get_homepath()/admin/${course.get_id()}/replay$audience['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
+                                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                </tbody>
+            </table>
+
+            $ placeholder = _('New audience description')
+            $ btn = _("New audience")
+            <form class="form-horizontal" method="post">
+                <div class="form-group row">
+                    <div class="col-sm-9"><input type="text" class="form-control" name="audience" placeholder="$placeholder"/></div>
+                    <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $btn</button></div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+<script>
+    $$(function() {
+        $$('.nav-tabs a[href="#$active_tab"]').tab('show');
+    });
+</script>
