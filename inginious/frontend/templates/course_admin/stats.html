@@ -259,8 +259,7 @@ $var Navbar: $:NavbarF()
     $$(function() {
         var url = window.location.href;
         if(url.indexOf('alerts') >= 0){
-            $$(".tab-pane").removeClass("active in");
-            $$("#tab_submissions").addClass("active in");
+            $$('.nav-tabs a[href="#tab_submissions"]').tab('show');
         } else {
             dropdown(document.getElementById("query_header"))
         }
