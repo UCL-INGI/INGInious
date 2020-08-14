@@ -47,13 +47,13 @@ class CourseStudentListPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, __ = self.get_course_and_check_rights(courseid, None, False)
-        data = web.input(delete=[], groupfile={})
+        data = web.input(delete=[], groupfile={}, audiencefile={})
         error = {}
         msg = {}
         active_tab = "tab_students"
 
         self.post_student_list(course, data)
-        active_tab = self.post_audiences(course, msg, error, active_tab)
+        active_tab = self.post_audiences(course, data, active_tab, msg, error)
         active_tab = self.post_groups(course, data, active_tab, msg, error)
 
         return self.page(course, active_tab, msg, error)
@@ -174,9 +174,8 @@ class CourseStudentListPage(INGIniousAdminPage):
             except:
                 pass
 
-    def post_audiences(self, course, msg, error, active_tab):
+    def post_audiences(self, course, data, active_tab, msg, error):
         try:
-            data = web.input()
             if 'audience' in data:
                 if self.user_manager.has_admin_rights_on_course(course):
 
@@ -191,6 +190,40 @@ class CourseStudentListPage(INGIniousAdminPage):
 
         except:
             msg["audiences"] = _('User returned an invalid form.')
+            error["audiences"] = True
+            active_tab = "tab_audiences"
+
+        try:
+            if "upload_audiences" in data or "audiences" in data:
+                errored_students = []
+                if "upload_audiences" in data:
+                    self.database.audiences.delete_many({"courseid": course.get_id()})
+                    audiences = custom_yaml.load(data["audiencefile"].file)
+                else:
+                    audiences = json.loads(data["audiences"])
+
+                for index, new_audience in enumerate(audiences):
+                    # In case of file upload, no id specified
+                    new_audience['_id'] = new_audience['_id'] if '_id' in new_audience else 'None'
+
+                    # Update the audience
+                    audience, errors = self.update_audience(course, new_audience['_id'], new_audience)
+
+                    # If file upload was done, get the default audience id
+                    audienceid = audience['_id']
+                    errored_students += errors
+
+                if len(errored_students) > 0:
+                    msg["audiences"] = _("Changes couldn't be applied for following students :") + "<ul>"
+                    for student in errored_students:
+                        msg["audiences"] += "<li>" + student + "</li>"
+                    msg["audiences"] += "</ul>"
+                    error["audiences"] = True
+                elif not error:
+                    msg["audiences"] = _("Audience updated.")
+                active_tab = "tab_audiences"
+        except Exception:
+            msg["audiences"] = _('An error occurred while parsing the data.')
             error["audiences"] = True
             active_tab = "tab_audiences"
         return active_tab
@@ -250,7 +283,6 @@ class CourseStudentListPage(INGIniousAdminPage):
                 elif not error:
                     msg["groups"] = _("Groups updated.")
             except:
-                raise
                 msg["groups"] = _('An error occurred while parsing the data.')
                 error["groups"] = True
             active_tab = "tab_groups"
@@ -324,3 +356,55 @@ class CourseStudentListPage(INGIniousAdminPage):
                       "students": students}}, return_document=ReturnDocument.AFTER)
 
         return group, errored_students
+
+    def update_audience(self, course, audienceid, new_data):
+        """ Update audience and returns a list of errored students"""
+
+        student_list = self.user_manager.get_course_registered_users(course, False)
+
+        # If audience is new
+        if audienceid == 'None':
+            # Remove _id for correct insertion
+            del new_data['_id']
+            new_data["courseid"] = course.get_id()
+
+            # Insert the new audience
+            result = self.database.audiences.insert_one(new_data)
+
+            # Retrieve new audience id
+            audienceid = result.inserted_id
+            new_data['_id'] = result.inserted_id
+            audience = new_data
+        else:
+            audience = self.database.audiences.find_one({"_id": ObjectId(audienceid), "courseid": course.get_id()})
+
+        # Check tutors
+        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
+
+        students, errored_students = [], []
+
+        # Check the students
+        for student in new_data["students"]:
+            if student in student_list:
+                students.append(student)
+            else:
+                # Check if user can be registered
+                user_info = self.user_manager.get_user_info(student)
+                if user_info is None or student in audience["tutors"]:
+                    errored_students.append(student)
+                else:
+                    self.user_manager.course_register_user(course, student, force=True)
+                    students.append(student)
+
+        removed_students = [student for student in audience["students"] if student not in new_data["students"]]
+        self.database.audiences.find_one_and_update({"courseid": course.get_id()},
+                                                     {"$push": {"students": {"$each": removed_students}}})
+
+        new_data["students"] = students
+
+        audience = self.database.audiences.find_one_and_update(
+            {"_id": ObjectId(audienceid)},
+            {"$set": {"description": new_data["description"],
+                      "students": students, "tutors": new_data["tutors"]}}, return_document=ReturnDocument.AFTER)
+
+        return audience, errored_students
