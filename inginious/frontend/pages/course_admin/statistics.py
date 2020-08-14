@@ -200,6 +200,9 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
             now = datetime.now().replace(minute=0, second=0, microsecond=0)
             daterange = [now - timedelta(days=14), now]
 
+        params["date_before"] = daterange[1].strftime("%Y-%m-%d %H:%M:%S")
+        params["date_after"] = daterange[0].strftime("%Y-%m-%d %H:%M:%S")
+
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
         filter, best_submissions_list = self.get_submissions_filter(course, only_tasks=params["tasks"],
