@@ -499,7 +499,7 @@ class WebAppSubmissionManager:
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
 
-    def get_submission_archive(self, course, submissions, sub_folders, archive_file=None):
+    def get_submission_archive(self, course, submissions, sub_folders, archive_file=None, simplify=False):
         """
         :param course: the course object linked to the submission
         :param submissions: a list of submissions
@@ -604,7 +604,10 @@ class WebAppSubmissionManager:
                                             ext = t_ext
 
                                 subfile = io.BytesIO(problem['value'])
-                                taskfname = base_path + '/uploaded_files/' + pid + ext
+                                if simplify and (pid + ext) != "submission.test":
+                                    taskfname = base_path + '/' + pid + ext
+                                else:
+                                    taskfname = base_path + '/uploaded_files/' + pid + ext
 
                                 # Generate file info
                                 info = tarfile.TarInfo(name=taskfname)

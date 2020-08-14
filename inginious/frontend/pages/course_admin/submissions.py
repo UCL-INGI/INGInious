@@ -49,8 +49,11 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
                 download_type = user_input.get("download_type", "")
                 if download_type not in ["taskid/username", "taskid/audience", "username/taskid", "audience/taskid"]:
                     download_type = "taskid/username"
-                archive, error = self.submission_manager.get_submission_archive(course, data,
-                                                                                list(download_type.split('/'))+["submissionid"])
+                if (best_only or "eval" in params) and "simplify" in user_input:
+                    sub_folders = list(download_type.split('/'))
+                else:
+                    sub_folders = list(download_type.split('/')) + ["submissionid"]
+                archive, error = self.submission_manager.get_submission_archive(course, data, sub_folders, simplify="simplify" in user_input)
                 if not error:
                     # self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
                     web.header('Content-Type', 'application/x-gzip', unique=True)
