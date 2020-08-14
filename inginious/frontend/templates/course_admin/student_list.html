@@ -114,10 +114,10 @@ $var Navbar: $:NavbarF()
                         <th>$:_("# task done")</th>
                         <th>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faudience" class="btn btn-danger btn-xs"
-                                   title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                 <a href="$get_homepath()/admin/${course.get_id()}/students?csv_audiences" class="btn btn-info btn-xs"
                                    title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                                <a href="$get_homepath()/admin/${course.get_id()}/submissions?audiences=$:(','.join([str(id) for id in audience_list]))" class="btn btn-secondary btn-xs"
+                                   title=$:_('"View all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
                             </div>
                         </th>
                     </tr>
@@ -142,13 +142,9 @@ $var Navbar: $:NavbarF()
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a href="$get_homepath()/admin/${course.get_id()}/edit/audience/$audience['_id']" class="btn btn-primary" title=$:_('"Edit audience"') data-toggle="tooltip"
                                            data-placement="bottom"><i class="fa fa-edit"></i></a>
-                                        <a href="$get_homepath()/admin/${course.get_id()}/submissions$audience['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
-                                           data-placement="bottom"><i class="fa fa-search"></i></a>
-                                        <a href="$get_homepath()/admin/${course.get_id()}/download$audience['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
-                                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        $if is_admin:
-                                            <a href="$get_homepath()/admin/${course.get_id()}/replay$audience['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
-                                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                        <a href="$get_homepath()/admin/${course.get_id()}/submissions$audience['url']" class="btn btn-secondary" title="$:_('View submissions')" data-toggle="tooltip"
+                                            data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
+
                                     </div>
                                 </td>
                             </tr>

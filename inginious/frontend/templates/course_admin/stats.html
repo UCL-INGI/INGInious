@@ -52,12 +52,12 @@ $var Navbar: $:NavbarF()
                     <th>$:_("# attempts")</th>
                     <th>
                         <div class="btn-group btn-group-sm" role="group">
-                            <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername"
-                               class="btn btn-danger" title=$:_('"Download all submissions"') data-toggle="tooltip"
-                            data-placement="bottom"><i class="fa fa-download"></i></a>
                             <a href="$get_homepath()/admin/${course.get_id()}/stats?progress_csv" class="btn btn-info"
                                title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i
                                 class="fa fa-table"></i></a>
+                            <a href="$get_homepath()/admin/${course.get_id()}/submissions"
+                               class="btn btn-secondary" title=$:_('"View all submissions"') data-toggle="tooltip"
+                            data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
                         </div>
                     </th>
                 </tr>
@@ -73,14 +73,8 @@ $var Navbar: $:NavbarF()
                     <td>$stats_progress[taskid]["attempts"]</td>
                                 <td style="min-width:120px">
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$stats_progress[taskid]['url']" class="btn btn-secondary" title=$:_('"View results"') data-toggle="tooltip"
-                                   data-placement="bottom"><i class="fa fa-users"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/download$stats_progress[taskid]['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
-                                   data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                $if is_admin:
-                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$stats_progress[taskid]['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
-                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                            </div>
+                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$stats_progress[taskid]['url']" class="btn btn-secondary" title="$:_('View submissions')" data-toggle="tooltip"
+                                   data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
                         </td>
                 </tr>
             </table>

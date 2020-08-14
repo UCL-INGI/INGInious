@@ -105,7 +105,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
 
     def submission_url_generator(self, taskid):
         """ Generates a submission url """
-        return "?format=taskid%2Fusername&tasks=" + taskid
+        return "?tasks=" + taskid
 
     def _progress_stats(self, course):
         data = list(self.database.user_tasks.aggregate(
