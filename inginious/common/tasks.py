@@ -120,6 +120,13 @@ class Task(object):
         """ Return the translation_fs parameter for this task"""
         return self._translations_fs
 
+    def get_old_order(self):
+        """ Return the the old ordering for compatibility reasons"""
+        try:
+            return int(self._data.get('order', -1))
+        except ValueError:
+            return -1
+
     def check_answer(self, task_input, language):
         """
             Verify the answers in task_input. Returns six values

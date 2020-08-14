@@ -49,11 +49,16 @@ class WebAppCourse(Course):
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
-            self._toc = SectionsList(self._content.get('toc',
-                       [{"id": "tasks-list",
-                         "title": _("List of exercises"),
-                         "rank": 0,
-                         "tasks_list": {taskid: rank for rank, taskid in enumerate(Course.get_tasks(self).keys())}}]))
+            if 'toc' in self._content:
+                self._toc = SectionsList(self._content['toc'])
+            else:
+                ordered_task_list = OrderedDict(
+                    sorted(list(Course.get_tasks(self).items()), key=lambda t: (t[1].get_old_order(), t[1].get_id())))
+                indexed_task_list = {taskid: rank for rank, taskid in enumerate(ordered_task_list.keys())}
+                self._toc = SectionsList([{"id": "tasks-list",
+                                           "title": _("List of exercises"),
+                                           "rank": 0,
+                                           "tasks_list": indexed_task_list}])
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
 
