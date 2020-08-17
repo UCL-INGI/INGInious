@@ -159,14 +159,16 @@ function download_page_select_active(select, panel_member)
 }
 
 /**
- * Select/deselect all the checkboxes of the active panel depending on the presence of the class tutored.
+ * Select/deselect all the checkboxes of the panel depending on a list of users and groups tutored.
  * @param panel_member: a child of the panel in which is the list
+ * @param users: a list of usernames
+ * @param audiences: a list of audiences ids
  */
-function download_page_select_tutored(panel_member)
+function download_page_select_tutor(panel_member, users, audiences)
 {
     panel_member = $(panel_member).closest('.card').find(".tab-content .active");
-    $('input[name="audiences"], input[name="users"]', panel_member).not('.tutored').prop('checked', false).change();
-    $('input[name="audiences"].tutored, input[name="users"].tutored', panel_member).prop('checked', true).change();
+    $('input[name="audiences"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),audiences) != -1); }).trigger('change');
+    $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); }).trigger('change');
 }
 
 /**

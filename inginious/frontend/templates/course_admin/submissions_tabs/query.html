@@ -49,7 +49,8 @@ $#
                         </li>
                         $if len(tutored_users) != 0 or len(tutored_audiences) != 0:
                             <li class="nav-item">
-                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutored(this)">Tutored only</button>
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
+                                    ['$("','".join(tutored_users))'], ['$("','".join(tutored_audiences))'])">Tutored only</button>
                             </li>
                     </ul>
                 </div>
@@ -61,7 +62,7 @@ $#
                         $else:
                             <ul class="list-group list-group-flush checked-list-box">
                                 $for userid, username in users.items():
-                                    <li class="list-group-item" data-class="$('tutored' if userid in tutored_users else '')"
+                                    <li class="list-group-item"
                                         data-checked="$('true' if userid in old_params['users'] and not show_audiences else 'false')"
                                         data-value="$userid" data-name="users">$username ($userid)</li>
                             </ul>
@@ -74,7 +75,6 @@ $#
                             <ul class="list-group list-group-flush checked-list-box">
                                 $for audience in audiences:
                                     <li class="list-group-item" data-value="$audience['_id']" data-name="audiences"
-                                        data-class="$('tutored' if str(audience['_id']) in tutored_audiences else '')"
                                         data-checked="$('true' if str(audience['_id']) in old_params['audiences'] and show_audiences else 'false')">
                                         $audience['description']
                                     </li>
