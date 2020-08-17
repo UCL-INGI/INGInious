@@ -131,6 +131,15 @@ class WebAppSubmissionManager:
                         "outcome_result_id": outcome_result_id,
                         "outcome_consumer_key": outcome_consumer_key})
 
+        # If we are submitting for a group, send the group (user list joined with ",") as username
+        if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+            username = self._user_manager.session_username()
+            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
+                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+                users = self._database.users.find({"username": {"$in": group["students"]}})
+                inputdata["@username"] = ','.join(group["students"])
+                inputdata["@email"] = ','.join([user["email"] for user in users])
+
     def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
         """
                 Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
@@ -140,12 +149,6 @@ class WebAppSubmissionManager:
                 :param submission: the new document that was inserted (do not contain _id)
                 :param submissionid: submission id of the submission
                 """
-        # If we are submitting for a group, send the group (user list joined with ",") as username
-        if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
-            username = self._user_manager.session_username()
-            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
-                inputdata["username"] = ','.join(group["students"])
 
         return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
 
@@ -183,6 +186,7 @@ class WebAppSubmissionManager:
             tried_count = my_user_task["tried"]
             inputdata["@attempts"] = str(tried_count + 1)
             inputdata["@username"] = username
+            inputdata["@email"] = self._user_manager.session_email()
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
@@ -259,6 +263,7 @@ class WebAppSubmissionManager:
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
         # new_submission hook
         inputdata["@username"] = username
+        inputdata["@email"] = self._user_manager.session_email()
         inputdata["@lang"] = self._user_manager.session_language()
         inputdata["@time"] = str(obj["submitted_on"])
         my_user_task = self._database.user_tasks.find_one(
@@ -273,9 +278,9 @@ class WebAppSubmissionManager:
         inputdata["@state"] = states["state"] if "state" in states else ""
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
-        obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
 
         self._before_submission_insertion(task, inputdata, debug, obj)
+        obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
