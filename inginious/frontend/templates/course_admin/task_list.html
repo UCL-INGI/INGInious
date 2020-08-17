@@ -1,4 +1,4 @@
-$def with (course, course_structure, tasks, errors, validated)
+$def with (course, course_structure, tasks, errors, validated, webdav_host)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -180,6 +180,28 @@ $def task_buttons(taskid):
 <!-- Content -->
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <h2>$:_("Tasks")</h2>
+
+    $if webdav_host:
+    <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white" id="webdav_head">
+                <div style="cursor: pointer" data-toggle="collapse" data-parent="#webdav_accord" href="#webdav" aria-expanded="false" aria-controls="webdav">
+                    <i class="fa fa-fw fa-chevron-right"></i>$:_("WebDAV access")
+                </div>
+            </div>
+            <div id="webdav" class="collapse" role="tabpanel" aria-labelledby="webdav_head">
+                <div class="card-body">
+                    $:_("Use this URL to access your course folder using WebDAV:")<br/>
+                <br/>
+                <table class="table">
+                    <tr><td>$:_("URL")</td><td><code>$(webdav_host + "/" + course.get_id())</code></td></tr>
+                    <tr><td>$:_("Username")</td><td><code>$user_manager.session_username()</code></td></tr>
+                    <tr><td>$:_("Password")</td><td><code>$user_manager.session_api_key()</code></td></tr>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     $if errors:
         $for error in errors:

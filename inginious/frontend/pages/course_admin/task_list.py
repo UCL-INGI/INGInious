@@ -86,4 +86,4 @@ class CourseTaskListPage(INGIniousAdminPage):
         for taskid in tasks:
             tasks_data[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()),
                               "url": self.submission_url_generator(taskid)}
-        return self.template_helper.get_renderer().course_admin.task_list(course, course.get_toc(), tasks_data, errors, validated)
+        return self.template_helper.get_renderer().course_admin.task_list(course, course.get_toc(), tasks_data, errors, validated, self.webdav_host)
