@@ -71,6 +71,7 @@ class RegistrationPage(INGIniousPage):
             r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
 
         # Check input format
+        print(data)
         if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
             error = True
             msg = _("Invalid username format.")
@@ -83,6 +84,9 @@ class RegistrationPage(INGIniousPage):
         elif data["passwd"] != data["passwd2"]:
             error = True
             msg = _("Passwords don't match !")
+        elif not "term_policy_check" in data:
+            error = True
+            msg = _("You didn't accept policies.")
 
         if not error:
             existing_user = self.database.users.find_one({"$or": [{"username": data["username"]}, {"email": data["email"]}]})
@@ -101,7 +105,8 @@ class RegistrationPage(INGIniousPage):
                                             "password": passwd_hash,
                                             "activate": activate_hash,
                                             "bindings": {},
-                                            "language": self.user_manager._session.get("language", "en")})
+                                            "language": self.user_manager._session.get("language", "en"),
+                                            "tos_accepted": True})
                 try:
                     web.sendmail(web.config.smtp_sendername, data["email"], _("Welcome on INGInious"),
                                  _("""Welcome on INGInious !
