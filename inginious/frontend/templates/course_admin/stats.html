@@ -1,4 +1,4 @@
-$def with (course, stats_graph, stats_tasks, stats_users, stats_progress, daterange, error)
+$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, stats_graph, stats_tasks, stats_users, stats_progress, stats_global, display_hour, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -52,12 +52,12 @@ $var Navbar: $:NavbarF()
                     <th>$:_("# attempts")</th>
                     <th>
                         <div class="btn-group btn-group-sm" role="group">
-                            <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername"
-                               class="btn btn-danger" title=$:_('"Download all submissions"') data-toggle="tooltip"
-                            data-placement="bottom"><i class="fa fa-download"></i></a>
                             <a href="$get_homepath()/admin/${course.get_id()}/stats?progress_csv" class="btn btn-info"
                                title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i
                                 class="fa fa-table"></i></a>
+                            <a href="$get_homepath()/admin/${course.get_id()}/submissions"
+                               class="btn btn-secondary" title=$:_('"View all submissions"') data-toggle="tooltip"
+                            data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
                         </div>
                     </th>
                 </tr>
@@ -73,46 +73,85 @@ $var Navbar: $:NavbarF()
                     <td>$stats_progress[taskid]["attempts"]</td>
                                 <td style="min-width:120px">
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$stats_progress[taskid]['url']" class="btn btn-secondary" title=$:_('"View results"') data-toggle="tooltip"
-                                   data-placement="bottom"><i class="fa fa-users"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/download$stats_progress[taskid]['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
-                                   data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                $if is_admin:
-                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$stats_progress[taskid]['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
-                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                            </div>
+                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$stats_progress[taskid]['url']" class="btn btn-secondary" title="$:_('View submissions')" data-toggle="tooltip"
+                                   data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
                         </td>
                 </tr>
             </table>
         </div>
         <div role="tabpanel" class="tab-pane card-body" id="tab_submissions">
-            <form onsubmit="return submitStats();">
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="stats_from">$:_("Compute stats since")</label>
-                        <input type="datetime-local" class="form-control" id="stats_from" placeholder="From" value="$daterange[0].strftime('%Y-%m-%dT%H:%M:%S')">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="stats_to">$:_("until")</label>
-                        <input type="datetime-local" class="form-control" id="stats_to" placeholder="To" value="$daterange[1].strftime('%Y-%m-%dT%H:%M:%S')">
+            $:include.course_admin.submissions_tabs.query(course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, "stats#alerts", True)
+            <!-- Alerts -->
+            <div id="alerts">
+                $for msg in msgs:
+                <div class="alert alert-warning alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    $msg
+                </div>
+            </div>
+
+            <!-- Statistics global -->
+            <h3>$:_("Global statistics")</h3>
+            <div class="row mb-3">
+                <div class="col-sm-5">
+                    <div class="card">
+                        <div class="card-header">$:_("Submissions statistics")</div>
+                        <div class="card-body ">
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    $for stat in stats_global[0]:
+                                        <tr>
+                                            <td class="summary-heading">$stat[0]</td>
+                                            <td class="summary-content">$stat[1]</td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Update</button>
-            </form>
+                $if len(stats_global) >= 2 and len(stats_global[1]) > 0:
+                    <div class="col-sm-7">
+                        <div class="card">
+                            <div class="card-header">$:_("Tag statistics")</div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless ">
+                                    <thead>
+                                        <tr>
+                                            <th>$:_("Tag")</th>
+                                            <th>$:_("All submissions")</th>
+                                            <th>$:_("Best submissions")</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        $for (tag, v_total, v_best) in stats_global[1]:
+                                            $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
+                                            <tr>
+                                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(user_manager.session_language())">$:_(tag.get_name(user_manager.session_language()))</span></td>
+                                                $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)
+                                                $ accuracy = 10
+                                                $ val_displayed_total = int(v_total*accuracy)/accuracy
+                                                $ val_displayed_best = int(v_best*accuracy)/accuracy
 
-            <h2>$:_("Stats between {} and {}").format(daterange[0].strftime("%d/%m/%Y %H:%M:%S"), daterange[1].strftime("%d/%m/%Y %H:%M:%S"))</h2>
+                                                $# If the displayed value is 0 but in fact the value is not 0 (e.g. 0.00001), we display the '>' character because we need to know that there is at least one tag True.
+                                                $if val_displayed_total == 0 and v_total != 0:
+                                                    $ val_displayed_total = "> " + str(val_displayed_total)
+                                                $if val_displayed_best == 0 and v_best != 0:
+                                                    $ val_displayed_best = "> " + str(val_displayed_best)
+                                                <td>$val_displayed_total %</td>
+                                                <td>$val_displayed_best %</td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <!-- Statistics End -->
+
 
             <h3>$:_("Submissions")</h3>
             <canvas id="canvas"></canvas>
             <script type="text/javascript">"use strict";
-                function submitStats() {
-                    var a = $$("#stats_from").val();
-                    var b = $$("#stats_to").val();
-                    var redirectTo = "$get_homepath(True)/admin/$course.get_id()/stats/"+a+"/"+b;
-                    console.log(redirectTo);
-                    window.location.pathname = redirectTo;
-                    return false;
-                }
 
                 var color = Chart.helpers.color;
                 var config = {
@@ -166,6 +205,13 @@ $var Navbar: $:NavbarF()
                                         fontStyle: 'bold',
                                         fontColor: '#FF0000'
                                     }
+                                },
+                                time: {
+                                    displayFormats: {
+                                        'hour': 'ddd H:mm'
+                                    }
+                                    $if not display_hour:
+                                        ,minUnit: 'day'
                                 }
                             }],
                             yAxes: [{
@@ -208,3 +254,15 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </div>
+
+<script>
+    $$(function() {
+        var url = window.location.href;
+        if(url.indexOf('alerts') >= 0){
+            $$('.nav-tabs a[href="#tab_submissions"]').tab('show');
+        } else {
+            dropdown(document.getElementById("query_header"))
+        }
+
+    });
+</script>

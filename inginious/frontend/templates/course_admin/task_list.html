@@ -168,6 +168,10 @@ $def task_buttons(taskid):
             title=$:_('"Edit task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-pencil text-muted "></i>
     </a>
+    <a class="rename_task btn bg-transparent p-0" href="$get_homepath()/admin/${course.get_id()}/submissions?tasks=$taskid"
+            title=$:_('"View submissions"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
+        <i class="fa fa-cloud-download text-muted "></i>
+    </a>
     <button class="delete_task btn bg-transparent p-0" data-toggle="modal" data-target="#delete_task_modal" onclick="open_delete_modal(this)"
             title=$:_('"Delete task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-trash text-muted "></i>
