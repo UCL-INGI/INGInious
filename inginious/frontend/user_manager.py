@@ -345,6 +345,11 @@ class UserManager:
             return info[1]
         return None
 
+    def has_accept_tos(self,username):
+        user = self._database.users.find_one({"username": username})
+        return "tos_accepted" in user
+
+
     def get_user_api_key(self, username, create=True):
         """
         Get the API key of a given user.

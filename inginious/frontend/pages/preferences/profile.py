@@ -96,6 +96,10 @@ class ProfilePage(INGIniousAuthPage):
             return result, msg, error
 
         msg = _("Profile updated.")
+
+        #updating tos
+        self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                {"$set": {"tos_accepted": "term_policy_check" in data}})
         return result, msg, error
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
