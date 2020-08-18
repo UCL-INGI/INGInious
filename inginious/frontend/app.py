@@ -222,8 +222,7 @@ def get_app(config):
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
-    is_tos_defined = fs_provider.exists(os.path.join(config.get("static_directory", "./static"), "terms.yaml")) and \
-                     fs_provider.exists(os.path.join(config.get("static_directory", "./static"), "privacy.yaml"))
+    is_tos_defined = config.get("privacy_page", "") is not "" and config.get("terms_page", "") is not ""
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -285,6 +284,8 @@ def get_app(config):
     appli.allow_deletion = config.get("allow_deletion", True)
     appli.available_languages = available_languages
     appli.welcome_page = config.get("welcome_page", None)
+    appli.terms_page = config.get("terms_page", None)
+    appli.privacy_page = config.get("privacy_page", None)
     appli.static_directory = config.get("static_directory", "./static")
     appli.webdav_host = config.get("webdav_host", None)
 

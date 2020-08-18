@@ -133,23 +133,6 @@ class INGIniousPage(object):
         """ Logger """
         return logging.getLogger('inginious.webapp.pages')
 
-    def is_tos_defined(self):
-        """
-            Verify is a term of condition is defined.
-        """
-        exist = True
-        files = ["privacy.yaml","terms.yaml"]
-        static_directory = self.app.static_directory
-        filepaths = [os.path.join(static_directory, files[0]),
-                     os.path.join(static_directory, files[1])]
-
-        for filepath in filepaths:
-            if not os.path.exists(filepath):
-                exist = False
-        print("ICI LUDO")
-        print(exist)
-        return exist
-
 
 class INGIniousAuthPage(INGIniousPage):
     """
@@ -169,7 +152,9 @@ class INGIniousAuthPage(INGIniousPage):
         """
         if self.user_manager.session_logged_in():
             user = self.database.users.find_one({"email": self.user_manager.session_email()})
-            if (not self.user_manager.session_username() or (self.is_tos_defined() and "tos_accepted" not in user))\
+            if (not self.user_manager.session_username() or (self.app.terms_page is not None and
+                                                             self.app.terms_page is not None and
+                                                             "tos_accepted" not in user))\
                     and not self.__class__.__name__ == "ProfilePage":
                 raise web.seeother("/preferences/profile")
 
