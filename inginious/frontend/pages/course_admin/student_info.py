@@ -28,7 +28,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
     def submission_url_generator(self, username, taskid):
         """ Generates a submission url """
-        return "?format=taskid%2Fusername&tasks=" + taskid + "&users=" + username
+        return "?tasks=" + taskid + "&users=" + username
 
     def page(self, course, username):
         """ Get all data and display the page """

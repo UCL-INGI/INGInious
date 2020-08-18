@@ -43,58 +43,6 @@ class CourseEditAudience(INGIniousAdminPage):
         else:
             return student_list, tutor_list, users_info
 
-    def update_audience(self, course, audienceid, new_data):
-        """ Update audience and returns a list of errored students"""
-
-        student_list = self.user_manager.get_course_registered_users(course, False)
-
-        # If audience is new
-        if audienceid == 'None':
-            # Remove _id for correct insertion
-            del new_data['_id']
-            new_data["courseid"] = course.get_id()
-
-            # Insert the new audience
-            result = self.database.audiences.insert_one(new_data)
-
-            # Retrieve new audience id
-            audienceid = result.inserted_id
-            new_data['_id'] = result.inserted_id
-            audience = new_data
-        else:
-            audience = self.database.audiences.find_one({"_id": ObjectId(audienceid), "courseid": course.get_id()})
-
-        # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
-
-        students, errored_students = [], []
-
-        # Check the students
-        for student in new_data["students"]:
-            if student in student_list:
-                students.append(student)
-            else:
-                # Check if user can be registered
-                user_info = self.user_manager.get_user_info(student)
-                if user_info is None or student in audience["tutors"]:
-                    errored_students.append(student)
-                else:
-                    self.user_manager.course_register_user(course, student, force=True)
-                    students.append(student)
-
-        removed_students = [student for student in audience["students"] if student not in new_data["students"]]
-        self.database.audiences.find_one_and_update({"courseid": course.get_id()},
-                                                     {"$push": {"students": {"$each": removed_students}}})
-
-        new_data["students"] = students
-
-        audience = self.database.audiences.find_one_and_update(
-            {"_id": ObjectId(audienceid)},
-            {"$set": {"description": new_data["description"],
-                      "students": students, "tutors": new_data["tutors"]}}, return_document=ReturnDocument.AFTER)
-
-        return audience, errored_students
-
     def display_page(self, course, audienceid, msg='', error=False):
         audience = self.database.audiences.find_one({"_id": ObjectId(audienceid), "courseid": course.get_id()})
         if not audience:
@@ -117,7 +65,6 @@ class CourseEditAudience(INGIniousAdminPage):
 
         msg=''
         error = False
-        errored_students = []
         data = web.input(delete=[], tutors=[], audiencefile={})
         if len(data["delete"]):
 
@@ -138,37 +85,7 @@ class CourseEditAudience(INGIniousAdminPage):
                     msg = _("Audience updated.")
 
             if audienceid and audienceid in data["delete"]:
-                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/audiences")
-
-        try:
-            if "upload" in data:
-                self.database.audiences.delete_many({"courseid": course.get_id()})
-                audiences = custom_yaml.load(data["audiencefile"].file)
-            else:
-                audiences = json.loads(data["audiences"])
-
-            for index, new_audience in enumerate(audiences):
-                # In case of file upload, no id specified
-                new_audience['_id'] = new_audience['_id'] if '_id' in new_audience else 'None'
-
-                # Update the audience
-                audience, errors = self.update_audience(course, new_audience['_id'], new_audience)
-
-                # If file upload was done, get the default audience id
-                audienceid = audience['_id']
-                errored_students += errors
-
-            if len(errored_students) > 0:
-                msg = _("Changes couldn't be applied for following students :") + "<ul>"
-                for student in errored_students:
-                    msg += "<li>" + student + "</li>"
-                msg += "</ul>"
-                error = True
-            elif not error:
-                msg = _("Audience updated.")
-        except:
-            msg = _('An error occurred while parsing the data.')
-            error = True
+                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
 
         # Display the page
         return self.display_page(course, audienceid, msg, error)

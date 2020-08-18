@@ -10,10 +10,10 @@ import web
 from bson.objectid import ObjectId
 from collections import OrderedDict
 from inginious.common.base import id_checker
-from inginious.frontend.pages.course_admin.utils import INGIniousSubmissionAdminPage
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.common.base import dict_from_prefix
 
-class CourseTagsPage(INGIniousSubmissionAdminPage):
+class CourseTagsPage(INGIniousAdminPage):
     """ Replay operation management """
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ

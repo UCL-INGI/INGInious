@@ -51,10 +51,92 @@ class INGIniousAdminPage(INGIniousAuthPage):
             raise web.notfound()
 
 
-class INGIniousSubmissionAdminPage(INGIniousAdminPage):
+class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
     """
-    An INGIniousAdminPage containing some common methods between download/replay pages
+    An INGIniousAdminPage containing some common methods for querying submissions
     """
+
+    def get_course_params(self, course, params):
+        users = self.get_users(course)
+        audiences = self.user_manager.get_course_audiences(course)
+        tasks = course.get_tasks()
+
+        tutored_audiences = [str(audience["_id"]) for audience in audiences if
+                             self.user_manager.session_username() in audience["tutors"]]
+        tutored_users = []
+        for audience in audiences:
+            if self.user_manager.session_username() in audience["tutors"]:
+                tutored_users += audience["students"]
+
+        limit = params.get("limit", 50) if params.get("limit", 50) > 0 else 50
+
+        return users, tutored_users, audiences, tutored_audiences, tasks, limit
+
+    def get_users(self, course):
+        user_ids = self.user_manager.get_course_registered_users(course)
+        users = {user: self.user_manager.get_user_realname(user) or '' for user in user_ids}
+        return OrderedDict(sorted(users.items(), key=lambda x: x[1]))
+
+    def get_input_params(self, user_input, course, limit=50):
+        users = self.get_users(course)
+        audiences = self.user_manager.get_course_audiences(course)
+        tasks = course.get_tasks()
+
+        # Sanitise user
+        if not user_input.get("users", []) and not user_input.get("audiences", []):
+            user_input["users"] = list(users.keys())
+        if len(user_input.get("users", [])) == 1 and "," in user_input["users"][0]:
+            user_input["users"] = user_input["users"][0].split(',')
+        user_input["users"] = [user for user in user_input["users"] if user in users]
+
+        # Sanitise audiences
+        if len(user_input.get("audiences", [])) == 1 and "," in user_input["audiences"][0]:
+            user_input["audiences"] = user_input["audiences"][0].split(',')
+        user_input["audiences"] = [audience for audience in user_input["audiences"] if any(str(a["_id"]) == audience for a in audiences)]
+
+        # Sanitise tasks
+        if not user_input.get("tasks", []):
+            user_input["tasks"] = list(tasks.keys())
+        if len(user_input.get("tasks", [])) == 1 and "," in user_input["tasks"][0]:
+            user_input["tasks"] = user_input["tasks"][0].split(',')
+        user_input["tasks"] = [task for task in user_input["tasks"] if task in tasks]
+
+        # Sanitise tags
+        if not user_input.get("tasks", []):
+            user_input["tasks"] = []
+        if len(user_input.get("org_tags", [])) == 1 and "," in user_input["org_tags"][0]:
+            user_input["org_tags"] = user_input["org_tags"][0].split(',')
+        user_input["org_tags"] = [org_tag for org_tag in user_input["org_tags"] if org_tag in course.get_tags()]
+
+        # Sanitise grade
+        if "grade_min" in user_input:
+            try:
+                user_input["grade_min"] = int(user_input["grade_min"])
+            except:
+                user_input["grade_min"] = ''
+        if "grade_max" in user_input:
+            try:
+                user_input["grade_max"] = int(user_input["grade_max"])
+            except:
+                user_input["grade_max"] = ''
+
+        # Sanitise order
+        if "sort_by" in user_input and user_input["sort_by"] not in ["submitted_on", "username", "grade", "taskid"]:
+            user_input["sort_by"] = "submitted_on"
+        if "order" in user_input:
+            try:
+                user_input["order"] = 1 if int(user_input["order"]) == 1 else 0
+            except:
+                user_input["order"] = 0
+
+        # Sanitise limit
+        if "limit" in user_input:
+            try:
+                user_input["limit"] = int(user_input["limit"])
+            except:
+                user_input["limit"] = limit
+
+        return user_input
 
     def _validate_list(self, list_of_ids):
         """ Prevent MongoDB injections by verifying arrays sent to it """
@@ -62,15 +144,13 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             if not id_checker(i):
                 raise web.notfound()
 
-    def get_selected_submissions(self, course,
-                                 only_tasks=None, only_tasks_with_categories=None,
-                                 only_users=None, only_audiences=None,
-                                 with_tags=None,
-                                 grade_between=None, submit_time_between=None,
-                                 keep_only_evaluation_submissions=False,
-                                 keep_only_crashes=False,
-                                 sort_by=("submitted_on", True),
-                                 limit=None):
+    def get_submissions_filter(self, course,
+                               only_tasks=None, only_tasks_with_categories=None,
+                               only_users=None, only_audiences=None,
+                               with_tags=None,
+                               grade_between=None, submit_time_between=None,
+                               keep_only_evaluation_submissions=False,
+                               keep_only_crashes=False):
         """
         All the parameters (excluding course, sort_by and keep_only_evaluation_submissions) can be None.
         If that is the case, they are ignored.
@@ -92,8 +172,9 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         :param sort_by: a tuple (sort_column, ascending) where sort_column is in ["submitted_on", "username", "grade", "taskid"]
                and ascending is either True or False.
         :param limit: an integer representing the maximum number of submission to list.
-        :return: a list of submission filling the criterias above.
+        :return: the filter for the mongoDB search.
         """
+
         # Create the filter for the query. base_filter is used to also filter the collection user_tasks.
         base_filter = {"courseid": course.get_id()}
         filter = {}
@@ -139,9 +220,11 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         # Submit time
         try:
             if submit_time_between and submit_time_between[0] is not None:
-                filter.setdefault("submitted_on", {})["$gte"] = datetime.strptime(submit_time_between[0], "%Y-%m-%d %H:%M:%S")
+                filter.setdefault("submitted_on", {})["$gte"] = datetime.strptime(submit_time_between[0],
+                                                                                  "%Y-%m-%d %H:%M:%S")
             if submit_time_between and submit_time_between[1] is not None:
-                filter.setdefault("submitted_on", {})["$lte"] = datetime.strptime(submit_time_between[1], "%Y-%m-%d %H:%M:%S")
+                filter.setdefault("submitted_on", {})["$lte"] = datetime.strptime(submit_time_between[1],
+                                                                                  "%Y-%m-%d %H:%M:%S")
         except ValueError:
             # TODO it would be nice to display this in the interface. However, this should never happen because
             # we have a nice JS interface that prevents this.
@@ -160,64 +243,9 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             filter["_id"] = {"$in": list(best_submissions_list)}
 
         filter.update(base_filter)
-        submissions = self.database.submissions.find(filter)
 
-        if sort_by[0] not in ["submitted_on", "username", "grade", "taskid"]:
-            sort_by[0] = "submitted_on"
-        submissions = submissions.sort(sort_by[0], pymongo.ASCENDING if sort_by[1] else pymongo.DESCENDING)
+        return filter, best_submissions_list
 
-        if limit is not None:
-            submissions.limit(limit)
-
-        out = list(submissions)
-
-        for d in out:
-            d["best"] = d["_id"] in best_submissions_list  # mark best submissions
-
-        return out
-
-    def show_page_params(self, course, user_input):
-        tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
-
-        user_list = self.user_manager.get_course_registered_users(course, False)
-        users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),
-                                   key=lambda k: k[1][0] if k[1] is not None else ""))
-        user_data = OrderedDict(
-            [(username, user[0] if user is not None else username) for username, user in users.items()])
-
-        audiences = self.user_manager.get_course_audiences(course)
-        tutored_audiences = [str(audience["_id"]) for audience in audiences if
-                                self.user_manager.session_username() in audience["tutors"]]
-
-        tutored_users = []
-        for audience in audiences:
-            if self.user_manager.session_username() in audience["tutors"]:
-                tutored_users += audience["students"]
-
-        checked_tasks = list(course.get_tasks().keys())
-        checked_users = list(user_data.keys())
-        checked_audiences = [audience['_id'] for audience in audiences]
-        show_audiences = False
-
-        if "tasks" in user_input:
-            checked_tasks = user_input.tasks if isinstance(user_input.tasks, list) else user_input.tasks.split(',')
-        if "users" in user_input:
-            checked_users = user_input.users if isinstance(user_input.users, list) else user_input.users.split(',')
-        if "audiences" in user_input:
-            checked_audiences = user_input.audiences if isinstance(user_input.audiences, list) else user_input.audiences.split(',')
-            show_audiences = True
-        if "tutored" in user_input:
-            if user_input.tutored == "audiences":
-                checked_audiences = tutored_audiences
-                show_audiences = True
-            elif user_input.tutored == "users":
-                checked_users = tutored_users
-                show_audiences = True
-
-        for audience in audiences:
-            audience['checked'] = str(audience['_id']) in checked_audiences
-
-        return tasks, user_data, audiences, tutored_audiences, tutored_users, checked_tasks, checked_users, show_audiences
 
 class UnicodeWriter(object):
     """
@@ -316,21 +344,16 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; " + _("Course settings"))]
 
     default_entries += [("stats", "<i class='fa fa-area-chart fa-fw'></i>&nbsp; " + _("Stats")),
-                        ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students")),
-                        ("audiences", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Audiences"))]
+                        ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Users management"))]
 
-    if not course.is_lti():
-        default_entries += [("groups", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Groups"))]
     if user_manager.has_admin_rights_on_course(course):
         default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks"))]
 
     default_entries += [("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),
-                        ("submissions", "<i class='fa fa-search fa-fw'></i>&nbsp; " + _("View submissions")),
-                        ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; " + _("Download submissions"))]
+                        ("submissions", "<i class='fa fa-cloud-download fa-fw'></i>&nbsp; " + _("Submissions"))]
 
     if user_manager.has_admin_rights_on_course(course):
-        default_entries += [("replay", "<i class='fa fa-refresh fa-fw'></i>&nbsp; " + _("Replay submissions")),
-                            ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]
+        default_entries += [("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additional_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]

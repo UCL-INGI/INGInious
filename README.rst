@@ -1,6 +1,10 @@
 INGInious
 =========
 
+.. image:: https://api.codacy.com/project/badge/Grade/7cd8340004ef4d409143d5c24259efc1
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/gh/UCL-INGI/INGInious?utm_source=github.com&utm_medium=referral&utm_content=UCL-INGI/INGInious&utm_campaign=Badge_Grade_Dashboard
+
 .. image:: http://jenkins2.info.ucl.ac.be/job/INGInious/badge/icon
     :target: http://jenkins2.info.ucl.ac.be/job/INGInious/
 .. image:: https://readthedocs.org/projects/inginious/badge/?version=latest

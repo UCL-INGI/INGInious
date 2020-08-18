@@ -49,7 +49,7 @@ $var Navbar: $:NavbarF()
             </div>
             $if "result"  in submission:
                 <div class="col-md-12" style="margin:2px 0px 2px 0px;">
-                    <a href="$get_homepath()/admin/$course.get_id()/download?submission=$submission['_id']" class="btn btn-sm btn-block btn-primary">
+                    <a href="$get_homepath()/admin/$course.get_id()/submissions?download_submission=$submission['_id']" class="btn btn-sm btn-block btn-primary">
                         <i class="fa fa-download fa-fw"></i> $:_("Download full submission")
                     </a>
                 </div>

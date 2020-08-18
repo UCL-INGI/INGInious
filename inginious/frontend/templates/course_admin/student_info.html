@@ -35,15 +35,11 @@ $var Navbar: $:NavbarF()
                 <th>$:_("# submissions")</th>
                 <th>
                     <div class="btn-group btn-group-sm" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
-                           class="btn btn-danger" title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
-                           fa-download"></i></a>
-                        $if is_admin:
-                            <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Fusername&users=$username"
-                               class="btn btn-warning" title=$:_('"Replay all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
-                               fa-refresh"></i></a>
                         <a href="$get_homepath()/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs"
                            title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                        <a href="$get_homepath()/admin/${course.get_id()}/submissions?users=$username"
+                           class="btn btn-secondary" title=$:_('"View all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
+                           fa-cloud-download"></i></a>
                     </div>
                 </th>
             </tr>
@@ -74,13 +70,8 @@ $var Navbar: $:NavbarF()
                 <td>$task["tried"]</td>
                 <td>
                     <div class="btn-group btn-group-sm" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/submissions$task['url']" class="btn btn-secondary" title=$:_('"View all submissions"')
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        <a href="$get_homepath()/admin/${course.get_id()}/download$task['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        $if is_admin:
-                            <a href="$get_homepath()/admin/${course.get_id()}/replay$task['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
-                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                        <a href="$get_homepath()/admin/${course.get_id()}/submissions$task['url']" class="btn btn-secondary" title="$:_('View all submissions')"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
                         <button type="button" data-toggle="modal" data-task="$task['name']" data-task_id="$task['taskid']" data-target="#reset_modal" class="btn btn-warning reset_state" title="Reset state"><i class="fa fa-eraser"></i></button>
                     </div>
                 </td>
