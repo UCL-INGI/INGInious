@@ -5,6 +5,8 @@
 
 """ Starts the webapp """
 import builtins
+import os
+
 import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
@@ -71,7 +73,8 @@ urls = (
     r'/admin/([^/]+)/edit/audience/([^/]+)', 'inginious.frontend.pages.course_admin.audience_edit.CourseEditAudience',
     r'/admin/([^/]+)/edit/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
-    r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
+    r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload',
+    'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
     r'/admin/([^/]+)/download', 'inginious.frontend.pages.course_admin.download.CourseDownloadSubmissions',
     r'/admin/([^/]+)/replay', 'inginious.frontend.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
@@ -83,9 +86,10 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)', 'inginious.frontend.pages.api.courses.APICourses',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks', 'inginious.frontend.pages.api.tasks.APITasks',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)', 'inginious.frontend.pages.api.tasks.APITasks',
-    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'inginious.frontend.pages.api.submissions.APISubmissions',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions',
+    'inginious.frontend.pages.api.submissions.APISubmissions',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
-        'inginious.frontend.pages.api.submissions.APISubmissionSingle',
+    'inginious.frontend.pages.api.submissions.APISubmissionSingle',
     r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.pages.lti.LTILaunchPage',
     r'/lti/bind', 'inginious.frontend.pages.lti.LTIBindPage',
     r'/lti/task', 'inginious.frontend.pages.lti.LTITaskPage',
@@ -208,7 +212,8 @@ def get_app(config):
                                                                    DisplayableMatchProblem]
     }
 
-    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager, WebAppCourse, WebAppTask)
+    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager, WebAppCourse,
+                                                    WebAppTask)
 
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
@@ -218,14 +223,16 @@ def get_app(config):
 
     lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
 
-    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
+    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager,
+                                                 lti_outcome_manager)
 
     template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/templates',
                                      'frontend/templates/layout',
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
-
+    is_tos_defined = fs_provider.exists(os.path.join(config.get("static_directory", "./static"), "terms.yaml")) and \
+                     fs_provider.exists(os.path.join(config.get("static_directory", "./static"), "privacy.yaml"))
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -247,12 +254,15 @@ def get_app(config):
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
+    template_helper.add_to_template_globals("is_tos_defined", is_tos_defined)
     template_helper.add_other("course_admin_menu",
-                              lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
+                              lambda course, current: course_admin_utils.get_menu(course, current,
+                                                                                  template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
     template_helper.add_other("preferences_menu",
-                              lambda current: preferences_utils.get_menu(appli, current, template_helper.get_renderer(False),
-                                                                                 plugin_manager, user_manager))
+                              lambda current: preferences_utils.get_menu(appli, current,
+                                                                         template_helper.get_renderer(False),
+                                                                         plugin_manager, user_manager))
 
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
@@ -293,7 +303,8 @@ def get_app(config):
     appli.init_mapping(urls)
 
     # Loads plugins
-    plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
+    plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, submission_manager,
+                        config.get("plugins", []))
 
     # Start the inginious.backend
     client.start()
