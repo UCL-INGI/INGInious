@@ -345,9 +345,12 @@ class UserManager:
             return info[1]
         return None
 
-    def has_accept_tos(self,username):
+    def has_accept_tos(self, username):
+        """
+        :param username:
+        :return: a boolean if the user has accept tos and privacy policy"""
         user = self._database.users.find_one({"username": username})
-        return "tos_accepted" in user
+        return "tos_accepted" in user and user["tos_accepted"]
 
 
     def get_user_api_key(self, username, create=True):

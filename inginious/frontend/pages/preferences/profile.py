@@ -99,7 +99,8 @@ class ProfilePage(INGIniousAuthPage):
         msg = _("Profile updated.")
 
         #updating tos
-        self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+        if self.is_tos_defined():
+            self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                 {"$set": {"tos_accepted": "term_policy_check" in data}})
         return result, msg, error
 

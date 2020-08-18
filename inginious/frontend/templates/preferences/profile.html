@@ -73,9 +73,10 @@ $if not user_manager.session_username():
                 <label class="control-label">$:_("Confirm new password :") </label>
                 <input name="passwd2" type="password" class="form-control">
             </div>
-        <div class="col-sm-12 mt-sm-3">
-            <input name="term_policy_check" type="checkbox" $('checked' if user_manager.has_accept_tos(user_manager.session_username()) else '')> $:_("I have read the") <a href="/pages/terms">$:_("Terms of service")</a> $:_("and the") <a href="/pages/privacy">$:_("Privacy policy")</a>
-        </div>
+        $if is_tos_defined:
+            <div class="col-sm-12 mt-sm-3">
+                <input name="term_policy_check" type="checkbox" $('checked' if user_manager.has_accept_tos(user_manager.session_username()) else '')> $:_("I have read the") <a href="/pages/terms">$:_("Terms of service")</a> $:_("and the") <a href="/pages/privacy">$:_("Privacy policy")</a>
+            </div>
         <div class="col-sm-12"><br />
             <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> $:_("Save my profile")</button>
         </div>
