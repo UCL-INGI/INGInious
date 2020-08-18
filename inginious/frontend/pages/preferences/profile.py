@@ -99,9 +99,10 @@ class ProfilePage(INGIniousAuthPage):
         msg = _("Profile updated.")
 
         #updating tos
-        if self.is_tos_defined():
+        if self.app.terms_page is not None and self.app.terms_page is not None:
             self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                 {"$set": {"tos_accepted": "term_policy_check" in data}})
+            self.user_manager.set_session_tos_signed()
         return result, msg, error
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
