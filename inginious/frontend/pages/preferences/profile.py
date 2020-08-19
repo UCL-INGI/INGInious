@@ -25,9 +25,11 @@ class ProfilePage(INGIniousAuthPage):
             if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
                 error = True
                 msg = _("Invalid username format.")
+                return result, msg, error
             elif self.database.users.find_one({"username": data["username"]}):
                 error = True
                 msg = _("Username already taken")
+                return result, msg, error
             else:
                 result = self.database.users.find_one_and_update({"email": userdata["email"]},
                                                                  {"$set": {"username": data["username"]}},
@@ -35,11 +37,10 @@ class ProfilePage(INGIniousAuthPage):
                 if not result:
                     error = True
                     msg = _("Incorrect email.")
+                    return result, msg, error
                 else:
                     self.user_manager.connect_user(result["username"], result["realname"], result["email"],
                                                    result["language"])
-                    msg = _("Profile updated.")
-            return result, msg, error
 
         # Check if updating the password.
         if self.app.allow_registration and len(data["passwd"]) in range(1, 6):
