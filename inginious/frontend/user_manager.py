@@ -386,7 +386,9 @@ class UserManager:
             self._logger.exception("Tried to bind an already bound account !")
         elif self.session_logged_in():
             # No binding, but logged: add new binding
-            self._database.users.find_one_and_update({"username": self.session_username()},
+            # !!! Use email as it may happen that a user is logged with empty username
+            # !!! if the binding link is used as is
+            self._database.users.find_one_and_update({"email": self.session_email()},
                                                      {"$set": {"bindings." + auth_id: [username, additional]}})
 
         else:
