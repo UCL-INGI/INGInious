@@ -83,7 +83,7 @@ class RegistrationPage(INGIniousPage):
         elif data["passwd"] != data["passwd2"]:
             error = True
             msg = _("Passwords don't match !")
-        elif self.app.terms_page is not None and self.app.terms_page is not None and "term_policy_check" not in data:
+        elif self.app.terms_page is not None and self.app.privacy_page is not None and "term_policy_check" not in data:
             error = True
             msg = _("You didn't accept policies.")
 

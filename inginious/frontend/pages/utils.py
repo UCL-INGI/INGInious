@@ -151,10 +151,9 @@ class INGIniousAuthPage(INGIniousPage):
         Otherwise, returns the login template.
         """
         if self.user_manager.session_logged_in():
-            user = self.database.users.find_one({"email": self.user_manager.session_email()})
             if (not self.user_manager.session_username() or (self.app.terms_page is not None and
-                                                             self.app.terms_page is not None and
-                                                             "tos_accepted" not in user))\
+                                                             self.app.privacy_page is not None and
+                                                             not self.user_manager.session_tos_signed()))\
                     and not self.__class__.__name__ == "ProfilePage":
                 raise web.seeother("/preferences/profile")
 
