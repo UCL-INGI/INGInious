@@ -125,7 +125,7 @@ class UserManager:
         """ Returns True if the current user has signed the tos"""
         if not self.session_logged_in():
             return None
-        return self._session.tos_signed
+        return self._session.get("tos_signed", False)
 
     def session_token(self):
         """ Returns the token of the current user in the session, if one is open. Else, returns None"""
