@@ -5,6 +5,7 @@
 
 """ Starts the webapp """
 import builtins
+import os
 import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
@@ -203,7 +204,8 @@ def get_app(config):
                                                                    DisplayableMatchProblem]
     }
 
-    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager, WebAppCourse, WebAppTask)
+    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager, WebAppCourse,
+                                                    WebAppTask)
 
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
