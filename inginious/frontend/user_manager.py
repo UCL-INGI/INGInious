@@ -121,6 +121,12 @@ class UserManager:
             return None
         return self._session.realname
 
+    def session_tos_signed(self):
+        """ Returns True if the current user has signed the tos"""
+        if not self.session_logged_in():
+            return None
+        return self._session.get("tos_signed", False)
+
     def session_token(self):
         """ Returns the token of the current user in the session, if one is open. Else, returns None"""
         if not self.session_logged_in():
@@ -177,6 +183,11 @@ class UserManager:
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
             self._session.realname = realname
+
+    def set_session_tos_signed(self):
+        """ Sets the real name of the current user in the session, if one is open."""
+        if self.session_logged_in():
+            self._session.tos_signed = True
 
     def set_session_language(self, language):
         self._session.language = language

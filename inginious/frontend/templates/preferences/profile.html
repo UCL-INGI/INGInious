@@ -73,8 +73,31 @@ $if not user_manager.session_username():
                 <label class="control-label">$:_("Confirm new password :") </label>
                 <input name="passwd2" type="password" class="form-control">
             </div>
+        $if is_tos_defined:
+            <div class="col-sm-12 mt-sm-3">
+                <input name="term_policy_check" type="checkbox" $('checked' if user_manager.session_tos_signed() else '')> $:_("I have read the") <a href="/pages/terms">$:_("Terms of service")</a> $:_("and the") <a href="/pages/privacy">$:_("Privacy policy")</a>
+            </div>
         <div class="col-sm-12"><br />
-            <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> $:_("Save my profile")</button>
+            <button  $('disabled' if is_tos_defined else '') type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> $:_("Save my profile")</button>
         </div>
     </div>
 </form>
+
+<script type="application/javascript">
+    $$(document).ready( function(){
+    if($$('input[name="term_policy_check"]').is(':checked')) {
+        $$('button[name="save"]').attr('disabled', false);
+    }
+    else {
+        $$('button[name="save"]').attr('disabled', true);
+    }
+});
+    $$(document).on('change', 'input[name="term_policy_check"]', function(){
+    if($$(this).is(':checked')) {
+        $$('button[name="save"]').attr('disabled', false);
+    }
+    else {
+        $$('button[name="save"]').attr('disabled', true);
+    }
+});
+</script>

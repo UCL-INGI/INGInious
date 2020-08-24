@@ -220,7 +220,7 @@ def get_app(config):
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
-
+    is_tos_defined = config.get("privacy_page", "") is not "" and config.get("terms_page", "") is not ""
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -242,6 +242,7 @@ def get_app(config):
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
+    template_helper.add_to_template_globals("is_tos_defined", is_tos_defined)
     template_helper.add_other("course_admin_menu",
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
@@ -281,6 +282,8 @@ def get_app(config):
     appli.allow_deletion = config.get("allow_deletion", True)
     appli.available_languages = available_languages
     appli.welcome_page = config.get("welcome_page", None)
+    appli.terms_page = config.get("terms_page", None)
+    appli.privacy_page = config.get("privacy_page", None)
     appli.static_directory = config.get("static_directory", "./static")
     appli.webdav_host = config.get("webdav_host", None)
 

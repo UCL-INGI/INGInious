@@ -44,8 +44,12 @@ $if reset is None:
                         <label class="control-label">$:_("Confirm password :") </label>
                         <input name="passwd2" type="password" class="form-control">
                     </div>
+                    $if is_tos_defined:
+                        <div class="col-sm-12 mt-sm-3">
+                            <input name="term_policy_check" type="checkbox"> $:_("I have read the") <a href="/pages/terms">$:_("Terms of service")</a> $:_("and the") <a href="/pages/privacy">$:_("Privacy policy")</a>
+                        </div>
                     <div class="col-sm-12"><br />
-                        <button type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> $:_("Sign up")</button>
+                        <button $('disabled' if is_tos_defined else '') type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> $:_("Sign up")</button>
                     </div>
                 </div>
             </form>
@@ -95,3 +99,14 @@ $else:
             </div>
         </div>
     </div>
+
+<script type="application/javascript">
+    $$(document).on('change', 'input[name="term_policy_check"]', function(){
+    if($$(this).is(':checked')) {
+        $$('button[name="register"]').attr('disabled', false);
+    }
+    else {
+        $$('button[name="register"]').attr('disabled', true);
+    }
+});
+</script>

@@ -151,7 +151,10 @@ class INGIniousAuthPage(INGIniousPage):
         Otherwise, returns the login template.
         """
         if self.user_manager.session_logged_in():
-            if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
+            if (not self.user_manager.session_username() or (self.app.terms_page is not None and
+                                                             self.app.privacy_page is not None and
+                                                             not self.user_manager.session_tos_signed()))\
+                    and not self.__class__.__name__ == "ProfilePage":
                 raise web.seeother("/preferences/profile")
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
