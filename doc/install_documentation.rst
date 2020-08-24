@@ -7,4 +7,5 @@ Installation, configuration and upgrade
     install_doc/installation
     install_doc/updating
     install_doc/config_reference
+    install_doc/static_pages
     install_doc/troubleshooting

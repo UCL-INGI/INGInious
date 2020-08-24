@@ -6,8 +6,8 @@ Configuration reference
 .. HINT::
     The best way to configure INGInious is to use :ref:`inginious-install`. See :ref:`config`.
 
-Configuring INGInious is done via a file named ``configuration.yaml`` or ``configuration.lti.yaml``.
-To get started, files named ``configuration.example.yaml`` and ``configuration.lti.example.yaml`` are provided.
+Configuring INGInious is done via a file named ``configuration.yaml``.
+To get started, a file named ``configuration.example.yaml`` is provided.
 
 .. literalinclude:: ../../configuration.example.yaml
     :language: yaml
@@ -77,6 +77,10 @@ The different entries are :
     See :ref:`plugins` for detailed information on available plugins, including their configuration.
     Please note that the usage of at least one authentication plugin is mandatory for the webapp.
 
+``privacy_page``
+    Static page id of the Privacy Policy.  If not specified, users won't have to accept anything
+    before using INGInious. (see :ref:`StaticPages`)
+
 ``smtp``
     Mails can be sent by plugins.
 
@@ -108,6 +112,10 @@ The different entries are :
     The path to the directory that contains all the task definitions, grouped by courses.
     (see :ref:`task`)
 
+``terms_page``
+    Static page id of the Terms of Service page. If not specified, users won't have to
+    accept anything before using INGInious. (see :ref:`StaticPages`)
+
 ``use_minified_js``
     Set to ``true`` to use the minified version of Javascript scripts, ``false`` otherwise.
 
@@ -120,6 +128,9 @@ The different entries are :
    Link to the INGInious webdav app with the following syntax: ``http[s]://host:port``.
    If set, a new page displays a WebDAV URL and login/password for administrators to access
    the course filesystem.
+
+``welcome_page``
+    Static page id to serve instead of the course list as home page. (see :ref:`StaticPages`)
 
 ``sentry_io_url``
     The Sentry.io *Data Source Name* to use for error reporting in the frontend. If not set, sentry.io is not loaded.
