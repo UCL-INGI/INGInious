@@ -376,7 +376,7 @@ class Installer:
             for image in to_download:
                 try:
                     self._display_info("Downloading image %s. This can take some time." % image)
-                    docker_connection.images.pull(image + ":latest")
+                    docker_connection.images.pull(image + ":v0.5")
                 except Exception as e:
                     self._display_error("An error occurred while pulling the image: %s." % str(e))
         else:
