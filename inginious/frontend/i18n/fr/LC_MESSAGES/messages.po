@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-17 14:56+0200\n"
+"POT-Creation-Date: 2020-08-24 15:04+0200\n"
 "PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language: fr\n"
@@ -151,49 +151,53 @@ msgstr "Une erreur a eu lieu lors de l'édition de la description du cours"
 msgid "Course %s cloned from the marketplace."
 msgstr "Cours %s clôné depuis le magasin de cours."
 
-#: inginious/frontend/pages/register.py:57
+#: inginious/frontend/pages/register.py:58
 msgid "Invalid activation hash."
 msgstr "Empreinte d'activation invalide."
 
-#: inginious/frontend/pages/register.py:59
+#: inginious/frontend/pages/register.py:60
 msgid "You are now activated. You can proceed to login."
 msgstr "Votre compte est maintenant activé. Vous pouvez vous connecter."
 
 #: inginious/frontend/pages/preferences/profile.py:27
-#: inginious/frontend/pages/register.py:76
+#: inginious/frontend/pages/register.py:77
 msgid "Invalid username format."
 msgstr "Format de nom d'utilisateur invalide."
 
-#: inginious/frontend/pages/register.py:79
-#: inginious/frontend/pages/register.py:131
+#: inginious/frontend/pages/register.py:80
+#: inginious/frontend/pages/register.py:139
 msgid "Invalid email format."
 msgstr "Format d'adresse email invalide."
 
-#: inginious/frontend/pages/preferences/profile.py:47
-#: inginious/frontend/pages/register.py:82
-#: inginious/frontend/pages/register.py:161
+#: inginious/frontend/pages/preferences/profile.py:48
+#: inginious/frontend/pages/register.py:83
+#: inginious/frontend/pages/register.py:170
 msgid "Password too short."
 msgstr "Mot de passe trop court."
 
-#: inginious/frontend/pages/preferences/profile.py:51
-#: inginious/frontend/pages/register.py:85
-#: inginious/frontend/pages/register.py:164
+#: inginious/frontend/pages/preferences/profile.py:52
+#: inginious/frontend/pages/register.py:86
+#: inginious/frontend/pages/register.py:173
 msgid "Passwords don't match !"
 msgstr "Les mots de passe ne coïncident pas !"
 
-#: inginious/frontend/pages/register.py:92
+#: inginious/frontend/pages/register.py:89
+msgid "You didn't accept policies."
+msgstr ""
+
+#: inginious/frontend/pages/register.py:97
 msgid "This username is already taken !"
 msgstr "Ce nom d'utilisateur est déjà utilisé !"
 
-#: inginious/frontend/pages/register.py:94
+#: inginious/frontend/pages/register.py:99
 msgid "This email address is already in use !"
 msgstr "Cette adresse email est déjà utilisée !"
 
-#: inginious/frontend/pages/register.py:106
+#: inginious/frontend/pages/register.py:113
 msgid "Welcome on INGInious"
 msgstr "Bienvenue sur INGInious"
 
-#: inginious/frontend/pages/register.py:107
+#: inginious/frontend/pages/register.py:114
 msgid ""
 "Welcome on INGInious !\n"
 "\n"
@@ -203,7 +207,7 @@ msgstr ""
 "\n"
 "Pour activer votre compte, veuillez cliquer sur le lien suivant :\n"
 
-#: inginious/frontend/pages/register.py:112
+#: inginious/frontend/pages/register.py:119
 msgid ""
 "You are succesfully registered. An email has been sent to you for "
 "activation."
@@ -211,7 +215,7 @@ msgstr ""
 "Votre compte a été créé. Un email vous a été envoyé afin de l'activer "
 "avant toute connexion."
 
-#: inginious/frontend/pages/register.py:115
+#: inginious/frontend/pages/register.py:122
 msgid ""
 "Something went wrong while sending you activation email. Please contact "
 "the administrator."
@@ -219,15 +223,15 @@ msgstr ""
 "Une erreur s'est produite lors de l'envoi du mail d'activation. Veuillez "
 "contacter l'administrateur du site."
 
-#: inginious/frontend/pages/register.py:138
+#: inginious/frontend/pages/register.py:147
 msgid "This email address was not found in database."
 msgstr "Cette adresse email est inconnue."
 
-#: inginious/frontend/pages/register.py:141
+#: inginious/frontend/pages/register.py:150
 msgid "INGInious password recovery"
 msgstr "Récupération de votre mot de passe INGInious"
 
-#: inginious/frontend/pages/register.py:142
+#: inginious/frontend/pages/register.py:151
 msgid ""
 "Dear {realname},\n"
 "\n"
@@ -240,11 +244,11 @@ msgstr ""
 "mot de passe INGInious.S'il s'agit de vous, veuillez cliquer sur le lien "
 "suivant: \n"
 
-#: inginious/frontend/pages/register.py:146
+#: inginious/frontend/pages/register.py:155
 msgid "An email has been sent to you to reset your password."
 msgstr "Un email vous a été envoyé afin de réinitialiser votre mot de passe."
 
-#: inginious/frontend/pages/register.py:149
+#: inginious/frontend/pages/register.py:158
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
@@ -252,11 +256,11 @@ msgstr ""
 "Une erreur s'est produite lors de l'envoi du mail de réinitialisation du "
 "mot de passe.Veuillez contacter l'administrateur du site."
 
-#: inginious/frontend/pages/register.py:173
+#: inginious/frontend/pages/register.py:182
 msgid "Invalid reset hash."
 msgstr "Empreinte de réinitialisation invalide."
 
-#: inginious/frontend/pages/register.py:175
+#: inginious/frontend/pages/register.py:184
 msgid "Your password has been successfully changed."
 msgstr "Votre mot de passe a bien été modifié."
 
@@ -358,7 +362,7 @@ msgstr "[Soumission #{submissionid}]"
 msgid " <truncated>"
 msgstr " <tronqué>"
 
-#: inginious/frontend/pages/utils.py:167
+#: inginious/frontend/pages/utils.py:170
 msgid ""
 "An account using this email already exists and is not bound with this "
 "service. For security reasons, please log in via another method and bind "
@@ -368,7 +372,7 @@ msgstr ""
 "Pour des raisons de sécurités, veuillez vous identifier via une autre "
 "méthode et lier votre compte depuis votre profil."
 
-#: inginious/frontend/pages/utils.py:170
+#: inginious/frontend/pages/utils.py:173
 msgid ""
 "Couldn't fetch the required information from the service. Please check "
 "the provided permissions (name, email) and contact your INGInious "
@@ -378,7 +382,7 @@ msgstr ""
 "Veuillez vérifier les permissions (nom, email) octroyées et contacter "
 "votre administrateur INGInious si l'erreur persiste."
 
-#: inginious/frontend/pages/utils.py:194
+#: inginious/frontend/pages/utils.py:197
 msgid "Invalid login/password"
 msgstr "Nom d'utilisateur/mot de passe invalide"
 
@@ -662,31 +666,30 @@ msgstr ""
 msgid "The specified email is incorrect."
 msgstr "L'adresse email spécifiée est incorrecte."
 
-#: inginious/frontend/pages/preferences/profile.py:30
+#: inginious/frontend/pages/preferences/profile.py:31
 msgid "Username already taken"
 msgstr "Ce nom d'utilisateur est déjà utilisé."
 
-#: inginious/frontend/pages/preferences/profile.py:37
+#: inginious/frontend/pages/preferences/profile.py:39
 msgid "Incorrect email."
 msgstr "Adresse email incorrecte."
 
-#: inginious/frontend/pages/preferences/profile.py:41
-#: inginious/frontend/pages/preferences/profile.py:98
-msgid "Profile updated."
-msgstr "Profil mis à jour."
-
-#: inginious/frontend/pages/preferences/profile.py:66
+#: inginious/frontend/pages/preferences/profile.py:67
 msgid "Incorrect old password."
 msgstr "Ancien mot de passe incorrect."
 
-#: inginious/frontend/pages/preferences/profile.py:77
-#: inginious/frontend/pages/preferences/profile.py:89
+#: inginious/frontend/pages/preferences/profile.py:78
+#: inginious/frontend/pages/preferences/profile.py:90
 msgid "Incorrect username."
 msgstr "Nom d'utilisateur incorrect."
 
-#: inginious/frontend/pages/preferences/profile.py:95
+#: inginious/frontend/pages/preferences/profile.py:96
 msgid "Name is too short."
 msgstr "Nom trop court."
+
+#: inginious/frontend/pages/preferences/profile.py:99
+msgid "Profile updated."
+msgstr "Profil mis à jour."
 
 #: inginious/frontend/pages/preferences/utils.py:15
 #: inginious/frontend/templates/preferences/profile.html:8
@@ -1419,37 +1422,46 @@ msgstr "Nom complet :"
 
 #: inginious/frontend/templates/preferences/profile.html:53
 #: inginious/frontend/templates/register.html:36
-#: inginious/frontend/templates/register.html:58
+#: inginious/frontend/templates/register.html:62
 msgid "Email address :"
 msgstr "Adresse email :"
 
 #: inginious/frontend/templates/register.html:40
-#: inginious/frontend/templates/register.html:81
+#: inginious/frontend/templates/register.html:85
 msgid "Password (min. 6 characters) :"
 msgstr "Mot de passe (min. 6 caractères) :"
 
 #: inginious/frontend/templates/register.html:44
-#: inginious/frontend/templates/register.html:85
+#: inginious/frontend/templates/register.html:89
 msgid "Confirm password :"
 msgstr "Confirmez le mot de passe :"
 
-#: inginious/frontend/templates/register.html:48
+#: inginious/frontend/templates/preferences/profile.html:78
+#: inginious/frontend/templates/register.html:49
+msgid ""
+"I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy"
+" policy{a2end}."
+msgstr ""
+"J'ai pris connaissance des {a1start}conditions d'utilisation{a1end} et"
+" de la {a2start}politique de confidentialité{a2end}."
+
+#: inginious/frontend/templates/register.html:52
 msgid "Sign up"
 msgstr "S'enregistrer"
 
-#: inginious/frontend/templates/register.html:54
+#: inginious/frontend/templates/register.html:58
 msgid "Lost password ?"
 msgstr "Mot de passe perdu ?"
 
-#: inginious/frontend/templates/register.html:62
+#: inginious/frontend/templates/register.html:66
 msgid "Reset my password"
 msgstr "Réinitialiser mon mot de passe"
 
-#: inginious/frontend/templates/register.html:75
+#: inginious/frontend/templates/register.html:79
 msgid "Set new password for {} [{}]"
 msgstr "Définir un nouveau mo t de passe pour {} [{}]"
 
-#: inginious/frontend/templates/register.html:90
+#: inginious/frontend/templates/register.html:94
 msgid "Set new password"
 msgstr "Configurez le nouveau mot de passe"
 
@@ -3100,7 +3112,7 @@ msgstr "Nouveau mot de passe (min. 6 caractères) :"
 msgid "Confirm new password :"
 msgstr "Confirmez le nouveau mot de passe :"
 
-#: inginious/frontend/templates/preferences/profile.html:77
+#: inginious/frontend/templates/preferences/profile.html:81
 msgid "Save my profile"
 msgstr "Sauvegarder mon profil"
 
@@ -3115,3 +3127,4 @@ msgstr "Taille fichier max. :"
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
 msgstr "Extensions autorisées :"
+
