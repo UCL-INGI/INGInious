@@ -10,7 +10,9 @@ RUN     yum clean metadata && \
         yum -y install https://repo.ius.io/ius-release-el7.rpm && \
         yum -y upgrade && \
         yum -y install python python35u-pip python35u zip unzip tar sed openssh-server openssl bind-utils iproute file && \
-        pip3.5 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator && ln -s /usr/bin/python3.5 /usr/bin/python3 && \
+        alternatives --install /usr/local/bin/python3 python3 /usr/bin/python3.5 0 && \
+        alternatives --install /usr/local/bin/pip3 pip3 /usr/bin/pip3.5 0 && \
+        pip3 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator && \
         yum clean all
 
 # Allow to run commands
