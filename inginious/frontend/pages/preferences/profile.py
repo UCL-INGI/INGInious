@@ -112,7 +112,8 @@ class ProfilePage(INGIniousAuthPage):
         if not userdata:
             raise web.notfound()
 
-        return self.template_helper.get_renderer().preferences.profile("", False)
+        return self.template_helper.get_renderer().preferences.profile(self.app.terms_page,
+                                                                       self.app.privacy_page, "", False)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
@@ -127,4 +128,5 @@ class ProfilePage(INGIniousAuthPage):
         if "save" in data:
             userdata, msg, error = self.save_profile(userdata, data)
 
-        return self.template_helper.get_renderer().preferences.profile(msg, error)
+        return self.template_helper.get_renderer().preferences.profile(self.app.terms_page,
+                                                                       self.app.privacy_page, msg, error)

@@ -220,7 +220,7 @@ def get_app(config):
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
-    is_tos_defined = config.get("privacy_page", "") is not "" and config.get("terms_page", "") is not ""
+    is_tos_defined = config.get("privacy_page", "") and config.get("terms_page", "")
 
     # Init web mail
     smtp_conf = config.get('smtp', None)

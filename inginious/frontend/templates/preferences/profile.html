@@ -1,4 +1,4 @@
-$def with (msg, error)
+$def with (terms_page, privacy_page, msg, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -75,7 +75,7 @@ $if not user_manager.session_username():
             </div>
         $if is_tos_defined:
             <div class="col-sm-12 mt-sm-3">
-                <input name="term_policy_check" type="checkbox" $('checked' if user_manager.session_tos_signed() else '')> $:_("I have read the") <a href="/pages/terms">$:_("Terms of service")</a> $:_("and the") <a href="/pages/privacy">$:_("Privacy policy")</a>
+                <input name="term_policy_check" type="checkbox" $('checked' if user_manager.session_tos_signed() else '')> $:_("I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy policy{a2end}.").format(a1start='<a href="/pages/' + terms_page + '">', a1end='</a>', a2start='<a href="/pages/' + privacy_page + '">', a2end='</a>')
             </div>
         <div class="col-sm-12"><br />
             <button  $('disabled' if is_tos_defined else '') type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> $:_("Save my profile")</button>
