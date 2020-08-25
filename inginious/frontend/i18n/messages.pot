@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-24 15:04+0200\n"
+"POT-Creation-Date: 2020-08-25 09:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -721,13 +721,13 @@ msgstr ""
 
 #: inginious/frontend/templates/course.html:22
 #: inginious/frontend/templates/group.html:22
-#: inginious/frontend/templates/mycourses.html:22
+#: inginious/frontend/templates/mycourses.html:33
 msgid "Last tried exercises"
 msgstr ""
 
 #: inginious/frontend/templates/course.html:40
 #: inginious/frontend/templates/group.html:41
-#: inginious/frontend/templates/mycourses.html:41
+#: inginious/frontend/templates/mycourses.html:51
 msgid "No submissions"
 msgstr ""
 
@@ -877,6 +877,7 @@ msgstr ""
 #: inginious/frontend/templates/layout.html:145
 #: inginious/frontend/templates/layout_jinja.html:115
 #: inginious/frontend/templates/layout_jinja.html:143
+#: inginious/frontend/templates/mycourses.html:29
 msgid "Course list"
 msgstr ""
 
@@ -896,7 +897,8 @@ msgstr ""
 #: inginious/frontend/templates/marketplace.html:17
 #: inginious/frontend/templates/mycourses.html:8
 #: inginious/frontend/templates/mycourses.html:13
-#: inginious/frontend/templates/mycourses.html:47
+#: inginious/frontend/templates/mycourses.html:22
+#: inginious/frontend/templates/mycourses.html:57
 msgid "My courses"
 msgstr ""
 
@@ -1171,47 +1173,49 @@ msgstr ""
 msgid "Link"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:52
-msgid "Find new courses on the course list page"
+#: inginious/frontend/templates/mycourses.html:24
+msgid ""
+"This page lists all the courses you are currently enrolled in. You can "
+"find new courses on the course list page."
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:68
+#: inginious/frontend/templates/mycourses.html:71
 msgid "LTI course"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:70
+#: inginious/frontend/templates/mycourses.html:73
 msgid "Hidden course"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:73
+#: inginious/frontend/templates/mycourses.html:76
 msgid "Administrator"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:75
+#: inginious/frontend/templates/mycourses.html:78
 msgid "Tutor"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:77
+#: inginious/frontend/templates/mycourses.html:80
 msgid "Student"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:83
+#: inginious/frontend/templates/mycourses.html:86
 msgid "You are not registered to any course"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:90
+#: inginious/frontend/templates/mycourses.html:93
 msgid "Course created."
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:95
+#: inginious/frontend/templates/mycourses.html:98
 msgid "Failed to create the course."
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:99
+#: inginious/frontend/templates/mycourses.html:102
 msgid "Course"
 msgstr ""
 
-#: inginious/frontend/templates/mycourses.html:103
+#: inginious/frontend/templates/mycourses.html:106
 msgid "Create new course"
 msgstr ""
 

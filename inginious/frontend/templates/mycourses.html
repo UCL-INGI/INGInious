@@ -19,8 +19,18 @@ $var Navbar: $:NavbarF()
 
 $# Left column content
 $def ColumnF():
-    <h3>$:_("Last tried exercises")</h3>
+    <h3> $:_("My courses")</h3>
+    <div class="alert alert-warning" role="alert">
+        $:_("This page lists all the courses you are currently enrolled in. You can find new courses on the course list page.")
+    </div>
+    <div class="list-group mb-3">
+        <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/courselist">
+            <i class="fa fa-fw fa-th-list"></i>
+            $:_("Course list")
+        </a>
+    </div>
 
+    <h3>$:_("Last tried exercises")</h3>
     <div class="list-group">
         $if submissions:
             $for submission in submissions:
@@ -46,13 +56,6 @@ $var Column: $:ColumnF()
 $# Start content
 <h2>$:_("My courses")</h2>
 <div class="list-group">
-    <a href="$get_homepath()/courselist" class="list-group-item list-group-item-action list-group-item-info">
-        <div class="row">
-            <div class="col-xs-12 col-md-8">
-                $:_("Find new courses on the course list page")
-            </div>
-        </div>
-    </a>
 	$if len(open_courses) != 0:
         $ username = user_manager.session_username()
         $for courseid, course in open_courses.items():

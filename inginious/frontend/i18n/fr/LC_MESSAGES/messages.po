@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-24 15:04+0200\n"
+"POT-Creation-Date: 2020-08-25 09:48+0200\n"
 "PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language: fr\n"
@@ -768,13 +768,13 @@ msgstr "Note actuelle"
 
 #: inginious/frontend/templates/course.html:22
 #: inginious/frontend/templates/group.html:22
-#: inginious/frontend/templates/mycourses.html:22
+#: inginious/frontend/templates/mycourses.html:33
 msgid "Last tried exercises"
 msgstr "Derniers exercices essayés"
 
 #: inginious/frontend/templates/course.html:40
 #: inginious/frontend/templates/group.html:41
-#: inginious/frontend/templates/mycourses.html:41
+#: inginious/frontend/templates/mycourses.html:51
 msgid "No submissions"
 msgstr "Pas de soumission"
 
@@ -931,6 +931,7 @@ msgstr "Vous n'êtes pas inscrit à ce cours."
 #: inginious/frontend/templates/layout.html:145
 #: inginious/frontend/templates/layout_jinja.html:115
 #: inginious/frontend/templates/layout_jinja.html:143
+#: inginious/frontend/templates/mycourses.html:29
 msgid "Course list"
 msgstr "Liste des cours"
 
@@ -953,7 +954,8 @@ msgstr ""
 #: inginious/frontend/templates/marketplace.html:17
 #: inginious/frontend/templates/mycourses.html:8
 #: inginious/frontend/templates/mycourses.html:13
-#: inginious/frontend/templates/mycourses.html:47
+#: inginious/frontend/templates/mycourses.html:22
+#: inginious/frontend/templates/mycourses.html:57
 msgid "My courses"
 msgstr "Mes cours"
 
@@ -1254,47 +1256,51 @@ msgstr "Auteur(s)"
 msgid "Link"
 msgstr "Lien"
 
-#: inginious/frontend/templates/mycourses.html:52
-msgid "Find new courses on the course list page"
-msgstr "Trouvez de nouveaux cours dans la Liste des cours"
+#: inginious/frontend/templates/mycourses.html:24
+msgid ""
+"This page lists all the courses you are currently enrolled in. You can "
+"find new courses on the course list page."
+msgstr ""
+"Cette page liste tous les cours auxquels vous êtes actuellement "
+"enregistré. Vous pouvez trouver de nouveaux cours dans la Liste des cours"
 
-#: inginious/frontend/templates/mycourses.html:68
+#: inginious/frontend/templates/mycourses.html:71
 msgid "LTI course"
 msgstr "Cours LTI"
 
-#: inginious/frontend/templates/mycourses.html:70
+#: inginious/frontend/templates/mycourses.html:73
 msgid "Hidden course"
 msgstr "Cours masqué"
 
-#: inginious/frontend/templates/mycourses.html:73
+#: inginious/frontend/templates/mycourses.html:76
 msgid "Administrator"
 msgstr "Administrateur"
 
-#: inginious/frontend/templates/mycourses.html:75
+#: inginious/frontend/templates/mycourses.html:78
 msgid "Tutor"
 msgstr "Tuteur"
 
-#: inginious/frontend/templates/mycourses.html:77
+#: inginious/frontend/templates/mycourses.html:80
 msgid "Student"
 msgstr "Etudiant"
 
-#: inginious/frontend/templates/mycourses.html:83
+#: inginious/frontend/templates/mycourses.html:86
 msgid "You are not registered to any course"
 msgstr "Vous n'êtes inscrit à aucun cours"
 
-#: inginious/frontend/templates/mycourses.html:90
+#: inginious/frontend/templates/mycourses.html:93
 msgid "Course created."
 msgstr "Cours créé."
 
-#: inginious/frontend/templates/mycourses.html:95
+#: inginious/frontend/templates/mycourses.html:98
 msgid "Failed to create the course."
 msgstr "Une erreur s'est produite lors de la création du cours."
 
-#: inginious/frontend/templates/mycourses.html:99
+#: inginious/frontend/templates/mycourses.html:102
 msgid "Course"
 msgstr "Cours"
 
-#: inginious/frontend/templates/mycourses.html:103
+#: inginious/frontend/templates/mycourses.html:106
 msgid "Create new course"
 msgstr "Créer un nouveau cours"
 
@@ -1442,8 +1448,8 @@ msgid ""
 "I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy"
 " policy{a2end}."
 msgstr ""
-"J'ai pris connaissance des {a1start}conditions d'utilisation{a1end} et"
-" de la {a2start}politique de confidentialité{a2end}."
+"J'ai pris connaissance des {a1start}conditions d'utilisation{a1end} et de"
+" la {a2start}politique de confidentialité{a2end}."
 
 #: inginious/frontend/templates/register.html:52
 msgid "Sign up"
@@ -3127,4 +3133,7 @@ msgstr "Taille fichier max. :"
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
 msgstr "Extensions autorisées :"
+
+#~ msgid "Find new courses on the course list page"
+#~ msgstr "Trouvez de nouveaux cours dans la Liste des cours"
 
