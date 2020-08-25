@@ -365,13 +365,13 @@ class UserManager:
         :return: the API key assigned to the user, or None if none exists and create is False.
         """
         retval = self._database.users.find_one({"username": username}, {"apikey": 1})
-        if "apikey" not in retval and create:
+        if not retval:
+            return None
+        elif "apikey" not in retval and create:
             apikey = self.generate_api_key()
             self._database.users.update_one({"username": username}, {"$set": {"apikey": apikey}})
-        elif "apikey" not in retval:
-            apikey = None
         else:
-            apikey = retval["apikey"]
+            apikey = retval.get("apikey", None)
         return apikey
 
     def bind_user(self, auth_id, user):
