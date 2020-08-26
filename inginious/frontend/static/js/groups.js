@@ -67,7 +67,9 @@ function group_add()
     }
 
     // Regroup sortable lists
-    $("ul.students").sortable({group:"students"});
+    $$("ul.students").each(function(){
+        new Sortable(this, {group:"students"})
+    });
     $("ul.students").bind("DOMSubtreeModified", function() {group_update($(this).parent())});
     $("input[id='size']").on('keyup click',function() {group_update($(this).rparent(5))});
 }

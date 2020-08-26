@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
+import logging
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
@@ -16,6 +17,7 @@ from inginious.common.exceptions import InvalidNameException, CourseNotFoundExce
 
 class CourseFactory(object):
     """ Load courses from disk """
+    _logger = logging.getLogger("inginious.course_factory")
 
     def __init__(self, filesystem: FileSystemProvider, task_factory, hook_manager, course_class=Course):
         self._filesystem = filesystem
@@ -71,6 +73,18 @@ class CourseFactory(object):
         """
         path = self._get_course_descriptor_path(courseid)
         self._filesystem.put(path, get_json_or_yaml(path, content))
+
+    def update_course_descriptor_element(self, courseid, key, value):
+        """
+        Updates the value for the key in the dict that describes the course
+        :param courseid: the course id of the course
+        :param key: the element to change in the dict
+        :param value: the new value that replaces the old one
+        :raise InvalidNameException, CourseNotFoundException
+        """
+        course_structure = self.get_course_descriptor_content(courseid)
+        course_structure[key] = value
+        self.update_course_descriptor_content(courseid, course_structure)
 
     def get_course_fs(self, courseid):
         """
@@ -181,6 +195,7 @@ class CourseFactory(object):
         :param courseid: the (valid) course id of the course
         :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
         """
+        self._logger.info("Caching course {}".format(courseid))
         path_to_descriptor = self._get_course_descriptor_path(courseid)
         try:
             course_descriptor = loads_json_or_yaml(path_to_descriptor, self._filesystem.get(path_to_descriptor).decode("utf8"))

@@ -32,7 +32,8 @@ class RegistrationPage(INGIniousPage):
         elif "reset" in data:
             msg, error, reset = self.get_reset_data(data)
 
-        return self.template_helper.get_renderer().register(reset, msg, error)
+        return self.template_helper.get_renderer().register(self.app.terms_page, self.app.privacy_page,
+                                                            reset, msg, error)
 
     def get_reset_data(self, data):
         """ Returns the user info to reset """
@@ -83,9 +84,13 @@ class RegistrationPage(INGIniousPage):
         elif data["passwd"] != data["passwd2"]:
             error = True
             msg = _("Passwords don't match !")
+        elif self.app.terms_page is not None and self.app.privacy_page is not None and "term_policy_check" not in data:
+            error = True
+            msg = _("You didn't accept policies.")
 
         if not error:
-            existing_user = self.database.users.find_one({"$or": [{"username": data["username"]}, {"email": data["email"]}]})
+            existing_user = self.database.users.find_one(
+                {"$or": [{"username": data["username"]}, {"email": data["email"]}]})
             if existing_user is not None:
                 error = True
                 if existing_user["username"] == data["username"]:
@@ -101,7 +106,9 @@ class RegistrationPage(INGIniousPage):
                                             "password": passwd_hash,
                                             "activate": activate_hash,
                                             "bindings": {},
-                                            "language": self.user_manager._session.get("language", "en")})
+                                            "language": self.user_manager._session.get("language", "en"),
+                                            "tos_accepted": True
+                                            })
                 try:
                     web.sendmail(web.config.smtp_sendername, data["email"], _("Welcome on INGInious"),
                                  _("""Welcome on INGInious !
@@ -112,7 +119,8 @@ To activate your account, please click on the following link :
                     msg = _("You are succesfully registered. An email has been sent to you for activation.")
                 except:
                     error = True
-                    msg = _("Something went wrong while sending you activation email. Please contact the administrator.")
+                    msg = _(
+                        "Something went wrong while sending you activation email. Please contact the administrator.")
 
         return msg, error
 
@@ -132,7 +140,8 @@ To activate your account, please click on the following link :
 
         if not error:
             reset_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
-            user = self.database.users.find_one_and_update({"email": data["recovery_email"]}, {"$set": {"reset": reset_hash}})
+            user = self.database.users.find_one_and_update({"email": data["recovery_email"]},
+                                                           {"$set": {"reset": reset_hash}})
             if user is None:
                 error = True
                 msg = _("This email address was not found in database.")
@@ -196,4 +205,5 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
             if not error:
                 reset = None
 
-        return self.template_helper.get_renderer().register(reset, msg, error)
+        return self.template_helper.get_renderer().register(self.app.terms_page, self.app.privacy_page,
+                                                            reset, msg, error)

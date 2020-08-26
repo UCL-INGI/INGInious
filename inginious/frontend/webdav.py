@@ -7,7 +7,8 @@ import os
 from pymongo import MongoClient
 
 from wsgidav import util, wsgidav_app
-from wsgidav.dav_error import DAVError, HTTP_FORBIDDEN
+from wsgidav.dav_error import DAVError, HTTP_NOT_FOUND, HTTP_FORBIDDEN
+from wsgidav.dc.base_dc import BaseDomainController
 from wsgidav.dav_provider import DAVProvider
 from wsgidav.fs_dav_provider import FolderResource, FileResource
 
@@ -18,6 +19,57 @@ from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.courses import WebAppCourse
 from inginious.frontend.tasks import WebAppTask
 
+
+def get_dc(course_factory, user_manager, filesystem):
+
+    class INGIniousDAVDomainController(BaseDomainController):
+        """ Authenticates users using the API key and their username """
+        def __init__(self, wsgidav_app, config):
+            super(INGIniousDAVDomainController, self).__init__(wsgidav_app, config)
+
+        def __repr__(self):
+            return self.__class__.__name__
+
+        def get_domain_realm(self, pathinfo, environ):
+            """Resolve a relative url to the  appropriate realm name."""
+            # we don't get the realm here, its already been resolved in
+            # request_resolver
+            if pathinfo.startswith("/"):
+                pathinfo = pathinfo[1:]
+            parts = pathinfo.split("/")
+            return parts[0]
+
+        def require_authentication(self, realm, environ):
+            """Return True if this realm requires authentication or False if it is
+            available for general access."""
+            return True
+
+        def supports_http_digest_auth(self):
+            # We have access to a plaintext password (or stored hash)
+            return True
+
+        def is_user_realm_admin(self, realm, user_name):
+            try:
+                course = course_factory.get_course(realm)
+            except Exception as ex:
+                return True  # Not a course: static file,...
+
+            return user_manager.has_admin_rights_on_course(course, username=user_name)
+
+        def basic_auth_user(self, realm, user_name, password, environ):
+            if not self.is_user_realm_admin(realm, user_name):
+                return False
+            apikey = user_manager.get_user_api_key(user_name, create=True)
+            return apikey is not None and password == apikey
+
+        def digest_auth_user(self, realm, user_name, environ):
+            """Computes digest hash A1 part."""
+            if not self.is_user_realm_admin(realm, user_name):
+                return False
+            password = user_manager.get_user_api_key(user_name, create=True) or ''
+            return self._compute_http_digest_a1(realm, user_name, password)
+
+    return INGIniousDAVDomainController
 
 class INGIniousDAVCourseFile(FileResource):
     """ Protects the course description file. """
@@ -30,42 +82,42 @@ class INGIniousDAVCourseFile(FileResource):
         """ It is forbidden to delete a course description file"""
         raise DAVError(HTTP_FORBIDDEN)
 
-    def copyMoveSingle(self, destPath, isMove):
+    def copy_move_single(self, dest_path, is_move):
         """ It is forbidden to delete a course description file"""
         raise DAVError(HTTP_FORBIDDEN)
 
-    def moveRecursive(self, destPath):
+    def move_recursive(self, dest_path):
         """ It is forbidden to delete a course description file"""
         raise DAVError(HTTP_FORBIDDEN)
 
-    def beginWrite(self, contentType=None):
+    def begin_write(self, content_type=None):
         """Open content as a stream for writing. Do not put the content into course.yaml directly."""
 
         # In order to avoid to temporarily lose the content of the file, we write somewhere else.
         # endWrite will be in charge of putting the content in the correct file, after verifying its content.
-        return open(self._filePath+".webdav_tmp", "wb", 8192)
+        return open(self._file_path + ".webdav_tmp", "wb", 8192)
 
-    def endWrite(self, withErrors):
+    def end_write(self, with_errors):
         """ Update the course.yaml if possible. Verifies the content first, and make backups beforehand. """
 
-        if withErrors:
+        if with_errors:
             # something happened while uploading, let's remove the tmp file
-            os.remove(self._filePath+".webdav_tmp")
+            os.remove(self._file_path + ".webdav_tmp")
         else:
             # get the original content of the file
-            with open(self._filePath, "rb") as orig_file:
+            with open(self._file_path, "rb") as orig_file:
                 orig_content = orig_file.read()
             # get the new content that just has been uploaded
-            with open(self._filePath+".webdav_tmp", "rb") as new_file:
+            with open(self._file_path + ".webdav_tmp", "rb") as new_file:
                 new_content = new_file.read()
-            os.remove(self._filePath + ".webdav_tmp") #the file is not needed anymore
+            os.remove(self._file_path + ".webdav_tmp") #the file is not needed anymore
 
             # backup the original content. In case inginious-webdav crashes while updating the file.
-            with open(self._filePath + ".webdav_backup", "wb", 8192) as backup_file:
+            with open(self._file_path + ".webdav_backup", "wb", 8192) as backup_file:
                 backup_file.write(orig_content)
 
             # Put the new content in the file, temporarily
-            with open(self._filePath, "wb", 8192) as orig_file:
+            with open(self._file_path, "wb", 8192) as orig_file:
                 orig_file.write(new_content)
 
             # Now we check if we can still load the course...
@@ -74,60 +126,11 @@ class INGIniousDAVCourseFile(FileResource):
                 # Everything ok, let's leave things as-is
             except:
                 # We can't load the new file, rollback!
-                with open(self._filePath, "wb", 8192) as orig_file:
+                with open(self._file_path, "wb", 8192) as orig_file:
                     orig_file.write(orig_content)
 
             # Remove the unneeded backup
-            os.remove(self._filePath + ".webdav_backup")
-
-
-class INGIniousDAVDomainController(object):
-    """ Authenticates users using the API key and their username """
-    def __init__(self, user_manager, course_factory):
-        self.course_factory = course_factory
-        self.user_manager = user_manager
-
-    def __repr__(self):
-        return self.__class__.__name__
-
-    def getDomainRealm(self, inputURL, environ):
-        """Resolve a relative url to the  appropriate realm name."""
-        # we don't get the realm here, its already been resolved in
-        # request_resolver
-        if inputURL.startswith("/"):
-            inputURL = inputURL[1:]
-        parts = inputURL.split("/")
-        return parts[0]
-
-    def requireAuthentication(self, realmname, environ):
-        """Return True if this realm requires authentication or False if it is
-        available for general access."""
-        return True
-
-    def isRealmUser(self, realmname, username, environ):
-        """Returns True if this username is valid for the realm, False otherwise."""
-        try:
-            course = self.course_factory.get_course(realmname)
-            ok = self.user_manager.has_admin_rights_on_course(course, username=username)
-            return ok
-        except:
-            return False
-
-    def getRealmUserPassword(self, realmname, username, environ):
-        """Return the password for the given username for the realm.
-
-        Used for digest authentication.
-        """
-        return self.user_manager.get_user_api_key(username, create=True)
-
-    def authDomainUser(self, realmname, username, password, environ):
-        """Returns True if this username/password pair is valid for the realm,
-        False otherwise. Used for basic authentication."""
-        try:
-            apikey = self.user_manager.get_user_api_key(username, create=None)
-            return apikey is not None and password == apikey
-        except:
-            return False
+            os.remove(self._file_path + ".webdav_backup")
 
 
 class INGIniousFilesystemProvider(DAVProvider):
@@ -156,12 +159,12 @@ class INGIniousFilesystemProvider(DAVProvider):
 
         return path_parts
 
-    def _locToFilePath(self, path, environ=None):
+    def _loc_to_file_path(self, path, environ=None):
         course_id = self._get_course_id(path)
         try:
             course = self.course_factory.get_course(course_id)
         except:
-            raise RuntimeError("Unknown course {}".format(course_id))
+            raise DAVError(HTTP_NOT_FOUND, "Unknown course {}".format(course_id))
 
         path_to_course_fs = course.get_fs()
         path_to_course = os.path.abspath(path_to_course_fs.prefix)
@@ -171,19 +174,19 @@ class INGIniousFilesystemProvider(DAVProvider):
             raise RuntimeError("Security exception: tried to access file outside course root: {}".format(file_path))
 
         # Convert to unicode
-        file_path = util.toUnicode(file_path)
+        file_path = util.to_unicode_safe(file_path)
         return file_path
 
-    def isReadOnly(self):
+    def is_readonly(self):
         return False
 
-    def getResourceInst(self, path, environ):
+    def get_resource_inst(self, path, environ):
         """Return info dictionary for path.
 
         See DAVProvider.getResourceInst()
         """
-        self._count_getResourceInst += 1
-        fp = self._locToFilePath(path)
+        self._count_get_resource_inst += 1
+        fp = self._loc_to_file_path(path)
         if not os.path.exists(fp):
             return None
 
@@ -213,9 +216,10 @@ def get_app(config):
 
     config = dict(wsgidav_app.DEFAULT_CONFIG)
     config["provider_mapping"] = {"/": INGIniousFilesystemProvider(course_factory, task_factory)}
-    config["domaincontroller"] = INGIniousDAVDomainController(user_manager, course_factory)
+    config["http_authenticator"]["domain_controller"] = get_dc(course_factory, user_manager, fs_provider)
     config["verbose"] = 0
 
     app = wsgidav_app.WsgiDAVApp(config)
+    util.init_logging(config)
 
     return app

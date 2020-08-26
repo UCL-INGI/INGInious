@@ -202,7 +202,7 @@ class BaseTaskPage(object):
         if "@action" in userinput and userinput["@action"] == "submit":
             # Verify rights
             if not self.user_manager.task_can_user_submit(task, username, isLTI):
-                return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
+                return json.dumps({"status": "error", "title": _("Error"), "text": _("You are not allowed to submit for this task.")})
 
             # Retrieve input random and check still valid
             random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
@@ -210,7 +210,7 @@ class BaseTaskPage(object):
             for i in range(0, len(random_input)):
                 s = "@random_" + str(i)
                 if s not in userinput or float(userinput[s]) != random_input[i]:
-                    return json.dumps({"status": "error", "text": _("Your task has been regenerated. This current task is outdated.")})
+                    return json.dumps({"status": "error", "title": _("Error"), "text": _("Your task has been regenerated. This current task is outdated.")})
 
             # Reparse user input with array for multiple choices
             init_var = {
@@ -221,7 +221,7 @@ class BaseTaskPage(object):
 
             if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
                 web.header('Content-Type', 'application/json')
-                return json.dumps({"status": "error", "text": _("Please answer to all the questions and verify the extensions of the files "
+                return json.dumps({"status": "error",  "title": _("Error"), "text": _("Please answer to all the questions and verify the extensions of the files "
                                                               "you want to upload. Your responses were not tested.")})
             del userinput['@action']
 
@@ -239,13 +239,13 @@ class BaseTaskPage(object):
                 return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
             except Exception as ex:
                 web.header('Content-Type', 'application/json')
-                return json.dumps({"status": "error", "text": str(ex)})
+                return json.dumps({"status": "error", "title": _("Error"), "text": str(ex)})
 
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
             result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
             if result is None:
                 web.header('Content-Type', 'application/json')
-                return json.dumps({'status': "error", "text": _("Internal error")})
+                return json.dumps({'status': "error",  "title": _("Error"), "text": _("Internal error")})
             elif self.submission_manager.is_done(result, user_check=not is_staff):
                 web.header('Content-Type', 'application/json')
                 result = self.submission_manager.get_input_from_submission(result)
@@ -261,7 +261,7 @@ class BaseTaskPage(object):
                 default_submissionid = user_task.get('submissionid', None)
                 if default_submissionid is None:
                     # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
-                    return json.dumps({'status': "error", "text": _("Internal error")})
+                    return json.dumps({'status': "error",  "title": _("Error"), "text": _("Internal error")})
 
                 return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags())
             else:

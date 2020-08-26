@@ -5,6 +5,7 @@
 
 """ Task """
 import gettext
+import json
 
 from inginious.common.base import id_checker
 from inginious.common.hook_manager import HookManager
@@ -62,9 +63,6 @@ class Task(object):
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
-        # Order
-        self._order = int(self._data.get('order', -1))
-
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 
@@ -77,10 +75,6 @@ class Task(object):
             if not problem.input_is_consistent(task_input, default_allowed_extension, default_max_size):
                 return False
         return True
-
-    def get_order(self):
-        """ Get the position of this task in the course """
-        return self._order
 
     def get_environment_id(self):
         """ Returns the environment in which the agent have to launch this task"""
@@ -126,6 +120,13 @@ class Task(object):
         """ Return the translation_fs parameter for this task"""
         return self._translations_fs
 
+    def get_old_order(self):
+        """ Return the the old ordering for compatibility reasons"""
+        try:
+            return int(self._data.get('order', -1))
+        except ValueError:
+            return -1
+
     def check_answer(self, task_input, language):
         """
             Verify the answers in task_input. Returns six values
@@ -142,8 +143,10 @@ class Task(object):
         problem_messages = {}
         error_count = 0
         multiple_choice_error_count = 0
+        states = {}
         for problem in self._problems:
-            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input, language)
+            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count, state = problem.check_answer(task_input, language)
+            states[problem.get_id()] = state
             if problem_is_valid is None:
                 need_launch = True
             elif problem_is_valid == False:
@@ -154,7 +157,7 @@ class Task(object):
             if problem_s_messages is not None:
                 problem_messages[problem.get_id()] = (("success" if problem_is_valid else "failed"), problem_s_messages)
             multiple_choice_error_count += problem_mc_error_count
-        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count
+        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, json.dumps(states)
 
     def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""

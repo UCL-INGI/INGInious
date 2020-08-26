@@ -8,7 +8,7 @@ $#
 $var title: Edit $audience["description"]
 
 $def ColumnF():
-    $:template_helper.call('course_admin_menu',course=course,current='audiences')
+    $:template_helper.call('course_admin_menu',course=course,current='students')
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -17,8 +17,8 @@ $def NavbarF():
             <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/audiences" title=$:_('"Audiences"') data-toggle="tooltip" data-placement="bottom">
-                <i class='fa fa-users'></i></a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/students" title=$:_('"Audiences"') data-toggle="tooltip" data-placement="bottom">
+                <i class='fa fa-user'></i></a></li>
             <li class="breadcrumb-item active"><a href="#">$:_("Edit audience {}").format(audience["description"]) <span class="sr-only">$:_("(current)")</span></a></li>
         </ol>
     </nav>
@@ -189,12 +189,29 @@ $elif msg:
 
 </form>
 
+<style>
+    /* remove ghost when dragging and change cursor for draggable element */
+    .sortable-drag { opacity: 0; }
+    .handle { cursor: move; }
+</style>
+
 <!-- Javascript for managing student/tutor lists -->
 <script type="text/javascript">
+        $$(function () {
+        $$(".tasks_list").each(function(){
+            draggable_tasks[this.id] = make_tasks_list_sortable($$(this));
+        });
+
+        $$(".sections_list").each(function(){
+            draggable_sections[this.id] = make_sections_list_sortable($$(this));
+        });
+    });
 $$(document).ready(function() {
     if(!$$("#tutor_list").val())
         $$("#tutor_list").prop("disabled", true);
 
-    $$("ul.students").sortable({group:"students"});
+    $$("ul.students").each(function(){
+        new Sortable(this, {group:"students"})
+    });
 });
 </script>

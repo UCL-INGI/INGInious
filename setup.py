@@ -18,7 +18,7 @@ install_requires = [
     "docutils>=0.14",
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
-    "web.py>=0.40",
+    "web.py==0.40",
     "Jinja2 >= 2.10",
     "lti>=0.9.0",
     "oauth2>=1.9.0.post1",
@@ -29,7 +29,7 @@ install_requires = [
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
     "zipstream >= 1.1.4",
-    "WsgiDAV == 2.2.4"
+    "WsgiDAV >= 3.0.0"
 ]
 
 test_requires = [

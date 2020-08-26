@@ -121,6 +121,12 @@ class UserManager:
             return None
         return self._session.realname
 
+    def session_tos_signed(self):
+        """ Returns True if the current user has signed the tos"""
+        if not self.session_logged_in():
+            return None
+        return self._session.get("tos_signed", False)
+
     def session_token(self):
         """ Returns the token of the current user in the session, if one is open. Else, returns None"""
         if not self.session_logged_in():
@@ -177,6 +183,11 @@ class UserManager:
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
             self._session.realname = realname
+
+    def set_session_tos_signed(self):
+        """ Sets the real name of the current user in the session, if one is open."""
+        if self.session_logged_in():
+            self._session.tos_signed = True
 
     def set_session_language(self, language):
         self._session.language = language
@@ -354,13 +365,13 @@ class UserManager:
         :return: the API key assigned to the user, or None if none exists and create is False.
         """
         retval = self._database.users.find_one({"username": username}, {"apikey": 1})
-        if "apikey" not in retval and create:
+        if not retval:
+            return None
+        elif "apikey" not in retval and create:
             apikey = self.generate_api_key()
             self._database.users.update_one({"username": username}, {"$set": {"apikey": apikey}})
-        elif "apikey" not in retval:
-            apikey = None
         else:
-            apikey = retval["apikey"]
+            apikey = retval.get("apikey", None)
         return apikey
 
     def bind_user(self, auth_id, user):
@@ -386,7 +397,9 @@ class UserManager:
             self._logger.exception("Tried to bind an already bound account !")
         elif self.session_logged_in():
             # No binding, but logged: add new binding
-            self._database.users.find_one_and_update({"username": self.session_username()},
+            # !!! Use email as it may happen that a user is logged with empty username
+            # !!! if the binding link is used as is
+            self._database.users.find_one_and_update({"email": self.session_email()},
                                                      {"$set": {"bindings." + auth_id: [username, additional]}})
 
         else:

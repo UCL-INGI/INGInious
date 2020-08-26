@@ -63,20 +63,15 @@ urls = (
     r'/admin/([^/]+)/students', 'inginious.frontend.pages.course_admin.student_list.CourseStudentListPage',
     r'/admin/([^/]+)/student/([^/]+)', 'inginious.frontend.pages.course_admin.student_info.CourseStudentInfoPage',
     r'/submission/([^/]+)', 'inginious.frontend.pages.course_admin.submission.SubmissionPage',
-    r'/admin/([^/]+)/audiences', 'inginious.frontend.pages.course_admin.audience_list.CourseAudienceListPage',
     r'/admin/([^/]+)/submissions', 'inginious.frontend.pages.course_admin.submissions.CourseSubmissionsPage',
     r'/admin/([^/]+)/tasks', 'inginious.frontend.pages.course_admin.task_list.CourseTaskListPage',
     r'/admin/([^/]+)/tags', 'inginious.frontend.pages.course_admin.tags.CourseTagsPage',
-    r'/admin/([^/]+)/groups', 'inginious.frontend.pages.course_admin.group_edit.CourseEditGroup',
     r'/admin/([^/]+)/edit/audience/([^/]+)', 'inginious.frontend.pages.course_admin.audience_edit.CourseEditAudience',
     r'/admin/([^/]+)/edit/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
-    r'/admin/([^/]+)/download', 'inginious.frontend.pages.course_admin.download.CourseDownloadSubmissions',
-    r'/admin/([^/]+)/replay', 'inginious.frontend.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
     r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
-    r'/admin/([^/]+)/stats/([^/]+)/([^/]+)', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
     r'/api/v0/authentication', 'inginious.frontend.pages.api.authentication.APIAuthentication',
     r'/api/v0/courses', 'inginious.frontend.pages.api.courses.APICourses',
@@ -90,7 +85,9 @@ urls = (
     r'/lti/bind', 'inginious.frontend.pages.lti.LTIBindPage',
     r'/lti/task', 'inginious.frontend.pages.lti.LTITaskPage',
     r'/lti/login', 'inginious.frontend.pages.lti.LTILoginPage',
-    r'/lti/asset/(.*)', 'inginious.frontend.pages.lti.LTIAssetPage'
+    r'/lti/asset/(.*)', 'inginious.frontend.pages.lti.LTIAssetPage',
+    r'/marketplace', 'inginious.frontend.pages.marketplace.Marketplace',
+    r'/marketplace/([^/]+)', 'inginious.frontend.pages.marketplace_course.MarketplaceCourse'
 )
 
 urls_maintenance = (
@@ -223,7 +220,7 @@ def get_app(config):
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
-
+    is_tos_defined = config.get("privacy_page", "") and config.get("terms_page", "")
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -245,6 +242,7 @@ def get_app(config):
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
+    template_helper.add_to_template_globals("is_tos_defined", is_tos_defined)
     template_helper.add_other("course_admin_menu",
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
@@ -284,6 +282,8 @@ def get_app(config):
     appli.allow_deletion = config.get("allow_deletion", True)
     appli.available_languages = available_languages
     appli.welcome_page = config.get("welcome_page", None)
+    appli.terms_page = config.get("terms_page", None)
+    appli.privacy_page = config.get("privacy_page", None)
     appli.static_directory = config.get("static_directory", "./static")
     appli.webdav_host = config.get("webdav_host", None)
 

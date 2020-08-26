@@ -148,17 +148,42 @@ function download_page_select(select, panel_member)
 }
 
 /**
+ * Select/deselect all the checkboxes of the active panel
+ * @param select: boolean indicating if we should select or deselect
+ * @param panel_member: a child of the panel in which is the list
+ */
+function download_page_select_active(select, panel_member)
+{
+    panel_member = $(panel_member).closest('.card').find(".tab-content .active");
+    $('input[type="checkbox"]', panel_member).prop('checked', select).change();
+}
+
+/**
  * Select/deselect all the checkboxes of the panel depending on a list of users and groups tutored.
  * @param panel_member: a child of the panel in which is the list
  * @param users: a list of usernames
- * @param groups: a list of group ids
+ * @param audiences: a list of audiences ids
  */
-function download_page_select_tutor(panel_member, users, groups)
+function download_page_select_tutor(panel_member, users, audiences)
 {
-    panel_member = $(panel_member);
-    while(!panel_member.hasClass('panel'))
-        panel_member = panel_member.parent();
-    $('input[name="audiences"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
-    $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
-    $('input[type="checkbox"]', panel_member).trigger('change');
+    panel_member = $(panel_member).closest('.card').find(".tab-content .active");
+    $('input[name="audiences"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),audiences) != -1); }).trigger('change');
+    $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); }).trigger('change');
+}
+
+/**
+ * Show and hide the section when click on dropdown button
+ * @param header: the header on which we click
+ */
+function dropdown(header) {
+    const content_div = $(header).closest(".section").children(".content");
+    const button = $(header).children(".dropdown_button")
+
+    if ($(button).hasClass("fa-caret-down")) {
+        $(button).removeClass("fa-caret-down").addClass("fa-caret-left");
+        content_div.slideUp('fast')
+    } else {
+        $(button).removeClass("fa-caret-left").addClass("fa-caret-down");
+        content_div.slideDown('fast')
+    }
 }

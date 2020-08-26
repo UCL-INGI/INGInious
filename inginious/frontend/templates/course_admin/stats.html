@@ -1,4 +1,4 @@
-$def with (course, stats_graph, stats_tasks, stats_users, daterange, error)
+$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, stats_graph, stats_tasks, stats_users, stats_progress, stats_global, display_hour, msgs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -11,6 +11,7 @@ $var header:
     <script src="$get_homepath(True)/static/js/libs/chart.min.js"></script>
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='stats')
+$ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <nav aria-label="breadcrumb">
@@ -28,122 +29,240 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Stats")</h2>
-<form onsubmit="return submitStats();">
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="stats_from">$:_("Compute stats since")</label>
-            <input type="datetime-local" class="form-control" id="stats_from" placeholder="From" value="$daterange[0].strftime('%Y-%m-%dT%H:%M:%S')">
-        </div>
-        <div class="form-group col-md-6">
-            <label for="stats_to">$:_("until")</label>
-            <input type="datetime-local" class="form-control" id="stats_to" placeholder="To" value="$daterange[1].strftime('%Y-%m-%dT%H:%M:%S')">
-        </div>
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+            <li role="presentation" class="nav-item">
+                <a class="active nav-link" href="#tab_progress" role="tab" data-toggle="tab"><i class="fa fa-tasks fa-fw"></i> $:_("Student progress")</a>
+            </li>
+            <li role="presentation" class="nav-item">
+                <a href="#tab_submissions" class="nav-link" role="tab" data-toggle="tab"><i class="fa fa-dashboard fa-fw"></i> $:_("Submissions")</a>
+            </li>
+        </ul>
     </div>
-    <button type="submit" class="btn btn-primary">Update</button>
-</form>
+    <div class="tab-content">
+        <div role="tabpanel" class="card-body tab-pane active" id="tab_progress">
+            <h3>$:_("Tasks")</h3>
+            <table class="table">
+                <tr>
+                    <th>$:_("task name")</th>
+                    <th>$:_("# student viewed")</th>
+                    <th>$:_("# student attempted")</th>
+                    <th>$:_("# student succeeded")</th>
+                    <th>$:_("# attempts")</th>
+                    <th>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="$get_homepath()/admin/${course.get_id()}/stats?progress_csv" class="btn btn-info"
+                               title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i
+                                class="fa fa-table"></i></a>
+                            <a href="$get_homepath()/admin/${course.get_id()}/submissions"
+                               class="btn btn-secondary" title=$:_('"View all submissions"') data-toggle="tooltip"
+                            data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
+                        </div>
+                    </th>
+                </tr>
+                $for taskid in stats_progress:
+                <tr>
+                    <td>
+                        $stats_progress[taskid]["name"]
+                        <input type="hidden" name="task" value="$taskid">
+                    </td>
+                    <td>$stats_progress[taskid]["viewed"]</td>
+                    <td>$stats_progress[taskid]["attempted"]</td>
+                    <td>$stats_progress[taskid]["succeeded"]</td>
+                    <td>$stats_progress[taskid]["attempts"]</td>
+                                <td style="min-width:120px">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$stats_progress[taskid]['url']" class="btn btn-secondary" title="$:_('View submissions')" data-toggle="tooltip"
+                                   data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
+                        </td>
+                </tr>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane card-body" id="tab_submissions">
+            $:include.course_admin.submissions_tabs.query(course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, "stats#alerts", True)
+            <!-- Alerts -->
+            <div id="alerts">
+                $for msg in msgs:
+                <div class="alert alert-warning alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    $msg
+                </div>
+            </div>
 
-<h2>$:_("Stats between {} and {}").format(daterange[0].strftime("%d/%m/%Y %H:%M:%S"), daterange[1].strftime("%d/%m/%Y %H:%M:%S"))</h2>
+            <!-- Statistics global -->
+            <h3>$:_("Global statistics")</h3>
+            <div class="row mb-3">
+                <div class="col-sm-5">
+                    <div class="card">
+                        <div class="card-header">$:_("Submissions statistics")</div>
+                        <div class="card-body ">
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    $for stat in stats_global[0]:
+                                        <tr>
+                                            <td class="summary-heading">$stat[0]</td>
+                                            <td class="summary-content">$stat[1]</td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                $if len(stats_global) >= 2 and len(stats_global[1]) > 0:
+                    <div class="col-sm-7">
+                        <div class="card">
+                            <div class="card-header">$:_("Tag statistics")</div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless ">
+                                    <thead>
+                                        <tr>
+                                            <th>$:_("Tag")</th>
+                                            <th>$:_("All submissions")</th>
+                                            <th>$:_("Best submissions")</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        $for (tag, v_total, v_best) in stats_global[1]:
+                                            $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
+                                            <tr>
+                                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(user_manager.session_language())">$:_(tag.get_name(user_manager.session_language()))</span></td>
+                                                $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)
+                                                $ accuracy = 10
+                                                $ val_displayed_total = int(v_total*accuracy)/accuracy
+                                                $ val_displayed_best = int(v_best*accuracy)/accuracy
 
-<h3>$:_("Submissions")</h3>
-<canvas id="canvas"></canvas>
-<script type="text/javascript">"use strict";
-    function submitStats() {
-        var a = $$("#stats_from").val();
-        var b = $$("#stats_to").val();
-        var redirectTo = "$get_homepath(True)/admin/$course.get_id()/stats/"+a+"/"+b;
-        console.log(redirectTo);
-        window.location.pathname = redirectTo;
-        return false;
-    }
+                                                $# If the displayed value is 0 but in fact the value is not 0 (e.g. 0.00001), we display the '>' character because we need to know that there is at least one tag True.
+                                                $if val_displayed_total == 0 and v_total != 0:
+                                                    $ val_displayed_total = "> " + str(val_displayed_total)
+                                                $if val_displayed_best == 0 and v_best != 0:
+                                                    $ val_displayed_best = "> " + str(val_displayed_best)
+                                                <td>$val_displayed_total %</td>
+                                                <td>$val_displayed_best %</td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <!-- Statistics End -->
 
-    var color = Chart.helpers.color;
-    var config = {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'All submissions',
-                backgroundColor: color('rgb(255, 99, 132)').alpha(0.5).rgbString(),
-                borderColor: 'rgb(255, 99, 132)',
-                fill: false,
-                type: "line",
-                data: [
-                    /*
-                    $for entry in stats_graph[0]:
-                        //*/
-                        {
-                            x: "$entry[0]",
-                            y: $entry[1]
-                        },
-                ]
-            }, {
-                label: 'Valid submissions',
-                backgroundColor: color('rgb(54, 162, 235)').alpha(0.5).rgbString(),
-                borderColor: 'rgb(54, 162, 235)',
-                fill: true,
-                type: "line",
-                data: [
-                    /*
-                    $for entry in stats_graph[1]:
-                        //*/
-                        {
-                            x: "$entry[0]",
-                            y: $entry[1]
-                        },
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                xAxes: [{
-                    type: 'time',
-                    distribution: 'series',
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Date'
+
+            <h3>$:_("Submissions")</h3>
+            <canvas id="canvas"></canvas>
+            <script type="text/javascript">"use strict";
+
+                var color = Chart.helpers.color;
+                var config = {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'All submissions',
+                            backgroundColor: color('rgb(255, 99, 132)').alpha(0.5).rgbString(),
+                            borderColor: 'rgb(255, 99, 132)',
+                            fill: false,
+                            type: "line",
+                            data: [
+                                /*
+                                $for entry in stats_graph[0]:
+                                    //*/
+                                    {
+                                        x: "$entry[0]",
+                                        y: $entry[1]
+                                    },
+                            ]
+                        }, {
+                            label: 'Valid submissions',
+                            backgroundColor: color('rgb(54, 162, 235)').alpha(0.5).rgbString(),
+                            borderColor: 'rgb(54, 162, 235)',
+                            fill: true,
+                            type: "line",
+                            data: [
+                                /*
+                                $for entry in stats_graph[1]:
+                                    //*/
+                                    {
+                                        x: "$entry[0]",
+                                        y: $entry[1]
+                                    },
+                            ]
+                        }]
                     },
-                    ticks: {
-                        major: {
-                            fontStyle: 'bold',
-                            fontColor: '#FF0000'
+                    options: {
+                        responsive: true,
+                        scales: {
+                            xAxes: [{
+                                type: 'time',
+                                distribution: 'series',
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Date'
+                                },
+                                ticks: {
+                                    major: {
+                                        fontStyle: 'bold',
+                                        fontColor: '#FF0000'
+                                    }
+                                },
+                                time: {
+                                    displayFormats: {
+                                        'hour': 'ddd H:mm'
+                                    }
+                                    $if not display_hour:
+                                        ,minUnit: 'day'
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: '# submissions'
+                                }
+                            }]
                         }
                     }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: '# submissions'
-                    }
-                }]
-            }
+                };
+
+                window.onload = function() {
+                    var ctx = document.getElementById('canvas').getContext('2d');
+                    window.myLine = new Chart(ctx, config);
+                };
+            </script>
+            <h3>$:_("Tasks")</h3>
+            <table class="table">
+                <tr><th>Tasks</th><th># submissions</th><th># valid submissions</th></tr>
+                $for entry in stats_tasks:
+                    <tr>
+                        <td>$entry['name']</td>
+                        <td>$entry['submissions']</td>
+                        <td>$entry['validSubmissions']</td>
+                    </tr>
+            </table>
+
+            <h3>$:_("Users")</h3>
+            <table class="table">
+                <tr><th>User</th><th># submissions</th><th># valid submissions</th></tr>
+                $for entry in stats_users:
+                    <tr>
+                        <td>$entry['name']</td>
+                        <td>$entry['submissions']</td>
+                        <td>$entry['validSubmissions']</td>
+                    </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $$(function() {
+        var url = window.location.href;
+        if(url.indexOf('alerts') >= 0){
+            $$('.nav-tabs a[href="#tab_submissions"]').tab('show');
+        } else {
+            dropdown(document.getElementById("query_header"))
         }
-    };
 
-    window.onload = function() {
-        var ctx = document.getElementById('canvas').getContext('2d');
-        window.myLine = new Chart(ctx, config);
-    };
+    });
 </script>
-<h3>$:_("Tasks")</h3>
-<table class="table">
-    <tr><th>Tasks</th><th># submissions</th><th># valid submissions</th></tr>
-    $for entry in stats_tasks:
-        <tr>
-            <td>$entry['name']</td>
-            <td>$entry['submissions']</td>
-            <td>$entry['validSubmissions']</td>
-        </tr>
-</table>
-
-<h3>$:_("Users")</h3>
-<table class="table">
-    <tr><th>User</th><th># submissions</th><th># valid submissions</th></tr>
-    $for entry in stats_users:
-        <tr>
-            <td>$entry['name']</td>
-            <td>$entry['submissions']</td>
-            <td>$entry['validSubmissions']</td>
-        </tr>
-</table>

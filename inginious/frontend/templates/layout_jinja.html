@@ -72,7 +72,8 @@
     <script src="{{get_homepath(True)}}/static/js/libs/moment.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src='{{get_homepath(True)}}/static/js/libs/jquery-sortable.min.js' type="text/javascript" charset="utf-8"></script>
+    <script src='{{get_homepath(True)}}/static/js/libs/Sortable.min.js' type="text/javascript" charset="utf-8"></script>
+    <script src="{{get_homepath(True)}}/static/js/libs/jquery.twbsPagination.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/common.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/task.js" type="text/javascript" charset="utf-8"></script>
@@ -80,6 +81,7 @@
     <script src="{{get_homepath(True)}}/static/js/studio.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/audiences.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/groups.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{get_homepath(True)}}/static/js/task_list.js" type="text/javascript" charset="utf-8"></script>
     {% endif %}
 
     <script type="text/javascript">
@@ -106,6 +108,10 @@
             {% block navbar %}{% endblock %}
             {% if user_manager.session_logged_in() %}
                 <ul class="nav navbar-nav navbar-right ml-auto">
+                    {# Change to teacher privilege when created #}
+                    {% if user_manager.user_is_superadmin() %}
+                        <li class="nav-item"><a href="{{ get_homepath() }}/marketplace" class="nav-link"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a></li>
+                    {% endif %}
                     <li class="nav-item"><a href="{{ get_homepath() }}/courselist" class="nav-link"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownMenuButton">

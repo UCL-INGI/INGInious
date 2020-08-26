@@ -131,6 +131,15 @@ class WebAppSubmissionManager:
                         "outcome_result_id": outcome_result_id,
                         "outcome_consumer_key": outcome_consumer_key})
 
+        # If we are submitting for a group, send the group (user list joined with ",") as username
+        if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+            username = self._user_manager.session_username()
+            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
+                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+                users = self._database.users.find({"username": {"$in": group["students"]}})
+                inputdata["@username"] = ','.join(group["students"])
+                inputdata["@email"] = ','.join([user["email"] for user in users])
+
     def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
         """
                 Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
@@ -140,12 +149,6 @@ class WebAppSubmissionManager:
                 :param submission: the new document that was inserted (do not contain _id)
                 :param submissionid: submission id of the submission
                 """
-        # If we are submitting for a group, send the group (user list joined with ",") as username
-        if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
-            username = self._user_manager.session_username()
-            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
-                inputdata["username"] = ','.join(group["students"])
 
         return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
 
@@ -183,6 +186,7 @@ class WebAppSubmissionManager:
             tried_count = my_user_task["tried"]
             inputdata["@attempts"] = str(tried_count + 1)
             inputdata["@username"] = username
+            inputdata["@email"] = self._user_manager.session_email()
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
@@ -259,6 +263,7 @@ class WebAppSubmissionManager:
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
         # new_submission hook
         inputdata["@username"] = username
+        inputdata["@email"] = self._user_manager.session_email()
         inputdata["@lang"] = self._user_manager.session_language()
         inputdata["@time"] = str(obj["submitted_on"])
         my_user_task = self._database.user_tasks.find_one(
@@ -273,9 +278,9 @@ class WebAppSubmissionManager:
         inputdata["@state"] = states["state"] if "state" in states else ""
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
-        obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
 
         self._before_submission_insertion(task, inputdata, debug, obj)
+        obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
@@ -494,7 +499,7 @@ class WebAppSubmissionManager:
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
 
-    def get_submission_archive(self, course, submissions, sub_folders, archive_file=None):
+    def get_submission_archive(self, course, submissions, sub_folders, archive_file=None, simplify=False):
         """
         :param course: the course object linked to the submission
         :param submissions: a list of submissions
@@ -540,6 +545,8 @@ class WebAppSubmissionManager:
                 yield from generate_paths(sub, path + ['-'.join(sorted(sub['username']))], remaining_sub_folders[1:])
             elif remaining_sub_folders[0] == "submissionid":
                 yield from generate_paths(sub, path + [str(sub['_id'])], remaining_sub_folders[1:])
+            elif remaining_sub_folders[0] == "submissiondateid":
+                yield from generate_paths(sub, path + [(sub['submitted_on']).strftime("%Y-%m-%d-%H:%M:%S")], remaining_sub_folders[1:])
             else:
                 yield from generate_paths(sub, path + [remaining_sub_folders[0]], remaining_sub_folders[1:])
 
@@ -547,7 +554,12 @@ class WebAppSubmissionManager:
         for submission in submissions:
             # generate all paths where the submission must belong
             for base_path in generate_paths(submission, [], sub_folders):
-                file_to_put["/".join(base_path)] = submission
+                base_path = "/".join(base_path)
+                path, i = base_path, 1
+                while path in file_to_put:
+                    path = base_path + "-" + str(i)
+                    i += 1
+                file_to_put[path] = submission
 
         tmpfile = archive_file if archive_file is not None else tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
@@ -599,7 +611,10 @@ class WebAppSubmissionManager:
                                             ext = t_ext
 
                                 subfile = io.BytesIO(problem['value'])
-                                taskfname = base_path + '/uploaded_files/' + pid + ext
+                                if simplify and (pid + ext) != "submission.test":
+                                    taskfname = base_path + '/' + pid + ext
+                                else:
+                                    taskfname = base_path + '/uploaded_files/' + pid + ext
 
                                 # Generate file info
                                 info = tarfile.TarInfo(name=taskfname)
