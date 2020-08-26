@@ -157,7 +157,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
         if limit == 0:
             limit = len(self._choices)  # no limit
 
-        rand = Random("{}#{}#{}".format(self.get_task().get_id(), self.get_id(), seed))
+        rand = Random("{}#{}#{}".format(self.get_id(), language, seed))
 
         # Ensure that the choices are random
         # we *do* need to copy the choices here

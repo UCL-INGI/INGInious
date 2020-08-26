@@ -212,7 +212,8 @@ class Backend(object):
             self._job_running[job_id] = (agent_addr, job_msg, time.time())
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
-                                                                                        job_msg.inputdata, job_msg.environment,
+                                                                                        job_msg.task_problems, job_msg.inputdata,
+                                                                                        job_msg.environment,
                                                                                         job_msg.environment_parameters,
                                                                                         job_msg.debug))
 

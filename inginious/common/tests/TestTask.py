@@ -66,7 +66,7 @@ class test_tasks_basic(object):
                                              "memory": '100',
                                              "hard_time": '',
                                          }
-                                         }, 'fake_path', None, HookManager(), problem_types)
+                                         }, 'fake_path', HookManager(), problem_types)
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return
@@ -88,27 +88,6 @@ class test_tasks_basic(object):
         c = self.course_factory.get_course("test")
         t = c.get_task("task3")
         assert t.input_is_consistent({"unittest": 10}, [], 0) is False
-
-    def test_check_answer_1(self):
-        c = self.course_factory.get_course("test")
-        t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, state = t.check_answer(
-            {"unittest": ["0", "1"]}, "")
-        assert valid is True
-        assert need_launch is False
-        assert error_count == 0
-        assert multiple_choice_error_count == 0
-
-    def test_check_answer_2(self):
-        c = self.course_factory.get_course("test")
-        t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, state = t.check_answer(
-            {"unittest": ["0"]}, "")
-        assert valid is False
-        assert need_launch is False
-        assert error_count == 1
-        assert multiple_choice_error_count == 1
-
 
 class test_tasks_problems(object):
     def setUp(self):
