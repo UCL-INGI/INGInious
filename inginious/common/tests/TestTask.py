@@ -6,10 +6,10 @@
 import os
 
 import inginious.common.base
-import inginious.common.courses
+import inginious.frontend.courses
 import inginious.common.tasks
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.common.course_factory import create_factories
+from inginious.frontend.course_factory import create_factories
 from inginious.common.exceptions import InvalidNameException, TaskUnreadableException
 from inginious.common.hook_manager import HookManager
 from inginious.common.tasks_problems import *

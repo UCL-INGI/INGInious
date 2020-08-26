@@ -22,7 +22,7 @@ from inginious.frontend.user_manager import UserManager
 from inginious.frontend.parsable_text import ParsableText
 from pymongo.database import Database
 
-from inginious.common.course_factory import CourseFactory
+from inginious.frontend.course_factory import CourseFactory
 from inginious.common.task_factory import TaskFactory
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 

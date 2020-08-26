@@ -12,11 +12,10 @@ from wsgidav.dc.base_dc import BaseDomainController
 from wsgidav.dav_provider import DAVProvider
 from wsgidav.fs_dav_provider import FolderResource, FileResource
 
-from inginious.common.course_factory import create_factories
+from inginious.frontend.course_factory import create_factories
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.session_mongodb import MongoStore
-from inginious.frontend.courses import WebAppCourse
 from inginious.frontend.tasks import WebAppTask
 
 
@@ -211,7 +210,7 @@ def get_app(config):
         raise RuntimeError("WebDav access is only supported if INGInious is using a local filesystem to access tasks")
 
     fs_provider = LocalFSProvider(config["tasks_directory"])
-    course_factory, task_factory = create_factories(fs_provider, {}, None, WebAppCourse, WebAppTask)
+    course_factory, task_factory = create_factories(fs_provider, {}, None, WebAppTask)
     user_manager = UserManager(MongoStore(database, 'sessions'), database, config.get('superadmins', []))
 
     config = dict(wsgidav_app.DEFAULT_CONFIG)

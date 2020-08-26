@@ -5,25 +5,25 @@
 
 """ Factory for loading courses from disk """
 import logging
+
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
-from inginious.common.courses import Course
 from inginious.common.base import id_checker, get_json_or_yaml, loads_json_or_yaml
 from inginious.common.task_factory import TaskFactory
 from inginious.common.tasks import Task
 from inginious.common.hook_manager import HookManager
 from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException, CourseAlreadyExistsException
 
+from inginious.frontend.courses import Course
 
 class CourseFactory(object):
     """ Load courses from disk """
     _logger = logging.getLogger("inginious.course_factory")
 
-    def __init__(self, filesystem: FileSystemProvider, task_factory, hook_manager, course_class=Course):
+    def __init__(self, filesystem: FileSystemProvider, task_factory, hook_manager):
         self._filesystem = filesystem
         self._task_factory = task_factory
         self._hook_manager = hook_manager
-        self._course_class = course_class
         self._cache = {}
 
     def get_course(self, courseid):
@@ -211,19 +211,18 @@ class CourseFactory(object):
                     last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
 
         self._cache[courseid] = (
-            self._course_class(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._hook_manager),
+            Course(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._hook_manager),
             last_modif
         )
 
         self._task_factory.update_cache_for_course(courseid)
 
 
-def create_factories(fs_provider, task_problem_types, hook_manager=None, course_class=Course, task_class=Task):
+def create_factories(fs_provider, task_problem_types, hook_manager=None, task_class=Task):
     """
     Shorthand for creating Factories
     :param fs_provider: A FileSystemProvider leading to the courses
     :param hook_manager: an Hook Manager instance. If None, a new Hook Manager is created
-    :param course_class:
     :param task_class:
     :return: a tuple with two objects: the first being of type CourseFactory, the second of type TaskFactory
     """
@@ -231,4 +230,4 @@ def create_factories(fs_provider, task_problem_types, hook_manager=None, course_
         hook_manager = HookManager()
 
     task_factory = TaskFactory(fs_provider, hook_manager, task_problem_types, task_class)
-    return CourseFactory(fs_provider, task_factory, hook_manager, course_class), task_factory
+    return CourseFactory(fs_provider, task_factory, hook_manager), task_factory

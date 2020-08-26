@@ -33,16 +33,6 @@ inginious.common.base module
     :undoc-members:
     :show-inheritance:
 
-.. _inginious.common.course_factory:
-
-inginious.common.course_factory module
---------------------------------------
-
-.. automodule:: inginious.common.course_factory
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.courses module
 -------------------------------
 

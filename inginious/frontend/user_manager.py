@@ -878,7 +878,7 @@ class UserManager:
     def has_admin_rights_on_course(self, course, username=None, include_superadmins=True):
         """
         Check if a user can be considered as having admin rights for a course
-        :type course: webapp.custom.courses.WebAppCourse
+        :type course: inginious.frontend.courses.Course
         :param username: the username. If None, the username of the currently logged in user is taken
         :param include_superadmins: Boolean indicating if superadmins should be taken into account
         :return: True if the user has admin rights, False else
@@ -891,7 +891,7 @@ class UserManager:
     def has_staff_rights_on_course(self, course, username=None, include_superadmins=True):
         """
         Check if a user can be considered as having staff rights for a course
-        :type course: webapp.custom.courses.WebAppCourse
+        :type course: inginious.frontend.courses.Course
         :param username: the username. If None, the username of the currently logged in user is taken
         :param include_superadmins: Boolean indicating if superadmins should be taken into account
         :return: True if the user has staff rights, False else

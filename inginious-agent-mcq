@@ -10,11 +10,9 @@
 import argparse
 import logging
 
-import sys
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
-from inginious.common.course_factory import create_factories
 from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.mcq_agent import MCQAgent
 from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem

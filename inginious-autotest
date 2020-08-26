@@ -19,7 +19,7 @@ from inginious.common.tags import Tag
 from inginious.frontend.tasks import WebAppTask
 from inginious.frontend.parsable_text import ParsableText
 from inginious.common.log import init_logging
-from inginious.common.course_factory import create_factories
+from inginious.frontend.course_factory import create_factories
 from inginious.client.client_sync import ClientSync
 from inginious.frontend.arch_helper import start_asyncio_and_zmq, create_arch
 from yaml import load

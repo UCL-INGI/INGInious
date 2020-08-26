@@ -8,7 +8,7 @@ import tempfile
 import shutil
 
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.common.course_factory import create_factories
+from inginious.frontend.course_factory import create_factories
 from inginious.common.tasks_problems import *
 
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,

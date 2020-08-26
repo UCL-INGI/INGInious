@@ -20,7 +20,7 @@ class MCQAgent(Agent):
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
         :param tasks_filesystem: FileSystemProvider to the course/tasks
-        :param course_factory: Course factory used to get course/tasks
+        :param problem_types: Problem types dictionary
         """
         super().__init__(context, backend_addr, friendly_name, concurrency, tasks_filesystem)
         self._logger = logging.getLogger("inginious.agent.mcq")
