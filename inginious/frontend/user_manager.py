@@ -125,7 +125,7 @@ class UserManager:
         """ Returns True if the current user has signed the tos"""
         if not self.session_logged_in():
             return None
-        return self._session.get("tos_signed", False)
+        return self._session.tos_signed
 
     def session_token(self):
         """ Returns the token of the current user in the session, if one is open. Else, returns None"""
@@ -192,13 +192,14 @@ class UserManager:
     def set_session_language(self, language):
         self._session.language = language
 
-    def _set_session(self, username, realname, email, language):
+    def _set_session(self, username, realname, email, language, tos_signed):
         """ Init the session. Preserves potential LTI information. """
         self._session.loggedin = True
         self._session.email = email
         self._session.username = username
         self._session.realname = realname
         self._session.language = language
+        self._session.tos_signed = tos_signed
         self._session.token = None
         if "lti" not in self._session:
             self._session.lti = None
@@ -211,6 +212,7 @@ class UserManager:
         self._session.realname = None
         self._session.token = None
         self._session.lti = None
+        self._session.tos_signed = None
 
     def create_lti_session(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url,
                            outcome_result_id, tool_name, tool_desc, tool_url, context_title, context_label):
@@ -287,9 +289,9 @@ class UserManager:
             {"username": username, "password": password_hash, "activate": {"$exists": False}})
 
         return user if user is not None and self.connect_user(username, user["realname"], user["email"],
-                                                              user["language"]) else None
+                                                              user["language"], user.get("tos_accepted", False)) else None
 
-    def connect_user(self, username, realname, email, language):
+    def connect_user(self, username, realname, email, language, tos_accepted):
         """
         Opens a session for the user
         :param username: Username
@@ -301,7 +303,7 @@ class UserManager:
                                         {"$set": {"realname": realname, "username": username, "language": language}},
                                         upsert=True)
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
-        self._set_session(username, realname, email, language)
+        self._set_session(username, realname, email, language, tos_accepted)
         return True
 
     def disconnect_user(self):
@@ -387,7 +389,7 @@ class UserManager:
         if user_profile and not self.session_logged_in():
             # Sign in
             self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"],
-                              user_profile["language"])
+                              user_profile["language"], user_profile.get("tos_accepted", False))
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
             self._database.users.find_one_and_update({"username": self.session_username()},
@@ -416,7 +418,7 @@ class UserManager:
                                              "email": email,
                                              "bindings": {auth_id: [username, additional]},
                                              "language": self._session.get("language", "en")})
-                self.connect_user("", realname, email, self._session.get("language", "en"))
+                self.connect_user("", realname, email, self._session.get("language", "en"), False)
 
         return True
 

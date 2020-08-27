@@ -40,7 +40,7 @@ class ProfilePage(INGIniousAuthPage):
                     return result, msg, error
                 else:
                     self.user_manager.connect_user(result["username"], result["realname"], result["email"],
-                                                   result["language"])
+                                                   result["language"], result.get("tos_accepted", False))
 
         # Check if updating the password.
         if self.app.allow_registration and len(data["passwd"]) in range(1, 6):
