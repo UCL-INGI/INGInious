@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-25 09:48+0200\n"
+"POT-Creation-Date: 2020-08-27 15:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,18 +111,18 @@ msgstr ""
 msgid "Your account is already bound with this context."
 msgstr ""
 
-#: inginious/frontend/pages/lti.py:174
+#: inginious/frontend/pages/lti.py:175
 msgid "Error while validating LTI request"
 msgstr ""
 
-#: inginious/frontend/pages/lti.py:189
+#: inginious/frontend/pages/lti.py:190
 msgid ""
 "In order to send grade back to the TC, INGInious needs the parameters "
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-"
 "launch-request. Please contact your administrator."
 msgstr ""
 
-#: inginious/frontend/pages/lti.py:209
+#: inginious/frontend/pages/lti.py:210
 msgid "Couldn't validate LTI request"
 msgstr ""
 
@@ -919,7 +919,7 @@ msgid "Register for a group"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/student_list.html:49
-#: inginious/frontend/templates/course_admin/student_list.html:166
+#: inginious/frontend/templates/course_admin/student_list.html:169
 #: inginious/frontend/templates/group.html:59
 #: inginious/frontend/templates/group.html:67
 msgid "Groups"
@@ -1072,7 +1072,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
 #: inginious/frontend/templates/course_admin/danger_zone.html:164
 #: inginious/frontend/templates/course_admin/student_info.html:93
-#: inginious/frontend/templates/course_admin/student_list.html:232
+#: inginious/frontend/templates/course_admin/student_list.html:235
 #: inginious/frontend/templates/course_admin/student_list_table.html:81
 #: inginious/frontend/templates/course_admin/submissions.html:200
 #: inginious/frontend/templates/course_admin/task_edit.html:116
@@ -1336,12 +1336,12 @@ msgstr ""
 msgid "Username (min. 4 alphanumerical characters) :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:49
+#: inginious/frontend/templates/preferences/profile.html:55
 #: inginious/frontend/templates/register.html:32
 msgid "Complete name :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:53
+#: inginious/frontend/templates/preferences/profile.html:59
 #: inginious/frontend/templates/register.html:36
 #: inginious/frontend/templates/register.html:62
 msgid "Email address :"
@@ -1357,7 +1357,7 @@ msgstr ""
 msgid "Confirm password :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:78
+#: inginious/frontend/templates/preferences/profile.html:84
 #: inginious/frontend/templates/register.html:49
 msgid ""
 "I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy"
@@ -1660,9 +1660,9 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:44
 #: inginious/frontend/templates/course_admin/audience_edit.html:95
-#: inginious/frontend/templates/course_admin/student_list.html:60
-#: inginious/frontend/templates/course_admin/student_list.html:214
-#: inginious/frontend/templates/course_admin/student_list.html:233
+#: inginious/frontend/templates/course_admin/student_list.html:63
+#: inginious/frontend/templates/course_admin/student_list.html:217
+#: inginious/frontend/templates/course_admin/student_list.html:236
 msgid "Add student"
 msgstr ""
 
@@ -1679,7 +1679,7 @@ msgid "Choose student :"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:82
-#: inginious/frontend/templates/course_admin/student_list.html:222
+#: inginious/frontend/templates/course_admin/student_list.html:225
 msgid "Student username (will be registered) :"
 msgstr ""
 
@@ -1717,7 +1717,7 @@ msgid "\"Remove student\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:188
-#: inginious/frontend/templates/course_admin/student_list.html:383
+#: inginious/frontend/templates/course_admin/student_list.html:386
 msgid "Update"
 msgstr ""
 
@@ -2004,14 +2004,14 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/stats.html:56
 #: inginious/frontend/templates/course_admin/student_info.html:39
-#: inginious/frontend/templates/course_admin/student_list.html:118
+#: inginious/frontend/templates/course_admin/student_list.html:121
 #: inginious/frontend/templates/course_admin/student_list_table.html:25
 msgid "\"Download CSV\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/stats.html:59
 #: inginious/frontend/templates/course_admin/student_info.html:41
-#: inginious/frontend/templates/course_admin/student_list.html:120
+#: inginious/frontend/templates/course_admin/student_list.html:123
 msgid "\"View all submissions\""
 msgstr ""
 
@@ -2087,7 +2087,7 @@ msgid "Reset"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/student_list.html:36
-#: inginious/frontend/templates/course_admin/student_list.html:348
+#: inginious/frontend/templates/course_admin/student_list.html:351
 msgid "Students"
 msgstr ""
 
@@ -2099,105 +2099,109 @@ msgstr ""
 msgid "Audiences"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:70
-#: inginious/frontend/templates/course_admin/student_list.html:169
+#: inginious/frontend/templates/course_admin/student_list.html:57
+msgid "Number of students"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_list.html:73
+#: inginious/frontend/templates/course_admin/student_list.html:172
 msgid "Upload structure"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:71
-#: inginious/frontend/templates/course_admin/student_list.html:170
+#: inginious/frontend/templates/course_admin/student_list.html:74
+#: inginious/frontend/templates/course_admin/student_list.html:173
 msgid "Download structure"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:90
-#: inginious/frontend/templates/course_admin/student_list.html:180
+#: inginious/frontend/templates/course_admin/student_list.html:93
+#: inginious/frontend/templates/course_admin/student_list.html:183
 msgid "Upload course structure"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:94
-#: inginious/frontend/templates/course_admin/student_list.html:184
+#: inginious/frontend/templates/course_admin/student_list.html:97
+#: inginious/frontend/templates/course_admin/student_list.html:187
 msgid "Note : Please refer to documentation for file format"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:96
-#: inginious/frontend/templates/course_admin/student_list.html:186
+#: inginious/frontend/templates/course_admin/student_list.html:99
+#: inginious/frontend/templates/course_admin/student_list.html:189
 msgid "Course structure"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:101
-#: inginious/frontend/templates/course_admin/student_list.html:191
+#: inginious/frontend/templates/course_admin/student_list.html:104
+#: inginious/frontend/templates/course_admin/student_list.html:194
 msgid "Upload (will erase current settings)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:111
+#: inginious/frontend/templates/course_admin/student_list.html:114
 msgid "Audience"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:112
+#: inginious/frontend/templates/course_admin/student_list.html:115
 msgid "# students"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:113
+#: inginious/frontend/templates/course_admin/student_list.html:116
 #: inginious/frontend/templates/course_admin/student_list_table.html:19
 msgid "# task tried"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:114
+#: inginious/frontend/templates/course_admin/student_list.html:117
 #: inginious/frontend/templates/course_admin/student_list_table.html:20
 msgid "# task done"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:126
+#: inginious/frontend/templates/course_admin/student_list.html:129
 msgid "My audience(s)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:126
+#: inginious/frontend/templates/course_admin/student_list.html:129
 msgid "Other audience(s)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:143
+#: inginious/frontend/templates/course_admin/student_list.html:146
 msgid "\"Edit audience\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:154
+#: inginious/frontend/templates/course_admin/student_list.html:157
 msgid "New audience description"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:155
+#: inginious/frontend/templates/course_admin/student_list.html:158
 msgid "New audience"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:244
+#: inginious/frontend/templates/course_admin/student_list.html:247
 msgid "Ungrouped students"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:271
-#: inginious/frontend/templates/course_admin/student_list.html:292
+#: inginious/frontend/templates/course_admin/student_list.html:274
+#: inginious/frontend/templates/course_admin/student_list.html:295
 msgid "Max group size :"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:277
-#: inginious/frontend/templates/course_admin/student_list.html:298
+#: inginious/frontend/templates/course_admin/student_list.html:280
+#: inginious/frontend/templates/course_admin/student_list.html:301
 msgid "\"Delete group\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:308
+#: inginious/frontend/templates/course_admin/student_list.html:311
 msgid "Restrict to audiences"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:318
+#: inginious/frontend/templates/course_admin/student_list.html:321
 msgid "Add audience"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:368
+#: inginious/frontend/templates/course_admin/student_list.html:371
 msgid "New group"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:373
+#: inginious/frontend/templates/course_admin/student_list.html:376
 msgid "Clean groups"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/student_list.html:378
+#: inginious/frontend/templates/course_admin/student_list.html:381
 msgid "Delete all groups"
 msgstr ""
 
@@ -2961,26 +2965,30 @@ msgid "Please set a new username"
 msgstr ""
 
 #: inginious/frontend/templates/preferences/profile.html:45
+msgid "Please accept the Terms of Service and Data Privacy"
+msgstr ""
+
+#: inginious/frontend/templates/preferences/profile.html:51
 msgid "Username :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:57
+#: inginious/frontend/templates/preferences/profile.html:63
 msgid "Language :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:65
+#: inginious/frontend/templates/preferences/profile.html:71
 msgid "Old password :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:69
+#: inginious/frontend/templates/preferences/profile.html:75
 msgid "New password (min. 6 characters) :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:73
+#: inginious/frontend/templates/preferences/profile.html:79
 msgid "Confirm new password :"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/profile.html:81
+#: inginious/frontend/templates/preferences/profile.html:87
 msgid "Save my profile"
 msgstr ""
 
