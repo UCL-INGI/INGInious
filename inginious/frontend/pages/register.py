@@ -86,7 +86,7 @@ class RegistrationPage(INGIniousPage):
             msg = _("Passwords don't match !")
         elif self.app.terms_page is not None and self.app.privacy_page is not None and "term_policy_check" not in data:
             error = True
-            msg = _("You didn't accept policies.")
+            msg = _("Please accept the Terms of Service and Data Privacy")
 
         if not error:
             existing_user = self.database.users.find_one(

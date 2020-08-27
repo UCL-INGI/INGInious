@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-27 15:09+0200\n"
+"POT-Creation-Date: 2020-08-27 15:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -176,7 +176,8 @@ msgid "Passwords don't match !"
 msgstr ""
 
 #: inginious/frontend/pages/register.py:89
-msgid "You didn't accept policies."
+#: inginious/frontend/templates/preferences/profile.html:45
+msgid "Please accept the Terms of Service and Data Privacy"
 msgstr ""
 
 #: inginious/frontend/pages/register.py:97
@@ -2962,10 +2963,6 @@ msgstr ""
 
 #: inginious/frontend/templates/preferences/profile.html:39
 msgid "Please set a new username"
-msgstr ""
-
-#: inginious/frontend/templates/preferences/profile.html:45
-msgid "Please accept the Terms of Service and Data Privacy"
 msgstr ""
 
 #: inginious/frontend/templates/preferences/profile.html:51

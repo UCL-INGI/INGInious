@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-08-27 15:09+0200\n"
+"POT-Creation-Date: 2020-08-27 15:16+0200\n"
 "PO-Revision-Date: 2019-12-02 15:03+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language: fr\n"
@@ -182,8 +182,11 @@ msgid "Passwords don't match !"
 msgstr "Les mots de passe ne coïncident pas !"
 
 #: inginious/frontend/pages/register.py:89
-msgid "You didn't accept policies."
+#: inginious/frontend/templates/preferences/profile.html:45
+msgid "Please accept the Terms of Service and Data Privacy"
 msgstr ""
+"Veuillez accepter les conditions d'utilisation et la politique de "
+"confidentialité"
 
 #: inginious/frontend/pages/register.py:97
 msgid "This username is already taken !"
@@ -3102,11 +3105,6 @@ msgstr "Ajouter la méthode"
 msgid "Please set a new username"
 msgstr "Veuillez choisir un nom d'utilisateur"
 
-#: inginious/frontend/templates/preferences/profile.html:45
-msgid "Please accept the Terms of Service and Data Privacy"
-msgstr "Veuillez accepter les conditions d'utilisation et la politique "
-"de confidentialité"
-
 #: inginious/frontend/templates/preferences/profile.html:51
 msgid "Username :"
 msgstr "Nom d'utilisateur :"
@@ -3142,7 +3140,3 @@ msgstr "Taille fichier max. :"
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
 msgstr "Extensions autorisées :"
-
-#~ msgid "Find new courses on the course list page"
-#~ msgstr "Trouvez de nouveaux cours dans la Liste des cours"
-
