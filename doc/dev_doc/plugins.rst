@@ -4,7 +4,7 @@ Creating plugins
 INGInious provides a simple plugin system that allow to register some hooks to extend existing features, create new
 frontend pages and features, and add new authentication methods.
 
-Hooks actually call callback functions that you indicated with the ``add_hook`` method from ``HookManager``. Please
+Hooks actually call callback functions that you indicated with the ``add_hook`` method from ``PluginManager``. Please
 note that all hooks may be called by another thread, so all actions done into a hook have to be thread-safe.
 
 Tutorial
@@ -31,8 +31,7 @@ The plugin is initialized by the plugin manager, which is the frontend-extended 
 This method takes four arguments:
 
 - ``plugin_manager`` which is the plugin manager singleton object. The detailed API is available at
-  :ref:`inginious.frontend.common.plugin_manager`. Please note that ``PluginManager`` inherits from
-  :ref:`inginious.common.hook_manager`.
+  :ref:`inginious.frontend.common.plugin_manager`.
 
 - ``course_factory`` which is the course factory singleton object, giving you abstraction to the tasks folder. The detailed
   API is available at :ref:`inginious.common.course_factory`.

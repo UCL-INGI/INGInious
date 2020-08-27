@@ -29,7 +29,7 @@ def _migrate_from_v_0_6(content):
 class Task(object):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, course, taskid, content, filesystem, hook_manager, task_problem_types):
+    def __init__(self, course, taskid, content, filesystem, plugin_manager, task_problem_types):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
@@ -39,7 +39,7 @@ class Task(object):
         self._course = course
         self._taskid = taskid
         self._fs = filesystem
-        self._hook_manager = hook_manager
+        self._plugin_manager = plugin_manager
         self._data = content
 
         if "problems" not in self._data:
@@ -185,7 +185,7 @@ class Task(object):
 
     def get_hook(self):
         """ Returns the hook manager parameter for this task"""
-        return self._hook_manager
+        return self._plugin_manager
 
     def get_translation_fs(self):
         """ Return the translation_fs parameter for this task"""
@@ -215,7 +215,7 @@ class Task(object):
 
     def get_accessible_time(self, plugin_override=True):
         """  Get the accessible time of this task """
-        vals = self._hook_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
+        vals = self._plugin_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
         return vals[0] if len(vals) and plugin_override else self._accessible
 
     def is_visible_by_students(self):
@@ -247,7 +247,7 @@ class Task(object):
     def get_context(self, language):
         """ Get the context(description) of this task """
         context = self.gettext(language, self._context) if self._context else ""
-        vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
+        vals = self._plugin_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
         return ParsableText(vals[0], "rst", translation=self.get_translation_obj(language)) if len(vals) \
             else ParsableText(context, "rst", translation=self.get_translation_obj(language))
 

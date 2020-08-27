@@ -186,7 +186,7 @@ def get_app(config):
     plugin_manager = PluginManager()
 
     # Add the "agent types" inside the frontend, to allow loading tasks and managing envs
-    register_base_env_types(plugin_manager)
+    register_base_env_types()
 
     # Create the FS provider
     if "fs" in config:

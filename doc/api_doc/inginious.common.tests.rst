@@ -24,11 +24,3 @@ inginious.common.tests.TestCustomYaml module
     :members:
     :undoc-members:
     :show-inheritance:
-
-inginious.common.tests.TestHookManager module
----------------------------------------------
-
-.. automodule:: inginious.common.tests.TestHookManager
-    :members:
-    :undoc-members:
-    :show-inheritance:

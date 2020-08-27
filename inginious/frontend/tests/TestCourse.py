@@ -10,7 +10,6 @@ import shutil
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.course_factory import create_factories
 from inginious.common.tasks_problems import *
-from inginious.common.hook_manager import HookManager
 from inginious.frontend.environment_types import register_base_env_types
 
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
@@ -18,7 +17,7 @@ problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
 
 class TestCourse(object):
     def setUp(self):
-        register_base_env_types(HookManager())
+        register_base_env_types()
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.course_factory, _ = create_factories(fs, problem_types)
 
@@ -86,7 +85,7 @@ class TestCourseWrite(object):
     """ Test the course update function """
 
     def setUp(self):
-        register_base_env_types(HookManager())
+        register_base_env_types()
         self.dir_path = tempfile.mkdtemp()
         fs = LocalFSProvider(self.dir_path)
         self.course_factory, _ = create_factories(fs, problem_types)

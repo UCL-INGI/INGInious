@@ -1,6 +1,5 @@
 import abc
 
-from inginious.common.hook_manager import HookManager
 from inginious.frontend.environment_types.docker import DockerEnvType
 from inginious.frontend.environment_types.mcq import MCQEnvType
 
@@ -21,7 +20,7 @@ def register_env_type(env_obj):
     __env_types[env_obj.id] = env_obj
 
 
-def register_base_env_types(hook_manager: HookManager):
+def register_base_env_types():
     # register standard env types here
     register_env_type(DockerEnvType())
     register_env_type(MCQEnvType())

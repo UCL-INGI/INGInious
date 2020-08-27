@@ -50,6 +50,14 @@ inginious.frontend.tests.TestParsableText module
     :undoc-members:
     :show-inheritance:
 
+inginious.frontend.tests.TestPluginManager module
+---------------------------------------------
+
+.. automodule:: inginious.frontend.tests.TestPluginManager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 inginious.frontend.tests.TestTaskDisplay module
 ------------------------------------------------------
 

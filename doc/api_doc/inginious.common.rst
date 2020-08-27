@@ -49,16 +49,6 @@ inginious.common.exceptions module
     :undoc-members:
     :show-inheritance:
 
-.. _inginious.common.hook_manager:
-
-inginious.common.hook_manager module
-------------------------------------
-
-.. automodule:: inginious.common.hook_manager
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.log module
 ---------------------------
 
