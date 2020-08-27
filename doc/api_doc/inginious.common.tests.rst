@@ -17,14 +17,6 @@ inginious.common.tests.TestBase module
     :undoc-members:
     :show-inheritance:
 
-inginious.common.tests.TestCourse module
-----------------------------------------
-
-.. automodule:: inginious.common.tests.TestCourse
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.tests.TestCustomYaml module
 --------------------------------------------
 
@@ -40,13 +32,3 @@ inginious.common.tests.TestHookManager module
     :members:
     :undoc-members:
     :show-inheritance:
-
-inginious.common.tests.TestTask module
---------------------------------------
-
-.. automodule:: inginious.common.tests.TestTask
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-

@@ -91,7 +91,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Used to add CSS files in the header. 
     Should return the path to a CSS file (relative to the root of INGInious).
 ``course_admin_menu`` (``course``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``course`` : :ref:`inginious.frontend.courses.Course`
 
     Returns : Tuple (link, name) or None.
 
@@ -106,7 +106,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Allows to add HTML to the menu displayed on the main (course list) page. ``template_helper`` is an object
     of type TemplateHelper, that can be useful to render templates.
 ``course_menu`` (``course``, ``template_helper``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``course`` : :ref:`inginious.frontend.courses.Course`
 
     ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
 
@@ -115,9 +115,9 @@ Each hook available in INGInious is described here, starting with its name and p
     Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page. ``template_helper`` is an object
     of type TemplateHelper, that can be useful to render templates.
 ``task_menu`` (``course``, ``task``, ``template_helper``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``course`` : :ref:`inginious.frontend.courses.Course`
 
-    ``task`` : :ref:`inginious.frontend.common.tasks.FrontendTask`
+    ``task`` : :ref:`inginious.frontend.tasks.Task`
 
     ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
 
@@ -145,7 +145,7 @@ Each hook available in INGInious is described here, starting with its name and p
 ``course_accessibility`` (``course``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
     ``default`` : Default value as specified in the configuration
 
@@ -153,9 +153,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_accessibility`` (``course``, ``taskid``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -163,9 +163,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_limits`` (``course``, ``taskid``, ``default``)
     Returns: Task limits dictionary
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -173,9 +173,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_context`` (``course``, ``taskid``, ``default``)
     Returns: inginious.frontend.common.parsable_text.ParsableText
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -183,9 +183,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_network_grading`` (``course``, ``taskid``, ``default``)
     Returns: True or False
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 

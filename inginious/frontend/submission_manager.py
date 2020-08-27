@@ -229,7 +229,7 @@ class WebAppSubmissionManager:
         """
         Add a job in the queue and returns a submission id.
         :param task:  Task instance
-        :type task: inginious.frontend.tasks.WebAppTask
+        :type task: inginious.frontend.tasks.Task
         :param inputdata: the input as a dictionary
         :type inputdata: dict
         :param debug: If debug is true, more debug data will be saved
