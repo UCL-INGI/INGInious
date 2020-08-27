@@ -732,6 +732,9 @@ followed by a *:filename* or *:value* suffix.
 run_student
 -----------
 
+.. DANGER::
+    *run_student* is not available in Kata environment. The security of the students' submissions' grading is the responsibility of the task author.
+
 *run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading,
 making sure the untrusted code made by the student don't interact with yours.
 

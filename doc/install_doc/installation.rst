@@ -13,13 +13,15 @@ Dependencies setup
 INGInious needs:
 
 - Python_ (with pip) **3.5+**
-- Docker_ 1.12+
+- Docker_ **1.12+**
+- Katacontainers_ (optional) **1.10+**
 - MongoDB_
 - Libtidy
 - LibZMQ
 
 .. _Docker: https://www.docker.com
 .. _Python: https://www.python.org/
+.. _Katacontainers: https://katacontainers.io
 .. _MongoDB: http://www.mongodb.org/
 
 RHEL/Cent OS 7.0+, Fedora 24+
@@ -101,6 +103,45 @@ also only run the Docker agent under a Linux virtual machine and run the backend
 In the later case, you'll need to install Python 3.5+, MongoDB, LibTidy and LibZMQ.
 
 .. _Installpip:
+
+Installing Kata containers
+--------------------------
+
+Kata containers need Docker **19.03+**.
+For now the installer available on Kata containers repository does not work properly.
+This method allows you to install it:
+::
+
+    $ wget https://github.com/kata-containers/runtime/releases/download/1.10.0/kata-static-1.10.0-x86_64.tar.xz
+    # tar -xvf kata-static-1.10.0-x86_64.tar.xz -C /
+    # vim /etc/docker/daemon.json
+
+Then fill the file with:
+::
+    {
+      "runtimes": {
+        "kata-fc": {
+          "path": "/opt/kata/bin/kata-fc"
+        },
+       "kata-qemu": {
+          "path": "/opt/kata/bin/kata-qemu"
+        }
+      },
+      "storage-driver": "devicemapper"
+    }
+
+This is also the file you have to edit if you want to change your storage driver.
+From a performance point of view, ``devicemapper`` is preferred for Kata environments and ``overlay2`` for Docker environments.
+
+Common problems
+```````````````
+
+If you have problems using ``kata-qemu`` runtime, make sure vsock module is installed in your kernel.
+Otherwise install it:
+::
+    # modprobe vhost_vsock
+
+If you have problems using Kata runtimes inside a virtual machine, make sure your VM supports nested virtualization.
 
 Installing INGInious
 --------------------
