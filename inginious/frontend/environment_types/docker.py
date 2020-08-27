@@ -36,6 +36,7 @@ class DockerEnvType(FrontendEnvType):
                     hard_time = int(hard_time)
                 limits['hard_time'] = hard_time
                 limits['memory'] = int(data["limits"].get("memory", 1024))
+                limits['disk'] = int(data["limits"].get("disk", 1024))
 
                 if limits['time'] <= 0 or limits['hard_time'] <= 0 or limits['memory'] <= 0 or \
                         limits['disk'] <= 0:

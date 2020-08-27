@@ -7,12 +7,14 @@ import os
 
 import inginious.common.base
 import inginious.frontend.courses
-import inginious.common.tasks
+from inginious.frontend.tasks import Task
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.course_factory import create_factories
 from inginious.common.exceptions import InvalidNameException, TaskUnreadableException
 from inginious.common.hook_manager import HookManager
 from inginious.common.tasks_problems import *
+
+from inginious.frontend.environment_types import register_base_env_types
 
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
@@ -20,6 +22,7 @@ problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
 
 class test_tasks_basic(object):
     def setUp(self):
+        register_base_env_types(HookManager())
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.course_factory, _ = create_factories(fs, problem_types)
 
@@ -56,7 +59,7 @@ class test_tasks_basic(object):
 
     def test_no_problems(self):
         try:
-            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
+            Task(self.course_factory.get_course('test3'), 'invalid_task',
                                         {"environment_id": "default",
                                          "environment_type": "docker",
                                          "environment_parameters": {
@@ -91,6 +94,7 @@ class test_tasks_basic(object):
 
 class test_tasks_problems(object):
     def setUp(self):
+        register_base_env_types(HookManager())
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.course_factory, _ = create_factories(fs, problem_types)
 

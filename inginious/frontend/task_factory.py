@@ -8,18 +8,17 @@
 from os.path import splitext
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
-from inginious.common.tasks import Task
 from inginious.common.base import id_checker
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
 from inginious.common.exceptions import InvalidNameException, TaskNotFoundException, TaskUnreadableException, TaskReaderNotFoundException
 
+from inginious.frontend.tasks import Task
 
 class TaskFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, filesystem: FileSystemProvider, hook_manager, task_problem_types, task_class=Task):
+    def __init__(self, filesystem: FileSystemProvider, hook_manager, task_problem_types):
         self._filesystem = filesystem
-        self._task_class = task_class
         self._hook_manager = hook_manager
         self._cache = {}
         self._task_file_managers = {}
@@ -244,7 +243,7 @@ class TaskFactory(object):
         last_modif, task_content = self._get_last_updates(course, taskid, task_fs, True)
 
         self._cache[(course.get_id(), taskid)] = (
-            self._task_class(course, taskid, task_content, task_fs, self._hook_manager, self._task_problem_types),
+            Task(course, taskid, task_content, task_fs, self._hook_manager, self._task_problem_types),
             last_modif
         )
 

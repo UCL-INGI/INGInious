@@ -16,7 +16,7 @@ import sys
 from yaml import SafeLoader
 
 from inginious.common.tags import Tag
-from inginious.frontend.tasks import WebAppTask
+from inginious.frontend.tasks import Task
 from inginious.frontend.parsable_text import ParsableText
 from inginious.common.log import init_logging
 from inginious.frontend.course_factory import create_factories
@@ -150,12 +150,11 @@ def test_web_task(yaml_data, task, config, yaml_path):
     :return: yaml_data if any error, {} otherwise
     """
     try:
-        web_task = WebAppTask(
+        web_task = Task(
             task.get_course_id(),
             task.get_id(),
             yaml_data,
             task.get_fs(),
-            task.get_translation_fs(),
             task.get_hook(),
             config["default_problem_types"]
         )  # Test of init a web task with the yaml_data. if the values are incorrect, exception will be raised
@@ -168,7 +167,7 @@ def test_web_task(yaml_data, task, config, yaml_path):
             p = ParsableText(yaml_data["problems"][sub_prob]["header"])  # parse the rst of the subproblem
             p.parse(debug=True)
         return {}
-    except BaseException as e:  # Rendering of WebAppTask failing
+    except BaseException as e:  # Rendering of Task failing
         print('{}: WEB TASK ERROR: {}'.format(yaml_path, e), file=sys.stderr)
         return yaml_data
 

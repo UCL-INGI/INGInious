@@ -1,7 +1,7 @@
 import web
 from bson import ObjectId, json_util
 
-from inginious.frontend.tasks import WebAppTask
+from inginious.frontend.tasks import Task
 from inginious.common.babel import get_strings
 from inginious.frontend.task_problems import DisplayableMultipleChoiceProblem
 from inginious.common.tasks_problems import MultipleChoiceProblem, CodeProblem, \

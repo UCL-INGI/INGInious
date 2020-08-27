@@ -21,7 +21,7 @@ from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.submission_manager import update_pending_jobs
-from inginious.frontend.tasks import WebAppTask
+from inginious.frontend.tasks import Task
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from pymongo import MongoClient
@@ -203,7 +203,7 @@ def get_app(config):
                                                                    DisplayableMatchProblem]
     }
 
-    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager, WebAppTask)
+    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager)
 
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
