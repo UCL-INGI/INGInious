@@ -56,7 +56,7 @@ print("Received fds")
 
 # Unpack the start message # TODO: it's ugly
 print("Unpacking start cmd")
-unpacker = msgpack.Unpacker(encoding="utf8")
+unpacker = msgpack.Unpacker()
 start_cmd = None
 while start_cmd is None:
     s = client.recv(1)
