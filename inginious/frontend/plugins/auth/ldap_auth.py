@@ -99,7 +99,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
             request = settings["request"].format(login)
             conn.search(settings["base_dn"], request, attributes=[attr_cn, attr_mail])
             user_data = conn.response[0]
-        except LDAPException as ex:
+        except (LDAPException, IndexError) as ex:
             logger.exception("Can't get user data : " + str(ex))
             conn.unbind()
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
