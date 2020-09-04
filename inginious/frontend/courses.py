@@ -5,22 +5,36 @@
 
 """ A course class with some modification for users """
 
+import copy
 import gettext
 from collections import OrderedDict
 from natsort import natsorted
 
-from inginious.common.courses import Course
 from inginious.common.tags import Tag
 from inginious.common.toc import SectionsList
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
 
-
-class WebAppCourse(Course):
+class Course(object):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, course_fs, task_factory, hook_manager):
-        super(WebAppCourse, self).__init__(courseid, content, course_fs, task_factory, hook_manager)
+    def __init__(self, courseid, content, course_fs, task_factory, plugin_manager):
+
+        self._id = courseid
+        self._content = content
+        self._fs = course_fs
+        self._task_factory = task_factory
+        self._plugin_manager = plugin_manager
+
+        self._translations = {}
+        translations_fs = self._fs.from_subfolder("$i18n")
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                else:
+                    self._translations[lang] = gettext.NullTranslations()
 
         try:
             self._name = self._content['name']
@@ -52,8 +66,9 @@ class WebAppCourse(Course):
             if 'toc' in self._content:
                 self._toc = SectionsList(self._content['toc'])
             else:
+                tasks = self._task_factory.get_all_tasks(self)
                 ordered_task_list = OrderedDict(
-                    sorted(list(Course.get_tasks(self).items()), key=lambda t: (t[1].get_old_order(), t[1].get_id())))
+                    sorted(list(tasks.items()), key=lambda t: (t[1].get_old_order(), t[1].get_id())))
                 indexed_task_list = {taskid: rank for rank, taskid in enumerate(ordered_task_list.keys())}
                 self._toc = SectionsList([{"id": "tasks-list",
                                            "title": _("List of exercises"),
@@ -75,6 +90,28 @@ class WebAppCourse(Course):
             self._lti_keys = {}
             self._lti_url = ''
             self._lti_send_back_grade = False
+
+    def get_translation_obj(self, language):
+        return self._translations.get(language, gettext.NullTranslations())
+
+    def gettext(self, language, *args, **kwargs):
+        return self.get_translation_obj(language).gettext(*args, **kwargs)
+
+    def get_id(self):
+        """ Return the _id of this course """
+        return self._id
+
+    def get_fs(self):
+        """ Returns a FileSystemProvider which points to the folder of this course """
+        return self._fs
+
+    def get_task(self, taskid):
+        """ Returns a Task object """
+        return self._task_factory.get_task(self, taskid)
+
+    def get_descriptor(self):
+        """ Get (a copy) the description of the course """
+        return copy.deepcopy(self._content)
 
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
@@ -106,7 +143,7 @@ class WebAppCourse(Course):
 
     def get_accessibility(self, plugin_override=True):
         """ Return the AccessibleTime object associated with the accessibility of this course """
-        vals = self._hook_manager.call_hook('course_accessibility', course=self, default=self._accessible)
+        vals = self._plugin_manager.call_hook('course_accessibility', course=self, default=self._accessible)
         return vals[0] if len(vals) and plugin_override else self._accessible
 
     def get_registration_accessibility(self):
@@ -114,7 +151,8 @@ class WebAppCourse(Course):
         return self._registration
 
     def get_tasks(self):
-        return OrderedDict(sorted(list(Course.get_tasks(self).items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+        tasks = self._task_factory.get_all_tasks(self)
+        return OrderedDict(sorted(list(tasks.items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
 
     def get_access_control_method(self):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """
@@ -163,7 +201,7 @@ class WebAppCourse(Course):
 
     def allow_unregister(self, plugin_override=True):
         """ Returns True if students can unregister from course """
-        vals = self._hook_manager.call_hook('course_allow_unregister', course=self, default=self._allow_unregister)
+        vals = self._plugin_manager.call_hook('course_allow_unregister', course=self, default=self._allow_unregister)
         return vals[0] if len(vals) and plugin_override else self._allow_unregister
 
     def get_name(self, language):

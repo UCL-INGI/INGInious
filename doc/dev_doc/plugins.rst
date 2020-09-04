@@ -4,7 +4,7 @@ Creating plugins
 INGInious provides a simple plugin system that allow to register some hooks to extend existing features, create new
 frontend pages and features, and add new authentication methods.
 
-Hooks actually call callback functions that you indicated with the ``add_hook`` method from ``HookManager``. Please
+Hooks actually call callback functions that you indicated with the ``add_hook`` method from ``PluginManager``. Please
 note that all hooks may be called by another thread, so all actions done into a hook have to be thread-safe.
 
 Tutorial
@@ -31,8 +31,7 @@ The plugin is initialized by the plugin manager, which is the frontend-extended 
 This method takes four arguments:
 
 - ``plugin_manager`` which is the plugin manager singleton object. The detailed API is available at
-  :ref:`inginious.frontend.common.plugin_manager`. Please note that ``PluginManager`` inherits from
-  :ref:`inginious.common.hook_manager`.
+  :ref:`inginious.frontend.common.plugin_manager`.
 
 - ``course_factory`` which is the course factory singleton object, giving you abstraction to the tasks folder. The detailed
   API is available at :ref:`inginious.common.course_factory`.
@@ -91,7 +90,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Used to add CSS files in the header. 
     Should return the path to a CSS file (relative to the root of INGInious).
 ``course_admin_menu`` (``course``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``course`` : :ref:`inginious.frontend.courses.Course`
 
     Returns : Tuple (link, name) or None.
 
@@ -106,7 +105,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Allows to add HTML to the menu displayed on the main (course list) page. ``template_helper`` is an object
     of type TemplateHelper, that can be useful to render templates.
 ``course_menu`` (``course``, ``template_helper``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``course`` : :ref:`inginious.frontend.courses.Course`
 
     ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
 
@@ -115,9 +114,9 @@ Each hook available in INGInious is described here, starting with its name and p
     Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page. ``template_helper`` is an object
     of type TemplateHelper, that can be useful to render templates.
 ``task_menu`` (``course``, ``task``, ``template_helper``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``course`` : :ref:`inginious.frontend.courses.Course`
 
-    ``task`` : :ref:`inginious.frontend.common.tasks.FrontendTask`
+    ``task`` : :ref:`inginious.frontend.tasks.Task`
 
     ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
 
@@ -145,7 +144,7 @@ Each hook available in INGInious is described here, starting with its name and p
 ``course_accessibility`` (``course``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
     ``default`` : Default value as specified in the configuration
 
@@ -153,9 +152,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_accessibility`` (``course``, ``taskid``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -163,9 +162,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_limits`` (``course``, ``taskid``, ``default``)
     Returns: Task limits dictionary
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -173,9 +172,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_context`` (``course``, ``taskid``, ``default``)
     Returns: inginious.frontend.common.parsable_text.ParsableText
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -183,9 +182,9 @@ Each hook available in INGInious is described here, starting with its name and p
 ``task_network_grading`` (``course``, ``taskid``, ``default``)
     Returns: True or False
 
-    ``course`` : inginious.common.courses.Course
+    ``course`` : inginious.frontend.courses.Course
 
-    ``task`` : inginious.common.tasks.Task
+    ``task`` : inginious.frontend.tasks.Task
 
     ``default`` : Default value as specified in the configuration
 
@@ -229,7 +228,7 @@ Each hook available in INGInious is described here, starting with its name and p
     break the webpage.
 ``task_editor_tab`` (``course``, ``taskid``, ``task_data``, ``template_helper``)
     
-    ``course`` : inginious.frontend.courses.WebAppCourse
+    ``course`` : inginious.frontend.courses.Course
 
     ``task_data`` : OrderedDict
     
@@ -241,7 +240,7 @@ Each hook available in INGInious is described here, starting with its name and p
     object of type TemplateHelper, that can be useful to render templates such as tab content.
 ``task_editor_submit`` (``course``, ``taskid``, ``task_data``, ``task_fs``)
     
-    ``course`` : inginious.frontend.courses.WebAppCourse
+    ``course`` : inginious.frontend.courses.Course
 
     ``task_data`` : OrderedDict
     

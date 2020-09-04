@@ -5,14 +5,14 @@
 
 import os
 
-import inginious.common.base
-import inginious.common.courses
-import inginious.common.tasks
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.common.course_factory import create_factories
 from inginious.common.exceptions import InvalidNameException, TaskUnreadableException
-from inginious.common.hook_manager import HookManager
 from inginious.common.tasks_problems import *
+
+from inginious.frontend.tasks import Task
+from inginious.frontend.course_factory import create_factories
+from inginious.frontend.plugin_manager import PluginManager
+from inginious.frontend.environment_types import register_base_env_types
 
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
@@ -20,6 +20,7 @@ problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
 
 class test_tasks_basic(object):
     def setUp(self):
+        register_base_env_types()
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.course_factory, _ = create_factories(fs, problem_types)
 
@@ -56,7 +57,7 @@ class test_tasks_basic(object):
 
     def test_no_problems(self):
         try:
-            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
+            Task(self.course_factory.get_course('test3'), 'invalid_task',
                                         {"environment_id": "default",
                                          "environment_type": "docker",
                                          "environment_parameters": {
@@ -66,7 +67,7 @@ class test_tasks_basic(object):
                                              "memory": '100',
                                              "hard_time": '',
                                          }
-                                         }, 'fake_path', None, HookManager(), problem_types)
+                                         }, 'fake_path', PluginManager(), problem_types)
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return
@@ -89,29 +90,9 @@ class test_tasks_basic(object):
         t = c.get_task("task3")
         assert t.input_is_consistent({"unittest": 10}, [], 0) is False
 
-    def test_check_answer_1(self):
-        c = self.course_factory.get_course("test")
-        t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, state = t.check_answer(
-            {"unittest": ["0", "1"]}, "")
-        assert valid is True
-        assert need_launch is False
-        assert error_count == 0
-        assert multiple_choice_error_count == 0
-
-    def test_check_answer_2(self):
-        c = self.course_factory.get_course("test")
-        t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, state = t.check_answer(
-            {"unittest": ["0"]}, "")
-        assert valid is False
-        assert need_launch is False
-        assert error_count == 1
-        assert multiple_choice_error_count == 1
-
-
 class test_tasks_problems(object):
     def setUp(self):
+        register_base_env_types()
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.course_factory, _ = create_factories(fs, problem_types)
 

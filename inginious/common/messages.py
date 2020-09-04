@@ -38,14 +38,16 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
     """
 
     def __init__(self, job_id: ClientJobId, priority: int,
-                 course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, environment_parameters: Dict[str, Any],
+                 course_id: str, task_id: str, task_problems: Dict[str, Any],
+                 inputdata: Dict[str, Any], environment: str,
+                 environment_parameters: Dict[str, Any],
                  debug: Union[str, bool], launcher: str):
         """
         :param job_id: the client-side job id that is associated to this job
         :param priority: the job priority
         :param course_id: course id of the task to run
         :param task_id: task id of the task to run
+        :param task_problems: task dictionary
         :param inputdata: student input data
         :param environment: environment to use
         :param environment_parameters: parameters for the environment (timeouts, limits, ...)
@@ -59,6 +61,7 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         self.priority = priority
         self.course_id = course_id
         self.task_id = task_id
+        self.task_problems = task_problems
         self.inputdata = inputdata
         self.debug = debug
         self.environment = environment
@@ -214,13 +217,14 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         B->A.
     """
 
-    def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, environment_parameters: Dict[str, Any],
-                 debug: Union[str, bool]):
+    def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, task_problems: Dict[str, Any],
+                 inputdata: Dict[str, Any], environment: str,
+                 environment_parameters: Dict[str, Any], debug: Union[str, bool]):
         """
         :param job_id: the backend-side job id that is associated to this job
         :param course_id: course id of the task to run
         :param task_id: task id of the task to run
+        :param task_problems: task dictionary
         :param inputdata: student input data
         :param environment: environment to use
         :param environment_parameters: parameters for the environment (timeouts, limits, ...)
@@ -232,6 +236,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         self.job_id = job_id
         self.course_id = course_id
         self.task_id = task_id
+        self.task_problems = task_problems
         self.inputdata = inputdata
         self.debug = debug
         self.environment = environment

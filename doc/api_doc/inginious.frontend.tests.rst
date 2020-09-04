@@ -18,6 +18,22 @@ inginious.frontend.tests.SeleniumTest module
     :undoc-members:
     :show-inheritance:
 
+inginious.frontend.tests.TestCourse module
+----------------------------------------
+
+.. automodule:: inginious.frontend.tests.TestCourse
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.tests.TestTask module
+--------------------------------------
+
+.. automodule:: inginious.frontend.tests.TestTask
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 inginious.frontend.tests.TestLogin module
 ------------------------------------------------
 
@@ -30,6 +46,14 @@ inginious.frontend.tests.TestParsableText module
 -------------------------------------------------------
 
 .. automodule:: inginious.frontend.tests.TestParsableText
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.tests.TestPluginManager module
+---------------------------------------------
+
+.. automodule:: inginious.frontend.tests.TestPluginManager
     :members:
     :undoc-members:
     :show-inheritance:

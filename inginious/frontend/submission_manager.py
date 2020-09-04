@@ -26,20 +26,20 @@ from inginious.frontend.parsable_text import ParsableText
 class WebAppSubmissionManager:
     """ Manages submissions. Communicates with the database and the client. """
 
-    def __init__(self, client, user_manager, database, gridfs, hook_manager, lti_outcome_manager):
+    def __init__(self, client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager):
         """
         :type client: inginious.client.client.AbstractClient
         :type user_manager: inginious.frontend.user_manager.UserManager
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
-        :type hook_manager: inginious.common.hook_manager.HookManager
+        :type plugin_manager: inginious.frontend.plugin_manager.PluginManager
         :return:
         """
         self._client = client
         self._user_manager = user_manager
         self._database = database
         self._gridfs = gridfs
-        self._hook_manager = hook_manager
+        self._plugin_manager = plugin_manager
         self._logger = logging.getLogger("inginious.webapp.submissions")
         self._lti_outcome_manager = lti_outcome_manager
 
@@ -83,7 +83,7 @@ class WebAppSubmissionManager:
             return_document=ReturnDocument.AFTER
         )
 
-        self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
+        self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
 
         for username in submission["username"]:
             self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
@@ -229,7 +229,7 @@ class WebAppSubmissionManager:
         """
         Add a job in the queue and returns a submission id.
         :param task:  Task instance
-        :type task: inginious.frontend.tasks.WebAppTask
+        :type task: inginious.frontend.tasks.Task
         :param inputdata: the input as a dictionary
         :type inputdata: dict
         :param debug: If debug is true, more debug data will be saved
@@ -277,7 +277,7 @@ class WebAppSubmissionManager:
         inputdata["@random"] = states["random"] if "random" in states else []
         inputdata["@state"] = states["state"] if "state" in states else ""
 
-        self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
+        self._plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
 
         self._before_submission_insertion(task, inputdata, debug, obj)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))

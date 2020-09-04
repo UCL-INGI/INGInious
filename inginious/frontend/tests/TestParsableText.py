@@ -6,7 +6,7 @@
 from inginious.frontend.parsable_text import ParsableText
 
 
-class TestHookManager(object):
+class TestParsableText(object):
     def test_code(self):
         rendered = ParsableText.rst("""``test``""")
         assert "<code" in rendered and "</code>" in rendered

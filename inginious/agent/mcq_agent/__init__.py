@@ -2,7 +2,7 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-import asyncio
+import json
 import logging
 import gettext
 
@@ -12,18 +12,19 @@ from inginious.common.messages import BackendNewJob, BackendKillJob
 import os.path
 import builtins
 
+
 class MCQAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem, course_factory):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem, problem_types):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
         :param tasks_filesystem: FileSystemProvider to the course/tasks
-        :param course_factory: Course factory used to get course/tasks
+        :param problem_types: Problem types dictionary
         """
         super().__init__(context, backend_addr, friendly_name, concurrency, tasks_filesystem)
         self._logger = logging.getLogger("inginious.agent.mcq")
-        self.course_factory = course_factory
+        self._problem_types = problem_types
 
         # Init gettext
         self._translations = {"en": gettext.NullTranslations()}
@@ -36,6 +37,38 @@ class MCQAgent(Agent):
     def environments(self):
         return {"mcq": {"id": "mcq", "created": 0, "type": "mcq"}}
 
+    def check_answer(self, problems, task_input, language):
+        """
+            Verify the answers in task_input. Returns six values
+            1st: True the input is **currently** valid. (may become invalid after running the code), False else
+            2nd: True if the input needs to be run in the VM, False else
+            3rd: Main message, as a list (that can be join with \n or <br/> for example)
+            4th: Problem specific message, as a dictionnary (tuple of result/text)
+            5th: Number of subproblems that (already) contain errors. <= Number of subproblems
+            6th: Number of errors in MCQ problems. Not linked to the number of subproblems
+        """
+        valid = True
+        need_launch = False
+        main_message = []
+        problem_messages = {}
+        error_count = 0
+        multiple_choice_error_count = 0
+        states = {}
+        for problem in problems:
+            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count, state = problem.check_answer(task_input, language)
+            states[problem.get_id()] = state
+            if problem_is_valid is None:
+                need_launch = True
+            elif problem_is_valid == False:
+                error_count += 1
+                valid = False
+            if problem_main_message is not None:
+                main_message.append(problem_main_message)
+            if problem_s_messages is not None:
+                problem_messages[problem.get_id()] = (("success" if problem_is_valid else "failed"), problem_s_messages)
+            multiple_choice_error_count += problem_mc_error_count
+        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count, json.dumps(states)
+
     async def new_job(self, msg: BackendNewJob):
         language = msg.inputdata.get("@lang", "")
         translation = self._translations.get(language, gettext.NullTranslations())
@@ -43,16 +76,31 @@ class MCQAgent(Agent):
         # This may pose problem with apps that start multiple MCQAgents in the same process...
         builtins.__dict__['_'] = translation.gettext
 
-        try:
-            self._logger.info("Received request for jobid %s", msg.job_id)
-            task = self.course_factory.get_task(msg.course_id, msg.task_id)
-        except asyncio.CancelledError:
-            raise
-        except Exception as e:
-            self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
-            raise CannotCreateJobException("Task is not available on this agent")
+        self._logger.info("Received request for jobid %s", msg.job_id)
 
-        result, need_emul, text, problems, error_count, mcq_error_count, state = task.check_answer(msg.inputdata, language)
+        course_fs = self._fs.from_subfolder(msg.course_id)
+        task_fs = course_fs.from_subfolder(msg.task_id)
+        translations_fs = task_fs.from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = task_fs.from_subfolder("student").from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = course_fs.from_subfolder("$common").from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = course_fs.from_subfolder("$common").from_subfolder("student")\
+                .from_subfolder("$i18n")
+
+        if translations_fs.exists() and translations_fs.exists(language + ".mo"):
+            translations = {language: gettext.GNUTranslations(translations_fs.get_fd(language + ".mo"))}
+        else:
+            translations = {language: gettext.NullTranslations()}
+
+        task_problems= msg.task_problems
+        problems = []
+        for problemid, problem_content in task_problems.items():
+            problem_class = self._problem_types.get(problem_content.get('type', ""))
+            problems.append(problem_class(problemid, problem_content, translations))
+
+        result, need_emul, text, problems, error_count, mcq_error_count, state = self.check_answer(problems, msg.inputdata, language)
 
         internal_messages = {
             "_wrong_answer_multiple": _("Wrong answer. Make sure to select all the valid possibilities"),
@@ -73,7 +121,7 @@ class MCQAgent(Agent):
         if mcq_error_count != 0:
             text.append("\n\n" + _("Among them, you have {} invalid answers in the multiple choice questions").format(mcq_error_count))
 
-        nb_subproblems = len(task.get_problems())
+        nb_subproblems = len(task_problems)
         if nb_subproblems == 0:
             grade = 0.0
             text.append("No subproblems defined")

@@ -16,14 +16,14 @@ from natsort import natsorted
 import bson
 import web
 
-from inginious.common.tasks import _migrate_from_v_0_6
+from inginious.frontend.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 from inginious.common.base import dict_from_prefix
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
-from inginious.frontend.tasks import WebAppTask
+from inginious.frontend.tasks import Task
 
 
 class CourseEditTask(INGIniousAdminPage):
@@ -263,7 +263,7 @@ class CourseEditTask(INGIniousAdminPage):
             return error
 
         try:
-            WebAppTask(course, taskid, data, task_fs, None, self.plugin_manager, self.task_factory.get_problem_types())
+            Task(course, taskid, data, task_fs, self.plugin_manager, self.task_factory.get_problem_types())
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Invalid data: {}").format(str(message))})
 
