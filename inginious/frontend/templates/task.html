@@ -430,21 +430,19 @@ $ auth_methods = user_manager.get_auth_methods()
 </div>
 
 <script type="text/javascript">
-$ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
-var problems_types = $:pdict
+    $ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
+    var problems_types = $:pdict
 
-$ pdict = {problem.get_id():  1 if problem.input_type() == list else 0 for problem in task.get_problems()}
-var is_input_list = $:pdict
+    $ pdict = {problem.get_id():  1 if problem.input_type() == list else 0 for problem in task.get_problems()}
+    var is_input_list = $:pdict
 
-$$(document).ready(function() {
-    init_task_page("$task.get_evaluate()");
-});
+    var courseid = '$:course.get_id()';
+    var taskid = '$:task.get_id()';
 
-</script>
+    $$(document).ready(function() {
+        init_task_page("$task.get_evaluate()");
+    });
 
-$# Input random
-$# set up some useful variable that may be used by task author
-<script>
     var input = {
         "@lang": "$user_manager.session_language()",
         "@username": "$user_manager.session_username()",
