@@ -154,7 +154,7 @@ $def section_menu(tasks_list_option, sections_list_option):
             <a class="add_section sections_list_option dropdown-item" onclick="create_section($$(this).closest('.section'))">
                 <i class="fa fa-plus"></i> $:_("Add subsection")
             </a>
-            <a class="rename dropdown-item" onclick="rename_section($$(this).closest('.section_header').children('.title'))">
+            <a class="rename dropdown-item" onclick="rename_section($$(this).closest('.section_header').children('.title'), false)">
                 <i class="fa fa-pencil"></i> $:_("Rename")
             </a>
             <a class="delete_section dropdown-item" data-toggle="modal" data-target="#delete_section_modal" onclick="open_delete_modal(this)">
@@ -264,10 +264,10 @@ $def delete_modal(section=True):
                         <button class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
                         $if section:
                             <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_section(this, true)">$:_("Keep files")</button>
-                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_section(this)">$:_("Delete section")</button>
+                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_section(this, false)">$:_("Delete section")</button>
                         $else:
-                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_task(this, true)">$:_("Keep files")</button>
-                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_task(this)">$:_("Delete task")</button>
+                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_task(this, true, '')">$:_("Keep files")</button>
+                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_task(this, false, '')">$:_("Delete task")</button>
                     </div>
             </div>
         </div>

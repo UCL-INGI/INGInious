@@ -14,7 +14,7 @@ var warn_before_exit = false;
 /*****************************
  *     Renaming Elements     *
  *****************************/
-function rename_section(element, new_section = false) {
+function rename_section(element, new_section) {
     handle = $(element).closest(".handle").removeClass("handle");
     element.hide();
 
@@ -129,7 +129,7 @@ function open_delete_modal(button) {
     }
 }
 
-function delete_section(button, keep_files=false) {
+function delete_section(button, keep_files) {
     const section = $("#" + button.getAttribute('data-target'));
     const parent = section.parent().closest(".sections_list");
     const wipe = $('#delete_section_modal .wipe_tasks').prop("checked");
@@ -151,7 +151,7 @@ function delete_section(button, keep_files=false) {
     content_modified(parent);
 }
 
-function delete_task(button, keep_files=false, taskid=""){
+function delete_task(button, keep_files, taskid){
     $(button).mouseleave().focusout();
     var wipe = false;
     if(!taskid) {
