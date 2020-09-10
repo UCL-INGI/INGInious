@@ -49,7 +49,7 @@ $if reset is None:
                             <input name="term_policy_check" type="checkbox"> $:_("I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy policy{a2end}.").format(a1start='<a href="/pages/'+ terms_page + '">', a1end='</a>', a2start='<a href="/pages/' + privacy_page + '">', a2end='</a>')
                         </div>
                     <div class="col-sm-12"><br />
-                        <button $('disabled' if is_tos_defined else '') type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> $:_("Sign up")</button>
+                        <button type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> $:_("Sign up")</button>
                     </div>
                 </div>
             </form>
@@ -99,14 +99,3 @@ $else:
             </div>
         </div>
     </div>
-
-<script type="application/javascript">
-    $$(document).on('change', 'input[name="term_policy_check"]', function(){
-    if($$(this).is(':checked')) {
-        $$('button[name="register"]').attr('disabled', false);
-    }
-    else {
-        $$('button[name="register"]').attr('disabled', true);
-    }
-});
-</script>
