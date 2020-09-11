@@ -181,7 +181,7 @@ class Task(object):
 
     def get_fs(self):
         """ Returns a FileSystemProvider which points to the folder of this task """
-        return self._fs
+        return self._task_fs
 
     def get_hook(self):
         """ Returns the hook manager parameter for this task"""
