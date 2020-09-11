@@ -98,7 +98,7 @@ class MCQAgent(Agent):
         problems = []
         for problemid, problem_content in task_problems.items():
             problem_class = self._problem_types.get(problem_content.get('type', ""))
-            problems.append(problem_class(problemid, problem_content, translations))
+            problems.append(problem_class(problemid, problem_content, translations, task_fs))
 
         result, need_emul, text, problems, error_count, mcq_error_count, state = self.check_answer(problems, msg.inputdata, language)
 

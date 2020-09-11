@@ -206,7 +206,7 @@ class Task(object):
         if problem_content.get('type', "") not in task_problem_types:
             raise Exception("Invalid type for problem " + problemid)
 
-        return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations)
+        return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
 
 
     def get_grading_weight(self):

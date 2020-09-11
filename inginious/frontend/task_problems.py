@@ -53,8 +53,8 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
 class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableCodeProblem, self).__init__(task, problemid, content)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(DisplayableCodeProblem, self).__init__(problemid, content, translations, taskfs)
 
     @classmethod
     def get_type_name(cls, language):
@@ -81,8 +81,8 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem):
     """ A displayable single code line problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(DisplayableCodeSingleLineProblem, self).__init__(problemid, content, translations, taskfs)
 
     def adapt_input_for_backend(self, input_data):
         return input_data
@@ -110,8 +110,8 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
 class DisplayableFileProblem(FileProblem, DisplayableProblem):
     """ A displayable code problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableFileProblem, self).__init__(task, problemid, content)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(DisplayableFileProblem, self).__init__(problemid, content, translations, taskfs)
 
     @classmethod
     def get_type_name(cls, language):
@@ -143,8 +143,8 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem):
     """ A displayable multiple choice problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(DisplayableMultipleChoiceProblem, self).__init__(problemid, content, translations, taskfs)
 
     @classmethod
     def get_type_name(cls, language):
@@ -210,8 +210,8 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     """ A displayable match problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableMatchProblem, self).__init__(task, problemid, content)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(DisplayableMatchProblem, self).__init__(problemid, content, translations, taskfs)
 
     @classmethod
     def get_type_name(cls, language):

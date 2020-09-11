@@ -62,7 +62,7 @@ class Problem(object, metaclass=ABCMeta):
         """ Get a dict fully describing this sub-problem """
         return dict(self._original_content)
 
-    def __init__(self, problemid, content, translations):
+    def __init__(self, problemid, content, translations, taskfs):
         if not id_checker(problemid):
             raise Exception("Invalid problem _id: " + problemid)
 
@@ -70,6 +70,7 @@ class Problem(object, metaclass=ABCMeta):
         self._translations = translations
         self._name = content['name'] if "name" in content else ""
         self._original_content = content
+        self._task_fs = taskfs
 
     @classmethod
     def parse_problem(self, problem_content):
@@ -90,8 +91,8 @@ class Problem(object, metaclass=ABCMeta):
 class CodeProblem(Problem):
     """Code problem"""
 
-    def __init__(self, problemid, content, translations):
-        Problem.__init__(self, problemid, content, translations)
+    def __init__(self, problemid, content, translations, taskfs):
+        Problem.__init__(self, problemid, content, translations, taskfs)
         self._header = content['header'] if "header" in content else ""
         self._optional = content.get("optional", False)
 
@@ -151,8 +152,8 @@ class CodeSingleLineProblem(CodeProblem):
 class FileProblem(Problem):
     """File upload Problem"""
 
-    def __init__(self, problemid, content, translations):
-        Problem.__init__(self, problemid, content, translations)
+    def __init__(self, problemid, content, translations, taskfs):
+        Problem.__init__(self, problemid, content, translations, taskfs)
         self._header = content['header'] if "header" in content else ""
         self._max_size = content.get("max_size", None)
         self._allowed_exts = content.get("allowed_exts", None)
@@ -206,8 +207,8 @@ class FileProblem(Problem):
 class MultipleChoiceProblem(Problem):
     """Multiple choice problems"""
 
-    def __init__(self, problemid, content, translations):
-        super(MultipleChoiceProblem, self).__init__(problemid, content, translations)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(MultipleChoiceProblem, self).__init__(problemid, content, translations, taskfs)
         self._header = content['header'] if "header" in content else ""
         self._multiple = content.get("multiple", False)
         if "choices" not in content or not isinstance(content['choices'], (list, tuple)):
@@ -358,8 +359,8 @@ class MultipleChoiceProblem(Problem):
 class MatchProblem(Problem):
     """Display an input box and check that the content is correct"""
 
-    def __init__(self, problemid, content, translations):
-        super(MatchProblem, self).__init__(problemid, content, translations)
+    def __init__(self, problemid, content, translations, taskfs):
+        super(MatchProblem, self).__init__(problemid, content, translations, taskfs)
         self._header = content['header'] if "header" in content else ""
         if not "answer" in content:
             raise Exception("There is no answer in this problem with type==match")
