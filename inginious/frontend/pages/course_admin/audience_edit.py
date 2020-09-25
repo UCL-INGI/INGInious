@@ -86,6 +86,15 @@ class CourseEditAudience(INGIniousAdminPage):
 
             if audienceid and audienceid in data["delete"]:
                 raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
+        else:
+            audiences_dict = json.loads(data["audiences"])
+            self.database.audiences.update_one(
+                {"_id": ObjectId(audiences_dict[0]["_id"])},
+                {"$set": {"students": audiences_dict[0]["students"],
+                          "tutors": audiences_dict[0]["tutors"],
+                          "description": str(audiences_dict[0]["description"])}}) \
+                if ObjectId.is_valid(audiences_dict[0]["_id"]) else None
+            msg = _("Audience updated.")
 
         # Display the page
         return self.display_page(course, audienceid, msg, error)
