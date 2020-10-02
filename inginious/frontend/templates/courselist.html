@@ -36,7 +36,7 @@
     {% set username = user_manager.session_username() %}
     {% for courseid, course in open_courses.items() %}
         <div class="card m-2">
-            <div class="card-body">
+            <div class="card-body card-trunc">
                 <h5 class="card-title">
                     {% if course.is_lti() %}
                         {% if course.lti_url() %}
