@@ -294,7 +294,7 @@ ul.checked-list-box input[type="checkbox"] {
   max-height: 200px;
 }
 .card-body.card-trunc > p {
-  text-overflow: ellipsis !important;
+  text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
