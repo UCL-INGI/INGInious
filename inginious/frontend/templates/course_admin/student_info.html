@@ -39,7 +39,7 @@ $var Navbar: $:NavbarF()
                            title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                         <a href="$get_homepath()/admin/${course.get_id()}/submissions?users=$username"
                            class="btn btn-secondary" title=$:_('"View all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
-                           fa-cloud-download"></i></a>
+                           fa-search"></i></a>
                     </div>
                 </th>
             </tr>
@@ -71,7 +71,7 @@ $var Navbar: $:NavbarF()
                 <td>
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="$get_homepath()/admin/${course.get_id()}/submissions$task['url']" class="btn btn-secondary" title="$:_('View all submissions')"
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                         <button type="button" data-toggle="modal" data-task="$task['name']" data-task_id="$task['taskid']" data-target="#reset_modal" class="btn btn-warning reset_state" title="Reset state"><i class="fa fa-eraser"></i></button>
                     </div>
                 </td>
