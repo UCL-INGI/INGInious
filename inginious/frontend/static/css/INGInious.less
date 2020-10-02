@@ -202,3 +202,12 @@ ul.checked-list-box
     background-color: lightblue;
     filter: blur(4px);
 }
+
+.text-truncate {
+  max-height: 200px;
+}
+.card-body.text-truncate > p {
+    text-overflow: ellipsis !important;
+    white-space: nowrap;
+    overflow: hidden;
+}
