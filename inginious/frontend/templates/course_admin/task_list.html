@@ -170,7 +170,7 @@ $def task_buttons(taskid):
     </a>
     <a class="rename_task btn bg-transparent p-0" href="$get_homepath()/admin/${course.get_id()}/submissions?tasks=$taskid"
             title=$:_('"View submissions"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
-        <i class="fa fa-cloud-download text-muted "></i>
+        <i class="fa fa-search text-muted "></i>
     </a>
     <button class="delete_task btn bg-transparent p-0" data-toggle="modal" data-target="#delete_task_modal" onclick="open_delete_modal(this)"
             title=$:_('"Delete task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
@@ -233,7 +233,7 @@ $def task_buttons(taskid):
     </div>
     <div class="col-md-4">
         <button class="btn btn-primary btn-block" onclick="submit();">
-            <i class="fa fa-download"></i> $:_("Save changes")
+            <i class="fa fa-save"></i> $:_("Save changes")
         </button>
     </div>
 </div>

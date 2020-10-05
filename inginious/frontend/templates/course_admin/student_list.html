@@ -120,7 +120,7 @@ $var Navbar: $:NavbarF()
                                 <a href="$get_homepath()/admin/${course.get_id()}/students?csv_audiences" class="btn btn-info btn-xs"
                                    title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                                 <a href="$get_homepath()/admin/${course.get_id()}/submissions?audiences=$:(','.join([str(id) for id in audience_list]))" class="btn btn-secondary btn-xs"
-                                   title=$:_('"View all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
+                                   title=$:_('"View all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                             </div>
                         </th>
                     </tr>
@@ -146,7 +146,7 @@ $var Navbar: $:NavbarF()
                                         <a href="$get_homepath()/admin/${course.get_id()}/edit/audience/$audience['_id']" class="btn btn-primary" title=$:_('"Edit audience"') data-toggle="tooltip"
                                            data-placement="bottom"><i class="fa fa-edit"></i></a>
                                         <a href="$get_homepath()/admin/${course.get_id()}/submissions$audience['url']" class="btn btn-secondary" title="$:_('View submissions')" data-toggle="tooltip"
-                                            data-placement="bottom"><i class="fa fa-cloud-download"></i></a>
+                                            data-placement="bottom"><i class="fa fa-search"></i></a>
 
                                     </div>
                                 </td>
