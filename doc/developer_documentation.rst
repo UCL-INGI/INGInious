@@ -6,6 +6,7 @@ Developer's documentation
 
    dev_doc/understand_inginious
    dev_doc/submission_workflow
+   dev_doc/submission_state
    dev_doc/plugins
    dev_doc/how_to_extend
    dev_doc/i18n
