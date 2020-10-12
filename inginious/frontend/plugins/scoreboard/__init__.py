@@ -213,7 +213,7 @@ def init(plugin_manager, _, _2, _3):
         Available configuration in course.yaml:
         ::
 
-            - scoreboard: #you can define multiple scoreboards
+            scoreboard: #you can define multiple scoreboards
                 - content: "taskid1" #creates a scoreboard for taskid1
                   name: "Scoreboard task 1"
                 - content: ["taskid2", "taskid3"] #creates a scoreboard for taskid2 and taskid3 (sum of both score is taken as overall score)
