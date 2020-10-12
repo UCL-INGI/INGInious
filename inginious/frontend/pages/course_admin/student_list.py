@@ -46,7 +46,7 @@ class CourseStudentListPage(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, __ = self.get_course_and_check_rights(courseid, None, False)
+        course, __ = self.get_course_and_check_rights(courseid, None, True)
         data = web.input(delete=[], groupfile={}, audiencefile={})
         error = {}
         msg = {}
@@ -177,15 +177,10 @@ class CourseStudentListPage(INGIniousAdminPage):
     def post_audiences(self, course, data, active_tab, msg, error):
         try:
             if 'audience' in data:
-                if self.user_manager.has_admin_rights_on_course(course):
-
-                    self.database.audiences.insert({"courseid": course.get_id(), "students": [],
-                                                     "tutors": [],
-                                                     "description": data['audience']})
-                    msg["audiences"] = _("New audience created.")
-                else:
-                    msg["audiences"] = _("You have no rights to add/change audiences")
-                    error["audiences"] = True
+                self.database.audiences.insert({"courseid": course.get_id(), "students": [],
+                                                 "tutors": [],
+                                                 "description": data['audience']})
+                msg["audiences"] = _("New audience created.")
                 active_tab = "tab_audiences"
 
         except:
