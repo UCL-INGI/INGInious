@@ -50,8 +50,7 @@ files that have been exported (via the `/archive` folder inside the container) (
 
 Replaying submissions
 `````````````````````
-Student submissions can be replayed either from the *Replay submissions* and statistics pages or the
-submission inspection page. Different replay scheme are available:
+Student submissions can be replayed from the submission inspection page. You can either replay a specific submission or replay all the submissions queried (with the replay button in the table's header). Different replay scheme are available:
 
 - As replacement of the current student submission result. This is the default scheme for the *Replay submissions* page.
   When replayed, submission input are put back in the grading queue. When the job is completed, the newly computed
