@@ -16,7 +16,7 @@ class LTITaskPage(INGIniousAuthPage):
     def GET_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.internalerror(message=_("No LTI data available."))
+            raise web.forbidden(_("No LTI data available."))
         (courseid, taskid) = data['task']
 
         return BaseTaskPage(self).GET(courseid, taskid, True)
@@ -24,7 +24,7 @@ class LTITaskPage(INGIniousAuthPage):
     def POST_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.internalerror(message=_("No LTI data available."))
+            raise web.forbidden(_("No LTI data available."))
         (courseid, taskid) = data['task']
 
         return BaseTaskPage(self).POST(courseid, taskid, True)
@@ -37,7 +37,7 @@ class LTIAssetPage(INGIniousAuthPage):
     def GET_AUTH(self, asset_url):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.internalerror(message=_("No LTI data available."))
+            raise web.forbidden(_("No LTI data available."))
         (courseid, _) = data['task']
         raise web.redirect(self.app.get_homepath() + "/course/{courseid}/{asset_url}".format(courseid=courseid, asset_url=asset_url))
 
@@ -115,7 +115,7 @@ class LTILoginPage(INGIniousPage):
         """
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.internalerror(message=_("No LTI data available."))
+            raise web.forbidden(_("No LTI data available."))
 
         try:
             course = self.course_factory.get_course(data["task"][0])
@@ -163,7 +163,7 @@ class LTILaunchPage(INGIniousPage):
         try:
             course = self.course_factory.get_course(courseid)
         except exceptions.CourseNotFoundException as ex:
-            raise self.app.internalerror(message=_(str(ex)))
+            raise web.notfound(message=_(str(ex)))
 
         try:
             test = LTIWebPyToolProvider.from_webpy_request()

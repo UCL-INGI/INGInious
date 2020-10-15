@@ -254,7 +254,7 @@ class INGIniousStaticPage(INGIniousPage):
                 mtime = os.stat(filepath).st_mtime
 
         if not filename:
-            raise self.app.internalerror(message=_("File doesn't exist."))
+            raise web.notfound(message=_("File doesn't exist."))
 
         # Check and update cache
         if INGIniousStaticPage.cache.get(filename, (0, None))[0] < mtime:

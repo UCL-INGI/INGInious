@@ -20,7 +20,7 @@ class MarketplaceCourse(INGIniousAuthPage):
         try:
             course = get_marketplace_course(courseid)
         except:
-            raise self.app.internalerror(message=_("Course unavailable."))
+            raise web.forbidden(_("Course unavailable."))
 
         return course
 
@@ -28,7 +28,7 @@ class MarketplaceCourse(INGIniousAuthPage):
         """ GET request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise self.app.internalerror(message=_("You're not allowed to do that"))
+            raise web.forbidden(_("You're not allowed to do that"))
 
         course = self.get_course(courseid)
         return self.show_page(course)
@@ -37,7 +37,7 @@ class MarketplaceCourse(INGIniousAuthPage):
         """ POST request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise self.app.internalerror(message=_("You're not allowed to do that"))
+            raise web.forbidden(_("You're not allowed to do that"))
 
         course = self.get_course(courseid)
         user_input = web.input()

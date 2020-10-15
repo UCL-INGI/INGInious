@@ -17,7 +17,7 @@ class CourseRegisterPage(INGIniousAuthPage):
         try:
             course = self.course_factory.get_course(courseid)
         except (InvalidNameException, CourseNotFoundException, CourseUnreadableException) as e:
-            raise self.app.internalerror(message=_("This course doesn't exist."))
+            raise web.notfound(message=_("This course doesn't exist."))
 
         username = self.user_manager.session_username()
         user_info = self.user_manager.get_user_info(username)

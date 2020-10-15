@@ -20,10 +20,10 @@ class SubmissionPage(INGIniousAdminPage):
         try:
             submission = self.submission_manager.get_submission(submissionid, False)
             if not submission:
-                raise self.app.internalerror(message=_("This submission doesn't exist."))
+                raise web.notfound(message=_("This submission doesn't exist."))
         except InvalidId as ex:
             self._logger.info("Invalid ObjectId : %s", submissionid)
-            raise self.app.internalerror(message=_("Invalid ObjectId."))
+            raise web.forbidden(_("Invalid ObjectId."))
 
         courseid = submission["courseid"]
         taskid = submission["taskid"]
