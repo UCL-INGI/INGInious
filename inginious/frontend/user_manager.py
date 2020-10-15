@@ -381,7 +381,7 @@ class UserManager:
 
         auth_method = self.get_auth_method(auth_id)
         if not auth_method:
-            raise web.notfound()
+            raise self.app.internalerror(message=_("Auth method not found."))
 
         # Look for already bound auth method username
         user_profile = self._database.users.find_one({"bindings." + auth_id: username})
