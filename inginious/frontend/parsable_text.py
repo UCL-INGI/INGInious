@@ -5,6 +5,7 @@
 
 """ Tools to parse text """
 import html
+import re
 import gettext
 from datetime import datetime
 from urllib.parse import urlparse
@@ -149,7 +150,9 @@ class _CustomHTMLWriter(html4css1.Writer, object):
             """ Ensures all links to outside this instance of INGInious have target='_blank' """
             if tagname == 'a' and "href" in attributes and not attributes["href"].startswith('#'):
                 attributes["target"] = "_blank"
-            if 'path' in web.ctx and '/lti/' in web.ctx.path:
+            # Rewrite paths if we are in LTI mode
+            # TODO: this should be an argument passed through all the functions
+            if 'path' in web.ctx and re.match(r"^(/@[a-f0-9A-F_]*@)", web.ctx.path):
                 if tagname == 'a' and 'href' in attributes:
                     attributes['href'] = self.rewrite_lti_url(attributes['href'])
                 elif tagname == 'img' and 'src' in attributes:
