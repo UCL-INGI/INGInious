@@ -170,8 +170,6 @@ $def ColumnF():
                     $:_("Last submission")
                 $elif task.get_evaluate() == "best":
                     $:_("Best submission")
-                $else:
-                    $:_("Selected submission")
             </div>
             $if eval_submission:
                 <a href="#" id="my_submission" class="submission list-group-item list-group-item-action list-group-item-info" data-submission-id="$eval_submission['_id']">

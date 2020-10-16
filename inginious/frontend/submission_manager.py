@@ -334,16 +334,6 @@ class WebAppSubmissionManager:
             # Always keep the best submission
             if idx_best != -1:
                 to_keep.add(tasks[idx_best]["_id"])
-        elif task.get_evaluate() == 'student':
-            user_task = self._database.user_tasks.find_one({
-                "courseid": task.get_course_id(),
-                "taskid": task.get_id(),
-                "username": username
-            })
-
-            submissionid = user_task.get('submissionid', None)
-            if submissionid:
-                to_keep.add(submissionid)
 
         # Always keep running submissions
         for val in tasks:

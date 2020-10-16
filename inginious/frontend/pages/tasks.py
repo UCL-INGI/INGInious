@@ -66,10 +66,6 @@ class BaseTaskPage(object):
         if not task.get_accessible_time().is_open() and not is_staff:
             return False
 
-        # Only allow to set submission if the student must choose their best submission themselves
-        if task.get_evaluate() != 'student' and not is_staff:
-            return False
-
         # Check if task is done per group
         if task.is_group_task() and not is_staff:
             group = self.database.groups.find_one({"courseid": task.get_course_id(),
@@ -284,8 +280,6 @@ class BaseTaskPage(object):
             return json.dumps({'status': 'done'})
         elif "@action" in userinput and userinput["@action"] == "set_submission" and "submissionid" in userinput:
             web.header('Content-Type', 'application/json')
-            if task.get_evaluate() != 'student':
-                return json.dumps({'status': "error"})
 
             if self.set_selected_submission(course, task, userinput["submissionid"]):
                 return json.dumps({'status': 'done'})

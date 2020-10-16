@@ -152,12 +152,6 @@ $else:
                 $if task_data.get('evaluate', 'best') == 'last':
                     checked="checked"
             /> $:_("Last submission")
-        </label><br/>
-        <label>
-            <input type="radio" value="student" name="evaluate"
-                $if task_data.get('evaluate', 'best') == 'student':
-                    checked="checked"
-            /> $:_("Student choice")
         </label>
     </div>
 </div>
