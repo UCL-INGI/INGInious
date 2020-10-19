@@ -162,8 +162,8 @@ function updateSubmission(id, result, grade, tags)
     });
 }
 
-// Set selected submission
-function setSelectedSubmission(id, fade, makepost) {
+// Change the evaluated submission displayed
+function displayEvaluatedSubmission(id, fade) {
     var item;
 
     $('#submissions').find('.submission').each(function() {
@@ -174,36 +174,25 @@ function setSelectedSubmission(id, fade, makepost) {
     // LTI does not support selecting a specific submission for evaluation
     if($("#my_submission").length) {
         var text = item.find("span[id='txt']").html();
-        var url = $('form#task').attr("action");
+        var submission_link = jQuery('<a/>', {
+            href: "#",
+            id: "my_submission",
+            class: "submission list-group-item list-group-item-action list-group-item-info",
+            "data-submission-id": id
+        }).on('click', clickOnSubmission);
 
-        var applyfn = function (data) {
-            if ('status' in data && data['status'] == 'done') {
-                var submission_link = jQuery('<a/>', {
-                    href: "#",
-                    id: "my_submission",
-                    class: "submission list-group-item list-group-item-action list-group-item-info",
-                    "data-submission-id": id
-                }).on('click', clickOnSubmission);
+        jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
+        submission_link.append(text);
 
-                jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
-                submission_link.append(text);
-
-                if (fade) {
-                    $("#my_submission").fadeOut(function () {
-                        $(this).replaceWith(submission_link.fadeIn().removeAttr('style'));
-                    });
-                } else {
-                    $("#my_submission").replaceWith(submission_link);
-                }
-
-                $("#share_my_submission").removeClass("hidden");
-            }
+        if (fade) {
+            $("#my_submission").fadeOut(function () {
+                $(this).replaceWith(submission_link.fadeIn().removeAttr('style'));
+            });
+        } else {
+            $("#my_submission").replaceWith(submission_link);
         }
 
-        if(makepost)
-            jQuery.post(url, {"@action": "set_submission", "submissionid": id}, null, "json").done(applyfn);
-        else
-            applyfn({"status":"done"})
+        $("#share_my_submission").removeClass("hidden");
     }
 
     updateTaskStatus(item.hasClass("list-group-item-success") ? "Succeeded" : "Failed", parseFloat(item.text().split("-")[1]));
@@ -413,9 +402,9 @@ function waitForSubmission(submissionid)
                     unblurTaskForm();
 
                     if("replace" in data && data["replace"] && $('#my_submission').length) {
-                        setSelectedSubmission(submissionid, true);
+                        displayEvaluatedSubmission(submissionid, true);
                     } else if($('#my_submission').length) {
-                        setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
+                        displayEvaluatedSubmission($('#my_submission').attr('data-submission-id'), false);
                     }
 
                     if("feedback_script" in data)
