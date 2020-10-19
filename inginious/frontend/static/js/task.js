@@ -41,7 +41,6 @@ function init_task_page(evaluate)
 
     $('.submission').each(function() {
         $(this).on('click', clickOnSubmission);
-        $(this).find('a').on('click', selectSubmission);
     });
 
     // Allows to close cards
@@ -115,17 +114,6 @@ function displayNewSubmission(id)
         "data-submission-id": id
     }).on('click', clickOnSubmission);
 
-    if(evaluatedSubmission == "student") {
-        var actual_link = jQuery('<a/>', {
-            class:"allowed",
-            title:"Select for evaluation",
-            "data-toggle":"tooltip",
-            "data-placement": "right"
-        }).appendTo(submission_link).after("&nbsp;&nbsp;").on('click', selectSubmission);
-
-         jQuery('<i/>', {class: "fa fa-bookmark fa-fw"}).appendTo(actual_link);
-    }
-
     jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
     
     //If there exists tags, we add a badge with '0' in the new submission.
@@ -172,18 +160,6 @@ function updateSubmission(id, result, grade, tags)
             updateTagsToNewSubmission($(this), tags);  
         }
     });
-}
-
-// Select submission handler
-function selectSubmission(e) {
-
-    e.stopPropagation();
-
-    var item = $(this).parent();
-    var id = item.attr('data-submission-id');
-
-    if($(this).hasClass('allowed'))
-        setSelectedSubmission(id, true, true);
 }
 
 // Set selected submission
