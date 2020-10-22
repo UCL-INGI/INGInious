@@ -96,14 +96,11 @@ function updateTaskStatus(newStatus, grade)
     var task_status = $('#task_status');
     var task_grade = $('#task_grade');
 
-    var currentStatus = task_status.text().trim();
-    var currentGrade = parseFloat(task_grade.text().trim());
-
     task_status.html(newStatus);
     task_grade.text(grade);
 }
 
-//Creates a new submission (left column)
+//Creates a new submission (right column)
 function displayNewSubmission(id)
 {
     var submissions = $('#submissions');
