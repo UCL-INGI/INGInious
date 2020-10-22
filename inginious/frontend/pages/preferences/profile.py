@@ -110,7 +110,7 @@ class ProfilePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
 
         if not userdata:
-            raise self.app.internalerror(message=_("User unavailable."))
+            raise self.app.notfound(message=_("User unavailable."))
 
         return self.template_helper.get_renderer().preferences.profile(self.app.terms_page,
                                                                        self.app.privacy_page, "", False)
@@ -120,7 +120,7 @@ class ProfilePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
 
         if not userdata:
-            raise self.app.internalerror(message=_("User unavailable."))
+            raise self.app.notfound(message=_("User unavailable."))
 
 
         msg = ""

@@ -27,14 +27,14 @@ class Marketplace(INGIniousAuthPage):
         """ GET request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise web.forbidden(_("You don't have superadmin rights on this course."))
+            raise self.app.forbidden(message=_("You don't have superadmin rights on this course."))
         return self.show_page()
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise web.forbidden(_("You're not allowed to do that"))
+            raise self.app.forbidden(message=_("You're not allowed to do that"))
 
         user_input = web.input()
         errors = []

@@ -20,7 +20,7 @@ class SubmissionPage(INGIniousAdminPage):
         try:
             submission = self.submission_manager.get_submission(submissionid, False)
             if not submission:
-                raise web.notfound(message=_("This submission doesn't exist."))
+                raise self.app.notfound(message=_("This submission doesn't exist."))
         except InvalidId as ex:
             self._logger.info("Invalid ObjectId : %s", submissionid)
             raise web.forbidden(_("Invalid ObjectId."))
