@@ -6,7 +6,7 @@ Workflow
 
 INGInious manage submission as a group of steps splitted between three major parts : FrontEnd/Client, Backend and Agent.
 
-.. image:: /dev_doc/submission_workflow.png
+.. image:: submission_workflow.png
     :align: center
 
 This workflow represents a basic INGInious installation with a basic frontend. For understanding purpose, we represent a workflow where everything is going well.
