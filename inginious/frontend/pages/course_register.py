@@ -5,22 +5,25 @@
 
 """ Course page """
 import web
+from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class CourseRegisterPage(INGIniousAuthPage):
     """ Registers a user to a course """
+
     def basic_checks(self, courseid):
         try:
             course = self.course_factory.get_course(courseid)
-        except:
-            raise web.notfound()
+        except (InvalidNameException, CourseNotFoundException, CourseUnreadableException) as e:
+            raise self.app.notfound(message=_("This course doesn't exist."))
 
         username = self.user_manager.session_username()
         user_info = self.user_manager.get_user_info(username)
 
-        if self.user_manager.course_is_user_registered(course, username) or not course.is_registration_possible(user_info):
+        if self.user_manager.course_is_user_registered(course, username) or not course.is_registration_possible(
+                user_info):
             raise web.seeother(self.app.get_homepath() + "/course/" + course.get_id())
 
         return course, username

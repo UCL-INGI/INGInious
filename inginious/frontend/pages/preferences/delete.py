@@ -45,7 +45,7 @@ class DeletePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
         if not userdata or not self.app.allow_deletion:
-            raise web.notfound()
+            raise self.app.forbidden(message=_("User unavailable or deletion is forbidden."))
 
         return self.template_helper.get_renderer().preferences.delete("", False)
 
@@ -54,7 +54,7 @@ class DeletePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
         if not userdata or not self.app.allow_deletion:
-            raise web.notfound()
+            raise self.app.forbidden(message=_("User unavailable or deletion forbidden."))
 
         msg = ""
         error = False

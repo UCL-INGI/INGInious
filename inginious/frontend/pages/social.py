@@ -15,7 +15,7 @@ class AuthenticationPage(INGIniousPage):
     def process_signin(self,auth_id):
         auth_method = self.user_manager.get_auth_method(auth_id)
         if not auth_method:
-            raise web.notfound()
+            raise self.app.notfound(message=_("Auth method doesn't exist"))
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
         auth_storage["redir_url"] = web.ctx.env.get('HTTP_REFERER', '/')
@@ -36,7 +36,7 @@ class CallbackPage(INGIniousPage):
     def process_callback(self, auth_id):
         auth_method = self.user_manager.get_auth_method(auth_id)
         if not auth_method:
-            raise web.notfound()
+            raise self.app.notfound(message=_("Auth method doesn't exist."))
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
         user = auth_method.callback(auth_storage)
@@ -50,7 +50,7 @@ class CallbackPage(INGIniousPage):
                 task = course.get_task(submission["taskid"])
                 auth_method.share(auth_storage, course, task, submission, self.user_manager.session_language())
             else:
-                raise web.notfound()
+                raise self.app.notfound(message=_("Submission doesn't exist."))
         else:
             raise web.seeother("/signin?callbackerror")
 
@@ -69,7 +69,7 @@ class SharePage(INGIniousAuthPage):
     def process_share(self, auth_id):
         auth_method = self.user_manager.get_auth_method(auth_id)
         if not auth_method:
-            raise web.notfound()
+            raise self.app.notfound(message=_("Auth method not found."))
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
         auth_storage["redir_url"] = web.ctx.env.get('HTTP_REFERER', '/')

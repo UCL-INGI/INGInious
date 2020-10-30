@@ -251,7 +251,10 @@ def get_app(config):
                                                                                  plugin_manager, user_manager))
 
     # Not found page
-    appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
+    appli.notfound = lambda message='Page not found': web.notfound(template_helper.get_renderer().notfound(message))
+
+    # Forbidden page
+    appli.forbidden = lambda message='Forbidden': web.forbidden(template_helper.get_renderer().forbidden(message))
 
     # Enable stacktrace display if needed
     web_debug = config.get('web_debug', False)

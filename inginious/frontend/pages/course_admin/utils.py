@@ -26,7 +26,7 @@ class INGIniousAdminPage(INGIniousAuthPage):
 
     def get_course_and_check_rights(self, courseid, taskid=None, allow_all_staff=True):
         """ Returns the course with id ``courseid`` and the task with id ``taskid``, and verify the rights of the user.
-            Raise web.notfound() when there is no such course of if the users has not enough rights.
+            Raise app.forbidden() when there is no such course of if the users has not enough rights.
 
             :param courseid: the course on which to check rights
             :param taskid: If not None, returns also the task with id ``taskid``
@@ -38,17 +38,17 @@ class INGIniousAdminPage(INGIniousAuthPage):
             course = self.course_factory.get_course(courseid)
             if allow_all_staff:
                 if not self.user_manager.has_staff_rights_on_course(course):
-                    raise web.notfound()
+                    raise self.app.forbidden(message=_("You don't have staff rights on this course."))
             else:
                 if not self.user_manager.has_admin_rights_on_course(course):
-                    raise web.notfound()
+                    raise self.app.forbidden(message=_("You don't have admin rights on this course."))
 
             if taskid is None:
                 return course, None
             else:
                 return course, course.get_task(taskid)
         except:
-            raise web.notfound()
+            raise self.app.forbidden(message=_("This course is unreachable"))
 
 
 class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
@@ -142,7 +142,7 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
         """ Prevent MongoDB injections by verifying arrays sent to it """
         for i in list_of_ids:
             if not id_checker(i):
-                raise web.notfound()
+                raise self.app.forbidden(message=_("List not valid."))
 
     def get_submissions_filter(self, course,
                                only_tasks=None, only_tasks_with_categories=None,

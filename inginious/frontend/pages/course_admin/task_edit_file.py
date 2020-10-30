@@ -237,7 +237,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None:
-            raise web.notfound()
+            raise web.notfound(message=_("This path doesn't exist."))
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         (method, mimetype_or_none, file_or_url) = task_fs.distribute(wanted_path)

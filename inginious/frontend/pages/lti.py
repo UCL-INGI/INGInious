@@ -16,7 +16,7 @@ class LTITaskPage(INGIniousAuthPage):
     def GET_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise web.notfound()
+            raise self.app.forbidden(message=_("No LTI data available."))
         (courseid, taskid) = data['task']
 
         return BaseTaskPage(self).GET(courseid, taskid, True)
@@ -24,7 +24,7 @@ class LTITaskPage(INGIniousAuthPage):
     def POST_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise web.notfound()
+            raise self.app.forbidden(message=_("No LTI data available."))
         (courseid, taskid) = data['task']
 
         return BaseTaskPage(self).POST(courseid, taskid, True)
@@ -37,7 +37,7 @@ class LTIAssetPage(INGIniousAuthPage):
     def GET_AUTH(self, asset_url):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise web.notfound()
+            raise self.app.forbidden(_("No LTI data available."))
         (courseid, _) = data['task']
         raise web.redirect(self.app.get_homepath() + "/course/{courseid}/{asset_url}".format(courseid=courseid, asset_url=asset_url))
 
@@ -115,7 +115,7 @@ class LTILoginPage(INGIniousPage):
         """
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise web.notfound()
+            raise self.app.forbidden(message=_("No LTI data available."))
 
         try:
             course = self.course_factory.get_course(data["task"][0])
@@ -163,7 +163,7 @@ class LTILaunchPage(INGIniousPage):
         try:
             course = self.course_factory.get_course(courseid)
         except exceptions.CourseNotFoundException as ex:
-            raise web.notfound(str(ex))
+            raise self.app.notfound(message=_(str(ex)))
 
         try:
             test = LTIWebPyToolProvider.from_webpy_request()
@@ -172,7 +172,7 @@ class LTILaunchPage(INGIniousPage):
         except Exception:
             self.logger.exception("...")
             self.logger.info("Error while validating LTI request for %s", str(post_input))
-            raise web.forbidden(_("Error while validating LTI request"))
+            raise self.app.forbidden(message=_("Error while validating LTI request"))
 
         if verified:
             self.logger.debug('parse_lit_data for %s', str(post_input))
@@ -187,7 +187,7 @@ class LTILaunchPage(INGIniousPage):
             if course.lti_send_back_grade():
                 if lis_outcome_service_url is None or outcome_result_id is None:
                     self.logger.info('Error: lis_outcome_service_url is None but lti_send_back_grade is True')
-                    raise web.forbidden(_("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
+                    raise self.app.forbidden(message=_("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
                                         "lis_outcome_result_id in the LTI basic-launch-request. Please contact your administrator."))
             else:
                 lis_outcome_service_url = None
@@ -207,7 +207,7 @@ class LTILaunchPage(INGIniousPage):
             return session_id, loggedin
         else:
             self.logger.info("Couldn't validate LTI request")
-            raise web.forbidden(_("Couldn't validate LTI request"))
+            raise self.app.forbidden(message=_("Couldn't validate LTI request"))
 
     def _find_realname(self, post_input):
         """ Returns the most appropriate name to identify the user """

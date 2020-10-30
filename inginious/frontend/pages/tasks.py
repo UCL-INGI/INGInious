@@ -130,7 +130,7 @@ class BaseTaskPage(object):
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             if submission is None:
-                raise web.notfound()
+                raise self.cp.app.notfound(message=_("Submission doesn't exist."))
             sinput = self.submission_manager.get_input_from_submission(submission, True)
             if userinput["questionid"] not in sinput:
                 raise web.notfound()
@@ -273,7 +273,7 @@ class BaseTaskPage(object):
             submission = self.submission_manager.get_input_from_submission(submission)
             submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
             if not submission:
-                raise web.notfound()
+                raise self.cp.app.notfound(message=_("Submission doesn't exist."))
             web.header('Content-Type', 'application/json')
 
             return self.submission_to_json(task, submission, is_admin, True, tags=course.get_tags())

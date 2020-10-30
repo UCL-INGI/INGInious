@@ -31,7 +31,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             # Replay a unique submission
             submission = self.database.submissions.find_one({"_id": ObjectId(user_input["replay_submission"])})
             if submission is None:
-                raise web.notfound()
+                raise web.notfound(message=_("This submission doesn't exist."))
 
             web.header('Content-Type', 'application/json')
             self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission)
@@ -65,7 +65,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
             elif "replay" in user_input:
                 if not self.user_manager.has_admin_rights_on_course(course):
-                    raise web.notfound()
+                    raise web.forbidden(_("You don't have admin rights on this course."))
 
                 tasks = course.get_tasks()
                 for submission in data:
@@ -99,7 +99,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
                                                              "courseid": course.get_id(),
                                                              "status": {"$in": ["done", "error"]}})
             if submission is None:
-                raise web.notfound()
+                raise web.notfound(message=_("The submission doesn't exist."))
 
             self._logger.info("Downloading submission %s - %s - %s - %s", submission['_id'], submission['courseid'],
                               submission['taskid'], submission['username'])

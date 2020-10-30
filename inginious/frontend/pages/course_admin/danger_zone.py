@@ -141,7 +141,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
             filepath = os.path.join(self.backup_dir, courseid, data["download"] + '.zip')
 
             if not os.path.exists(os.path.dirname(filepath)):
-                raise web.notfound()
+                raise self.app.notfound(message=_("This file doesn't exist."))
 
             web.header('Content-Type', 'application/zip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="' + data["download"] + '.zip' + '"', unique=True)

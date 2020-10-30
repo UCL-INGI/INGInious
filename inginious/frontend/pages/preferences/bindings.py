@@ -28,7 +28,7 @@ class BindingsPage(INGIniousAuthPage):
         user_data = self.database.users.find_one({"username": self.user_manager.session_username()})
 
         if not user_data:
-            raise web.notfound()
+            raise self.app.notfound(message=_("User doesn't exist."))
 
         user_input = web.input()
         auth_methods = self.user_manager.get_auth_methods()

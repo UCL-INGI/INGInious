@@ -31,7 +31,7 @@ class CoursePage(INGIniousAuthPage):
         try:
             course = self.course_factory.get_course(courseid)
         except:
-            raise web.notfound()
+            raise self.app.notfound(message=_("Course not found."))
 
         return course
 
