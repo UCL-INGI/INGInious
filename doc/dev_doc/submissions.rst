@@ -35,7 +35,17 @@ Evaluation
 ----------
 
 Submission evaluation is possible in two different ways : By evaluating the best one or the last one.
-First one takes the max grade submission.
-Second one takes the last submission.
 As main part of the evaluation is done within the backend with only one submission, the selection part is done on frontend part.
-Evaluation workflow is 
+If the user run a new submission and that it suits with the evaluation, the submission id is store in database in the user task collection.
+The evaluation part really starts when the job is treated by the agent. The agent receives a *BackendNewJob* message and have to handle it. It starts its new_job function.
+For MCQ agent, it starts by getting files from task and course file system and the translation files. Then it loops over the question and calculate the number of good answers to return the correct feedback.
+For Docker agent, it start by synchronously generate the needed element. It begins with the file system, copying files (especially task files and $common files) and creating the container. It continues by adding new info of the new container and then of course starts this one.
+All this work is done within the Asyncio event loop.
+once this is done, a safe task (for the agent) is generated for handling the running container. When run() ends, these tasks are automatically cancelled.
+The handling of the container is manage through a socket. Messages with data are sent to the container with the run command to evaluate the code. 
+Container will then respond with three possible message: student_container, ssh or result.
+The first one starts a new student container.
+The second one, returns the information for a ssh connection.
+The last one, of course, return the results of the run command.
+The first two message will generate new action ( create a safe task for the student_container or create a job for ssh info)
+The last one will simply set the results and send them back to the frontend for the display part.
