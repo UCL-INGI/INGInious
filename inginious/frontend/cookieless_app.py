@@ -9,7 +9,6 @@ from copy import deepcopy
 import hashlib
 from web import utils
 import web
-from web.py3helpers import is_iter
 from web.session import SessionExpired
 
 
@@ -61,7 +60,7 @@ class CookieLessCompatibleApplication(web.application):
             y = orig_func(x)
             # the wsgi process thingy differentiates things that are a generator from things that are not one
             # we need to fix only the generators
-            if is_iter(y): # web.py uses this to check for generators. A more "safe" way to do it would be to use
+            if y and hasattr(y, "__next__"): # web.py uses this to check for generators. A more "safe" way to do it would be to use
                            # inspect.isgenerator(y) or inspect.isgeneratorfunction(y), but like this we ensure
                            # we mimic the behavior of web.py
                 return fix_generator(y)
