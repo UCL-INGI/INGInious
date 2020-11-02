@@ -96,11 +96,6 @@ subdirectory.
        This is the default value. In this case, the best submission is used.
    ``last``
        In this case, the last submission is used.
-   ``student``
-       In this case, the student can select the submission for evaluation. This allows student to select the submission
-       for evaluation without submitting it again or if submission replays are planned.
-       This feature is not available in the LTI module due to LTI specifications limitations, and will be considered as
-       best submission.
 
 - ``submission_limit`` indicates the amount of submissions a student can make within a certain period of time.
   It is composed of two fields:
