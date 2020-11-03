@@ -57,4 +57,4 @@ class MarketplaceCourse(INGIniousAuthPage):
         if errors is None:
             errors = []
 
-        return self.template_helper.get_renderer(use_jinja=True).marketplace_course(course=course, errors=errors)
+        return self.template_helper.render("marketplace_course.html", course=course, errors=errors)

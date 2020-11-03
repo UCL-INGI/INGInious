@@ -88,9 +88,9 @@
         CodeMirror.modeURL = "{{get_homepath(True)}}/static/js/codemirror/mode/%N/%N.js";
     </script>
 
-    {{ template_helper.call('css') }}
-    {{ template_helper.call('javascript_header') }}
-    {{ template_helper.call('header_hook') }}
+    {{ template_helper.call('css') | safe }}
+    {{ template_helper.call('javascript_header') | safe }}
+    {{ template_helper.call('header_hook') | safe }}
     {% endblock %}
 </head>
 
