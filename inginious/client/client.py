@@ -59,6 +59,8 @@ class AbstractClient(object, metaclass=ABCMeta):
             test is a dict of tests made in the environment
             custom is a dict containing random things set in the environment
             archive is either None or a bytes containing a tgz archive of files from the job
+
+            The callback will *always* be called *exactly* once.
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
@@ -67,7 +69,7 @@ class AbstractClient(object, metaclass=ABCMeta):
         :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
                              remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
-        :return: the new job id
+        :return: the new job id, or None if an error happened
         """
         pass
 
@@ -275,8 +277,6 @@ class Client(BetterParanoidPirateClient):
             test is a dict of tests made in the environment
             custom is a dict containing random things set in the environment
             archive is either None or a bytes containing a tgz archive of files from the job
-
-            The function may be called more than once. You should ignore the duplicate calls.
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
@@ -285,14 +285,15 @@ class Client(BetterParanoidPirateClient):
         :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
                              remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
-        :return: the new job id
+        :return: the new job id, or None if an error happened
         """
         job_id = str(uuid.uuid4())
+        safe_callback = _callable_once(callback)
 
         if debug == "ssh" and ssh_callback is None:
             self._logger.error("SSH callback not set in %s/%s", task.get_course_id(), task.get_id())
-            callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None, "", "")
-            return
+            safe_callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None, "", "")
+            return None
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
         ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3: None)
 
@@ -301,8 +302,8 @@ class Client(BetterParanoidPirateClient):
             self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(),
                                  task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
-            return
+            safe_callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
+            return None
 
         environment_type = task.get_environment_type()
         if self._available_environments[environment] != environment_type:
@@ -310,16 +311,16 @@ class Client(BetterParanoidPirateClient):
                                  environment, environment_type, self._available_environments[environment],
                                  task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {},
-                     "", {}, None, "", "")
-            return
+            safe_callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {},
+                          "", {}, None, "", "")
+            return None
 
         environment_parameters = task.get_environment_parameters()
 
         msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), task.get_problems_dict(), inputdata, environment,
                            environment_parameters, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future,
-                                        self._create_transaction(msg, task=task, callback=callback,
+                                        self._create_transaction(msg, task=task, callback=safe_callback,
                                                                  ssh_callback=ssh_callback))
 
         return job_id

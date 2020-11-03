@@ -49,9 +49,6 @@ class WebAppSubmissionManager:
         job """
         submission = self.get_submission(submissionid, False)
 
-        if "jobid" not in submission:
-            return  # ignore, duplicate message
-
         submission = self.get_input_from_submission(submission)
 
         data = {
@@ -192,19 +189,25 @@ class WebAppSubmissionManager:
             submission["tests"] = {}  # Be sure tags are reinitialized
             submissionid = self._database.submissions.insert(submission)
 
+        # Clean the submission document in db
+        self._database.submissions.update(
+            {"_id": submission["_id"]},
+            {"$set": {"status": "waiting", "response_type": task.get_response_type()},
+             "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "state": "",
+                        "custom": ""}
+             })
+
         jobid = self._client.new_job(1, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests,
                                                               custom, state, archive, stdout, stderr, copy)),
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
 
-        # Clean the submission document in db
+
         self._database.submissions.update(
-            {"_id": submission["_id"]},
-            {"$set": {"jobid": jobid, "status": "waiting", "response_type": task.get_response_type()},
-             "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "state": "",
-                        "custom": ""}
-             })
+            {"_id": submission["_id"], "status": "waiting"},
+            {"$set": {"jobid": jobid}}
+        )
 
         if not copy:
             self._logger.info("Replaying submission %s - %s - %s - %s", submission["username"], submission["courseid"],
