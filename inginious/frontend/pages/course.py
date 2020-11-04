@@ -16,7 +16,7 @@ def handle_course_unavailable(app_homepath, template_helper, user_manager, cours
         user_info = user_manager.get_user_info(username)
         if course.is_registration_possible(user_info):
             raise web.seeother(app_homepath + "/register/" + course.get_id())
-    return template_helper.get_renderer(use_jinja=True).course_unavailable(reason=reason)
+    return template_helper.render("course_unavailable.html", reason=reason)
 
 
 class CoursePage(INGIniousAuthPage):

@@ -5,9 +5,10 @@
 
 """ TemplateManager """
 import os
+from functools import lru_cache
 
 import web
-from web.contrib.template import render_jinja
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import inginious
 import json
 
@@ -46,7 +47,7 @@ class TemplateHelper(object):
         self._template_globals = {}
 
         # include is only needed in webpy templates as jinja supports it by default
-        self.add_to_template_globals("include", self.get_custom_renderer(self._template_dir, layout=False, use_jinja=False))
+        self.add_to_template_globals("include", self.get_custom_renderer(self._template_dir, layout=False))
 
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
@@ -58,22 +59,50 @@ class TemplateHelper(object):
         """ True if the current session is an LTI one """
         return self._user_manager is not None and self._user_manager.session_lti_info() is not None
 
-    def get_renderer(self, with_layout=True, use_jinja=False):
-        """ Get the default renderer """
-        if with_layout and self.is_lti():
-            return self.get_custom_renderer(self._template_dir, layout=self._layout_lti, use_jinja=use_jinja)
-        elif with_layout:
-            return self.get_custom_renderer(self._template_dir, use_jinja=use_jinja)
-        else:
-            return self.get_custom_renderer(self._template_dir, layout=False, use_jinja=use_jinja)
-
     def add_to_template_globals(self, name, value):
         """ Add a variable to will be accessible in the templates """
         self._template_globals[name] = value
 
-    def get_custom_renderer(self, dir_path, layout=True, use_jinja= False):
+    def render(self, path, base_template_folder=None, **tpl_kwargs):
+        """
+        Parse the Jinja template named "path" and render it with args *tpl_args and **tpl_kwargs
+        :param path: Path of the template, relative to the base folder
+        :param base_template_folder: base folder. If none, the base template folder is used. Use functools.partial to
+            create custom renderers.
+        :param tpl_kwargs: named args sent to the template
+        :return: the rendered template, as a str
+        """
+        return self._get_jinja_renderer(base_template_folder).get_template(path).render(**tpl_kwargs)
+
+    @lru_cache(None)
+    def _get_jinja_renderer(self, base_template_folder=None):
+        if base_template_folder is None:
+            base_template_folder = self._template_dir
+        # if base_template_folder is not an absolute path, take it wrt INGInious root folder
+        base_template_folder = os.path.join(inginious.get_root_path(), base_template_folder)
+
+        env = Environment(loader=FileSystemLoader(base_template_folder),
+                          autoescape=select_autoescape(['html', 'htm', 'xml']))
+        env.globals.update(self._template_globals)
+
+        return env
+
+    def get_renderer(self, with_layout=True):
+        """ Get the default renderer. This function is deprecated, use render() (that uses Jinja) instead. """
+        if with_layout and self.is_lti():
+            return self.get_custom_renderer(self._template_dir, layout=self._layout_lti)
+        elif with_layout:
+            return self.get_custom_renderer(self._template_dir)
+        else:
+            return self.get_custom_renderer(self._template_dir, layout=False)
+
+    def get_custom_renderer(self, dir_path, layout=True):
         """
         Create a template renderer on templates in the directory specified, and returns it.
+
+        See the web.py documentation.
+        This function is deprecated, use render() (that uses Jinja) instead.
+
         :param dir_path: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
         :param layout: can either be True (use the base layout of the running app), False (use no layout at all), or the path to the layout to use.
                        If this path is relative, it is taken from the INGInious package root.
@@ -89,13 +118,9 @@ class TemplateHelper(object):
         else:
             layout_path = None
 
-        if use_jinja:
-            return render_jinja(os.path.join(root_path, dir_path),
-                             globals=self._template_globals)
-        else:
-            return web.template.render(os.path.join(root_path, dir_path),
-                                   globals=self._template_globals,
-                                   base=layout_path)
+        return web.template.render(os.path.join(root_path, dir_path),
+                                  globals=self._template_globals,
+                                  base=layout_path)
 
     def call(self, name, **kwargs):
         helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))

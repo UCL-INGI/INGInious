@@ -30,7 +30,7 @@ class CourseRegisterPage(INGIniousAuthPage):
 
     def GET_AUTH(self, courseid):
         course, _ = self.basic_checks(courseid)
-        return self.template_helper.get_renderer(use_jinja=True).course_register(course=course, error=False)
+        return self.template_helper.render("course_register.html", course=course, error=False)
 
     def POST_AUTH(self, courseid):
         course, username = self.basic_checks(courseid)
@@ -40,4 +40,4 @@ class CourseRegisterPage(INGIniousAuthPage):
         if success:
             raise web.seeother(self.app.get_homepath() + "/course/" + course.get_id())
         else:
-            return self.template_helper.get_renderer(use_jinja=True).course_register(course=course, error=True)
+            return self.template_helper.render("course_register.html", course=course, error=True)

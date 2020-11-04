@@ -56,7 +56,7 @@ class Marketplace(INGIniousAuthPage):
         if errors is None:
             errors = []
         courses = get_all_marketplace_courses()
-        return self.template_helper.get_renderer(use_jinja=True).marketplace(courses=courses, errors=errors)
+        return self.template_helper.render("marketplace.html", courses=courses, errors=errors)
 
 
 def import_course(course, new_courseid, username, course_factory):
