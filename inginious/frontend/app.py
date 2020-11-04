@@ -17,6 +17,7 @@ from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.courses import Course
+from inginious.frontend.pages.utils import register_utils
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.submission_manager import WebAppSubmissionManager
@@ -72,6 +73,7 @@ urls = (
     r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
     r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
+    r'/admin/([^/]+)/search_user/(.+)', 'inginious.frontend.pages.course_admin.search_user.CourseAdminSearchUserPage',
     r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
     r'/api/v0/authentication', 'inginious.frontend.pages.api.authentication.APIAuthentication',
     r'/api/v0/courses', 'inginious.frontend.pages.api.courses.APICourses',
@@ -219,6 +221,8 @@ def get_app(config):
                                      'frontend/templates/layout',
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
+
+    register_utils(database, user_manager, template_helper)
 
     is_tos_defined = config.get("privacy_page", "") and config.get("terms_page", "")
 
