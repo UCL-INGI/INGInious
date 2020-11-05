@@ -46,7 +46,7 @@
                             <a href="{{ get_homepath() + "/marketplace/" + courseid }}">{{ course.get_name(user_manager.session_language()) }}</a>
                         </h5>
                         <span class="card-text m-0 wrap-h6">
-                            {{ course.get_short_desc(user_manager.session_language()) }}
+                            {{ course.get_short_desc(user_manager.session_language()) | safe }}
                         </span>
                     </div>
                     <div class="card-footer">

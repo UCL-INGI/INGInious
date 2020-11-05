@@ -58,7 +58,7 @@
         </div>
     {% endfor %}
     <div id="course_description">
-        {{ course.get_description(user_manager.session_language()) }}
+        {{ course.get_description(user_manager.session_language()) | safe }}
     </div>
     <form class="form row" method="post">
         <div class="form-group col-sm-8">

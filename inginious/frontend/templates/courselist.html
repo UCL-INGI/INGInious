@@ -17,7 +17,7 @@
                 {{ _("My courses") }}
             </a>
         </div>
-        {{ template_helper.call('main_menu', template_helper=template_helper) }}
+        {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
     {% endif %}
 {% endblock %}
 {% block navbar %}
