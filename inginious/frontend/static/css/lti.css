@@ -124,6 +124,162 @@ form#task label {
   background-position: right;
   background-repeat: no-repeat;
 }
+#main-container > .col {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  overflow: hidden;
+}
+#main-container > .col > .list-group:first-child,
+#main-container > .col > #inginious-sidebar-content > .list-group:first-child {
+  margin-top: -15px;
+}
+#main-container > .col > .table:first-child,
+#main-container > .col > #inginious-sidebar-content > .table:first-child {
+  margin-left: 15px;
+}
+#inginious-top {
+  padding: 0;
+  margin: 0;
+}
+#inginious-sidebar-top {
+  background: #333;
+  border-right: 1px solid #333;
+}
+#inginious-sidebar-top,
+#inginious-sidebar {
+  width: 250px;
+  max-width: 250px;
+  min-width: 250px;
+  box-sizing: content-box;
+  padding: 0;
+  transition: width 300ms ease-in-out, max-width 300ms ease-in-out, min-width 300ms ease-in-out, padding 300ms ease-in-out, margin 300ms ease-in-out;
+}
+#inginious-sidebar {
+  overflow: hidden;
+  border-right: 1px solid #D9D9D9;
+  background: #efefef;
+}
+#inginious-sidebar #inginious-sidebar-content {
+  width: 250px;
+  max-width: 250px;
+  box-sizing: content-box;
+}
+#inginious-sidebar h1,
+#inginious-sidebar h2,
+#inginious-sidebar h3,
+#inginious-sidebar h4,
+#inginious-sidebar h5,
+#inginious-sidebar h6 {
+  padding-left: 15px;
+}
+#inginious-sidebar .list-group-item {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+#inginious-sidebar-toggle {
+  width: 50px;
+  font-size: 30px;
+  background: #333;
+  border: none;
+  color: white;
+  flex-grow: 0;
+  padding: 0;
+  display: block;
+  min-width: 50px;
+  max-width: 50px;
+  cursor: pointer;
+}
+#inginious-sidebar-toggle i {
+  transform: rotate(90deg);
+  transition: transform 300ms ease-in-out;
+}
+body.sidebar-inactive #inginious-sidebar-toggle i {
+  transform: rotate(0deg);
+}
+@media (max-width: 599.98px) {
+  body.sidebar-inactive #inginious-sidebar {
+    display: none;
+  }
+  body.sidebar-inactive #main-content,
+  body.sidebar-inactive #inginious-topbar {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    display: block;
+  }
+  #inginious-sidebar-top,
+  #inginious-sidebar,
+  #inginious-topbar,
+  #inginious-sidebar-content {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+  #main-content,
+  #inginious-topbar {
+    display: none;
+  }
+}
+@media (max-width: 991.98px) and (min-width: 600px) {
+  body.sidebar-inactive #inginious-sidebar {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 0;
+    min-width: 0;
+    border: 0;
+  }
+  body.sidebar-inactive #inginious-logo {
+    width: 50px !important;
+  }
+  body.sidebar-inactive #inginious-sidebar-top {
+    min-width: 100px;
+    max-width: 100px;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}
+@media (min-width: 991.98px) {
+  #inginious-sidebar-toggle {
+    display: none;
+  }
+}
+#inginious-logo {
+  display: block;
+  background: #333;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  flex-grow: 1;
+  overflow: hidden;
+  height: 50px;
+}
+#inginious-logo img {
+  height: 50px;
+  vertical-align: bottom;
+  display: inline;
+}
+#inginious-logo:hover {
+  color: white;
+  text-decoration: none;
+}
+#inginious-logo #inginious-logo-text {
+  display: inline-block;
+  width: 200px;
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  font-weight: 300;
+  font-size: 35px;
+  line-height: 45px;
+  padding: 0;
+  margin: 0;
+  color: white;
+}
+#inginious-sidebar .dropright button {
+  width: 100%;
+}
 #lti-sidebar {
   width: 0px;
   height: 100%;
