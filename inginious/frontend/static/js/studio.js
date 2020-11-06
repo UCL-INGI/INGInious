@@ -761,3 +761,35 @@ function uploadData(formdata){
         }
     });
 }
+
+// Use selectize.js to select for a user.
+// element is the element to be used as a selector ($('#id'))
+// path_to_search_user is the path to the search_user page (/admin/tutorial/search_user/) with the final /
+// current_users is an array of dict with the format [{'username': 'theusername', 'realname': 'The realname'}]
+// single: true for single user selection, false for multiple.
+function user_selection(element, path_to_search_user, current_users, single) {
+    element.selectize({
+        delimiter: ',',
+        persist: false,
+        valueField: 'username',
+        labelField: 'realname',
+        searchField: ['username', 'realname'],
+        create: false,
+        options: current_users.map(function(x) { return {"username": x.username, "realname": x.realname + " (" + x.username + ")"} }),
+        items: current_users.map(function(x) { return x.username }),
+        load: function(query, callback) {
+            if (!query.length) return callback();
+            $.ajax({
+                url: path_to_search_user + encodeURIComponent(query),
+                type: 'GET',
+                error: function() {
+                    callback();
+                },
+                success: function(res) {
+                    callback(res[0].map(function(x) { return {"username": x.username, "realname": x.realname + " (" + x.username + ")"} }));
+                }
+            });
+        },
+        maxItems: single ? 1 : null
+    });
+}

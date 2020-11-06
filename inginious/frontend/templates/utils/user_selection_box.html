@@ -1,0 +1,13 @@
+<input
+    type="text"
+    class="form-control user-selection-box"
+    id="{{ id }}"
+    name="{{ name }}"
+    {% if placeholder %}
+        placeholder="{{ placeholder }}"
+    {% endif %}
+    value="{{ current_users | map(attribute='username') | join(',') }}"
+/>
+<script type="text/javascript">
+    user_selection($('#{{ id }}'), '{{ get_homepath() }}/admin/{{ course_id }}/search_user/', {{ current_users | tojson }}, {% if single %}true{% else %}false{% endif %});
+</script>
