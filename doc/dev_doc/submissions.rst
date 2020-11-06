@@ -68,7 +68,12 @@ Then it iterates over the problems and run, for eah problem, a check_answer meth
 Finally, it calculates the number of good answers to return the correct feedback.
 
 For Docker agent, all the work is done within the Asyncio event loop. The event loop is the driver code that manages the cooperative multitasking.
-A new synchronous generate the needed element. It begins with the file system, copying files (especially task files and $common files) and creating the container. 
+
+IMAGE ICI TODO
+.. image:: submission_workflow.png
+    :align: center
+
+A new synchronous job generate the needed element. It begins with the file system, copying files (especially task files and $common files) and creating the container. 
 It continues by adding new info of the new container and then, of course, starts this one. This job runs within the default executor of the event loop.
 Once this is done, a safe task (for the agent) is generated for handling the running container (with the data generated from the synchronous job).
 The execution of a coroutine function (handle_running_container) is scheduled and a Task object will be returned. Third-party event loops can use their own subclass of Task for interoperability. In this case, the result type is a subclass of Task.
