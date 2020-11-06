@@ -69,8 +69,7 @@ Finally, it calculates the number of good answers to return the correct feedback
 
 For Docker agent, all the work is done within the Asyncio event loop. The event loop is the driver code that manages the cooperative multitasking.
 
-IMAGE ICI TODO
-.. image:: submission_workflow.png
+.. image:: submission_evaluation_docker.png
     :align: center
 
 A new synchronous job generate the needed element. It begins with the file system, copying files (especially task files and $common files) and creating the container. 
