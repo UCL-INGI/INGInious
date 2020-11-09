@@ -1,0 +1,26 @@
+$def with(course, tasks, tasks_data, tag_filter_list, sections, level=3)
+$# Recursively print a list of sections and their content
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$for section in sections:
+    $if section.is_terminal():
+        $ section_tasks = [tasks[taskid] for taskid in section.get_tasks() if taskid in tasks]
+        $:include.task_dispensers.task_list(course, section_tasks, tasks_data, tag_filter_list, section.get_id(), section.get_title())
+    $else:
+        <div id="section_$:_(section.get_id())" class="section sections-list mb-4">
+            <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
+                <span class="title h$level mr-3">
+                    $:_(section.get_title())
+                </span>
+                <span class="divider"></span>
+
+                <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close pl-3">
+                </span>
+            </div>
+            <div class="content ml-4">
+                $:include.task_dispensers.toc(course, tasks, tasks_data, tag_filter_list, section.get_sections_list(), level+1)
+            </div>
+        </div>
