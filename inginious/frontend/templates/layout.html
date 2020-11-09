@@ -26,7 +26,7 @@ $#
     <link href="$get_homepath(True)/static/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- INGInious Style -->
-    <link href="$get_homepath(True)/static/css/INGInious.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/css/INGInious.css?v2" rel="stylesheet">
 
     <!-- Codemirror Style -->
     <link href="$get_homepath(True)/static/css/codemirror.css" rel="stylesheet">
@@ -101,87 +101,73 @@ $#
     $:template_helper.call('header_hook')
 </head>
 
-<body>
-
-    <div class="navbar navbar-expand-sm bg-dark navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</a>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" style="">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarResponsive">
+<body class="sidebar-inactive">
+    <div class="row" id="inginious-top">
+        <div id="inginious-sidebar-top" class="col">
+            <a id="inginious-logo" class="col" href="$get_homepath()/index">
+                <div id="inginious-logo-text"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</div>
+            </a>
+            <button class="col" onclick="$$('body').toggleClass('sidebar-inactive');" id="inginious-sidebar-toggle" title="$:('Open menu')"><i class="fa fa-bars fa-fw"></i></button>
+        </div>
+        <div id="inginious-topbar" class="col flex-grow-1 flex-shrink-1">
             $if "Navbar" in content:
-                    $:content.Navbar
-            $if user_manager.session_logged_in():
-                <ul class="nav navbar-nav navbar-right ml-auto">
-                    $# Change to teacher privilege when created
-                    $if user_manager.user_is_superadmin():
-                        <li class="nav-item"><a href="$get_homepath()/marketplace" class="nav-link"><i class="fa fa-shopping-bag fa-fw"></i> $:_("Marketplace")</a></li>
-                    <li class="nav-item"><a href="$get_homepath()/courselist" class="nav-link"><i class="fa fa-th-list fa-fw"></i> $:_("Course list")</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownMenuButton">
-                            <i class="fa fa-user fa-fw"></i> $user_manager.session_realname() <span class="caret"></span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right"  aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="$get_homepath()/mycourses"><i class="fa fa-th-list fa-fw"></i> $:_("My courses")</a>
-                            <a class="dropdown-item" href="$get_homepath()/preferences"><i class="fa fa-gears fa-fw"></i> $:_("Preferences")</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="$get_homepath()/queue"><i class="fa fa-dashboard fa-fw"></i> $:_("Service status")</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="$get_homepath()/logout" id="logoff_button"><i class="fa fa-sign-out"></i> $:_("Log out")</a>
-                        </div>
-                    </li>
-                </ul>
-            $else:
-                <ul class="nav navbar-nav navbar-right ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownMenuButton">
-                            <i class="fa fa-globe fa-fw"></i> $:_("English") <span class="caret"></span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right"  aria-labelledby="dropdownMenuButton">
-                            $for code, language in available_languages.items():
-                                <a href="?lang=$code" class="dropdown-item"><i class="fa fa-chevron-right fa-fw"></i> $code ($language)</a>
-                        </div>
-                    </li>
-
-                    <li class="nav-item"><a href="$get_homepath()/courselist" class="nav-link"><i class="fa fa-th-list fa-fw"></i> $:_("Course list")</a></li>
-
-                    $if allow_registration:
-                        <li class="nav-item"><a href="$get_homepath()/register" class="nav-link"><i class="fa fa-pencil fa-fw"></i> $:_("Register")</a></li>
-                    <li class="nav-item"><a href="$get_homepath()/signin" class="nav-link"><i class="fa fa-sign-in fa-fw"></i> $:_("Sign in")</a></li>
-                </ul>
-            </div>
+                $:content.Navbar
         </div>
     </div>
 
-    <div class="container-fluid" role="main" style="margin-top: 20px; margin-bottom: 65px;">
-        $if "Column" in content:
-            <div class="row">
-                <div class="col-lg-9 col-md-7 col-sm-6">
-                    $:content
-                </div>
-                <div class="col-lg-3 col-md-5 col-sm-6 position-sticky">
-                    <div class="sticky-top">
-                            $:content.Column
-                    </div>
-                </div>
-            </div>
-        $else:
-            $:content
-    </div>
+    <div class="row" id="main-container">
+        <div id="inginious-sidebar" class="col">
+            <div id="inginious-sidebar-content">
+                <div class="list-group">
+                    $if user_manager.session_logged_in():
+                        $# Change to teacher privilege when created
+                        $if user_manager.user_is_superadmin():
+                            <a class="list-group-item list-group-item-action" href="$get_homepath()/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> $:_("Marketplace")</a>
+                        <a class="list-group-item list-group-item-action" href="$get_homepath()/courselist"><i class="fa fa-th-list fa-fw"></i> $:_("Course list")</a>
+                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseUserMenu" role="button" aria-expanded="false" aria-controls="collapseUserMenu">
+                            <i class="fa fa-user fa-fw"></i> $user_manager.session_realname() <span class="caret"></span>
+                        </a>
+                        <div class="collapse list-group-collapse" id="collapseUserMenu">
+                            <a class="list-group-item list-group-item-action" href="$get_homepath()/mycourses"><i class="fa fa-th-list fa-fw"></i> $:_("My courses")</a>
+                            <a class="list-group-item list-group-item-action" href="$get_homepath()/preferences"><i class="fa fa-gears fa-fw"></i> $:_("Preferences")</a>
+                            <a class="list-group-item list-group-item-action" href="$get_homepath()/queue"><i class="fa fa-dashboard fa-fw"></i> $:_("Service status")</a>
+                            <a class="list-group-item list-group-item-action" href="$get_homepath()/logout" id="logoff_button"><i class="fa fa-sign-out"></i> $:_("Log out")</a>
+                        </div>
+                    $else:
+                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseLang" role="button" aria-expanded="false" aria-controls="collapseLang">
+                            <i class="fa fa-globe fa-fw"></i> $:_("English") <span class="caret"></span>
+                        </a>
+                        <div class="collapse list-group-collapse" id="collapseLang">
+                            $for code, language in available_languages.items():
+                                    <a href="?lang=$code" class="list-group-item list-group-item-action"><i class="fa fa-chevron-right fa-fw"></i> $code ($language)</a>
+                        </div>
 
-    <div id="footer" class="navbar navbar-expand-sm bg-dark navbar-dark bg-dark">
-        <div class="container-fluid">
-            <p class="navbar-text">
-                &copy; 2014-2020 Universit&eacute; catholique de Louvain
-            </p>
-            <p class="navbar-text">
+                        <a class="list-group-item list-group-item-action" href="$get_homepath()/courselist">
+                            <i class="fa fa-th-list fa-fw"></i> $:_("Course list")
+                        </a>
+
+                        $if allow_registration:
+                            <a class="list-group-item list-group-item-action" href="$get_homepath()/register">
+                                <i class="fa fa-pencil fa-fw"></i> $:_("Register")
+                            </a>
+                        <a class="list-group-item list-group-item-action" href="$get_homepath()/signin">
+                            <i class="fa fa-sign-in fa-fw"></i> $:_("Sign in")
+                        </a>
+                </div>
+                $if "Column" in content:
+                    <div class="mb-3"></div>
+                    $:content.Column
+            </div>
+        </div>
+        <div class="col flex-grow-1" id="main-content">
+            $:content
+
+            <div id="footer">
+                &copy; 2014-2020 Universit&eacute; catholique de Louvain.<br>
                 <a target="_blank" href="http://www.inginious.org" class="navbar-link">
                     $:_("INGInious is distributed under AGPL license")
                 </a>
-            </p>
+            </div>
         </div>
     </div>
 

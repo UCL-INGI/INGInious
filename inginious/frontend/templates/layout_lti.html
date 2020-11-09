@@ -26,7 +26,7 @@ $#
     <link href="$get_homepath(True)/static/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- INGInious Style -->
-    <link href="$get_homepath(True)/static/css/lti.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/css/lti.css?v2" rel="stylesheet">
 
     <!-- Codemirror Style -->
     <link href="$get_homepath(True)/static/css/codemirror.css" rel="stylesheet">
@@ -88,41 +88,39 @@ $#
     $:template_helper.call('header_hook')
 </head>
 
-<body role="document">
-<div id="wrapper">
-    <div id="main_container" class="container-fluid" role="main">
-        <div id="content" class="col-xs-12">
+
+
+<body class="sidebar-inactive" role="document">
+    <div class="row" id="inginious-top">
+        <div id="inginious-sidebar-top" class="col">
+            <a id="inginious-logo" class="col" href="$get_homepath()/index">
+                <div id="inginious-logo-text"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</div>
+            </a>
+            <button class="col" onclick="$$('body').toggleClass('sidebar-inactive');" id="inginious-sidebar-toggle" title="$:('Open menu')"><i class="fa fa-bars fa-fw"></i></button>
+        </div>
+        <div id="inginious-topbar" class="col flex-grow-1 flex-shrink-1">
+            <!-- empty -->
+        </div>
+    </div>
+
+    <div class="row" id="main-container">
+        <div id="inginious-sidebar" class="col">
+            <div id="inginious-sidebar-content">
+                $if "Column" in content:
+                    $:content.Column
+            </div>
+        </div>
+        <div class="col flex-grow-1" id="main-content">
             $:content
-            <div id="powered">
+
+            <div id="footer">
                 $:_("Powered by <a href=\"http://www.inginious.org\" target=\"_blank\">INGInious</a>, a free and open-source grading tool.")
             </div>
         </div>
-        $if "Column" in content:
-            <div id="lti-sidebar">
-                <div id="lti-sidebar-btn">
-                    <button class="sidebar-open" onclick="$$('body').addClass('sidebar-active');">
-                        <i class="fa fa-angle-right"></i>
-                    </button>
-                    <button class="sidebar-close" onclick="$$('body').removeClass('sidebar-active');">
-                        <i class="fa fa-angle-left"></i>
-                    </button>
-                </div>
-                <div id="lti-sidebar-inner">
-                    <div id="lti-sidebar-content">
-                        $:content.Column
-                    </div>
-                </div>
-            </div>
     </div>
 
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript">
-        // Fix rendering issues
-        var height = Math.max($$('body').height(), Math.max($$('#lti-sidebar-inner').height(), $$('body').parent().height()));
-        $$('#content').css("min-height", height);
-    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     $:template_helper.call('javascript_footer')
-</div>
 </body>
 </html>
