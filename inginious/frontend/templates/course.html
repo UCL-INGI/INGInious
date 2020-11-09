@@ -201,7 +201,7 @@ $def print_terminal_section(section, level):
             <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close">
             </span>
         </div>
-        <div class="content list-group list-group-flush">
+        <div class="content list-group list-group-flush tasks-list">
             $for taskid in section.get_tasks()
                 $if taskid in tasks:
                     $ task = tasks[taskid]
