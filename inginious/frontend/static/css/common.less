@@ -180,6 +180,12 @@ form#task {
     }
 }
 
+body {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+}
+
 #main-container {
     & > .col {
         padding-top: 15px;
@@ -194,6 +200,11 @@ form#task {
     & > .col > .table:first-child, & > .col > #inginious-sidebar-content > .table:first-child {
         margin-left: 15px;
     }
+
+    min-height: 100%;
+    flex-grow: 100;
+    margin:0;
+    padding: 0;
 }
 
 #inginious-top {
@@ -202,6 +213,7 @@ form#task {
 }
 
 #inginious-sidebar-top {
+    display: flex;
     background: #333;
     border-right: 1px solid #333;
 }

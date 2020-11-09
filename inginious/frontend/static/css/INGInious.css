@@ -124,6 +124,17 @@ form#task label {
   background-position: right;
   background-repeat: no-repeat;
 }
+body {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+}
+#main-container {
+  min-height: 100%;
+  flex-grow: 100;
+  margin: 0;
+  padding: 0;
+}
 #main-container > .col {
   padding-top: 15px;
   padding-bottom: 15px;
@@ -142,6 +153,7 @@ form#task label {
   margin: 0;
 }
 #inginious-sidebar-top {
+  display: flex;
   background: #333;
   border-right: 1px solid #333;
 }

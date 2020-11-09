@@ -86,9 +86,9 @@ $#
 
 
 
-<body style="display: flex; min-height: 100%; flex-direction: column" class="sidebar-inactive" role="document">
+<body class="sidebar-inactive" role="document">
     <div class="row" id="inginious-top">
-        <div id="inginious-sidebar-top" class="col" style="display: flex">
+        <div id="inginious-sidebar-top" class="col">
             <a id="inginious-logo" class="col" href="$get_homepath()/index">
                 <div id="inginious-logo-text"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</div>
             </a>
@@ -99,10 +99,9 @@ $#
         </div>
     </div>
 
-    <div class="row" id="main-container" style="min-height: 100%; flex-grow: 100; margin:0; padding: 0;">
+    <div class="row" id="main-container">
         <div id="inginious-sidebar" class="col">
             <div id="inginious-sidebar-content">
-                <div style="height: 10px"></div>
                 $if "Column" in content:
                     $:content.Column
             </div>
