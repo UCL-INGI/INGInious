@@ -344,6 +344,7 @@ html {
   color: #333;
   position: absolute;
   font-size: 2em;
+  line-height: 23px;
 }
 .breadcrumb .breadcrumb-item span {
   padding-left: 1rem;
