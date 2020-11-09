@@ -119,29 +119,23 @@
                             <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
                         {% endif %}
                         <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a>
-                        <div class="dropdown">
-                            <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="dropdown" data-reference="parent">
-                                <i class="fa fa-user fa-fw"></i> {{ user_manager.session_realname() }} <span class="caret"></span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ get_homepath() }}/mycourses"><i class="fa fa-th-list fa-fw"></i> {{ _("My courses") }}</a>
-                                <a class="dropdown-item" href="{{ get_homepath() }}/preferences"><i class="fa fa-gears fa-fw"></i> {{ _("Preferences") }}</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ get_homepath() }}/queue"><i class="fa fa-dashboard fa-fw"></i> {{ _("Service status") }}</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
-                            </div>
+                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseUserMenu" role="button" aria-expanded="false" aria-controls="collapseUserMenu">
+                            <i class="fa fa-user fa-fw"></i> {{ user_manager.session_realname() }} <span class="caret"></span>
+                        </a>
+                        <div class="collapse list-group-collapse" id="collapseUserMenu">
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/mycourses"><i class="fa fa-th-list fa-fw"></i> {{ _("My courses") }}</a>
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/preferences"><i class="fa fa-gears fa-fw"></i> {{ _("Preferences") }}</a>
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/queue"><i class="fa fa-dashboard fa-fw"></i> {{ _("Service status") }}</a>
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
                         </div>
                     {% else %}
-                        <div class="dropdown">
-                            <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="dropdown" data-reference="parent">
-                                <i class="fa fa-globe fa-fw"></i> {{ _("English") }}
-                            </a>
-                            <div class="dropdown-menu">
-                                {% for code, language in available_languages.items() %}
-                                    <a href="?lang={{code}}" class="dropdown-item"><i class="fa fa-chevron-right fa-fw"></i> {{ code }} ({{ language }})</a>
-                                {% endfor %}
-                            </div>
+                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseLang" role="button" aria-expanded="false" aria-controls="collapseLang">
+                            <i class="fa fa-globe fa-fw"></i> {{ _("English") }} <span class="caret"></span>
+                        </a>
+                        <div class="collapse list-group-collapse" id="collapseLang">
+                            {% for code, language in available_languages.items() %}
+                                <a href="?lang={{code}}" class="list-group-item list-group-item-action"><i class="fa fa-chevron-right fa-fw"></i> {{ code }} ({{ language }})</a>
+                            {% endfor %}
                         </div>
 
                         <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist">

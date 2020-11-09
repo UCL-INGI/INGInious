@@ -3,6 +3,10 @@
 // more information about the licensing of this file.
 //
 
+html {
+  height: 100%;
+}
+
 /* Mixins */
 .blur(@size) {
     -webkit-filter: blur(@size);
@@ -249,6 +253,16 @@ body {
             border-right: none;
             border-left: none;
         }
+
+        .list-group-collapse .list-group-item {
+            padding-left: 2.5rem;
+            &.list-group-item-action {
+                background-color: #f0f0f0;
+                &:hover {
+                    background-color: #e0e0e0;
+                }
+            }
+        }
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -370,10 +384,6 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
         margin: 0;
         color: white;
     }
-}
-
-#inginious-sidebar .dropright button {
-    width: 100%;
 }
 
 #footer {

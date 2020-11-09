@@ -1,7 +1,10 @@
-/* Mixins */
-/* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 @import url(//fonts.googleapis.com/css?family=Source+Code+Pro);
+html {
+  height: 100%;
+}
+/* Mixins */
+/* Fonts */
 /* Progress bars */
 .progress-bar[aria-valuenow] {
   line-height: 18px !important;
@@ -183,6 +186,15 @@ body {
   border-right: none;
   border-left: none;
 }
+#inginious-sidebar #inginious-sidebar-content .list-group-collapse .list-group-item {
+  padding-left: 2.5rem;
+}
+#inginious-sidebar #inginious-sidebar-content .list-group-collapse .list-group-item.list-group-item-action {
+  background-color: #f0f0f0;
+}
+#inginious-sidebar #inginious-sidebar-content .list-group-collapse .list-group-item.list-group-item-action:hover {
+  background-color: #e0e0e0;
+}
 #inginious-sidebar h1,
 #inginious-sidebar h2,
 #inginious-sidebar h3,
@@ -296,9 +308,6 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
   margin: 0;
   color: white;
 }
-#inginious-sidebar .dropright button {
-  width: 100%;
-}
 #footer {
   font-size: 12px;
   text-align: right;
@@ -307,10 +316,6 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
   color: #43ac6a;
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-size: 12px;
-}
-html {
-  position: relative;
-  height: 100%;
 }
 /*Task debug modal*/
 #task_debug dd {
