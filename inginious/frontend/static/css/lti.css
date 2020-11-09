@@ -164,6 +164,13 @@ form#task label {
   max-width: 250px;
   box-sizing: content-box;
 }
+#inginious-sidebar #inginious-sidebar-content table tr td:first-child {
+  padding-left: 15px;
+}
+#inginious-sidebar #inginious-sidebar-content .alert {
+  border-right: none;
+  border-left: none;
+}
 #inginious-sidebar h1,
 #inginious-sidebar h2,
 #inginious-sidebar h3,
