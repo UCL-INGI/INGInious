@@ -414,15 +414,18 @@ class WebAppSubmissionManager:
         """ Attempt to kill the remote job associated with this submission id.
         :param submissionid:
         :param user_check: Check if the current user owns this submission
-        :return: True if the job was killed, False if an error occurred
+        :return: True if the message asking to kill the job was sent, False if an error occurred
         """
         submission = self.get_submission(submissionid, user_check)
         if not submission:
+            self._logger.warning("Was asked to kill submission with id %s, but it cannot be found in the database", str(submissionid))
             return False
         if "jobid" not in submission:
+            self._logger.warning("Was asked to kill submission with id %s, but it does not seem to be running", str(submissionid))
             return False
 
-        return self._client.kill_job(submission["jobid"])
+        self._client.kill_job(submission["jobid"])
+        return True
 
     def user_is_submission_owner(self, submission):
         """ Returns true if the current user is the owner of this jobid, false else """
