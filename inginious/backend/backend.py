@@ -119,8 +119,17 @@ class Backend(object):
 
     async def handle_client_new_job(self, client_addr, message: ClientNewJob):
         """ Handle an ClientNewJob message. Add a job to the queue and triggers an update """
-        self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
 
+        if message.job_id in self._waiting_jobs or message.job_id in self._job_running:
+            self._logger.info("Client %s asked to add a job with id %s to the queue, but it's already inside. "
+                              "Duplicate random id, message repeat are possible causes, "
+                              "and both should be inprobable at best.", client_addr, message.job_id)
+            await ZMQUtils.send_with_addr(self._client_socket, client_addr,
+                                          BackendJobDone(message.job_id, ("crash", "Duplicate job id"),
+                                                         0.0, {}, {}, {}, "", None, "", ""))
+            return
+
+        self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
         job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[message.job_id] = job
         self._waiting_jobs_pq.put(message.environment, job)
