@@ -6,7 +6,10 @@ import asyncio
 import logging
 import queue
 import time
+from collections import namedtuple
+
 import zmq
+from typing import Dict
 from zmq.asyncio import Poller
 
 from inginious.backend.topic_priority_queue import TopicPriorityQueue
@@ -15,6 +18,8 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDo
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, ClientNewJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, \
     BackendUpdateEnvironments, Unknown, Ping, Pong, ClientGetQueue, BackendGetQueue
 
+WaitingJob = namedtuple('WaitingJob', ['priority', 'time_received', 'client_addr', 'job_id', 'msg'])
+RunningJob = namedtuple('RunningJob', ['agent_addr', 'client_addr', 'msg', 'time_started'])
 
 class Backend(object):
     """
@@ -61,10 +66,9 @@ class Backend(object):
         self._ping_count = {}
 
         # These two share the same objects! Tuples should never be recreated.
-        self._waiting_jobs_pq = TopicPriorityQueue() # priority queue for waiting jobs
-        self._waiting_jobs = {}  # mapping job to job message, with key: [(client_addr_as_bytes, ClientNewJob])]
-
-        self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:(addr_as_bytes,ClientNewJob,start_time)}
+        self._waiting_jobs_pq = TopicPriorityQueue()  # priority queue for waiting jobs
+        self._waiting_jobs: Dict[str, WaitingJob] = {}  # all jobs waiting in queue
+        self._job_running: Dict[str, RunningJob] = {}  # all running jobs
 
     async def handle_agent_message(self, agent_addr, message):
         """Dispatch messages received from agents to the right handlers"""
@@ -124,8 +128,8 @@ class Backend(object):
         """ Handle an ClientNewJob message. Add a job to the queue and triggers an update """
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
 
-        job = (message.priority, time.time(), client_addr, message.job_id, message)
-        self._waiting_jobs[(client_addr, message.job_id)] = job
+        job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
+        self._waiting_jobs[message.job_id] = job
         self._waiting_jobs_pq.put(message.environment, job)
 
         await self.update_queue()
@@ -133,19 +137,19 @@ class Backend(object):
     async def handle_client_kill_job(self, client_addr, message: ClientKillJob):
         """ Handle an ClientKillJob message. Remove a job from the waiting list or send the kill message to the right agent. """
         # Check if the job is not in the queue
-        if (client_addr, message.job_id) in self._waiting_jobs:
+        if message.job_id in self._waiting_jobs:
 
             # Erase the job reference in priority queue
-            job = self._waiting_jobs.pop((client_addr, message.job_id))
-            job[-1] = None
+            job = self._waiting_jobs.pop(message.job_id)
+            job.msg = None
 
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
                                                                                            0.0, {}, {}, {}, "", None, "", ""))
         # If the job is running, transmit the info to the agent
-        elif (client_addr, message.job_id) in self._job_running:
-            agent_addr = self._job_running[(client_addr, message.job_id)][0]
-            await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob((client_addr, message.job_id)))
+        elif message.job_id in self._job_running:
+            agent_addr = self._job_running[message.job_id].agent_addr
+            await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob(message.job_id))
         else:
             self._logger.warning("Client %s attempted to kill unknown job %s", str(client_addr), str(message.job_id))
 
@@ -155,21 +159,20 @@ class Backend(object):
         #(job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time)
         jobs_running = list()
 
-        for backend_job_id, content in self._job_running.items():
-            agent_friendly_name = self._registered_agents[content[0]]["name"]
-            jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, agent_friendly_name,
-                                 content[1].course_id+"/"+content[1].task_id,
-                                 content[1].launcher, int(content[2]), self._get_time_limit_estimate(content[1])))
+        for job_id, content in self._job_running.items():
+            agent_friendly_name = self._registered_agents[content.agent_addr]["name"]
+            jobs_running.append((content.msg.job_id, content.client_addr == client_addr, agent_friendly_name,
+                                 content.msg.course_id+"/"+content.msg.task_id,
+                                 content.msg.launcher, int(content.time_started), self._get_time_limit_estimate(content.msg)))
 
         #jobs_waiting: a list of tuples in the form
         #(job_id, is_current_client_job, info, launcher, max_time)
         jobs_waiting = list()
 
-        for job_client_addr, job in self._waiting_jobs.items():
-            msg = job[-1]
-            if isinstance(msg, ClientNewJob):
-                jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, msg.course_id+"/"+msg.task_id, msg.launcher,
-                                     self._get_time_limit_estimate(msg)))
+        for job in self._waiting_jobs.values():
+            if isinstance(job.msg, ClientNewJob):
+                jobs_waiting.append((job.job_id, job.client_addr == client_addr, job.msg.course_id+"/"+job.msg.task_id, job.msg.launcher,
+                                     self._get_time_limit_estimate(job.msg)))
 
         await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendGetQueue(jobs_running, jobs_waiting))
 
@@ -177,9 +180,6 @@ class Backend(object):
         """
         Send waiting jobs to available agents
         """
-
-        jobs_ignored = []
-
         available_agents = list(self._available_agents) # do a copy to avoid bad things
 
         # Loop on available agents to maximize running jobs, and break if priority queue empty
@@ -196,7 +196,7 @@ class Backend(object):
 
                     # Killed job, removing it from the mapping
                     if not job_msg:
-                        del self._waiting_jobs[(client_addr, job_id)]
+                        del self._waiting_jobs[job_id]
                         job = None  # repeat the while loop. we need a job
             except queue.Empty:
                 continue  # skip agent, nothing to do!
@@ -205,21 +205,16 @@ class Backend(object):
             self._available_agents.remove(agent_addr)
 
             # Remove the job from the queue
-            del self._waiting_jobs[(client_addr, job_id)]
+            del self._waiting_jobs[job_id]
 
             # Send the job to agent
-            job_id = (client_addr, job_msg.job_id)
-            self._job_running[job_id] = (agent_addr, job_msg, time.time())
-            self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
+            self._job_running[job_id] = RunningJob(agent_addr, client_addr, job_msg, time.time())
+            self._logger.info("Sending job %s %s to agent %s", client_addr, job_id, agent_addr)
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                         job_msg.task_problems, job_msg.inputdata,
                                                                                         job_msg.environment,
                                                                                         job_msg.environment_parameters,
                                                                                         job_msg.debug))
-
-        # Let's not forget to add again the ignored jobs to the PQ.
-        for entry in jobs_ignored:
-            self._waiting_jobs_pq.put(entry)
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """
@@ -279,8 +274,11 @@ class Backend(object):
 
     async def handle_agent_job_started(self, agent_addr, message: AgentJobStarted):
         """Handle an AgentJobStarted message. Send the data back to the client"""
-        self._logger.debug("Job %s %s started on agent %s", message.job_id[0], message.job_id[1], agent_addr)
-        await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobStarted(message.job_id[1]))
+        self._logger.debug("Job %s started on agent %s", message.job_id, agent_addr)
+        if message.job_id not in self._job_running:
+            self._logger.warning("Agent %s said job %s was running, but it is not in the list of running jobs", agent_addr, message.job_id)
+
+        await ZMQUtils.send_with_addr(self._client_socket, self._job_running[message.job_id].client_addr, BackendJobStarted(message.job_id))
 
     async def handle_agent_job_done(self, agent_addr, message: AgentJobDone):
         """Handle an AgentJobDone message. Send the data back to the client, and start new job if needed"""
@@ -288,32 +286,32 @@ class Backend(object):
         if agent_addr in self._registered_agents:
 
 
-            if message.job_id in self._job_running:
-                self._logger.info("Job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
+            if message.job_id not in self._job_running:
+                self._logger.warning("Job result %s from agent %s was not running", message.job_id, agent_addr)
+            else:
+                self._logger.info("Job %s finished on agent %s", message.job_id, agent_addr)
                 # Remove the job from the list of running jobs
-                del self._job_running[message.job_id]
+                running_job = self._job_running.pop(message.job_id)
                 # The agent is available now
                 self._available_agents.append(agent_addr)
-            else:
-                self._logger.warning("Job result %s %s from agent %s was not running", message.job_id[0], message.job_id[1], agent_addr)
 
-            # Sent the data back to the client, even if we didn't know the job. This ensure everything can recover
-            # in case of problems.
-            await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
-                                                                                                 message.grade, message.problems,
-                                                                                                 message.tests, message.custom,
-                                                                                                 message.state, message.archive,
-                                                                                                 message.stdout, message.stderr))
+                await ZMQUtils.send_with_addr(self._client_socket, running_job.client_addr,
+                                              BackendJobDone(message.job_id, message.result, message.grade,
+                                                             message.problems, message.tests, message.custom,
+                                                             message.state, message.archive, message.stdout,
+                                                             message.stderr))
         else:
-            self._logger.warning("Job result %s %s from non-registered agent %s", message.job_id[0], message.job_id[1], agent_addr)
+            self._logger.warning("Job result %s from non-registered agent %s", message.job_id, agent_addr)
 
         # update the queue
         await self.update_queue()
 
-    async def handle_agent_job_ssh_debug(self, _, message: AgentJobSSHDebug):
+    async def handle_agent_job_ssh_debug(self, agent_addr, message: AgentJobSSHDebug):
         """Handle an AgentJobSSHDebug message. Send the data back to the client"""
-        await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobSSHDebug(message.job_id[1], message.host, message.port,
-                                                                                                 message.password))
+        if message.job_id not in self._job_running:
+            self._logger.warning("Agent %s sent ssh debug info for job %s, but it is not in the list of running jobs", agent_addr, message.job_id)
+        await ZMQUtils.send_with_addr(self._client_socket, self._job_running[message.job_id].client_addr,
+                                      BackendJobSSHDebug(message.job_id, message.host, message.port, message.password))
 
     async def run(self):
         self._logger.info("Backend started")
@@ -382,12 +380,12 @@ class Backend(object):
 
     async def _recover_jobs(self):
         """ Recover the jobs sent to a crashed agent """
-        for (client_addr, job_id), (agent_addr, job_msg, _) in reversed(list(self._job_running.items())):
-            if agent_addr not in self._registered_agents:
-                await ZMQUtils.send_with_addr(self._client_socket, client_addr,
+        for job_id, running_job in reversed(list(self._job_running.items())):
+            if running_job.agent_addr not in self._registered_agents:
+                await ZMQUtils.send_with_addr(self._client_socket, running_job.client_addr,
                                               BackendJobDone(job_id, ("crash", "Agent restarted"),
                                                              0.0, {}, {}, {}, "", None, None, None))
-                del self._job_running[(client_addr, job_id)]
+                del self._job_running[job_id]
 
         await self.update_queue()
 

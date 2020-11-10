@@ -7,7 +7,7 @@ from typing import Dict, Optional, Any, Union, Tuple, List
 from inginious.common.message_meta import MessageMeta
 
 # JobId of the backend, composed with the address of the client and the client job id
-BackendJobId = Tuple[bytes, str]
+BackendJobId = str
 ClientJobId = str
 SPResult = Tuple[str, str]
 
