@@ -146,8 +146,8 @@ class Client(BetterParanoidPirateClient):
 
     async def _ask_queue_update(self):
         """ Send a ClientGetQueue message to the backend, if one is not already sent """
-        try:
-            while True:
+        while True:
+            try:
                 await asyncio.sleep(self._queue_update_timer)
                 if self._queue_update_last_attempt == 0 or self._queue_update_last_attempt > self._queue_update_last_attempt_max:
                     if self._queue_update_last_attempt:
@@ -159,10 +159,13 @@ class Client(BetterParanoidPirateClient):
                     await self._simple_send(ClientGetQueue())
                 else:
                     self._logger.error("Not asking for a job queue update as previous update not yet received")
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
-            return
+                    self._queue_update_last_attempt += 1
+            except asyncio.CancelledError:
+                return
+            except KeyboardInterrupt:
+                return
+            except:
+                self._logger.exception("Exception in Client._ask_queue_update")
 
     async def _handle_job_queue_update(self, message: BackendGetQueue):
         """ Handles a BackendGetQueue containing a snapshot of the job queue """
