@@ -21,308 +21,40 @@ $def NavbarF():
     </nav>
 $var Navbar: $:NavbarF()
 
+<h2>$:_("Tasks")</h2>
 
-<style>
-    /* remove ghost when dragging and change cursor for draggable element */
-    .sortable-drag { opacity: 0; }
-    .handle { cursor: move; }
-
-    /* line for sections */
-    .divided {
-      display: flex;
-      align-items: center;
-    }
-    .divider {
-      flex-grow: 1;
-      border-bottom: 1px solid lightgrey;
-      margin: 5px
-    }
-
-    /* limit modal size */
-    #modal_task_list {
-        max-height: 400px;
-        overflow: auto
-    }
-
-    /* only display option applicable to the type of section */
-    .tasks_list_option, .sections_list_option { display: none; }
-    .tasks_list >div>div>div> .tasks_list_option { display: block; }
-    .sections_list >div>div>div> .sections_list_option { display: block; }
-</style>
-
-<script>
-    $$(function () {
-        $$(".tasks_list").each(function(){
-            draggable_tasks[this.id] = make_tasks_list_sortable($$(this));
-        });
-
-        $$(".sections_list").each(function(){
-            draggable_sections[this.id] = make_sections_list_sortable($$(this));
-        });
-    });
-</script>
-
-<!-- Methods to print structure -->
-$def print_section(sections, level):
-    $for section in sections:
-        $if section.is_empty():
-            $:print_empty_section("section_" + section.get_id(), section.get_title(), level)
-        $elif section.is_terminal():
-            $:print_terminal_section(section, level)
-        $else:
-            $:print_non_terminal_section(section, level)
-
-$# print a non terminal section and the sections it contains
-$def print_non_terminal_section(section, level):
-    <div id="section_$:_(section.get_id())" class="section sections_list mb-4" data-level="$:(level)">
-        <div class="section_header handle d-flex justify-content-between divided pr-3">
-            <span class="title h$level mr-3">
-                $:_(section.get_title())
-            </span>
-            <span class="divider"></span>
-
-            $:section_menu(False, True)
-        </div>
-        <div class="content ml-4">
-            $:print_section(section.get_sections_list(), level +1)
-        </div>
-    </div>
-
-$# print a terminal section and the tasks it contains
-$def print_terminal_section(section, level):
-    <div id="section_$:_(section.get_id())" class="section tasks_list card mb-4" data-level="$:(level)" >
-        <div class="section_header handle card-header d-flex justify-content-between pr-3">
-            <span class="title">
-                $:_(section.get_title())
-            </span>
-            <span style="display: none" class="divider"></span>
-
-            $:section_menu(True, False)
-        </div>
-        <div class="content list-group list-group-flush">
-            $for taskid in section.get_tasks():
-                $if taskid in tasks:
-                    <div id="task_$:(taskid)" class="task handle list-group-item list-group-item-action d-flex">
-                        <div class="task_name p-0">
-                            $tasks[taskid]["name"]
-                        </div>
-                        <div class="ml-auto">
-                            $:task_buttons(taskid)
-                        </div>
-                    </div>
-                $else:
-                    <div id="task_$:(taskid)" class="task handle list-group-item list-group-item-action d-flex bg-danger">
-                        <div class="task_name p-0">
-                            $_("No valid task with id:") $taskid
-                        </div>
-                        <div class="ml-auto">
-                            <button class="delete_task btn bg-transparent p-0" onclick="delete_task(this, true, this.closest('.task').id.to_taskid())"
-                                    title=$:_('"Delete invalid task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
-                                <i class="fa fa-trash text-muted "></i>
-                            </button>
-                        </div>
-                    </div>
-        </div>
-    </div>
-
-$# print an empty section
-$def print_empty_section(id, title, level, hidden=False):
-    <div style="$('display: none' if hidden else 'display: block')" id="$:(id)" class="section tasks_list sections_list card mb-4" data-level="$:(level)">
-        <div class="section_header handle card-header d-flex justify-content-between pr-3">
-            <span class="title">
-                $:(title)
-            </span>
-            <span style="display: none" class="divider"></span>
-            $:section_menu(True, True)
-        </div>
-        <div data-level="0" class="content list-group list-group-flush">
-            <p class="section_placeholder text-center align-middle m-2">
-                $:_("Drag tasks or section here.")
-            </p>
-        </div>
-    </div>
-
-$def section_menu(tasks_list_option, sections_list_option):
-    <div class="dropdown ml-3">
-        <button type="button" style="font-size: 1.5rem;"
-                class="button fa fa-bars close border-transparent" data-toggle="dropdown">
-        </button>
-        <div class="dropdown-menu dropdown-menu-right rounded">
-            <a class="add_task tasks_list_option dropdown-item" onclick="open_task_modal(this)" data-toggle="modal" data-target="#addTaskModal">
-                <i class="fa fa-plus"></i> $:_("Add tasks")
-            </a>
-            <a class="add_section sections_list_option dropdown-item" onclick="create_section($$(this).closest('.section'))">
-                <i class="fa fa-plus"></i> $:_("Add subsection")
-            </a>
-            <a class="rename dropdown-item" onclick="rename_section($$(this).closest('.section_header').children('.title'), false)">
-                <i class="fa fa-pencil"></i> $:_("Rename")
-            </a>
-            <a class="delete_section dropdown-item" data-toggle="modal" data-target="#delete_section_modal" onclick="open_delete_modal(this)">
-                <i class="fa fa-trash"></i> $:_("Delete")
-            </a>
-        </div>
-    </div>
-
-$def task_buttons(taskid):
-    <a class="rename_task btn bg-transparent p-0" href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid"
-            title=$:_('"Edit task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
-        <i class="fa fa-pencil text-muted "></i>
-    </a>
-    <a class="rename_task btn bg-transparent p-0" href="$get_homepath()/admin/${course.get_id()}/submissions?tasks=$taskid"
-            title=$:_('"View submissions"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
-        <i class="fa fa-search text-muted "></i>
-    </a>
-    <button class="delete_task btn bg-transparent p-0" data-toggle="modal" data-target="#delete_task_modal" onclick="open_delete_modal(this)"
-            title=$:_('"Delete task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
-        <i class="fa fa-trash text-muted "></i>
-    </button>
-
-<!-- Content -->
-<div id="course_structure" data-level="2" class="sections_list pb-3">
-    <h2>$:_("Tasks")</h2>
-
-    $if webdav_host:
-        <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">
-            <div class="card border-info">
-                <div class="card-header bg-info text-white" id="webdav_head">
-                    <div style="cursor: pointer" data-toggle="collapse" data-parent="#webdav_accord" href="#webdav" aria-expanded="false" aria-controls="webdav">
-                        <i class="fa fa-fw fa-chevron-right"></i>$:_("WebDAV access")
-                    </div>
+$if webdav_host:
+    <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white" id="webdav_head">
+                <div style="cursor: pointer" data-toggle="collapse" data-parent="#webdav_accord" href="#webdav" aria-expanded="false" aria-controls="webdav">
+                    <i class="fa fa-fw fa-chevron-right"></i>$:_("WebDAV access")
                 </div>
-                <div id="webdav" class="collapse" role="tabpanel" aria-labelledby="webdav_head">
-                    <div class="card-body">
-                        $:_("Use this URL to access your course folder using WebDAV:")<br/>
-                    <br/>
-                    <table class="table">
-                        <tr><td>$:_("URL")</td><td><code>$(webdav_host + "/" + course.get_id())</code></td></tr>
-                        <tr><td>$:_("Username")</td><td><code>$user_manager.session_username()</code></td></tr>
-                        <tr><td>$:_("Password")</td><td><code>$user_manager.session_api_key()</code></td></tr>
-                    </table>
-                    </div>
+            </div>
+            <div id="webdav" class="collapse" role="tabpanel" aria-labelledby="webdav_head">
+                <div class="card-body">
+                    $:_("Use this URL to access your course folder using WebDAV:")<br/>
+                <br/>
+                <table class="table">
+                    <tr><td>$:_("URL")</td><td><code>$(webdav_host + "/" + course.get_id())</code></td></tr>
+                    <tr><td>$:_("Username")</td><td><code>$user_manager.session_username()</code></td></tr>
+                    <tr><td>$:_("Password")</td><td><code>$user_manager.session_api_key()</code></td></tr>
+                </table>
                 </div>
             </div>
         </div>
+    </div>
 
-    $if errors:
-        $for error in errors:
-            <div class="alert alert-danger" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                $error
-            </div>
-    $elif validated:
-        <div class="alert alert-success" role="alert">
+$if errors:
+    $for error in errors:
+        <div class="alert alert-danger" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $:_("Change saved.")
+            $error
         </div>
-
-    <div class="content">
-        $:print_section(course_structure, 3)
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-        <button class="btn btn-secondary btn-block" onclick="create_section($$('#course_structure'))">
-            <i class="fa fa-plus"></i> $:_("Add section")
-        </button>
-    </div>
-    <div class="col-md-4">
-        <button class="btn btn-danger btn-block" onclick="location.reload()">
-            <i class="fa fa-undo"></i> $:_("Cancel")
-        </button>
-    </div>
-    <div class="col-md-4">
-        <button class="btn btn-primary btn-block" onclick="submit();">
-            <i class="fa fa-save"></i> $:_("Save changes")
-        </button>
-    </div>
-</div>
-
-$def delete_modal(section=True):
-    <div id="$('delete_section_modal' if section else 'delete_task_modal')" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                    <div class="modal-header">
-                        $if section:
-                            <h4 class="modal-title">$:_("Delete section")</h4>
-                        $else:
-                            <h4 class="modal-title">$:_("Delete task")</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        $if section:
-                            <p>$:_("Once saved, this will <b>permanently</b> delete this section, all its subsections and remove all the tasks and their files from INGInious.")</p>
-                        $else:
-                            <p>$:_("Once saved, this will <b>permanently</b> remove the task and its files from INGInious.")</p>
-
-                        <div class="form-check">
-                            <input class="wipe_tasks form-check-input" type="checkbox">
-                            <label  class="form-check-label">$:_("Wipe all submissions")</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
-                        $if section:
-                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_section(this, true)">$:_("Keep files")</button>
-                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_section(this, false)">$:_("Delete section")</button>
-                        $else:
-                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_task(this, true, '')">$:_("Keep files")</button>
-                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_task(this, false, '')">$:_("Delete task")</button>
-                    </div>
-            </div>
-        </div>
+$elif validated:
+    <div class="alert alert-success" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:_("Change saved.")
     </div>
 
-$:delete_modal()
-$:delete_modal(section=False)
-
-
-<div class="modal fade" id="addTaskModal" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">$_("Add tasks")</h3>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body list-group">
-                <h4>$_("Create new task")</h4>
-                <div class="form-group row">
-                    <div class="col-sm-8"><input type="text" class="form-control" id="new_task_id" placeholder=$:_('"New task id"')/></div>
-                    <div class="col-sm-4"><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">$:_("Create new task")</a></div>
-                </div>
-                <h4>$_("Import from course filesystem")</h4>
-                <input id="searchTask" class="form-control" type="text" placeholder='$_("Search..")' onkeyup="search_task(this)">
-                <p id="no_task_available" class="text-center align-middle font-weight-bold">
-                    $_("No unassigned tasks in the filesystem of this course")
-                </p>
-                <br>
-                <div id="modal_task_list">
-                    $for taskid in tasks
-                    <div id= "modal_task_$:(taskid)" class="modal_task list-group-item list-group-item-action" onclick="click_modal_task(this)">
-                        <span class="task_name"> $tasks[taskid]["name"]</span> <br>
-                        <input style="display: none" type="checkbox" name="task" value="$:(taskid)">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="submit_new_tasks" onclick="add_tasks_to_section(this)" type="button" class="btn btn-success" data-dismiss="modal">$_("Add")</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- Invisible element (for copy) -->
-$:print_empty_section("empty_section", "New section",  0, hidden=True)
-
-<div id="all_tasks" style="display: none">
-    $for taskid in tasks
-    <div id="task_$:(taskid)_clone" class="task handle list-group-item list-group-item-action d-flex">
-        <div class="task_name p-0">
-            $tasks[taskid]["name"]
-        </div>
-        <div class="ml-auto">
-            $:task_buttons(taskid)
-        </div>
-    </div>
-</div>
+$:include.course_admin.task_dispensers.toc(course, course_structure, tasks)

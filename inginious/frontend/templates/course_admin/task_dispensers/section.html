@@ -1,0 +1,20 @@
+$def with(course, tasks, sections, level)
+    $for section in sections:
+        $if section.is_empty():
+            $:print_empty_section("section_" + section.get_id(), section.get_title(), level)
+        $elif section.is_terminal():
+            $:include.course_admin.task_dispensers.task_list(course, tasks, section, level)
+        $else:
+            <div id="section_$:_(section.get_id())" class="section sections_list mb-4" data-level="$:(level)">
+                <div class="section_header handle d-flex justify-content-between divided pr-3">
+                    <span class="title h$level mr-3">
+                        $:_(section.get_title())
+                    </span>
+                    <span class="divider"></span>
+
+                    $:include.course_admin.task_dispensers.section_menu(False, True)
+                </div>
+                <div class="content ml-4">
+                    $:include.course_admin.task_dispensers.section(course, tasks, section.get_sections_list(), level +1)
+                </div>
+            </div>
