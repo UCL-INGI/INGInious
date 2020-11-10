@@ -337,9 +337,7 @@ class Backend(object):
                     client_addr, message = await ZMQUtils.recv_with_addr(self._client_socket)
                     await self.handle_client_message(client_addr, message)
 
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
+        except (asyncio.CancelledError, KeyboardInterrupt):
             return
 
     async def _handle_pong(self, agent_addr, _ : Pong):

@@ -130,9 +130,7 @@ class INGIniousMainRunner(object):
                     buf += await reader.read(length-len(buf))
                 message = msgpack.unpackb(bytes(buf), use_list=False)
                 await self.handle_stdin_message(message)
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
+        except (asyncio.CancelledError, KeyboardInterrupt):
             return
         except:
             self._logger.exception("Exception occured while reading stdin")
@@ -171,9 +169,7 @@ class INGIniousMainRunner(object):
                     close = await self.handle_intern_message(addr, msg)
                     if close:
                         return
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
+        except (asyncio.CancelledError, KeyboardInterrupt):
             return
         except:
             self._logger.exception("An exception occured while serving")

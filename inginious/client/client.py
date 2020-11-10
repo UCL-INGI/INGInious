@@ -160,9 +160,7 @@ class Client(BetterParanoidPirateClient):
                 else:
                     self._logger.error("Not asking for a job queue update as previous update not yet received")
                     self._queue_update_last_attempt += 1
-            except asyncio.CancelledError:
-                return
-            except KeyboardInterrupt:
+            except (asyncio.CancelledError, KeyboardInterrupt):
                 return
             except:
                 self._logger.exception("Exception in Client._ask_queue_update")
