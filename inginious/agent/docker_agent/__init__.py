@@ -307,7 +307,6 @@ class DockerAgent(Agent):
         """
         Handles a new job: starts the grading container
         """
-        self._logger.info("Received request for jobid %s", message.job_id)
         future_results = asyncio.Future()
         out = await self._loop.run_in_executor(None, lambda: self.__new_job_sync(message, future_results))
         self._create_safe_task(self.handle_running_container(**out, future_results=future_results))

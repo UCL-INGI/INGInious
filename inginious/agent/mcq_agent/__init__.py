@@ -76,8 +76,6 @@ class MCQAgent(Agent):
         # This may pose problem with apps that start multiple MCQAgents in the same process...
         builtins.__dict__['_'] = translation.gettext
 
-        self._logger.info("Received request for jobid %s", msg.job_id)
-
         course_fs = self._fs.from_subfolder(msg.course_id)
         task_fs = course_fs.from_subfolder(msg.task_id)
         translations_fs = task_fs.from_subfolder("$i18n")
