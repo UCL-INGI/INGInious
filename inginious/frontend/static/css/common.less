@@ -291,17 +291,26 @@ body {
     cursor: pointer;
 
     i {
-        transform: rotate(90deg);
         transition: transform 300ms ease-in-out;
     }
 }
 
-body.sidebar-inactive #inginious-sidebar-toggle i {
-    transform: rotate(0deg);
+.inginious-sidebar-toggle-open() {
+    #inginious-sidebar-toggle i {
+        transform: rotate(90deg);
+    }
+}
+
+.inginious-sidebar-toggle-close() {
+    #inginious-sidebar-toggle i {
+        transform: rotate(0deg);
+    }
 }
 
 @media (max-width: 599.98px) {
-    body.sidebar-inactive {
+    body.sidebar-state-0 {
+        .inginious-sidebar-toggle-close();
+
         #inginious-sidebar {
             display: none;
         }
@@ -312,6 +321,7 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
             display: block;
         }
     }
+
     #inginious-sidebar-top, #inginious-sidebar, #inginious-topbar, #inginious-sidebar-content {
         width: 100%;
         min-width: 100%;
@@ -321,35 +331,53 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
     #main-content, #inginious-topbar {
         display: none;
     }
+
+    .inginious-sidebar-toggle-open();
+}
+
+.inginious-sidebar-open() {
+    .inginious-sidebar-toggle-open();
+}
+
+.inginious-sidebar-closed() {
+    .inginious-sidebar-toggle-close();
+
+    #inginious-sidebar {
+        width: 0;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 0;
+        min-width: 0;
+        border: 0;
+    }
+    #inginious-logo {
+        width: 50px !important;
+    }
+    #inginious-sidebar-top {
+        min-width: 100px;
+        max-width: 100px;
+        flex-shrink: 0;
+        flex-grow: 0;
+    }
 }
 
 @media (max-width: 991.98px) and (min-width: 600px){
-    body.sidebar-inactive {
-        #inginious-sidebar {
-            width: 0;
-            padding-left: 0;
-            padding-right: 0;
-            margin-left: 0;
-            margin-right: 0;
-            max-width: 0;
-            min-width: 0;
-            border: 0;
-        }
-        #inginious-logo {
-            width: 50px !important;
-        }
-        #inginious-sidebar-top {
-            min-width: 100px;
-            max-width: 100px;
-            flex-shrink: 0;
-            flex-grow: 0;
-        }
+    body.sidebar-state-0 {
+        .inginious-sidebar-closed()
+    }
+    body.sidebar-state-1 {
+        .inginious-sidebar-open()
     }
 }
 
 @media (min-width: 991.98px) {
-    #inginious-sidebar-toggle {
-        display: none;
+    body.sidebar-state-0 {
+        .inginious-sidebar-open()
+    }
+    body.sidebar-state-1 {
+        .inginious-sidebar-closed()
     }
 }
 

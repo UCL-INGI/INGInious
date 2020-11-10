@@ -90,13 +90,13 @@ $#
 
 
 
-<body class="sidebar-inactive" role="document">
+<body class="sidebar-state-0" role="document">
     <div class="row" id="inginious-top">
         <div id="inginious-sidebar-top" class="col">
             <a id="inginious-logo" class="col" href="$get_homepath()/index">
                 <div id="inginious-logo-text"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</div>
             </a>
-            <button class="col" onclick="$$('body').toggleClass('sidebar-inactive');" id="inginious-sidebar-toggle" title="$:('Open menu')"><i class="fa fa-bars fa-fw"></i></button>
+            <button class="col" onclick="$$('body').toggleClass('sidebar-state-0'); $$('body').toggleClass('sidebar-state-1');" id="inginious-sidebar-toggle" title="$:('Open menu')"><i class="fa fa-bars fa-fw"></i></button>
         </div>
         <div id="inginious-topbar" class="col flex-grow-1 flex-shrink-1">
             <!-- empty -->

@@ -223,18 +223,17 @@ body {
   cursor: pointer;
 }
 #inginious-sidebar-toggle i {
-  transform: rotate(90deg);
   transition: transform 300ms ease-in-out;
 }
-body.sidebar-inactive #inginious-sidebar-toggle i {
-  transform: rotate(0deg);
-}
 @media (max-width: 599.98px) {
-  body.sidebar-inactive #inginious-sidebar {
+  body.sidebar-state-0 #inginious-sidebar-toggle i {
+    transform: rotate(0deg);
+  }
+  body.sidebar-state-0 #inginious-sidebar {
     display: none;
   }
-  body.sidebar-inactive #main-content,
-  body.sidebar-inactive #inginious-topbar {
+  body.sidebar-state-0 #main-content,
+  body.sidebar-state-0 #inginious-topbar {
     width: 100%;
     min-width: 100%;
     max-width: 100%;
@@ -252,9 +251,15 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
   #inginious-topbar {
     display: none;
   }
+  #inginious-sidebar-toggle i {
+    transform: rotate(90deg);
+  }
 }
 @media (max-width: 991.98px) and (min-width: 600px) {
-  body.sidebar-inactive #inginious-sidebar {
+  body.sidebar-state-0 #inginious-sidebar-toggle i {
+    transform: rotate(0deg);
+  }
+  body.sidebar-state-0 #inginious-sidebar {
     width: 0;
     padding-left: 0;
     padding-right: 0;
@@ -264,19 +269,44 @@ body.sidebar-inactive #inginious-sidebar-toggle i {
     min-width: 0;
     border: 0;
   }
-  body.sidebar-inactive #inginious-logo {
+  body.sidebar-state-0 #inginious-logo {
     width: 50px !important;
   }
-  body.sidebar-inactive #inginious-sidebar-top {
+  body.sidebar-state-0 #inginious-sidebar-top {
     min-width: 100px;
     max-width: 100px;
     flex-shrink: 0;
     flex-grow: 0;
   }
+  body.sidebar-state-1 #inginious-sidebar-toggle i {
+    transform: rotate(90deg);
+  }
 }
 @media (min-width: 991.98px) {
-  #inginious-sidebar-toggle {
-    display: none;
+  body.sidebar-state-0 #inginious-sidebar-toggle i {
+    transform: rotate(90deg);
+  }
+  body.sidebar-state-1 #inginious-sidebar-toggle i {
+    transform: rotate(0deg);
+  }
+  body.sidebar-state-1 #inginious-sidebar {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 0;
+    min-width: 0;
+    border: 0;
+  }
+  body.sidebar-state-1 #inginious-logo {
+    width: 50px !important;
+  }
+  body.sidebar-state-1 #inginious-sidebar-top {
+    min-width: 100px;
+    max-width: 100px;
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 }
 #inginious-logo {
