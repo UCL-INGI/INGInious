@@ -3,6 +3,10 @@
 // more information about the licensing of this file.
 //
 
+@sidebar-closed-state-wide: 1-@sidebar-open-state-wide;
+@sidebar-closed-state-medium: 1-@sidebar-open-state-medium;
+@sidebar-closed-state-small: 1-@sidebar-open-state-small;
+
 html {
   height: 100%;
 }
@@ -308,7 +312,7 @@ body {
 }
 
 @media (max-width: 599.98px) {
-    body.sidebar-state-0 {
+    body.sidebar-state-@{sidebar-closed-state-small} {
         .inginious-sidebar-toggle-close();
 
         #inginious-sidebar {
@@ -364,20 +368,20 @@ body {
 }
 
 @media (max-width: 991.98px) and (min-width: 600px){
-    body.sidebar-state-0 {
+    body.sidebar-state-@{sidebar-closed-state-medium} {
         .inginious-sidebar-closed()
     }
-    body.sidebar-state-1 {
+    body.sidebar-state-@{sidebar-open-state-medium} {
         .inginious-sidebar-open()
     }
 }
 
 @media (min-width: 991.98px) {
-    body.sidebar-state-0 {
-        .inginious-sidebar-open()
-    }
-    body.sidebar-state-1 {
+    body.sidebar-state-@{sidebar-closed-state-wide} {
         .inginious-sidebar-closed()
+    }
+    body.sidebar-state-@{sidebar-open-state-wide} {
+        .inginious-sidebar-open()
     }
 }
 

@@ -283,9 +283,6 @@ body {
   }
 }
 @media (min-width: 991.98px) {
-  body.sidebar-state-0 #inginious-sidebar-toggle i {
-    transform: rotate(90deg);
-  }
   body.sidebar-state-1 #inginious-sidebar-toggle i {
     transform: rotate(0deg);
   }
@@ -307,6 +304,9 @@ body {
     max-width: 100px;
     flex-shrink: 0;
     flex-grow: 0;
+  }
+  body.sidebar-state-0 #inginious-sidebar-toggle i {
+    transform: rotate(90deg);
   }
 }
 #inginious-logo {

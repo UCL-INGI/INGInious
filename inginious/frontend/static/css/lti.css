@@ -284,12 +284,9 @@ body {
 }
 @media (min-width: 991.98px) {
   body.sidebar-state-0 #inginious-sidebar-toggle i {
-    transform: rotate(90deg);
-  }
-  body.sidebar-state-1 #inginious-sidebar-toggle i {
     transform: rotate(0deg);
   }
-  body.sidebar-state-1 #inginious-sidebar {
+  body.sidebar-state-0 #inginious-sidebar {
     width: 0;
     padding-left: 0;
     padding-right: 0;
@@ -299,14 +296,17 @@ body {
     min-width: 0;
     border: 0;
   }
-  body.sidebar-state-1 #inginious-logo {
+  body.sidebar-state-0 #inginious-logo {
     width: 50px !important;
   }
-  body.sidebar-state-1 #inginious-sidebar-top {
+  body.sidebar-state-0 #inginious-sidebar-top {
     min-width: 100px;
     max-width: 100px;
     flex-shrink: 0;
     flex-grow: 0;
+  }
+  body.sidebar-state-1 #inginious-sidebar-toggle i {
+    transform: rotate(90deg);
   }
 }
 #inginious-logo {
