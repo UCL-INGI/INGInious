@@ -69,7 +69,7 @@
                         {% set any = True %}
                         <i class="fa fa-fw fa-key"></i> {{ _("Password needed") }}<br/>
                     {% endif %}
-                    {{ ("&nbsp;" if not any else "") }}
+                    {{ ("&nbsp;" if not any else "") | safe }}
                 </small>
             </div>
         </div>
