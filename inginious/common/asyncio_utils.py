@@ -67,3 +67,17 @@ class AsyncProxy(object):
             return await self._loop.run_in_executor(self._executor, f)
 
         return _inner
+
+
+def create_safe_task(loop, logger, coroutine):
+    """ Calls loop.create_task with a safe (== with logged exception) coroutine """
+    task = loop.create_task(coroutine)
+    task.add_done_callback(lambda task: __log_safe_task(logger, task))
+    return task
+
+
+def __log_safe_task(logger, task):
+    """ Logs the exception if one occurs in a given task """
+    exception = task.exception()
+    if exception is not None:
+        logger.exception("An exception occurred while running a Task", exc_info=exception)

@@ -4,9 +4,11 @@
 # more information about the licensing of this file.
 import abc
 import asyncio
+import logging
 
 import zmq
 
+from inginious.common.asyncio_utils import create_safe_task
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import Pong, Ping, Unknown
 
@@ -23,6 +25,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
     """
 
     def __init__(self, context, router_addr):
+        self._logger = logging.getLogger("inginious.zeromq")  # may be overridden by subclasses
         self._context = context
         self._router_addr = router_addr
         self._socket = self._context.socket(zmq.DEALER)
@@ -123,18 +126,18 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         Task that ensures Pings are sent periodically to the distant server
         :return:
         """
-        try:
-            while True:
+        while True:
+            try:
                 await asyncio.sleep(1)
                 if self._ping_count > 10:
                     await self._reconnect()
                 else:
                     self._ping_count += 1
                     await ZMQUtils.send(self._socket, Ping())
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
-            return
+            except (asyncio.CancelledError, KeyboardInterrupt):
+                return
+            except:
+                self._logger.exception("Exception while calling _do_ping")
 
     @abc.abstractmethod
     async def _on_disconnect(self):
@@ -162,7 +165,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
             if coroutine_abrt is not None:
                 for key in self._transactions[msg_class]:
                     for args, kwargs in self._transactions[msg_class][key]:
-                        self._loop.create_task(coroutine_abrt(key, *args, **kwargs))
+                        create_safe_task(self._loop, self._logger, coroutine_abrt(key, *args, **kwargs))
             self._transactions[msg_class] = {}
 
         # 2. Call on_disconnect
@@ -205,14 +208,14 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         """
         Task that runs this client.
         """
-        try:
-            while True:
+        while True:
+            try:
                 message = await ZMQUtils.recv(self._socket)
                 self._ping_count = 0  # restart ping count
                 msg_class = message.__msgtype__
                 if msg_class in self._handlers_registered:
                     # If a handler is registered, give the message to it
-                    self._loop.create_task(self._handlers_registered[msg_class](message))
+                    create_safe_task(self._loop, self._logger, self._handlers_registered[msg_class](message))
                 elif msg_class in self._transactions:
                     # If there are transaction associated, check if the key is ok
                     _1, get_key, coroutine_recv, _2, responsible = self._msgs_registered[msg_class]
@@ -220,7 +223,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
                     if key in self._transactions[msg_class]:
                         # key exists; call all the coroutines
                         for args, kwargs in self._transactions[msg_class][key]:
-                            self._loop.create_task(coroutine_recv(message, *args, **kwargs))
+                            create_safe_task(self._loop, self._logger, coroutine_recv(message, *args, **kwargs))
                         # remove all transaction parts
                         for key2 in responsible:
                             del self._transactions[key2][key]
@@ -229,7 +232,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
                         raise Exception("Received message %s for an unknown transaction %s", msg_class, key)
                 else:
                     raise Exception("Received unknown message %s", msg_class)
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
-            return
+            except (asyncio.CancelledError, KeyboardInterrupt):
+                return
+            except:
+                self._logger.exception("Exception while handling a message")

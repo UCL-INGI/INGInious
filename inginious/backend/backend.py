@@ -10,6 +10,7 @@ import zmq
 from zmq.asyncio import Poller
 
 from inginious.backend.topic_priority_queue import TopicPriorityQueue
+from inginious.common.asyncio_utils import create_safe_task
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDone, AgentJobSSHDebug, \
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, ClientNewJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, \
@@ -79,7 +80,7 @@ class Backend(object):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._create_safe_task(func(agent_addr, message))
+        create_safe_task(self._loop, self._logger, func(agent_addr, message))
 
     async def handle_client_message(self, client_addr, message):
         """Dispatch messages received from clients to the right handlers"""
@@ -100,7 +101,7 @@ class Backend(object):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._create_safe_task(func(client_addr, message))
+        create_safe_task(self._loop, self._logger, func(client_addr, message))
 
     async def send_environment_update_to_client(self, client_addrs):
         """ :param client_addrs: list of clients to which we should send the update """
@@ -319,7 +320,7 @@ class Backend(object):
         self._logger.info("Backend started")
         self._agent_socket.bind(self._agent_addr)
         self._client_socket.bind(self._client_addr)
-        self._loop.call_later(1, self._create_safe_task, self._do_ping())
+        self._loop.call_later(1, create_safe_task, self._loop, self._logger, self._do_ping())
 
         try:
             while True:
@@ -336,9 +337,7 @@ class Backend(object):
                     client_addr, message = await ZMQUtils.recv_with_addr(self._client_socket)
                     await self.handle_client_message(client_addr, message)
 
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
+        except (asyncio.CancelledError, KeyboardInterrupt):
             return
 
     async def _handle_pong(self, agent_addr, _ : Pong):
@@ -372,7 +371,7 @@ class Backend(object):
                 except:
                     self._logger.exception("Failed to delete agent %s (%s)!", agent_addr, friendly_name)
 
-        self._loop.call_later(1, self._create_safe_task, self._do_ping())
+        self._loop.call_later(1, create_safe_task, self._loop, self._logger, self._do_ping())
 
     async def _delete_agent(self, agent_addr):
         """ Deletes an agent """
@@ -390,17 +389,6 @@ class Backend(object):
                 del self._job_running[(client_addr, job_id)]
 
         await self.update_queue()
-
-    def _create_safe_task(self, coroutine):
-        """ Calls self._loop.create_task with a safe (== with logged exception) coroutine """
-        task = self._loop.create_task(coroutine)
-        task.add_done_callback(self.__log_safe_task)
-        return task
-
-    def __log_safe_task(self, task):
-        exception = task.exception()
-        if exception is not None:
-            self._logger.exception("An exception occurred while running a Task", exc_info=exception)
 
     def _get_time_limit_estimate(self, job_info: ClientNewJob):
         """
