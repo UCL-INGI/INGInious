@@ -348,8 +348,3 @@ body {
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-size: 12px;
 }
-@media (min-width: 991.98px) {
-  #main-content {
-    margin-top: -50px;
-  }
-}
