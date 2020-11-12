@@ -26,7 +26,6 @@ $if jobs_running is not None and len(jobs_running) > 0:
     <table class="table table-striped">
         <tr>
             <th>$:_("Type")</th>
-            <th>$:_("Local client")</th>
             <th>$:_("Agent name")</th>
             <th>$:_("Name")</th>
             <th>$:_("Launcher name")</th>
@@ -37,12 +36,6 @@ $if jobs_running is not None and len(jobs_running) > 0:
         $for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time) in jobs_running:
             <tr>
                 <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
-                <td>
-                    $if is_current_client_job:
-                        $:_("Yes")
-                    $else:
-                        $:_("No")
-                </td>
                 <td>$agent_name</td>
                 <td>$info</td>
                 <td>$launcher</td>
@@ -70,7 +63,6 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
     <table class="table table-striped">
         <tr>
             <th>$:_("Type")</th>
-            <th>$:_("Local")</th>
             <th>$:_("Name")</th>
             <th>$:_("Launcher name")</th>
             <th>$:_("Maximum runtime in seconds")</th>
@@ -79,12 +71,6 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
         $for (job_id, is_current_client_job, info, launcher, max_time) in jobs_waiting:
         <tr>
             <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
-            <td>
-                $if is_current_client_job:
-                    $:_("Yes")
-                $else:
-                    $:_("No")
-            </td>
             <td>$info</td>
             <td>$launcher</td>
             <td>
