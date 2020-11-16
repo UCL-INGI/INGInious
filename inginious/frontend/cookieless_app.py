@@ -163,7 +163,7 @@ class CookieLessCompatibleSession(object):
     """
 
     __slots__ = [
-        "store", "_initializer", "_last_cleanup_time", "_config", "_data", "_session_id_regex",
+        "store", "_initializer", "_last_cleanup_time", "_config", "_data", "_origdata", "_session_id_regex",
         "__getitem__", "__setitem__", "__delitem__"
     ]
 
@@ -173,6 +173,7 @@ class CookieLessCompatibleSession(object):
         self._last_cleanup_time = 0
         self._config = utils.storage(web.config.session_parameters)
         self._data = utils.threadeddict()
+        self._origdata = utils.threadeddict()
         self._session_id_regex = utils.re_compile('^[0-9a-fA-F]+$')
 
         self.__getitem__ = self._data.__getitem__
@@ -247,6 +248,7 @@ class CookieLessCompatibleSession(object):
                     self._initializer()
 
         self._data["ip"] = web.ctx.ip
+        self._origdata.update(deepcopy(self._data.__dict__))
 
     def _check_expiry(self):
         # check for expiry
@@ -262,22 +264,19 @@ class CookieLessCompatibleSession(object):
             if not self._config.ignore_change_ip or self._data["cookieless"] is True:
                 return self.expired()
 
-    def _save_cookieless(self):
-        if not self._data.get('_killed') and self._data["session_id"] is not None:
-            self.store[self._data["session_id"]] = dict(self._data)
-
-    def _save_cookie(self):
-        if not self.get('_killed'):
-            self._setcookie(self._data["session_id"])
-            self.store[self._data["session_id"]] = dict(self._data)
-        else:
+    def save(self):
+        cookieless = self._data.get("cookieless", False)
+        if not self._data.get('_killed'):
+            if self._needs_store_update():
+                self.store[self._data["session_id"]] = dict(self._data)
+            if not cookieless:
+                self._setcookie(self._data["session_id"])
+        elif not cookieless:
             self._setcookie(self._data["session_id"], expires=-1)
 
-    def save(self):
-        if self._data.get("cookieless", False):
-            self._save_cookieless()
-        else:
-            self._save_cookie()
+    def _needs_store_update(self):
+        """ Returns whether the data in the session have changed. Prevents (most of the) race conditions """
+        return self._data.__dict__ != self._origdata.__dict__
 
     def _setcookie(self, session_id, expires='', **kw):
         cookie_name = self._config.cookie_name
