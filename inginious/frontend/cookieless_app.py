@@ -206,6 +206,7 @@ class CookieLessCompatibleSession(object):
             return handler()
         finally:
             self.save()
+            self._data.clear()
 
     def load(self, session_id=None):
         """ Load the session from the store.
@@ -233,7 +234,7 @@ class CookieLessCompatibleSession(object):
         self._check_expiry()
         if self._data["session_id"]:
             d = self.store[self._data["session_id"]]
-            self.update(d)
+            self._data.update(d)
             self._validate_ip()
 
         if not self._data["session_id"]:
