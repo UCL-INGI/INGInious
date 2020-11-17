@@ -33,7 +33,7 @@ install_requires = [
 ]
 
 test_requires = [
-    "selenium",
+    "selenium == 3.141.0",
     "nose",
     "pyvirtualdisplay"
 ]
