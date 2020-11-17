@@ -85,7 +85,7 @@ class SAMLAuthMethod(AuthMethod):
                 # Initialize session in user manager and update cache
                 return (str(username), realname, email, additional) if redirect_url == auth_storage["redir_url"] else None
         else:
-            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ",
+            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : " +
                                                                          ", ".join(errors))
             return None
 

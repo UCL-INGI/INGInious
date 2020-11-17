@@ -9,6 +9,7 @@ import hashlib
 import os
 import tarfile
 import urllib.request
+from binascii import hexlify
 import docker
 
 from gridfs import GridFS
@@ -84,9 +85,16 @@ class Installer:
                 return False
             self._display_question("Please answer 'yes' or 'no'.")
 
-            #######################################
-            #            Main function            #
-            #######################################
+    def _ask_integer(self, question, default):
+        while True:
+            try:
+                return int(self._ask_with_default(question, default))
+            except:
+                pass
+
+    #######################################
+    #            Main function            #
+    #######################################
 
     def run(self):
         """ Run the installator """
@@ -512,12 +520,26 @@ class Installer:
 
             self._display_info("You can choose an authentication plugin between:")
             self._display_info("- 1. LDAP auth plugin. This plugin allows to connect to a distant LDAP host.")
+            self._display_info("There are other plugins available that are not configurable directly by inginious-install.")
+            self._display_info("Please consult the online documentation to install them yourself.")
 
-            plugin = self._ask_with_default("Enter the corresponding number to your choice", '1')
-            if plugin not in ['1']:
-                continue
-            elif plugin == '1':
+            plugin = self._ask_with_default("Enter the corresponding number to your choice", 'skip')
+            if plugin == '1':
                 options["plugins"].append(self.ldap_plugin())
+            else:
+                continue
+
+        options["session_parameters"] = {}
+        options["session_parameters"]['timeout'] = self._ask_integer("How much time should a user stay connected, "
+                                                                     "in seconds? The default is 86400, one day.", 86400)
+        options["session_parameters"]['ignore_change_ip'] = not self._ask_boolean("Should user be disconnected when "
+                                                                                  "their IP changes? It may prevent "
+                                                                                  "cookie stealing.",
+                                                                                  True)
+        options["session_parameters"]['secure'] = self._ask_boolean("Do you plan to serve your INGInious instance only"
+                                                                    " in HTTPS?", False)
+        options["session_parameters"]['secret_key'] = hexlify(os.urandom(32)).decode('utf-8')
+
         return options
 
     def configuration_filename(self):

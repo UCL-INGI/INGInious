@@ -154,7 +154,7 @@ class CookieLessCompatibleApplication(web.application):
             return web.ctx.homepath
 
 
-class CookieLessCompatibleSession(object):
+class CookieLessCompatibleSession:
     """ A session that can either store its session id in a Cookie or directly in the webpage URL.
         The load(session_id) function must be called manually, in order for the session to be loaded.
         This is usually done by the CookieLessCompatibleApplication.
@@ -239,6 +239,7 @@ class CookieLessCompatibleSession(object):
             self._validate_ip()
 
         if not self._data["session_id"]:
+            self._data.clear() # may have expired. In that case, check that the session is empty.
             self._data["session_id"] = self._generate_session_id()
 
             if self._initializer:
@@ -253,16 +254,13 @@ class CookieLessCompatibleSession(object):
     def _check_expiry(self):
         # check for expiry
         if self._data["session_id"] and self._data["session_id"] not in self.store:
-            if self._config.ignore_expiry:
-                self._data["session_id"] = None
-            else:
-                return self.expired()
+            self._data["session_id"] = None
 
     def _validate_ip(self):
         # check for change of IP
         if self._data["session_id"] and self.get('ip', None) != web.ctx.ip:
             if not self._config.ignore_change_ip or self._data["cookieless"] is True:
-                return self.expired()
+                self._data["session_id"] = None
 
     def save(self):
         cookieless = self._data.get("cookieless", False)
@@ -278,13 +276,16 @@ class CookieLessCompatibleSession(object):
         """ Returns whether the data in the session have changed. Prevents (most of the) race conditions """
         return self._data.__dict__ != self._origdata.__dict__
 
-    def _setcookie(self, session_id, expires='', **kw):
+    def _setcookie(self, session_id, expires=None, **kw):
         cookie_name = self._config.cookie_name
         cookie_domain = self._config.cookie_domain
         cookie_path = self._config.cookie_path
         httponly = self._config.httponly
         secure = self._config.secure
-        web.setcookie(cookie_name, session_id, expires=expires, domain=cookie_domain, httponly=httponly, secure=secure, path=cookie_path)
+        samesite = self._config.samesite
+        if expires is None:
+            expires = self._config.timeout
+        web.setcookie(cookie_name, session_id, expires=expires, domain=cookie_domain, httponly=httponly, secure=secure, path=cookie_path, samesite=samesite)
 
     def _generate_session_id(self):
         """Generate a random id for session"""
