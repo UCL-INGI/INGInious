@@ -37,7 +37,7 @@ class MyCoursesPage(INGIniousAuthPage):
     def show_page(self, success):
         """  Display main course list page """
         username = self.user_manager.session_username()
-        user_info = self.database.users.find_one({"username": username})
+        user_info = self.user_manager.get_user_info(username)
 
         all_courses = self.course_factory.get_all_courses()
 

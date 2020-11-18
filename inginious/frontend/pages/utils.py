@@ -287,7 +287,7 @@ def generate_user_selection_box(user_manager: UserManager, render_func, current_
     :param single: False for multiple user selection, True for single user selection
     :return: HTML code for the box
     """
-    current_users = [{"realname": y[0] if y is not None else x, "username": x} for x, y in user_manager.get_users_info(current_users).items()]
+    current_users = [{"realname": y.realname if y is not None else x, "username": x} for x, y in user_manager.get_users_info(current_users).items()]
     return render_func("utils/user_selection_box.html", current_users=current_users, course_id=course_id, name=name, id=id, placeholder=placeholder, single=single)
 
 

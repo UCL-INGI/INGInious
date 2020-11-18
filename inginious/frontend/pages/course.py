@@ -83,6 +83,6 @@ class CoursePage(INGIniousAuthPage):
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
             tag_list = course.get_tags()
-            user_info = self.database.users.find_one({"username": username})
+            user_info = self.user_manager.get_user_info(username)
 
             return self.template_helper.get_renderer().course(user_info, course, last_submissions, tasks, course.get_toc(), tasks_data, course_grade, tag_list)

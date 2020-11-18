@@ -16,8 +16,8 @@ class BindingsPage(INGIniousAuthPage):
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
         auth_methods = self.user_manager.get_auth_methods()
-        user_data = self.database.users.find_one({"username": self.user_manager.session_username()})
-        bindings = user_data.get("bindings", {})
+        user_data = self.user_manager.get_user_info(self.user_manager.session_username())
+        bindings = user_data.bindings
         return self.template_helper.get_renderer().preferences.bindings(bindings, auth_methods, "", False)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ

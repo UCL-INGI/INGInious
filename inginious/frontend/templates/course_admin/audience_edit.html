@@ -69,7 +69,7 @@ $elif msg:
                                         <select id="registered_students" name="registered_students" class="form-control">
                                             $for student in other_students:
                                                 $if users_info[student] is not None:
-                                                    <option value="$student">$users_info[student][0] ($student)</option>
+                                                    <option value="$student">$users_info[student].realname ($student)</option>
                                                 $else:
                                                     <option value="$student">$student</option>
                                         </select>
@@ -143,7 +143,7 @@ $elif msg:
                                 $for tutor in tutor_list:
                                     $if tutor not in audience["tutors"]:
                                         $if users_info[tutor] is not None:
-                                            <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                            <option value="$tutor">$users_info[tutor].realname ($tutor)</option>
                                         $else:
                                             <option value="$tutor">$tutor</option>
                             </select>
@@ -173,7 +173,7 @@ $elif msg:
                     $ user=users_info[username]
                     <li data-username="$username" class="list-group-item group-entry">
                         $if users_info[username] is not None:
-                            <span id="$username"><i class="fa fa-arrows"></i> $user[0] ($username)</span>
+                            <span id="$username"><i class="fa fa-arrows"></i> $user.realname ($username)</span>
                         $else:
                             <span id="$username"><i class="fa fa-arrows"></i>  $username</span>
                         <a class="pull-right" id="user_delete" href="#" onclick="javascript:audiences_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>

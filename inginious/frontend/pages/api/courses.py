@@ -49,7 +49,7 @@ class APICourses(APIAuthenticatedPage):
                 raise APINotFound("Course not found")
 
         username = self.user_manager.session_username()
-        user_info = self.database.users.find_one({"username": username})
+        user_info = self.user_manager.get_user_info(username)
 
         for courseid, course in courses.items():
             if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(user_info):

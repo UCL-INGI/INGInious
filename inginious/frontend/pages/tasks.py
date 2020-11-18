@@ -131,7 +131,7 @@ class BaseTaskPage(object):
                 # we don't care for the other case, as the student won't be able to submit.
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
-            user_info = self.database.users.find_one({"username": username})
+            user_info = self.user_manager.get_user_info(username)
 
             # Display the task itself
             return self.template_helper.get_renderer().task(user_info, course, task, submissions,

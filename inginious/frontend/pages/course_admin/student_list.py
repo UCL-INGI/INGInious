@@ -90,14 +90,14 @@ class CourseStudentListPage(INGIniousAdminPage):
 
     def get_student_list_params(self, course):
         users = sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
-                       key=lambda k: k[1][0] if k[1] is not None else "")
+                       key=lambda k: k[1].realname if k[1] is not None else "")
 
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(course.get_staff()).items()),
-                                   key=lambda k: k[1][0] if k[1] is not None else "") + users)
+                                   key=lambda k: k[1].realname if k[1] is not None else "") + users)
 
         user_data = OrderedDict([(username, {
-            "username": username, "realname": user[0] if user is not None else "",
-            "email": user[1] if user is not None else "", "total_tasks": 0,
+            "username": username, "realname": user.realname if user is not None else "",
+            "email": user.email if user is not None else "", "total_tasks": 0,
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
             "grade": 0, "url": self.submission_url_generator_user(username)}) for username, user in users.items()])
 
@@ -302,7 +302,7 @@ class CourseStudentListPage(INGIniousAdminPage):
         groups_list = {d["students"]: d["group"] for d in groups_list}
 
         other_students = [entry for entry in student_list if entry not in groups_list]
-        other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
+        other_students = sorted(other_students, key=lambda val: (("0"+users_info[val].realname) if users_info[val] else ("1"+val)))
 
         return student_list, audience_list, other_students, users_info
 
