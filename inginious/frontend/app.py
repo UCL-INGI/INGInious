@@ -130,7 +130,7 @@ def _put_configuration_defaults(config):
         "cookie_name": "inginious_session_id",
         "cookie_domain": None,
         "cookie_path": None,
-        "samesite": "strict",
+        "samesite": "Lax",
         "timeout": 86400,  # 24 * 60 * 60, # 24 hours in seconds
         "ignore_change_ip": False,
         "httponly": True,

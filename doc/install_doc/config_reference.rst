@@ -145,7 +145,7 @@ The different entries are :
             cookie_name: "inginious_session_id"
             cookie_domain: null
             cookie_path: null
-            samesite: "strict"
+            samesite: "Lax"
             timeout: 86400  # 24 * 60 * 60, # 24 hours in seconds
             ignore_change_ip: False
             httponly: True
