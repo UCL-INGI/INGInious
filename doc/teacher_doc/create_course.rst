@@ -135,12 +135,13 @@ the webapp. Here are the possible fields to set:
   A password that is asked upon registration to the course. If empty or not defined, no password will be asked.
 
 - ``registration_ac``
-  Access control (AC) method. Can be ``null`` (anyone can register), ``username`` (filter by username), ``realname``
-  (filter by real name) or ``email`` (filter by email address). If AC is activated, the allowed values for the filter
+  Access control (AC) method. Can be ``null`` (anyone can register), ``username`` (filter by username), ``binding``
+  (filter by binding auth method) or ``email`` (filter by email address). If AC is activated, the allowed values for the filter
   should be set in the ``registration_ac_list`` key.
 
 - ``registration_ac_list``
   If AC is activated, ``registration_ac_list`` should contain a list of values for the filter.
+  ``*`` acts as a wildcard.
 
 - ``nofrontend``
   If this field is defined and set to ``true``, then the course won't be displayed on the webapp course list.

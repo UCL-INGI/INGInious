@@ -7,6 +7,7 @@
 
 import copy
 import gettext
+import re
 from collections import OrderedDict
 from typing import List
 
@@ -92,6 +93,9 @@ class Course(object):
             self._lti_keys = {}
             self._lti_url = ''
             self._lti_send_back_grade = False
+
+        # Build the regex for the ACL, allowing for fast matching. Only used internally.
+        self._registration_ac_regex = self._build_ac_regex(self._registration_ac_list)
 
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
@@ -198,9 +202,9 @@ class Course(object):
         if not user_info or self.get_access_control_method() not in keys_per_access_control_method:
             return False
 
-        # check that at least one key is contained in the list
+        # check that at least one key matches in the list
         keys = keys_per_access_control_method[self.get_access_control_method()]()
-        return any(key in self._registration_ac_list for key in keys)
+        return any(self._registration_ac_regex.match(key) for key in keys)
 
     def allow_preview(self):
         return self._allow_preview
@@ -227,3 +231,7 @@ class Course(object):
        :return: the structure of the course
        """
         return self._toc
+
+    def _build_ac_regex(self, list_ac):
+        """ Build a regex for the AC list, allowing for fast matching. The regex is only used internally """
+        return re.compile('|'.join(re.escape(x).replace("\\*", ".*") for x in list_ac))
