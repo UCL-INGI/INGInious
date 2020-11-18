@@ -154,6 +154,15 @@ class CookieLessCompatibleApplication(web.application):
             return web.ctx.homepath
 
 
+class AvoidCreatingSession(Exception):
+    """
+        allow specific pages (such as SAML auth) to avoid creating a new session.
+        this is particularly useful when received cross-site POST request, to which the cookies are not sent...
+    """
+    def __init__(self, elem):
+        self.elem = elem
+
+
 class CookieLessCompatibleSession:
     """ A session that can either store its session id in a Cookie or directly in the webpage URL.
         The load(session_id) function must be called manually, in order for the session to be loaded.
@@ -203,10 +212,22 @@ class CookieLessCompatibleSession:
 
         self._cleanup()
 
+        avoid_save = False
         try:
-            return handler()
+            x = handler()
+            if isinstance(x, AvoidCreatingSession):
+                avoid_save = True
+                return x.elem
+            return x
+        except web.HTTPError as x:
+            if isinstance(x.data, AvoidCreatingSession):
+                avoid_save = True
+                x.data = x.data.elem
+                raise x from x
+            raise
         finally:
-            self.save()
+            if not avoid_save:
+                self.save()
             self._data.clear()
 
     def load(self, session_id=None):
