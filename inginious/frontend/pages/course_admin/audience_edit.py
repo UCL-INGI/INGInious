@@ -37,7 +37,7 @@ class CourseEditAudience(INGIniousAdminPage):
         if audienceid:
             # Order the non-registered students
             other_students = [entry for entry in student_list if not audiences_list.get(entry, {}) == ObjectId(audienceid)]
-            other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
+            other_students = sorted(other_students, key=lambda val: (("0"+users_info[val].realname) if users_info[val] else ("1"+val)))
 
             return student_list, tutor_list, other_students, users_info
         else:

@@ -22,8 +22,7 @@ class CourseRegisterPage(INGIniousAuthPage):
         username = self.user_manager.session_username()
         user_info = self.user_manager.get_user_info(username)
 
-        if self.user_manager.course_is_user_registered(course, username) or not course.is_registration_possible(
-                user_info):
+        if self.user_manager.course_is_user_registered(course, username) or not course.is_registration_possible(user_info):
             raise web.seeother(self.app.get_homepath() + "/course/" + course.get_id())
 
         return course, username

@@ -6,13 +6,15 @@
 """ Manages users data and session """
 import logging
 import hashlib
+from typing import Dict, Optional
+
 import web
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from functools import reduce
 from natsort import natsorted
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import pymongo
 from binascii import hexlify
 import os
@@ -79,6 +81,9 @@ class AuthMethod(object, metaclass=ABCMeta):
         :return: The image link
         """
         return ""
+
+
+UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language"])
 
 
 class UserManager:
@@ -316,27 +321,27 @@ class UserManager:
                               self.session_email(), web.ctx.ip)
         self._destroy_session()
 
-    def get_users_info(self, usernames):
+    def get_users_info(self, usernames) -> Dict[str, Optional[UserInfo]]:
         """
         :param usernames: a list of usernames
-        :return: a dict, in the form {username: val}, where val is either None if the user cannot be found, or a tuple (realname, email)
+        :return: a dict, in the form {username: val}, where val is either None if the user cannot be found, or a UserInfo
         """
         retval = {username: None for username in usernames}
         remaining_users = usernames
 
         infos = self._database.users.find({"username": {"$in": remaining_users}})
         for info in infos:
-            retval[info["username"]] = (info["realname"], info["email"])
+            retval[info["username"]] = UserInfo(info["realname"], info["email"], info["username"], info["bindings"], info["language"])
 
         return retval
 
-    def get_user_info(self, username):
+    def get_user_info(self, username) -> Optional[UserInfo]:
         """
         :param username:
         :return: a tuple (realname, email) if the user can be found, None else
         """
         info = self.get_users_info([username])
-        return info[username] if info is not None else None
+        return info[username]
 
     def get_user_realname(self, username):
         """
@@ -345,7 +350,7 @@ class UserManager:
         """
         info = self.get_user_info(username)
         if info is not None:
-            return info[0]
+            return info.realname
         return None
 
     def get_user_email(self, username):
@@ -355,7 +360,7 @@ class UserManager:
         """
         info = self.get_user_info(username)
         if info is not None:
-            return info[1]
+            return info.email
         return None
 
     def get_user_api_key(self, username, create=True):
@@ -726,10 +731,12 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        user_info = self._database.users.find_one({"username": username})
-
-        # Do not continue registering the user in the course if username is empty.
+        # Do not continue registering the user in the course if username is empty
+        # or if the user is not in DB (should never happen, anyway).
         if not username:
+            return False
+        user_info = self.get_user_info(username)
+        if not user_info:
             return False
 
         if not force:

@@ -7,13 +7,16 @@
 
 import copy
 import gettext
+import re
 from collections import OrderedDict
-from natsort import natsorted
+from typing import List
 
 from inginious.common.tags import Tag
 from inginious.common.toc import SectionsList
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
+from inginious.frontend.user_manager import UserInfo
+
 
 class Course(object):
     """ A course with some modification for users """
@@ -91,6 +94,9 @@ class Course(object):
             self._lti_url = ''
             self._lti_send_back_grade = False
 
+        # Build the regex for the ACL, allowing for fast matching. Only used internally.
+        self._registration_ac_regex = self._build_ac_regex(self._registration_ac_list)
+
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 
@@ -129,7 +135,7 @@ class Course(object):
         """ Returns true if the course is accessible by users that are not administrator of this course """
         return self.get_accessibility().is_open()
 
-    def is_registration_possible(self, user_info):
+    def is_registration_possible(self, user_info: UserInfo):
         """ Returns true if users can register for this course """
         return self.get_accessibility().is_open() and self._registration.is_open() and self.is_user_accepted_by_access_control(user_info)
 
@@ -158,8 +164,8 @@ class Course(object):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """
         return self._registration_ac
 
-    def get_access_control_list(self):
-        """ Returns the list of all users allowed by the AC list """
+    def get_access_control_list(self) -> List[str]:
+        """ Returns the list of all users/emails/binding methods/... (see get_access_control_method) allowed by the AC list """
         return self._registration_ac_list
 
     def can_students_choose_group(self):
@@ -182,19 +188,23 @@ class Course(object):
         """ True if the current course should send back grade to the LTI Tool Consumer """
         return self._is_lti and self._lti_send_back_grade
 
-    def is_user_accepted_by_access_control(self, user_info):
+    def is_user_accepted_by_access_control(self, user_info: UserInfo):
         """ Returns True if the user is allowed by the ACL """
         if self.get_access_control_method() is None:
             return True
-        elif not user_info:
+
+        keys_per_access_control_method = {
+            "username": (lambda: [user_info.username]),
+            "email": (lambda: [user_info.email]),
+            "binding": (lambda: user_info.bindings.keys())
+        }
+
+        if not user_info or self.get_access_control_method() not in keys_per_access_control_method:
             return False
-        elif self.get_access_control_method() == "username":
-            return user_info["username"] in self.get_access_control_list()
-        elif self.get_access_control_method() == "email":
-            return user_info["email"] in self.get_access_control_list()
-        elif self.get_access_control_method() == "binding":
-            return set(user_info["bindings"].keys()).intersection(set(self.get_access_control_list()))
-        return False
+
+        # check that at least one key matches in the list
+        keys = keys_per_access_control_method[self.get_access_control_method()]()
+        return any(self._registration_ac_regex.match(key) for key in keys)
 
     def allow_preview(self):
         return self._allow_preview
@@ -221,3 +231,7 @@ class Course(object):
        :return: the structure of the course
        """
         return self._toc
+
+    def _build_ac_regex(self, list_ac):
+        """ Build a regex for the AC list, allowing for fast matching. The regex is only used internally """
+        return re.compile('|'.join(re.escape(x).replace("\\*", ".*") for x in list_ac))

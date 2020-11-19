@@ -93,9 +93,9 @@ $if mygroup and username in mygroup["students"]:
         $for user in mygroup["students"]:
             <li class="list-group-item">
                 $if users[user] is not None:
-                    $users[user][0]
+                    $users[user].realname
                     <div class="pull-right">
-                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title=$:_('"Send an email"')>
+                        <a class="mailto" href="mailto:$users[user].email" data-toggle="tooltip" data-placement="left" title=$:_('"Send an email"')>
                             <i class="fa fa-envelope-o"></i>
                         </a>
                     </div>
@@ -150,9 +150,9 @@ $if not len(allowed_groups) == 0:
                 $for user in group["students"]:
                     <li class="list-group-item">
                         $if users[user] is not None:
-                            $users[user][0]
+                            $users[user].realname
                             <div class="pull-right">
-                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                <a class="mailto" href="mailto:$users[user].email" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
                                     <i class="fa fa-envelope-o"></i>
                                 </a>
                             </div>
