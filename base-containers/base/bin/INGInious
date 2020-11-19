@@ -122,12 +122,16 @@ class INGIniousMainRunner(object):
         try:
             while not reader.at_eof():
                 buf = bytearray()
-                while len(buf) != 4:
+                while len(buf) != 4 and not reader.at_eof():
                     buf += await reader.read(4-len(buf))
+                if reader.at_eof():
+                    continue
                 length = struct.unpack('I', bytes(buf))[0]
                 buf = bytearray()
-                while len(buf) != length:
+                while len(buf) != length and not reader.at_eof():
                     buf += await reader.read(length-len(buf))
+                if reader.at_eof():
+                    continue
                 message = msgpack.unpackb(bytes(buf), use_list=False)
                 await self.handle_stdin_message(message)
         except (asyncio.CancelledError, KeyboardInterrupt):
