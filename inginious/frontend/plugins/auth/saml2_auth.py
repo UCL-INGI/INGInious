@@ -6,12 +6,15 @@
 """ SAML SSO plugin """
 
 import copy
+import html
+import json
 import logging
 
 import web
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
+from inginious.frontend.cookieless_app import AvoidCreatingSession
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.user_manager import AuthMethod
 
@@ -45,11 +48,41 @@ class SAMLAuthMethod(AuthMethod):
 
     def get_auth_link(self, auth_storage, share=False):
         auth = OneLogin_Saml2_Auth(prepare_request(self._settings), self._settings)
-        return auth.login(auth_storage["redir_url"])
+        return auth.login(json.dumps(auth_storage))
 
     def callback(self, auth_storage):
         req = prepare_request(self._settings)
         input_data = web.input()
+
+        if "alreadyRedirected" not in input_data:
+            raise web.OK(AvoidCreatingSession("""
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <meta charset="utf-8" />
+                    </head>
+                    <body onload="document.forms[0].submit()">
+                        <noscript>
+                            <p>
+                                <strong>Note:</strong> Since your browser does not support JavaScript,
+                                you must press the Continue button once to proceed.
+                            </p>
+                        </noscript>
+                        <form method="post">
+                            <div>
+                                <input type="hidden" name="RelayState" value="{RelayState}"/>
+                                <input type="hidden" name="SAMLResponse" value="{SAMLResponse}"/>
+                                <input type="hidden" name="alreadyRedirected" value="yes"/>
+                            </div>
+                            <noscript>
+                                <div>
+                                    <input type="submit" value="Continue"/>
+                                </div>
+                            </noscript>
+                        </form>
+                    </body>
+                </html>
+            """.format(RelayState=html.escape(input_data["RelayState"]), SAMLResponse=html.escape(input_data["SAMLResponse"]))))
 
         auth = OneLogin_Saml2_Auth(req, self._settings)
         auth.process_response()
@@ -81,11 +114,11 @@ class SAMLAuthMethod(AuthMethod):
             # Redirect to desired url
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'RelayState' in input_data and self_url != input_data['RelayState']:
-                redirect_url = auth.redirect_to(input_data['RelayState'])
+                auth_storage.update(json.loads(input_data['RelayState']))
                 # Initialize session in user manager and update cache
-                return (str(username), realname, email, additional) if redirect_url == auth_storage["redir_url"] else None
+                return str(username), realname, email, additional
         else:
-            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ",
+            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : " +
                                                                          ", ".join(errors))
             return None
 

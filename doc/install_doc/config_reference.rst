@@ -135,6 +135,27 @@ The different entries are :
 ``sentry_io_url``
     The Sentry.io *Data Source Name* to use for error reporting in the frontend. If not set, sentry.io is not loaded.
 
+``session_parameters``
+    A dictionnary containing information about the management of sessions in the app.
+    Its default value is:
+
+    ::
+
+        session_parameters:
+            cookie_name: "inginious_session_id"
+            cookie_domain: null
+            cookie_path: null
+            samesite: "Lax"
+            timeout: 86400  # 24 * 60 * 60, # 24 hours in seconds
+            ignore_change_ip: False
+            httponly: True
+            secret_key: "fLjUfxqXtfNoIldA0A0G"
+            secure: False
+
+    Most value are as defined in standard HTTP cookies. The ``secret_key`` should be a long sequence of random characters.
+    ``ignore_change_ip`` indicates whether users that change IP should be disconnected or not. This may prevent cookie
+    stealing partly.
+
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 

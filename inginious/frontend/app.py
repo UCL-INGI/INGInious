@@ -5,6 +5,10 @@
 
 """ Starts the webapp """
 import builtins
+import os
+import sys
+from binascii import hexlify
+
 import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
@@ -106,6 +110,37 @@ def _put_configuration_defaults(config):
         config['allowed_file_extensions'] = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
     if 'max_file_size' not in config:
         config['max_file_size'] = 1024 * 1024
+
+    if 'session_parameters' not in config or 'secret_key' not in config['session_parameters']:
+        print("Please define a secret_key in the session_parameters part of the configuration.", file=sys.stderr)
+        print("You can simply add the following (the text between the lines, without the lines) "
+              "to your INGInious configuration file. We generated a random key for you.", file=sys.stderr)
+        print("-------------", file=sys.stderr)
+        print("session_parameters:", file=sys.stderr)
+        print('\ttimeout: 86400  # 24 * 60 * 60, # 24 hours in seconds', file=sys.stderr)
+        print('\tignore_change_ip: False # change this to True if you want user to keep their session if they change their IP', file=sys.stderr)
+        print('\tsecure: False # change this to True if you only use https', file=sys.stderr)
+        print('\tsecret_key: "{}"'.format(hexlify(os.urandom(32)).decode('utf-8')), file=sys.stderr)
+        print("-------------", file=sys.stderr)
+        exit(1)
+
+    if 'session_parameters' not in config:
+        config['session_parameters'] = {}
+    default_session_parameters = {
+        "cookie_name": "inginious_session_id",
+        "cookie_domain": None,
+        "cookie_path": None,
+        "samesite": "Lax",
+        "timeout": 86400,  # 24 * 60 * 60, # 24 hours in seconds
+        "ignore_change_ip": False,
+        "httponly": True,
+        "secret_key": "fLjUfxqXtfNoIldA0A0G",
+        "secure": False
+    }
+    for k, v in default_session_parameters.items():
+        if k not in config['session_parameters']:
+            config['session_parameters'][k] = v
+
     return config
 
 
@@ -125,6 +160,8 @@ def get_app(config):
     web.config.debug = False
 
     config = _put_configuration_defaults(config)
+
+    web.config.session_parameters.update(config['session_parameters'])
 
     mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
     database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
