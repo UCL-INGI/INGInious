@@ -20,13 +20,11 @@ from inginious.frontend.pages.internalerror import internalerror_generator
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.cookieless_app import CookieLessCompatibleApplication
-from inginious.frontend.courses import Course
 from inginious.frontend.pages.utils import register_utils
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.submission_manager import update_pending_jobs
-from inginious.frontend.tasks import Task
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from pymongo import MongoClient
@@ -40,6 +38,7 @@ from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
 from inginious.frontend.task_problems import *
+from inginious.frontend.task_dispensers.toc import TableOfContents
 
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
@@ -234,6 +233,10 @@ def get_app(config):
         task_directory = config["tasks_directory"]
         fs_provider = LocalFSProvider(task_directory)
 
+    default_task_dispensers = {
+        task_dispenser.get_id(): task_dispenser for task_dispenser in [TableOfContents]
+    }
+
     default_problem_types = {
         problem_type.get_type(): problem_type for problem_type in [DisplayableCodeProblem,
                                                                    DisplayableCodeSingleLineProblem,
@@ -242,7 +245,7 @@ def get_app(config):
                                                                    DisplayableMatchProblem]
     }
 
-    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager)
+    course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager)
 
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
