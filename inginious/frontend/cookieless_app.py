@@ -238,16 +238,18 @@ class CookieLessCompatibleSession:
         - a string which is the session_id to be used.
         """
 
+        cookieless = False
+
         if session_id is None:
             cookie_name = self._config.cookie_name
             self._data["session_id"] = web.cookies().get(cookie_name)
-            self._data["cookieless"] = False
+            cookieless = False
         else:
             if session_id == '':
                 self._data["session_id"] = None  # will be created
             else:
                 self._data["session_id"] = session_id
-            self._data["cookieless"] = True
+            cookieless = True
 
         # protection against session_id tampering
         if self._data["session_id"] and not self._valid_session_id(self._data["session_id"]):
@@ -270,6 +272,7 @@ class CookieLessCompatibleSession:
                     self._initializer()
 
         self._data["ip"] = web.ctx.ip
+        self._data["cookieless"] = cookieless
         self._origdata.update(deepcopy(self._data.__dict__))
 
     def _check_expiry(self):
