@@ -284,11 +284,3 @@ class Task(object):
     def regenerate_input_random(self):
         """ Indicates if random inputs should be regenerated """
         return self._regenerate_input_random
-
-    def get_order(self):
-        """ Get the position of this task in the course """
-        tasks_id = self._course.get_toc().get_tasks()
-        if self._taskid in tasks_id:
-            return tasks_id.index(self._taskid)
-        else:
-            return len(tasks_id)

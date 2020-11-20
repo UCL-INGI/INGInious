@@ -80,10 +80,10 @@ class CourseTaskListPage(INGIniousAdminPage):
                 output[task] = course.get_task(task)
             except Exception as inst:
                 errors.append({"taskid": task, "error": str(inst)})
-        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (course.get_task_dispenser().get_task_order(t[1].get_id()), t[1].get_id())))
 
         tasks_data = OrderedDict()
         for taskid in tasks:
             tasks_data[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()),
                               "url": self.submission_url_generator(taskid)}
-        return self.template_helper.get_renderer().course_admin.task_list(course, course.get_toc(), tasks_data, errors, validated, self.webdav_host)
+        return self.template_helper.get_renderer().course_admin.task_list(course, course.get_task_dispenser().get_dispenser_data(), tasks_data, errors, validated, self.webdav_host)

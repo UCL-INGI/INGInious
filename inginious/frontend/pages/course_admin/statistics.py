@@ -128,7 +128,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
                         }
                 }
             ]))
-        tasks = OrderedDict(sorted(list(course.get_tasks().items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+        tasks = course.get_task_dispenser().get_ordered_tasks()
 
         # Now load additional information
         result = OrderedDict()

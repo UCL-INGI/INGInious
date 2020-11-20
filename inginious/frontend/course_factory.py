@@ -224,7 +224,7 @@ class CourseFactory(object):
                     last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
 
         self._cache[courseid] = (
-            Course(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._plugin_manager),
+            Course(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._plugin_manager, self._task_dispensers),
             last_modif
         )
 

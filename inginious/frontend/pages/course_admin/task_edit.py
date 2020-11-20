@@ -116,7 +116,7 @@ class CourseEditTask(INGIniousAdminPage):
 
         # Delete task ?
         if "delete" in data:
-            toc = course.get_toc()
+            toc = course.get_task_dispenser().get_dispenser_data()
             toc.remove_task(taskid)
             self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
             self.task_factory.delete_task(courseid, taskid)
@@ -284,7 +284,7 @@ class CourseEditTask(INGIniousAdminPage):
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
         if "sectionid" in data:
-            toc = course.get_toc()
+            toc = course.get_task_dispenser().get_dispenser_data()
             toc.add_task(taskid, data["sectionid"])
             self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
 

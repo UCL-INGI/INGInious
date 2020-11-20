@@ -8,20 +8,21 @@
 import copy
 import gettext
 import re
-from collections import OrderedDict
 from typing import List
+from collections import OrderedDict
 
 from inginious.common.tags import Tag
-from inginious.common.toc import SectionsList
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
 from inginious.frontend.user_manager import UserInfo
+
+from inginious.frontend.task_dispensers.toc import TableOfContents
 
 
 class Course(object):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, course_fs, task_factory, plugin_manager):
+    def __init__(self, courseid, content, course_fs, task_factory, plugin_manager, task_dispensers):
 
         self._id = courseid
         self._content = content
@@ -47,6 +48,8 @@ class Course(object):
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
 
+        self._task_list = self._task_factory.get_all_tasks(self)
+
         try:
             self._admins = self._content.get('admins', [])
             self._tutors = self._content.get('tutors', [])
@@ -66,14 +69,17 @@ class Course(object):
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
-            if 'toc' in self._content:
-                self._toc = SectionsList(self._content['toc'])
+
+            _task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', ''), None)
+
+            if not _task_dispenser_class and 'toc' in self._content:
+                _task_dispenser_class = TableOfContents
+                self._task_dispenser = TableOfContents(self._task_list, self._content["toc"])
             else:
-                tasks = self._task_factory.get_all_tasks(self)
                 ordered_task_list = OrderedDict(
-                    sorted(list(tasks.items()), key=lambda t: (t[1].get_old_order(), t[1].get_id())))
+                    sorted(list(self._task_list.items()), key=lambda t: (t[1].get_old_order(), t[1].get_id())))
                 indexed_task_list = {taskid: rank for rank, taskid in enumerate(ordered_task_list.keys())}
-                self._toc = SectionsList([{"id": "tasks-list",
+                self._task_dispenser = TableOfContents(self._task_list, [{"id": "tasks-list",
                                            "title": _("List of exercises"),
                                            "rank": 0,
                                            "tasks_list": indexed_task_list}])
@@ -157,8 +163,7 @@ class Course(object):
         return self._registration
 
     def get_tasks(self):
-        tasks = self._task_factory.get_all_tasks(self)
-        return OrderedDict(sorted(list(tasks.items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+        return self._task_dispenser.get_ordered_tasks()
 
     def get_access_control_method(self):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """
@@ -226,11 +231,11 @@ class Course(object):
     def get_tags(self):
         return self._tags
 
-    def get_toc(self):
+    def get_task_dispenser(self):
         """
        :return: the structure of the course
        """
-        return self._toc
+        return self._task_dispenser
 
     def _build_ac_regex(self, list_ac):
         """ Build a regex for the AC list, allowing for fast matching. The regex is only used internally """

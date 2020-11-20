@@ -85,4 +85,4 @@ class CoursePage(INGIniousAuthPage):
             tag_list = course.get_tags()
             user_info = self.user_manager.get_user_info(username)
 
-            return self.template_helper.get_renderer().course(user_info, course, last_submissions, tasks, course.get_toc(), tasks_data, course_grade, tag_list)
+            return self.template_helper.get_renderer().course(user_info, course, last_submissions, tasks, course.get_task_dispenser().get_dispenser_data(), tasks_data, course_grade, tag_list)
