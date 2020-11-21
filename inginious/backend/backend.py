@@ -144,7 +144,7 @@ class Backend(object):
 
             # Erase the job reference in priority queue
             job = self._waiting_jobs.pop(message.job_id)
-            job.msg = None
+            job._replace(msg=None)
 
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
