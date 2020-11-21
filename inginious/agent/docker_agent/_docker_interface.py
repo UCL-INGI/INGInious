@@ -46,6 +46,8 @@ class DockerInterface(object):  # pragma: no cover
         """
         assert len(set(x.envtype for x in runtimes)) == len(runtimes)  # no duplicates in the envtypes
 
+        logger = logging.getLogger("inginious.agent.docker")
+
         # First, create a dict with {"env": {"id": {"title": "alias", "created": 000, "ports": [0, 1]}}}
         images = {x.envtype: {} for x in runtimes}
 
@@ -59,9 +61,9 @@ class DockerInterface(object):  # pragma: no cover
 
                 for docker_runtime in runtimes:
                     if docker_runtime.run_as_root or "org.inginious.grading.need_root" not in x.labels:
-                        logging.getLogger("inginious.agent").info("Envtype %s (%s) can use container %s", docker_runtime.envtype, docker_runtime.runtime, title)
+                        logger.info("Envtype %s (%s) can use container %s", docker_runtime.envtype, docker_runtime.runtime, title)
                         if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
-                            logging.getLogger("inginious.agent").warning(
+                            logger.warning(
                                 "Container %s is made for an old/newer version of the agent (container version is "
                                 "%s, but it should be %i). INGInious will ignore the container.", title,
                                 str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
@@ -230,6 +232,12 @@ class DockerInterface(object):  # pragma: no cover
         if filters is None:
             filters = {}
         return self._docker.events(decode=True, filters=filters)
+
+    def list_runtimes(self) -> Dict[str, str]:
+        """
+        :return: dict of runtime: path_to_runtime
+        """
+        return {name: x["path"] for name, x in self._docker.info()["Runtimes"].items()}
 
 class FixDockerSocket():  # pragma: no cover
     """

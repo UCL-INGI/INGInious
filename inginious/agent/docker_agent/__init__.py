@@ -24,10 +24,6 @@ from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
 
-DEFAULT_RUNTIMES = [
-    DockerRuntime(runtime="runc", run_as_root=False, envtype="docker"),
-    DockerRuntime(runtime="kata-runtime", run_as_root=True, envtype="kata")
-]
 
 class DockerAgent(Agent):
     def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp", runtimes=None):
@@ -45,7 +41,7 @@ class DockerAgent(Agent):
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
 
-        self._runtimes = runtimes or DEFAULT_RUNTIMES
+        self._runtimes = runtimes
 
         self._logger = logging.getLogger("inginious.agent.docker")
 
@@ -86,6 +82,9 @@ class DockerAgent(Agent):
 
         # Docker
         self._docker = AsyncProxy(DockerInterface())
+
+        if self._runtimes is None:
+            self._runtimes = self._detect_runtimes()
 
         # Auto discover containers
         self._logger.info("Discovering containers")
@@ -678,3 +677,24 @@ class DockerAgent(Agent):
         except:
             await self._end_clean()
             raise
+
+    def _detect_runtimes(self):
+        heuristic = [
+            ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, envtype="docker")),
+            ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, envtype="docker")),
+            ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, envtype="kata")),
+        ]
+        used_envtypes = set()
+        retval = []
+
+        for runtime in self._docker.sync.list_runtimes().keys():
+            for h_runtime, f in heuristic:
+                if h_runtime in runtime:
+                    v = f(runtime)
+                    if v.envtype not in used_envtypes:
+                        self._logger.info("Using %s as runtime with parameters %s", runtime, str(v))
+                        used_envtypes.add(v.envtype)
+                        retval.append(v)
+                    else:
+                        self._logger.warning("%s was detected as a runtime; it would duplicate another one, so we ignore it.", runtime, str(v))
+        return retval
