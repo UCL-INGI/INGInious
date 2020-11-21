@@ -99,6 +99,7 @@ if __name__ == "__main__":
         try:
             loop.run_until_complete(agent.run())
         except KeyboardInterrupt:
+            closing = True
             pass # do not restart in this case
         except:
             # log the error, and restart if needed
