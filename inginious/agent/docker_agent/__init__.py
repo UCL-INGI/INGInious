@@ -36,9 +36,13 @@ class DockerAgent(Agent):
         :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
         :param type: type of the container ("docker" or "kata")
-        :param runtime: runtime used by docker (for example, "runc" with docker or "kata-qemu" with kata)
+        :param runtime: runtime used by docker (the defaults are "runc" with docker or "kata-runtime" with kata)
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
+
+        if runtime is None:
+            runtime = "runc" if type == "docker" else "kata-runtime"
+
         self._logger = logging.getLogger("inginious.agent.{}".format(type))
 
         self._max_memory_per_slot = int(psutil.virtual_memory().total / concurrency / 1024 / 1024)

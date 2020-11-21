@@ -27,16 +27,9 @@ class DockerInterface(object):  # pragma: no cover
         :param type: type of the container ("docker" or "kata")
         :param runtime: runtime used by docker (for example, "runc" with docker or "kata-qemu" with kata)
         """
-        runtimes = {
-            "docker": ["runc", "crun"],
-            "kata": ["kata-qemu", "kata-fc"]
-        }
-        if type in runtimes and runtime in runtimes[type]:
-            self.type = type
-            self.runtime = runtime
-        else:
-            logging.getLogger("inginious.agent").exception("Type of agent %s does not support runtime %s", type, runtime)
-            sys.exit("Bad runtime")
+        assert type in ["docker", "kata"]
+        self.type = type
+        self.runtime = runtime
 
     @property
     def _docker(self):
