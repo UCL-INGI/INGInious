@@ -20,11 +20,13 @@
             <label for="environment-id-{{ envtype }}" class="col-sm-4 control-label">{{ _("Grading environment") }}</label>
             <div class="col-sm-8">
                 <select id="environment-id-{{ envtype }}" class="form-control" name="environment_id[{{ envtype }}]">
-                    {% for env, env_envtype in environments.items() %}
+                    {% for env_envtype, envs in environments.items() %}
                         {% if envtype == env_envtype %}
-                            <option value="{{env}}" {{ 'selected="selected"' if env == task_data.get('environment_id') }}>
-                                {{ env }}
-                            </option>
+                            {% for env in envs %}
+                                <option value="{{env}}" {{ 'selected="selected"' if env == task_data.get('environment_id') }}>
+                                    {{ env }}
+                                </option>
+                            {% endfor %}
                         {% endif %}
                     {% endfor %}
                 </select>

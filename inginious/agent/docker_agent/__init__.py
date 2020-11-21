@@ -89,8 +89,8 @@ class DockerAgent(Agent):
         # Auto discover containers
         self._logger.info("Discovering containers")
         self._containers = await self._docker.get_containers()
-        for idx in self._containers:
-            self._containers[idx]["type"] = self.type # type is not given by self._docker.get_containers()
+        for name, info in self._containers.items():
+            info["name"] = name # for compatibility with environments()
 
         self._assigned_external_ports = {}  # container_id : [external_ports]
 
@@ -124,7 +124,7 @@ class DockerAgent(Agent):
 
     @property
     def environments(self):
-        return self._containers
+        return {self.type: list(self._containers.values())}
 
     async def _watch_docker_events(self):
         """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """

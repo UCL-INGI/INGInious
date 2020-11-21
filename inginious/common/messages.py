@@ -39,8 +39,8 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
 
     def __init__(self, job_id: ClientJobId, priority: int,
                  course_id: str, task_id: str, task_problems: Dict[str, Any],
-                 inputdata: Dict[str, Any], environment: str,
-                 environment_parameters: Dict[str, Any],
+                 inputdata: Dict[str, Any], environment_type: str,
+                 environment: str, environment_parameters: Dict[str, Any],
                  debug: Union[str, bool], launcher: str):
         """
         :param job_id: the client-side job id that is associated to this job
@@ -49,7 +49,8 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         :param task_id: task id of the task to run
         :param task_problems: task dictionary
         :param inputdata: student input data
-        :param environment: environment to use
+        :param environment_type: environment type
+        :param environment: environment to use (must exist in the environment type)
         :param environment_parameters: parameters for the environment (timeouts, limits, ...)
         :param debug:
             True to enable debug
@@ -64,6 +65,7 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         self.task_problems = task_problems
         self.inputdata = inputdata
         self.debug = debug
+        self.environment_type = environment_type
         self.environment = environment
         self.environment_parameters = environment_parameters
         self.launcher = launcher
@@ -218,7 +220,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
     """
 
     def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, task_problems: Dict[str, Any],
-                 inputdata: Dict[str, Any], environment: str,
+                 inputdata: Dict[str, Any], environment_type: str, environment: str,
                  environment_parameters: Dict[str, Any], debug: Union[str, bool]):
         """
         :param job_id: the backend-side job id that is associated to this job
@@ -226,7 +228,8 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         :param task_id: task id of the task to run
         :param task_problems: task dictionary
         :param inputdata: student input data
-        :param environment: environment to use
+        :param environment_type: environment type
+        :param environment: environment to use (must exist within the environment type)
         :param environment_parameters: parameters for the environment (timeouts, limits, ...)
         :param debug:
             True to enable debug
@@ -239,6 +242,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         self.task_problems = task_problems
         self.inputdata = inputdata
         self.debug = debug
+        self.environment_type = environment_type
         self.environment = environment
         self.environment_parameters = environment_parameters
 
@@ -268,18 +272,20 @@ class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
         Let the agent say hello and announce which environments it has available
     """
 
-    def __init__(self, friendly_name: str, available_job_slots: int, available_environments: Dict[str, Dict[str, Any]]):
+    def __init__(self, friendly_name: str, available_job_slots: int, available_environments: Dict[str, List[Dict[str, Any]]]):
         """
             :param friendly_name: a string containing a friendly name to identify agent
             :param available_job_slots: an integer giving the number of concurrent
             :param available_environments: dict of available environments
             {
-                "name": {                          #for example, "default"
-                    "id": "environment img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                    "created": 12345678,           # create date
-                    "ports": [22, 434],            # list of ports needed
-                    "type": "agent type id"        # type of the environment
-                }
+                "type": [
+                    {
+                        "name": "default",    #  for example, "default"
+                        "id": "env img id",   # "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
+                        "created": 12345678,  # create date
+                        "ports": [22, 434],   # list of ports needed
+                    }
+                ]
             }
         """
 

@@ -83,19 +83,20 @@ class Agent(object, metaclass=ABCMeta):
         """
         :return: a dict of available environments (containers most of the time) in the form
             {
-                "name": {                          #for example, "default"
-                    "id": "environment img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                    "created": 12345678,           # create date
-                    "ports": [22, 434],            # list of ports needed
-                    "type": "agent type id"        # an id of the type of the agent. Allows the frontend to display
-                                                   # the correct parameter list for the environment.
-                }
+                "type": [
+                    {
+                        "name": "default",    #  for example, "default"
+                        "id": "env img id",   # "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
+                        "created": 12345678,  # create date
+                        "ports": [22, 434],   # list of ports needed
+                    }
+                ]
             }
 
             If the environments are not environments, fills `created` with a fixed date (that will be shared by all agents of the same version),
             that could be 0. `id` can be anything, but should also be the same for the same versions of environments.
 
-            Only the `name` field is shared with the Clients.
+            Only the `type` and `name` field are shared with the Clients.
         """
         return {}
 
@@ -161,9 +162,9 @@ class Agent(object, metaclass=ABCMeta):
         await ZMQUtils.send(self.__backend_socket, AgentJobStarted(message.job_id))
 
         try:
-            if message.environment not in self.environments:
-                self._logger.warning("Task %s/%s ask for an unknown environment %s (not in aliases)", message.course_id, message.task_id,
-                                     message.task_data['environment'])
+            if message.environment_type not in self.environments or not any(message.environment == x['name'] for x in self.environments[message.environment_type]):
+                self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", message.course_id, message.task_id,
+                                     message.environment_type, message.environment)
                 raise CannotCreateJobException('This environment is not available in this agent. Please contact your course administrator.')
 
             task_fs = self._fs.from_subfolder(message.course_id).from_subfolder(message.task_id)

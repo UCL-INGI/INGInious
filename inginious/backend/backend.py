@@ -22,7 +22,7 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDo
 WaitingJob = namedtuple('WaitingJob', ['priority', 'time_received', 'client_addr', 'job_id', 'msg'])
 RunningJob = namedtuple('RunningJob', ['agent_addr', 'client_addr', 'msg', 'time_started'])
 EnvironmentInfo = namedtuple('EnvironmentInfo', ['last_id', 'created_last', 'agents', 'type'])
-AgentInfo = namedtuple('AgentInfo', ['name', 'environments']) #environments is a dict, described in AgentHello
+AgentInfo = namedtuple('AgentInfo', ['name', 'environments'])  # environments is a list of tuple (type, environment)
 
 class Backend(object):
     """
@@ -48,7 +48,9 @@ class Backend(object):
         self._poller.register(self._agent_socket, zmq.POLLIN)
         self._poller.register(self._client_socket, zmq.POLLIN)
 
-        self._environments: Dict[str, EnvironmentInfo] = {}  # dict of available environments
+        # dict of available environments. Keys are first the type of environement (docker, mcq, kata...) then the
+        # name of the environment.
+        self._environments: Dict[str, Dict[str, EnvironmentInfo]] = {}
         self._registered_clients = set()  # addr of registered clients
 
         self._registered_agents: Dict[bytes, AgentInfo] = {}  # all registered agents
@@ -103,7 +105,7 @@ class Backend(object):
     async def send_environment_update_to_client(self, client_addrs):
         """ :param client_addrs: list of clients to which we should send the update """
         self._logger.debug("Sending environments updates...")
-        available_environments = {idx: environment.type for idx, environment in self._environments.items()}
+        available_environments = {type: list(environments.keys()) for type, environments in self._environments.items()}
         msg = BackendUpdateEnvironments(available_environments)
         for client in client_addrs:
             await ZMQUtils.send_with_addr(self._client_socket, client, msg)
@@ -133,7 +135,7 @@ class Backend(object):
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
         job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[message.job_id] = job
-        self._waiting_jobs_pq.put(message.environment, job)
+        self._waiting_jobs_pq.put((message.environment_type, message.environment), job)
 
         await self.update_queue()
 
@@ -141,7 +143,6 @@ class Backend(object):
         """ Handle an ClientKillJob message. Remove a job from the waiting list or send the kill message to the right agent. """
         # Check if the job is not in the queue
         if message.job_id in self._waiting_jobs:
-
             # Erase the job reference in priority queue
             job = self._waiting_jobs.pop(message.job_id)
             job._replace(msg=None)
@@ -194,7 +195,7 @@ class Backend(object):
                 job = None
                 while job is None:
                     # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
-                    job = self._waiting_jobs_pq.get(self._registered_agents[agent_addr].environments.keys())
+                    job = self._waiting_jobs_pq.get(self._registered_agents[agent_addr].environments)
                     priority, insert_time, client_addr, job_id, job_msg = job
 
                     # Killed job, removing it from the mapping
@@ -215,6 +216,7 @@ class Backend(object):
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_id, agent_addr)
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                         job_msg.task_problems, job_msg.inputdata,
+                                                                                        job_msg.environment_type,
                                                                                         job_msg.environment,
                                                                                         job_msg.environment_parameters,
                                                                                         job_msg.debug))
@@ -229,49 +231,50 @@ class Backend(object):
             # Delete previous instance of this agent, if any
             await self._delete_agent(agent_addr)
 
-        self._registered_agents[agent_addr] = AgentInfo(message.friendly_name, message.available_environments)
+        self._registered_agents[agent_addr] = AgentInfo(message.friendly_name,
+                                                        [(etype, env['name']) for etype, envs in
+                                                         message.available_environments.items() for env in envs])
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
 
         # update information about available environments
-        for environment_name, environment_info in message.available_environments.items():
-            if environment_name in self._environments:
-                # check if the agent is the same
-                if self._environments[environment_name].type != environment_info["type"]:
-                    # add this type of agent
-                    self._environments[environment_name].type.append(environment_info["type"])
-                # check if the id is the same
-                elif self._environments[environment_name].last_id == environment_info["id"]:
-                    # ok, just add the agent to the list of agents that have the environment
-                    self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
-                    self._environments[environment_name].agents.append(agent_addr)
-                elif self._environments[environment_name].created_last > environment_info["created"]:
-                    # environments stored have been created after the new one
-                    # add the agent, but emit a warning
-                    self._logger.warning("Environment %s has multiple version: \n"
-                                         "\t Currently registered agents have version %s (%i)\n"
-                                         "\t New agent %s has version %s (%i)",
-                                         environment_name,
-                                         self._environments[environment_name].last_id, self._environments[environment_name].created_last,
-                                         str(agent_addr), environment_info["id"], environment_info["created"])
-                    self._environments[environment_name].agents.append(agent_addr)
-                else:  # self._environments[environment_name][1] < environment_info["created"]:
-                    # environments stored have been created before the new one
-                    # add the agent, update the infos, and emit a warning
-                    self._logger.warning("Environment %s has multiple version: \n"
-                                         "\t Currently registered agents have version %s (%i)\n"
-                                         "\t New agent %s has version %s (%i)",
-                                         environment_name,
-                                         self._environments[environment_name].last_id, self._environments[environment_name].created_last,
-                                         str(agent_addr), environment_info["id"], environment_info["created"])
-                    self._environments[environment_name] = EnvironmentInfo(environment_info["id"], environment_info["created"],
-                                                                           self._environments[environment_name].agents + [agent_addr],
-                                                                           environment_info["type"])
-            else:
-                # just add it
-                self._logger.debug("Registering environment %s for agent %s", environment_name, str(agent_addr))
-                self._environments[environment_name] = EnvironmentInfo(environment_info["id"], environment_info["created"],
-                                                                       [agent_addr], environment_info["type"])
+        for environment_type, environments in message.available_environments.items():
+            if environment_type not in self._environments:
+                self._environments[environment_type] = {}
+            env_dict = self._environments[environment_type]
+            for environment_info in environments:
+                name = environment_info["name"]
+                if name in env_dict:
+                    # check if the id is the same
+                    if env_dict[name].last_id == environment_info["id"]:
+                        # ok, just add the agent to the list of agents that have the environment
+                        self._logger.debug("Registering environment %s/%s for agent %s", environment_type, name, str(agent_addr))
+                        env_dict[name].agents.append(agent_addr)
+                    elif env_dict[name].created_last > environment_info["created"]:
+                        # environments stored have been created after the new one
+                        # add the agent, but emit a warning
+                        self._logger.warning("Environment %s has multiple version: \n"
+                                             "\t Currently registered agents have version %s (%i)\n"
+                                             "\t New agent %s has version %s (%i)",
+                                             name,
+                                             env_dict[name].last_id, env_dict[name].created_last,
+                                             str(agent_addr), environment_info["id"], environment_info["created"])
+                        env_dict[name].agents.append(agent_addr)
+                    else:
+                        # environments stored have been created before the new one
+                        # add the agent, update the infos, and emit a warning
+                        self._logger.warning("Environment %s has multiple version: \n"
+                                             "\t Currently registered agents have version %s (%i)\n"
+                                             "\t New agent %s has version %s (%i)",
+                                             name,
+                                             env_dict[name].last_id, env_dict[name].created_last,
+                                             str(agent_addr), environment_info["id"], environment_info["created"])
+                        env_dict[name] = EnvironmentInfo(environment_info["id"], environment_info["created"],
+                                                         env_dict[name].agents + [agent_addr], environment_type)
+                else:
+                    # just add it
+                    self._logger.debug("Registering environment %s/%s for agent %s", environment_type, name, str(agent_addr))
+                    env_dict[name] = EnvironmentInfo(environment_info["id"], environment_info["created"], [agent_addr], environment_type)
 
         # update the queue
         await self.update_queue()

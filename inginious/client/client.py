@@ -8,6 +8,7 @@ import uuid
 from abc import abstractmethod, ABCMeta
 
 import time
+from typing import List, Dict
 
 from inginious.client._zeromq_client import BetterParanoidPirateClient
 from inginious.common.messages import ClientHello, BackendUpdateEnvironments, BackendJobStarted, \
@@ -38,9 +39,10 @@ class AbstractClient(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_available_environments(self):
+    def get_available_environments(self) -> Dict[str, List[str]]:
         """
-        Return the list of available environments for grading
+        Returns the dict of available environments for grading. Keys are the type of the environment, and values are
+        each of list of available environments for each type.
         """
         pass
 
@@ -255,10 +257,10 @@ class Client(BetterParanoidPirateClient):
         """ Close the Client """
         pass
 
-    def get_available_environments(self):
+    def get_available_environments(self) -> Dict[str, List[str]]:
         """
-        Return the dict of available environments for grading. Keys are the id of the environment, and values are
-        their type.
+        Returns the dict of available environments for grading. Keys are the type of the environment, and values are
+        each of list of available environments for each type.
         """
         return self._available_environments
 
@@ -296,28 +298,20 @@ class Client(BetterParanoidPirateClient):
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
         ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3: None)
 
+        environment_type = task.get_environment_type()
         environment = task.get_environment_id()
-        if environment not in self._available_environments:
-            self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(),
+
+        if environment_type not in self._available_environments or environment not in self._available_environments[environment_type]:
+            self._logger.warning("Env %s/%s not available for task %s/%s", environment_type, environment, task.get_course_id(),
                                  task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
             safe_callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return None
 
-        environment_type = task.get_environment_type()
-        if environment_type not in self._available_environments[environment]:
-            self._logger.warning("Env %s does not have the expected type %s, but rather %s, in task %s/%s",
-                                 environment, environment_type, self._available_environments[environment],
-                                 task.get_course_id(), task.get_id())
-            ssh_callback(None, None, None)  # ssh_callback must be called once
-            safe_callback(("crash", "Environment {}-{} not available.".format(environment_type, environment)), 0.0, {}, {},
-                          "", {}, None, "", "")
-            return None
-
         environment_parameters = task.get_environment_parameters()
 
-        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), task.get_problems_dict(), inputdata, environment,
-                           environment_parameters, debug, launcher_name)
+        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), task.get_problems_dict(), inputdata,
+                           environment_type, environment, environment_parameters, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future,
                                         self._create_transaction(msg, task=task, callback=safe_callback,
                                                                  ssh_callback=ssh_callback))

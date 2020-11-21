@@ -11,6 +11,7 @@ import os.path
 import tarfile
 import tempfile
 import time
+from typing import Dict, List
 import bson
 import pymongo
 
@@ -218,7 +219,7 @@ class WebAppSubmissionManager:
                               submission["courseid"],
                               submission["taskid"], submission["_id"], self._user_manager.session_username())
 
-    def get_available_environments(self):
+    def get_available_environments(self) -> Dict[str, List[str]]:
         """:return a list of available environments """
         return self._client.get_available_environments()
 
