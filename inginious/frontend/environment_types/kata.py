@@ -8,4 +8,4 @@ class KataEnvType(DockerEnvType):
 
     @property
     def name(self):
-        return _("Kata container")
+        return _("Container running as root (Kata)")

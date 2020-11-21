@@ -8,7 +8,7 @@ class DockerEnvType(FrontendEnvType):
 
     @property
     def name(self):
-        return _("Docker container")
+        return _("Standard container (Docker)")
 
     def check_task_environment_parameters(self, data):
         out = {}
