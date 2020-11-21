@@ -17,15 +17,20 @@ import psutil
 from inginious.agent.docker_agent._docker_interface import DockerInterface
 
 from inginious.agent import Agent, CannotCreateJobException
+from inginious.agent.docker_agent._docker_runtime import DockerRuntime
 from inginious.agent.docker_agent._timeout_watcher import TimeoutWatcher
 from inginious.common.asyncio_utils import AsyncIteratorWrapper, AsyncProxy
 from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
 
+DEFAULT_RUNTIMES = [
+    DockerRuntime(runtime="runc", run_as_root=False, envtype="docker"),
+    DockerRuntime(runtime="kata-runtime", run_as_root=True, envtype="kata")
+]
 
 class DockerAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp", type="docker", runtime="runc"):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp", runtimes=None):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -40,10 +45,9 @@ class DockerAgent(Agent):
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
 
-        if runtime is None:
-            runtime = "runc" if type == "docker" else "kata-runtime"
+        self._runtimes = runtimes or DEFAULT_RUNTIMES
 
-        self._logger = logging.getLogger("inginious.agent.{}".format(type))
+        self._logger = logging.getLogger("inginious.agent.docker")
 
         self._max_memory_per_slot = int(psutil.virtual_memory().total / concurrency / 1024 / 1024)
 
@@ -57,9 +61,6 @@ class DockerAgent(Agent):
         # Async proxy to os
         self._aos = AsyncProxy(os)
         self._ashutil = AsyncProxy(shutil)
-
-        self.type = type
-        self.runtime = runtime
 
     async def _init_clean(self):
         """ Must be called when the agent is starting """
@@ -84,19 +85,17 @@ class DockerAgent(Agent):
             pass
 
         # Docker
-        self._docker = AsyncProxy(DockerInterface(self.type, self.runtime))
+        self._docker = AsyncProxy(DockerInterface())
 
         # Auto discover containers
         self._logger.info("Discovering containers")
-        self._containers = await self._docker.get_containers()
-        for name, info in self._containers.items():
-            info["name"] = name # for compatibility with environments()
+        self._containers = await self._docker.get_containers(self._runtimes)
 
         self._assigned_external_ports = {}  # container_id : [external_ports]
 
         if self._address_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
-            self._address_host = await self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
+            self._address_host = await self._docker.get_host_ip(next(iter(next(iter(self._containers.values())).values()))["id"])
         if self._address_host is None:
             self._logger.warning(
                 "Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
@@ -124,7 +123,7 @@ class DockerAgent(Agent):
 
     @property
     def environments(self):
-        return {self.type: list(self._containers.values())}
+        return {t: [{**info, "name": envname} for envname, info in envs.items()] for t, envs in self._containers.items()}
 
     async def _watch_docker_events(self):
         """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """
@@ -169,6 +168,7 @@ class DockerAgent(Agent):
         task_id = message.task_id
 
         debug = message.debug
+        environment_type = message.environment_type
         environment_name = message.environment
 
         try:
@@ -197,14 +197,15 @@ class DockerAgent(Agent):
                                  mem_limit, self._max_memory_per_slot)
             raise CannotCreateJobException('Not enough memory on agent (available: %dMB). Please contact your course administrator.' % self._max_memory_per_slot)
 
-        if environment_name not in self._containers:
-            self._logger.warning("Task %s/%s ask for an unknown environment %s (not in aliases)", course_id, task_id,
-                                 environment_name)
+        if environment_type not in self._containers or environment_name not in self._containers[environment_type]:
+            self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", course_id, task_id,
+                                 environment_type, environment_name)
             raise CannotCreateJobException('Unknown container. Please contact your course administrator.')
 
-        environment = self._containers[environment_name]["id"]
+        environment = self._containers[environment_type][environment_name]["id"]
+        runtime = self._containers[environment_type][environment_name]["runtime"]
 
-        ports_needed = list(self._containers[environment_name]["ports"])  # copy, as we modify it later!
+        ports_needed = list(self._containers[environment_type][environment_name]["ports"])  # copy, as we modify it later!
 
         if debug == "ssh" and 22 not in ports_needed:
             ports_needed.append(22)
@@ -268,7 +269,7 @@ class DockerAgent(Agent):
         try:
             container_id = self._docker.sync.create_container(environment, enable_network, mem_limit, task_path,
                                                               sockets_path, course_common_path,
-                                                              course_common_student_path, ports)
+                                                              course_common_student_path, runtime, ports)
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
             shutil.rmtree(container_path)
@@ -301,6 +302,7 @@ class DockerAgent(Agent):
             "inputdata": message.inputdata,
             "debug": debug,
             "ports": ports,
+            "environment_type": environment_type,
             "orig_env": environment_name,
             "orig_memory_limit": mem_limit,
             "orig_time_limit": time_limit,
@@ -322,27 +324,32 @@ class DockerAgent(Agent):
         await self._timeout_watcher.register_container(out["container_id"], out["orig_time_limit"], out["orig_hard_time_limit"])
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path,
-                                       course_common_student_path, socket_id,  environment_name, memory_limit,
-                                       time_limit, hard_time_limit, share_network, write_stream):
+                                       course_common_student_path, socket_id, environment_type, environment_name,
+                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
         """
         try:
-            self._logger.debug("Starting new student container... %s %s %s %s", environment_name, memory_limit, time_limit, hard_time_limit)
+            self._logger.debug("Starting new student container... %s/%s %s %s %s", environment_type, environment_name,
+                               memory_limit, time_limit, hard_time_limit)
 
-            if environment_name not in self._containers:
-                self._logger.warning("Student container asked for an unknown environment %s (not in aliases)", environment_name)
-                await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
+            if environment_type not in self._containers or environment_name not in self._containers[environment_type]:
+                self._logger.warning("Student container asked for an unknown environment %s/%s",
+                                     environment_type, environment_name)
+                await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254,
+                                                                    "socket_id": socket_id})
                 return
 
-            environment = self._containers[environment_name]["id"]
+            environment = self._containers[environment_type][environment_name]["id"]
+            runtime = self._containers[environment_type][environment_name]["runtime"]
 
             try:
                 socket_path = path_join(sockets_path, str(socket_id) + ".sock")
                 container_id = await self._docker.create_container_student(parent_container_id, environment, share_network,
                                                                            memory_limit, student_path, socket_path,
-                                                                           systemfiles_path, course_common_student_path)
+                                                                           systemfiles_path, course_common_student_path,
+                                                                           runtime)
             except Exception as e:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
@@ -388,8 +395,8 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_running_container(self, job_id, container_id, inputdata, run_cmd, debug, ports, orig_env,
-                                       orig_memory_limit, orig_time_limit, orig_hard_time_limit, sockets_path,
+    async def handle_running_container(self, job_id, container_id, inputdata, run_cmd, debug, ports, environment_type,
+                                       orig_env, orig_memory_limit, orig_time_limit, orig_hard_time_limit, sockets_path,
                                        student_path, systemfiles_path, course_common_student_path, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._docker.attach_to_container(container_id)
@@ -439,7 +446,7 @@ class DockerAgent(Agent):
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
                                 self._create_safe_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
                                                                                      systemfiles_path, course_common_student_path,
-                                                                                     socket_id,  environment, memory_limit, time_limit,
+                                                                                     socket_id, environment_type, environment, memory_limit, time_limit,
                                                                                      hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)

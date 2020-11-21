@@ -8,11 +8,15 @@
 """
 import os
 from datetime import datetime
+from typing import List, Tuple, Dict
+
 import docker
 import logging
-import sys
+
+from inginious.agent.docker_agent._docker_runtime import DockerRuntime
 
 DOCKER_AGENT_VERSION = 2
+
 
 class DockerInterface(object):  # pragma: no cover
     """
@@ -21,60 +25,64 @@ class DockerInterface(object):  # pragma: no cover
         We do not test coverage here, as it is a bit complicated to interact with docker in tests.
         Docker-py itself is already well tested.
     """
-
-    def __init__(self, type, runtime):
-        """
-        :param type: type of the container ("docker" or "kata")
-        :param runtime: runtime used by docker (for example, "runc" with docker or "kata-qemu" with kata)
-        """
-        assert type in ["docker", "kata"]
-        self.type = type
-        self.runtime = runtime
-
     @property
     def _docker(self):
         return docker.from_env()
     
-    def get_containers(self):
+    def get_containers(self, runtimes: List[DockerRuntime]) -> Dict[str, Dict[str, Dict[str, str]]]:
         """
+        :param runtimes: a list of DockerRuntime. Each DockerRuntime.envtype must appear only once.
         :return: a dict of available containers in the form
         {
-            "name": {                          #for example, "default"
-                "id": "container img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                "created": 12345678            # create date
-                "ports": [22, 434]             # list of ports needed
+            "envtype": {                       # the value of DockerRuntime.envtype. Eg "docker".
+                "name": {                      # for example, "default"
+                    "id": "container img id",  # "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
+                    "created": 12345678,       # create date
+                    "ports": [22, 434],        # list of ports needed
+                    "runtime": "runtime"       # the value of DockerRuntime.runtime. Eg "runc".
+                }
             }
         }
         """
+        assert len(set(x.envtype for x in runtimes)) == len(runtimes)  # no duplicates in the envtypes
 
-        # First, create a dict with {"id": {"title": "alias", "created": 000, "ports": [0, 1]}}
-        images = {}
+        # First, create a dict with {"env": {"id": {"title": "alias", "created": 000, "ports": [0, 1]}}}
+        images = {x.envtype: {} for x in runtimes}
+
         for x in self._docker.images.list(filters={"label": "org.inginious.grading.name"}):
             title = None
             try:
                 title = x.labels["org.inginious.grading.name"]
+                created = datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
+                ports = [int(y) for y in x.labels["org.inginious.grading.ports"].split(
+                    ",")] if "org.inginious.grading.ports" in x.labels else []
 
-                if self.type != "docker" or "org.inginious.grading.need_root" not in x.labels:
-                    logging.getLogger("inginious.agent").info("%s contains: %s", self.type, title)
-                    if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
-                        logging.getLogger("inginious.agent").warning(
-                            "Container %s is made for an old/newer version of the %s agent (container version is %s, "
-                            "but it should be %i). INGInious will ignore the container.", title, self.type,
-                            str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
-                        continue
+                for docker_runtime in runtimes:
+                    if docker_runtime.run_as_root or "org.inginious.grading.need_root" not in x.labels:
+                        logging.getLogger("inginious.agent").info("Envtype %s (%s) can use container %s", docker_runtime.envtype, docker_runtime.runtime, title)
+                        if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
+                            logging.getLogger("inginious.agent").warning(
+                                "Container %s is made for an old/newer version of the agent (container version is "
+                                "%s, but it should be %i). INGInious will ignore the container.", title,
+                                str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
+                            continue
 
-                    created = datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
-                    ports = [int(y) for y in x.labels["org.inginious.grading.ports"].split(
-                        ",")] if "org.inginious.grading.ports" in x.labels else []
-                    images[x.attrs['Id']] = {"title": title, "created": created, "ports": ports}
+                        images[docker_runtime.envtype][x.attrs['Id']] = {
+                            "title": title,
+                            "created": created,
+                            "ports": ports,
+                            "runtime": docker_runtime.runtime
+                        }
             except:
                 logging.getLogger("inginious.agent").exception("Container %s is badly formatted", title or "[cannot load title]")
 
         # Then, we keep only the last version of each name
         latest = {}
-        for img_id, img_c in images.items():
-            if img_c["title"] not in latest or latest[img_c["title"]]["created"] < img_c["created"]:
-                latest[img_c["title"]] = {"id": img_id, "created": img_c["created"], "ports": img_c["ports"]}
+        for envtype, content in images.items():
+            latest[envtype] = {}
+            for img_id, img_c in content.items():
+                if img_c["title"] not in latest[envtype] or latest[envtype][img_c["title"]]["created"] < img_c["created"]:
+                    latest[envtype][img_c["title"]] = {"id": img_id, **img_c}
         return latest
 
     def get_host_ip(self, env_with_dig='ingi/inginious-c-default'):
@@ -93,15 +101,18 @@ class DockerInterface(object):  # pragma: no cover
         except:
             return None
 
-    def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, ports=None):
+    def create_container(self, image, network_grading, mem_limit, task_path, sockets_path,
+                         course_common_path, course_common_student_path, runtime: str, ports=None):
         """
         Creates a container.
-        :param environment: env to start (name/id of a docker image)
+        :param image: env to start (name/id of a docker image)
         :param network_grading: boolean to indicate if the network should be enabled in the container or not
         :param mem_limit: in Mo
         :param task_path: path to the task directory that will be mounted in the container
         :param sockets_path: path to the socket directory that will be mounted in the container
+        :param course_common_path:
+        :param course_common_student_path:
+        :param runtime: name of the docker runtime to use
         :param ports: dictionary in the form {docker_port: external_port}
         :return: the container id
         """
@@ -113,7 +124,7 @@ class DockerInterface(object):  # pragma: no cover
             ports = {}
 
         response = self._docker.containers.create(
-            environment,
+            image,
             stdin_open=True,
             mem_limit=str(mem_limit) + "M",
             memswap_limit=str(mem_limit) + "M",
@@ -127,21 +138,23 @@ class DockerInterface(object):  # pragma: no cover
                 course_common_path: {'bind': '/course/common', 'mode': 'ro'},
                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
-            runtime=self.runtime
+            runtime=runtime
         )
         return response.id
 
-    def create_container_student(self, parent_container_id, environment, network_grading, mem_limit,  student_path,
-                                 socket_path, systemfiles_path, course_common_student_path):
+    def create_container_student(self, parent_container_id, image, network_grading, mem_limit,  student_path,
+                                 socket_path, systemfiles_path, course_common_student_path, runtime: str):
         """
         Creates a student container
         :param parent_container_id: id of the "parent" container
-        :param environment: env to start (name/id of a docker image)
+        :param image: env to start (name/id of a docker image)
         :param network_grading: boolean to indicate if the network should be enabled in the container or not (share the parent stack)
         :param mem_limit: in Mo
         :param student_path: path to the task directory that will be mounted in the container
         :param socket_path: path to the socket that will be mounted in the container
         :param systemfiles_path: path to the systemfiles folder containing files that can override partially some defined system files
+        :param course_common_student_path:
+        :param runtime: name of the docker runtime to use
         :return: the container id
         """
         student_path = os.path.abspath(student_path)
@@ -149,7 +162,7 @@ class DockerInterface(object):  # pragma: no cover
         systemfiles_path = os.path.abspath(systemfiles_path)
         course_common_student_path = os.path.abspath(course_common_student_path)
         response = self._docker.containers.create(
-            environment,
+            image,
             stdin_open=True,
             command="_run_student_intern",
             mem_limit=str(mem_limit) + "M",
@@ -163,7 +176,7 @@ class DockerInterface(object):  # pragma: no cover
                  systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
                  course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
-            runtime=self.runtime
+            runtime=runtime
         )
         return response.id
 
