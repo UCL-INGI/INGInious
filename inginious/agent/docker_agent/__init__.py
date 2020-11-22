@@ -408,7 +408,7 @@ class DockerAgent(Agent):
             return None
 
         # Send hello msg
-        hello_msg = {"type": "start", "input": inputdata, "debug": debug}
+        hello_msg = {"type": "start", "input": inputdata, "debug": debug, "envtypes": {x.envtype: x.shared_kernel for x in self._runtimes}}
         if run_cmd is not None:
             hello_msg["run_cmd"] = run_cmd
         await self._write_to_container_stdin(write_stream, hello_msg)
@@ -680,9 +680,9 @@ class DockerAgent(Agent):
 
     def _detect_runtimes(self):
         heuristic = [
-            ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, envtype="docker")),
-            ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, envtype="docker")),
-            ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, envtype="kata")),
+            ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, shared_kernel=True, envtype="docker")),
+            ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, shared_kernel=True, envtype="docker")),
+            ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, shared_kernel=False, envtype="kata")),
         ]
         used_envtypes = set()
         retval = []
