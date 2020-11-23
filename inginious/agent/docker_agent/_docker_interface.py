@@ -144,19 +144,20 @@ class DockerInterface(object):  # pragma: no cover
         )
         return response.id
 
-    def create_container_student(self, parent_container_id, image, network_grading, mem_limit,  student_path,
-                                 socket_path, systemfiles_path, course_common_student_path, runtime: str):
+    def create_container_student(self, runtime: str, image: str, mem_limit, student_path,
+                                 socket_path, systemfiles_path, course_common_student_path,
+                                 share_network_of_container: str=None):
         """
         Creates a student container
-        :param parent_container_id: id of the "parent" container
+        :param runtime: name of the docker runtime to use
         :param image: env to start (name/id of a docker image)
-        :param network_grading: boolean to indicate if the network should be enabled in the container or not (share the parent stack)
         :param mem_limit: in Mo
         :param student_path: path to the task directory that will be mounted in the container
         :param socket_path: path to the socket that will be mounted in the container
         :param systemfiles_path: path to the systemfiles folder containing files that can override partially some defined system files
         :param course_common_student_path:
-        :param runtime: name of the docker runtime to use
+        :param share_network_of_container: (deprecated) if a container id is given, the new container will share its
+                                           network stack.
         :return: the container id
         """
         student_path = os.path.abspath(student_path)
@@ -171,12 +172,12 @@ class DockerInterface(object):  # pragma: no cover
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
             oom_kill_disable=True,
-            network_mode=('none' if not network_grading else ('container:' + parent_container_id)),
+            network_mode=('none' if not share_network_of_container else ('container:' + share_network_of_container)),
             volumes={
                 student_path: {'bind': '/task/student'},
-                 socket_path: {'bind': '/__parent.sock'},
-                 systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
-                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
+                socket_path: {'bind': '/__parent.sock'},
+                systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
+                course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
             runtime=runtime
         )

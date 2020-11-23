@@ -345,10 +345,10 @@ class DockerAgent(Agent):
 
             try:
                 socket_path = path_join(sockets_path, str(socket_id) + ".sock")
-                container_id = await self._docker.create_container_student(parent_container_id, environment, share_network,
+                container_id = await self._docker.create_container_student(runtime, environment,
                                                                            memory_limit, student_path, socket_path,
                                                                            systemfiles_path, course_common_student_path,
-                                                                           runtime)
+                                                                           parent_container_id if share_network else None)
             except Exception as e:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
