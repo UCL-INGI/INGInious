@@ -10,7 +10,9 @@ import os
 import shutil
 import struct
 import tempfile
+from dataclasses import dataclass
 from os.path import join as path_join
+from typing import Dict, Any, Union, List, Set
 
 import msgpack
 import psutil
@@ -23,6 +25,37 @@ from inginious.common.asyncio_utils import AsyncIteratorWrapper, AsyncProxy
 from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
+
+@dataclass
+class DockerRunningJob:
+    message: BackendNewJob
+    container_path: str
+    future_results: asyncio.Future
+    job_id: str
+    container_id: str
+    inputdata: Dict[str, Any]
+    debug: Union[bool, str]  # True, False or "ssh"
+    ports: Dict[int, int]  # internal port -> external port mapping
+    environment_type: str
+    environment_name: str
+    mem_limit: int
+    time_limit: int
+    hard_time_limit: int
+    sockets_path: str
+    student_path: str
+    systemfiles_path: str
+    course_common_student_path: str
+    run_cmd: str
+    assigned_external_ports: List[int]
+    student_containers: Set[str]  # container ids of student containers
+
+
+@dataclass
+class DockerRunningStudentContainer:
+    container_id: str
+    parent_info: DockerRunningJob
+    socket_id: str
+    write_stream: Any
 
 
 class DockerAgent(Agent):
@@ -61,11 +94,10 @@ class DockerAgent(Agent):
     async def _init_clean(self):
         """ Must be called when the agent is starting """
         # Data about running containers
-        self._containers_running = {}
-        self._container_for_job = {}
+        self._containers_running: Dict[str, DockerRunningJob] = {}  # container_id -> info
+        self._container_for_job: Dict[str, str] = {}  # job id -> container_id
 
-        self._student_containers_running = {}
-        self._student_containers_for_job = {}
+        self._student_containers_running: Dict[str, DockerRunningStudentContainer] = {}
 
         self._containers_killed = dict()
 
@@ -90,8 +122,6 @@ class DockerAgent(Agent):
         self._logger.info("Discovering containers")
         self._containers = await self._docker.get_containers(self._runtimes)
 
-        self._assigned_external_ports = {}  # container_id : [external_ports]
-
         if self._address_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
             self._address_host = await self._docker.get_host_ip(next(iter(next(iter(self._containers.values())).values()))["id"])
@@ -115,9 +145,9 @@ class DockerAgent(Agent):
             except:
                 pass
 
-        for container_id  in self._containers_running:
+        for container_id in self._containers_running:
             await close_and_delete(container_id)
-        for container_id  in self._student_containers_running:
+        for container_id in self._student_containers_running:
             await close_and_delete(container_id)
 
     @property
@@ -277,12 +307,31 @@ class DockerAgent(Agent):
             raise CannotCreateJobException('Cannot create container.')
 
         # Store info
-        self._containers_running[container_id] = message, container_path, future_results
-        self._container_for_job[message.job_id] = container_id
-        self._student_containers_for_job[message.job_id] = set()
+        info = DockerRunningJob(
+            message=message,
+            container_path=container_path,
+            future_results=future_results,
+            job_id=message.job_id,
+            container_id=container_id,
+            inputdata=message.inputdata,
+            debug=debug,
+            ports=ports,
+            environment_type=environment_type,
+            environment_name=environment_name,
+            mem_limit=mem_limit,
+            time_limit=time_limit,
+            hard_time_limit=hard_time_limit,
+            sockets_path=sockets_path,
+            student_path=student_path,
+            systemfiles_path=systemfiles_path,
+            course_common_student_path=course_common_student_path,
+            run_cmd=run_cmd,
+            assigned_external_ports=list(ports.values()),
+            student_containers=set()
+        )
 
-        if len(ports) != 0:
-            self._assigned_external_ports[container_id] = list(ports.values())
+        self._containers_running[container_id] = info
+        self._container_for_job[message.job_id] = container_id
 
         try:
             # Start the container
@@ -295,23 +344,7 @@ class DockerAgent(Agent):
 
             raise CannotCreateJobException('Cannot start container')
 
-        return {
-            "job_id": message.job_id,
-            "container_id": container_id,
-            "inputdata": message.inputdata,
-            "debug": debug,
-            "ports": ports,
-            "environment_type": environment_type,
-            "orig_env": environment_name,
-            "orig_memory_limit": mem_limit,
-            "orig_time_limit": time_limit,
-            "orig_hard_time_limit": hard_time_limit,
-            "sockets_path": sockets_path,
-            "student_path": student_path,
-            "systemfiles_path": systemfiles_path,
-            "course_common_student_path": course_common_student_path,
-            "run_cmd": run_cmd
-        }
+        return info
 
     async def new_job(self, message: BackendNewJob):
         """
@@ -319,17 +352,17 @@ class DockerAgent(Agent):
         """
         future_results = asyncio.Future()
         out = await self._loop.run_in_executor(None, lambda: self.__new_job_sync(message, future_results))
-        self._create_safe_task(self.handle_running_container(**out, future_results=future_results))
-        await self._timeout_watcher.register_container(out["container_id"], out["orig_time_limit"], out["orig_hard_time_limit"])
+        self._create_safe_task(self.handle_running_container(out, future_results=future_results))
+        await self._timeout_watcher.register_container(out.container_id, out.time_limit, out.hard_time_limit)
 
-    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path,
-                                       course_common_student_path, socket_id, environment_type, environment_name,
+    async def create_student_container(self, parent_info, socket_id, environment_name,
                                        memory_limit, time_limit, hard_time_limit, share_network, write_stream):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
         """
         try:
+            environment_type = parent_info.environment_type
             self._logger.debug("Starting new student container... %s/%s %s %s %s", environment_type, environment_name,
                                memory_limit, time_limit, hard_time_limit)
 
@@ -344,11 +377,12 @@ class DockerAgent(Agent):
             runtime = self._containers[environment_type][environment_name]["runtime"]
 
             try:
-                socket_path = path_join(sockets_path, str(socket_id) + ".sock")
+                socket_path = path_join(parent_info.sockets_path, str(socket_id) + ".sock")
                 container_id = await self._docker.create_container_student(runtime, environment,
-                                                                           memory_limit, student_path, socket_path,
-                                                                           systemfiles_path, course_common_student_path,
-                                                                           parent_container_id if share_network else None)
+                                                                           memory_limit, parent_info.student_path, socket_path,
+                                                                           parent_info.systemfiles_path,
+                                                                           parent_info.course_common_student_path,
+                                                                           parent_info.container_id if share_network else None)
             except Exception as e:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
@@ -358,8 +392,15 @@ class DockerAgent(Agent):
 
                 return
 
-            self._student_containers_for_job[job_id].add(container_id)
-            self._student_containers_running[container_id] = job_id, parent_container_id, socket_id, write_stream
+            info = DockerRunningStudentContainer(
+                container_id=container_id,
+                parent_info=parent_info,
+                socket_id=socket_id,
+                write_stream=write_stream
+            )
+
+            parent_info.student_containers.add(container_id)
+            self._student_containers_running[container_id] = info
 
             # send to the container that the sibling has started
             await self._write_to_container_stdin(write_stream, {"type": "run_student_started", "socket_id": socket_id})
@@ -394,11 +435,9 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_running_container(self, job_id, container_id, inputdata, run_cmd, debug, ports, environment_type,
-                                       orig_env, orig_memory_limit, orig_time_limit, orig_hard_time_limit, sockets_path,
-                                       student_path, systemfiles_path, course_common_student_path, future_results):
+    async def handle_running_container(self, info:DockerRunningJob, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
-        sock = await self._docker.attach_to_container(container_id)
+        sock = await self._docker.attach_to_container(info.container_id)
         try:
             read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
         except asyncio.CancelledError:
@@ -408,9 +447,9 @@ class DockerAgent(Agent):
             return None
 
         # Send hello msg
-        hello_msg = {"type": "start", "input": inputdata, "debug": debug, "envtypes": {x.envtype: x.shared_kernel for x in self._runtimes}}
-        if run_cmd is not None:
-            hello_msg["run_cmd"] = run_cmd
+        hello_msg = {"type": "start", "input": info.inputdata, "debug": info.debug, "envtypes": {x.envtype: x.shared_kernel for x in self._runtimes}}
+        if info.run_cmd is not None:
+            hello_msg["run_cmd"] = info.run_cmd
         await self._write_to_container_stdin(write_stream, hello_msg)
         result = None
 
@@ -433,29 +472,28 @@ class DockerAgent(Agent):
                         buffer = buffer[4 + struct.unpack('I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
                         try:
                             msg = msgpack.unpackb(msg_encoded, use_list=False)
-                            self._logger.debug("Received msg %s from container %s", msg["type"], container_id)
+                            self._logger.debug("Received msg %s from container %s", msg["type"], info.container_id)
                             if msg["type"] == "run_student":
                                 # start a new student container
-                                environment = msg["environment"] or orig_env
-                                memory_limit = min(msg["memory_limit"] or orig_memory_limit, orig_memory_limit)
-                                time_limit = min(msg["time_limit"] or orig_time_limit, orig_time_limit)
-                                hard_time_limit = min(msg["hard_time_limit"] or orig_hard_time_limit, orig_hard_time_limit)
+                                environment = msg["environment"] or info.environment_name
+                                memory_limit = min(msg["memory_limit"] or info.mem_limit, info.mem_limit)
+                                time_limit = min(msg["time_limit"] or info.time_limit, info.time_limit)
+                                hard_time_limit = min(msg["hard_time_limit"] or info.hard_time_limit, info.hard_time_limit)
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                                self._create_safe_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
-                                                                                     systemfiles_path, course_common_student_path,
-                                                                                     socket_id, environment_type, environment, memory_limit, time_limit,
-                                                                                     hard_time_limit, share_network, write_stream))
+                                self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
+                                                                                     time_limit, hard_time_limit, share_network,
+                                                                                     write_stream))
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
-                                self._logger.info("%s %s", container_id, str(msg))
-                                await self.send_ssh_job_info(job_id, self._address_host, ports[22], msg["ssh_key"])
+                                self._logger.info("%s %s", info.container_id, str(msg))
+                                await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22], msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 result = msg["result"]
                         except:
-                            self._logger.exception("Received incorrect message from container %s (job id %s)", container_id, job_id)
+                            self._logger.exception("Received incorrect message from container %s (job id %s)", info.container_id, info.job_id)
         except asyncio.IncompleteReadError:
             self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
         except asyncio.CancelledError:
@@ -464,14 +502,14 @@ class DockerAgent(Agent):
             future_results.set_result(result)
             raise
         except:
-            self._logger.exception("Exception while reading container %s output", container_id)
+            self._logger.exception("Exception while reading container %s output", info.container_id)
 
         write_stream.close()
         sock.close_socket()
         future_results.set_result(result)
 
         if not result:
-            self._logger.warning("Container %s has not given any result", container_id)
+            self._logger.warning("Container %s has not given any result", info.container_id)
 
     async def handle_student_job_closing(self, container_id, retval):
         """
@@ -481,7 +519,7 @@ class DockerAgent(Agent):
         try:
             self._logger.debug("Closing student %s", container_id)
             try:
-                job_id, parent_container_id, socket_id, write_stream = self._student_containers_running[container_id]
+                info = self._student_containers_running[container_id]
                 del self._student_containers_running[container_id]
             except asyncio.CancelledError:
                 raise
@@ -490,8 +528,7 @@ class DockerAgent(Agent):
                 return
 
             # Delete remaining student containers
-            if job_id in self._student_containers_for_job:  # if it does not exists, then the parent container has closed
-                self._student_containers_for_job[job_id].remove(container_id)
+            info.parent_info.student_containers.remove(container_id)
 
             killed = await self._timeout_watcher.was_killed(container_id)
             if container_id in self._containers_killed:
@@ -504,7 +541,7 @@ class DockerAgent(Agent):
                 retval = 252
 
             try:
-                await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": retval, "socket_id": socket_id})
+                await self._write_to_container_stdin(info.write_stream, {"type": "run_student_retval", "retval": retval, "socket_id": info.socket_id})
             except asyncio.CancelledError:
                 raise
             except:
@@ -529,7 +566,7 @@ class DockerAgent(Agent):
         try:
             self._logger.debug("Closing %s", container_id)
             try:
-                message, container_path, future_results = self._containers_running[container_id]
+                info = self._containers_running[container_id]
                 del self._containers_running[container_id]
             except asyncio.CancelledError:
                 raise
@@ -538,7 +575,7 @@ class DockerAgent(Agent):
                 return
 
             # Close sub containers
-            for student_container_id_loop in self._student_containers_for_job[message.job_id]:
+            for student_container_id_loop in info.student_containers:
                 # little hack to ensure the value of student_container_id_loop is copied into the closure
                 async def close_and_delete(student_container_id=student_container_id_loop):
                     try:
@@ -549,13 +586,10 @@ class DockerAgent(Agent):
                     except:
                         pass  # ignore
                 self._create_safe_task(close_and_delete(student_container_id_loop))
-            del self._student_containers_for_job[message.job_id]
 
             # Allow other container to reuse the external ports this container has finished to use
-            if container_id in self._assigned_external_ports:
-                for p in self._assigned_external_ports[container_id]:
-                    self._external_ports.add(p)
-                del self._assigned_external_ports[container_id]
+            for p in info.assigned_external_ports:
+                self._external_ports.add(p)
 
             # Verify if the container was killed, either by the client, by an OOM or by a timeout
             killed = await self._timeout_watcher.was_killed(container_id)
@@ -581,7 +615,7 @@ class DockerAgent(Agent):
             if result is None:
                 # Get logs back
                 try:
-                    return_value = await future_results
+                    return_value = await info.future_results
 
                     # Accepted types for return dict
                     accepted_types = {"stdout": str, "stderr": str, "result": str, "text": str, "grade": float,
@@ -635,16 +669,16 @@ class DockerAgent(Agent):
 
             # Delete folders
             try:
-                await self._ashutil.rmtree(container_path)
+                await self._ashutil.rmtree(info.container_path)
             except PermissionError:
                 self._logger.debug("Cannot remove old container path!")
                 pass  # todo: run a docker container to force removal
 
             # Return!
-            await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, state, archive, stdout, stderr)
+            await self.send_job_result(info.job_id, result, error_msg, grade, problems, tests, custom, state, archive, stdout, stderr)
 
             # Do not forget to remove data from internal state
-            del self._container_for_job[message.job_id]
+            del self._container_for_job[info.job_id]
         except asyncio.CancelledError:
             raise
         except:
