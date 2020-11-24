@@ -9,7 +9,7 @@ from collections import OrderedDict
 import bson
 import web
 
-from inginious.common.toc import check_toc
+
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 class CourseTaskListPage(INGIniousAdminPage):
@@ -27,15 +27,15 @@ class CourseTaskListPage(INGIniousAdminPage):
         errors = []
         user_input = web.input()
         try:
-            new_toc = json.loads(user_input["course_structure"])
-            valid, message = check_toc(new_toc)
-            if valid:
-                self.course_factory.update_course_descriptor_element(courseid, 'toc', new_toc)
+            task_dispenser = course.get_task_dispenser()
+            data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
+            if data:
+                self.course_factory.update_course_descriptor_element(course.get_id(), 'toc', data)
                 course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
             else:
-                errors.append(_("Invalid table of content: ") + message)
-        except:
-            errors.append(_("Something wrong happened"))
+                errors.append(_("Invalid table of content: ") + msg)
+        except Exception as e:
+            errors.append(_("Something wrong happened: ") + str(e))
 
         for taskid in json.loads(user_input["deleted_tasks"]):
             try:
@@ -86,4 +86,4 @@ class CourseTaskListPage(INGIniousAdminPage):
         for taskid in tasks:
             tasks_data[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()),
                               "url": self.submission_url_generator(taskid)}
-        return self.template_helper.get_renderer().course_admin.task_list(course, course.get_task_dispenser().get_dispenser_data(), tasks_data, errors, validated, self.webdav_host)
+        return self.template_helper.get_renderer().course_admin.task_list(course, tasks_data, errors, validated, self.webdav_host)
