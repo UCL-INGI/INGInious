@@ -57,4 +57,4 @@ $elif validated:
         $:_("Change saved.")
     </div>
 
-$:include.course_admin.task_dispensers.toc(course, course_structure, tasks)
+$:course.get_task_dispenser().render_edit(template_helper, course, tasks)

@@ -17,8 +17,9 @@ class TableOfContents(TaskDispenser):
     def get_dispenser_data(self):
         return self._toc
 
-    def render_edit(self):
-        pass
+    def render_edit(self, template_helper, course, task_data):
+        return template_helper.get_renderer(with_layout=False).course_admin.task_dispensers.toc(
+            course, self._toc, task_data)
 
     def render(self, template_helper, course, tasks_data, tag_list):
         return template_helper.get_renderer(with_layout=False).task_dispensers.toc(
