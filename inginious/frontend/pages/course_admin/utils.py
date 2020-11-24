@@ -59,7 +59,7 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
     def get_course_params(self, course, params):
         users = self.get_users(course)
         audiences = self.user_manager.get_course_audiences(course)
-        tasks = course.get_tasks()
+        tasks = course.get_tasks(True)
 
         tutored_audiences = [str(audience["_id"]) for audience in audiences if
                              self.user_manager.session_username() in audience["tutors"]]
