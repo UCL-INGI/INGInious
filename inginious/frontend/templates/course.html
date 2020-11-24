@@ -1,4 +1,4 @@
-$def with (user_info, course, submissions, tasks, toc, tasks_data, grade, tag_filter_list)
+$def with (user_info, course, submissions, tasks_data, grade, tag_filter_list)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -165,6 +165,6 @@ function filter_tag(tag) {
     }
 </style>
 
-$:include.task_dispensers.toc(course, tasks, tasks_data, tag_filter_list, toc)
+$:course.get_task_dispenser().render(template_helper, course, tasks_data, tag_filter_list)
 
 $:include.unregister_modal(course)

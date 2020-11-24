@@ -58,15 +58,16 @@ class CoursePage(INGIniousAuthPage):
             return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
         else:
             tasks = course.get_tasks()
-            last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
 
+            # Get 5 last submissions
+            last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
             for submission in last_submissions:
                     submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
 
+            # Compute course/tasks scores
             tasks_data = {}
             user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
             is_admin = self.user_manager.has_staff_rights_on_course(course, username)
-
             tasks_score = [0.0, 0.0]
 
             for taskid, task in tasks.items():
@@ -82,7 +83,11 @@ class CoursePage(INGIniousAuthPage):
                 tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
+
+            # Get tag list
             tag_list = course.get_tags()
+
+            # Get user info
             user_info = self.user_manager.get_user_info(username)
 
-            return self.template_helper.get_renderer().course(user_info, course, last_submissions, tasks, course.get_task_dispenser().get_dispenser_data(), tasks_data, course_grade, tag_list)
+            return self.template_helper.get_renderer().course(user_info, course, last_submissions, tasks_data, course_grade, tag_list)

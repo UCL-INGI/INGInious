@@ -162,8 +162,8 @@ class Course(object):
         """ Return the AccessibleTime object associated with the registration """
         return self._registration
 
-    def get_tasks(self):
-        return self._task_dispenser.get_ordered_tasks()
+    def get_tasks(self, ordered=False):
+        return self._task_dispenser.get_ordered_tasks() if ordered else self._task_list
 
     def get_access_control_method(self):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """
