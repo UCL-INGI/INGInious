@@ -617,9 +617,10 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username,
-                                            lti) and task.get_accessible_time().after_start()) or \
-               self.has_staff_rights_on_course(task.get_course(), username)
+        course = task.get_course()
+        filter = course.get_task_dispenser().filter_accessibility(task.get_id(), username)
+        return ((self.course_is_open_to_user(course, username, lti) and task.get_accessible_time().after_start()) or \
+               self.has_staff_rights_on_course(task.get_course(), username)) and filter
 
     def task_can_user_submit(self, task, username=None, only_check=None, lti=None):
         """ returns true if the user can submit his work for this task

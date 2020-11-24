@@ -208,7 +208,6 @@ class Task(object):
 
         return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
 
-
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """
         return self._weight
@@ -217,10 +216,6 @@ class Task(object):
         """  Get the accessible time of this task """
         vals = self._plugin_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
         return vals[0] if len(vals) and plugin_override else self._accessible
-
-    def is_visible_by_students(self):
-        """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return self.get_course().is_open_to_non_staff() and self.get_accessible_time().after_start()
 
     def get_deadline(self):
         """ Returns a string containing the deadline for this task """
