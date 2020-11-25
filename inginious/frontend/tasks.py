@@ -191,13 +191,6 @@ class Task(object):
         """ Return the translation_fs parameter for this task"""
         return self._translations_fs
 
-    def get_old_order(self):
-        """ Return the the old ordering for compatibility reasons"""
-        try:
-            return int(self._data.get('order', -1))
-        except ValueError:
-            return -1
-
     def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""
         # Basic checks

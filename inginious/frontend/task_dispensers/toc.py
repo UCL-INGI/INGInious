@@ -34,7 +34,7 @@ class TableOfContents(TaskDispenser):
         return template_helper.get_renderer(with_layout=False).task_dispensers.toc(
             course, self._task_list, tasks_data, tag_list, self._toc)
 
-    @staticmethod
+    @classmethod
     def check_dispenser_data(cls, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
         new_toc = json.loads(dispenser_data)

@@ -27,10 +27,12 @@ class CourseTaskListPage(INGIniousAdminPage):
         errors = []
         user_input = web.input()
         try:
-            task_dispenser = course.get_task_dispenser()
-            data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
+            selected_task_dispenser = user_input.get("task_dispenser", "toc")
+            task_dispenser_class = self.course_factory.get_task_dispensers().get(selected_task_dispenser)
+            data, msg = task_dispenser_class.check_dispenser_data(user_input["course_structure"])
             if data:
-                self.course_factory.update_course_descriptor_element(course.get_id(), 'toc', data)
+                self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser', task_dispenser_class.get_id())
+                self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
                 course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
             else:
                 errors.append(_("Invalid table of content: ") + msg)
