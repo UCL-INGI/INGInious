@@ -187,6 +187,7 @@ class WebAppSubmissionManager:
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
+            submission["user_ip"] = web.ctx.ip
             submissionid = self._database.submissions.insert(submission)
 
         # Clean the submission document in db
@@ -260,7 +261,8 @@ class WebAppSubmissionManager:
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
-            "response_type": task.get_response_type()
+            "response_type": task.get_response_type(),
+            "user_ip": web.ctx.ip
         }
 
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
