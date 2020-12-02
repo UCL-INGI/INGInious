@@ -905,7 +905,7 @@ class DockerAgent(Agent):
                 pass  # todo: run a docker container to force removal
 
             # Return!
-            if retval == -1 and manual_feedback is not None:
+            if retval == -1 and manual_feedback is not None and isinstance(manual_feedback, str):
                 await self.send_job_result(info.job_id, result, manual_feedback, grade, problems, tests, custom, state,archive, stdout, stderr)
             else:
                 await self.send_job_result(info.job_id, result, error_msg, grade, problems, tests, custom, state, archive, stdout, stderr)

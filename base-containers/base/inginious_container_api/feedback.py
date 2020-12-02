@@ -71,6 +71,8 @@ def set_grade(grade):
 
 def set_global_feedback(feedback, append=False):
     """ Set global feedback in case of error """
+    if not isinstance(feedback, str):
+        raise ValueError("Feedback doesn't match correct instance")
     rdict = _load_feedback()
     rdict['text'] = rdict.get('text', '') + feedback if append else feedback
     save_feedback(rdict)
@@ -78,12 +80,15 @@ def set_global_feedback(feedback, append=False):
 
 def set_problem_feedback(feedback, problem_id, append=False):
     """ Set problem specific feedback """
+    if not isinstance(feedback, str):
+        raise ValueError("Feedback doesn't match correct instance")
     rdict = _load_feedback()
     if not 'problems' in rdict:
         rdict['problems'] = {}
     cur_val = rdict['problems'].get(problem_id, '')
     rdict['problems'][problem_id] = (cur_val + feedback if append else feedback) if type(cur_val) == str else [cur_val[0], (cur_val[1] + feedback if append else feedback)]
     save_feedback(rdict)
+
 
 
 def set_state(state):
