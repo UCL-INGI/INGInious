@@ -1,4 +1,4 @@
-$def with (course, tasks, errors, validated, webdav_host)
+$def with (course, task_dispensers, tasks, errors, validated, webdav_host)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -21,7 +21,43 @@ $def NavbarF():
     </nav>
 $var Navbar: $:NavbarF()
 
-<h2>$:_("Tasks")</h2>
+<h2>$:_("Tasks")
+<div class="pull-right">
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-warning" data-toggle="modal" data-target="#taskDispenserModal">
+                <i class="fa fa-exchange"></i>  $:_("Switch task dispenser")
+            </button>
+        </div>
+    </div>
+</h2>
+
+
+<div class="modal fade" id="taskDispenserModal" tabindex="-1" role="dialog" aria-labelledby="taskDispenserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskDispenserModalLabel">$:_("Switch task dispenser")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>$:("This will wipe your current course structure. Tasks file won't be deleted but you'll have to import them again.")</p>
+                    <label>New task dispenser:</label>
+                    <select class="form-control" id="new_task_dispenser" name="task_dispenser">
+                        $for id, task_dispenser_class in task_dispensers.items():
+                            <option value="$id">$:task_dispenser_class.get_name(user_manager.session_language())</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="submit" class="btn btn-warning">$:_("Save changes")</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 $if webdav_host:
     <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">

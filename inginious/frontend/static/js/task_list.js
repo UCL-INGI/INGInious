@@ -356,7 +356,6 @@ function submit() {
     const structure_json = JSON.stringify(get_sections_list($('#course_structure').children(".content")));
     warn_before_exit = false;
     $("<form>").attr("method", "post").appendTo($("#course_structure")).hide()
-        .append($("input[name=task_dispenser]"))
         .append($("<input>").attr("name", "course_structure").val(structure_json))
         .append($("<input>").attr("name", "deleted_tasks").val(JSON.stringify(deleted_tasks)))
         .append($("<input>").attr("name", "wiped_tasks").val(JSON.stringify(wiped_tasks))).submit();

@@ -21,6 +21,10 @@ class TableOfContents(TaskDispenser):
     def get_id(cls):
         return "toc"
 
+    @classmethod
+    def get_name(cls, language):
+        return _("Table of contents")
+
     def get_dispenser_data(self):
         return self._toc
 
