@@ -94,3 +94,16 @@ $elif validated:
     </div>
 
 $:course.get_task_dispenser().render_edit(template_helper, course, tasks)
+
+<div class="row mt-3">
+    <div class="col-md-6">
+        <button class="btn btn-danger btn-block" onclick="location.reload()">
+            <i class="fa fa-undo"></i> $:_("Cancel")
+        </button>
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-block" onclick="submit();">
+            <i class="fa fa-save"></i> $:_("Save changes")
+        </button>
+    </div>
+</div>
