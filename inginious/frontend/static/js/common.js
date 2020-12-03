@@ -91,7 +91,12 @@ function registerCodeEditor(textarea, lang, lines)
         lint:              function()
                            {
                                return []
-                           }
+                           },
+        extraKeys:         {
+                               'Ctrl-Enter': function() {
+                                   $("#task-submit").click();
+                               },
+                           },
     });
 
     if(is_single)
