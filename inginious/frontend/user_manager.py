@@ -481,9 +481,6 @@ class UserManager:
                 }}
             ]))
 
-        student_visible_taskids = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
-        course_staff = course.get_staff()
-
         if usernames is None:
             usernames = self.get_course_registered_users(course=course, with_admins=False)
 
@@ -491,7 +488,7 @@ class UserManager:
 
         for result in data:
             username = result["_id"]
-            visible_tasks = student_visible_taskids if username not in course_staff else taskids
+            visible_tasks = [taskid for taskid, task in tasks.items() if self.task_is_visible_by_user(task, username)]
             result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(visible_tasks))
             result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if
                                      dg["taskid"] in visible_tasks}

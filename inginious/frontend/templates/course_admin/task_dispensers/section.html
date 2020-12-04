@@ -1,7 +1,7 @@
 $def with(course, tasks, sections, level)
     $for section in sections:
         $if section.is_empty():
-            $:print_empty_section("section_" + section.get_id(), section.get_title(), level)
+            $:include.course_admin.task_dispensers.empty_section("section_" + section.get_id(), section.get_title(), level)
         $elif section.is_terminal():
             $:include.course_admin.task_dispensers.task_list(course, tasks, section, level)
         $else:

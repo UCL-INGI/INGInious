@@ -33,7 +33,6 @@ class CourseTaskListPage(INGIniousAdminPage):
             if task_dispenser_class:
                 self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser', task_dispenser_class.get_id())
                 self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', "")
-                course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
             else:
                 errors.append(_("Invalid task dispenser"))
         else:
@@ -41,8 +40,8 @@ class CourseTaskListPage(INGIniousAdminPage):
                 task_dispenser = course.get_task_dispenser()
                 data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
                 if data:
+                    self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',task_dispenser.get_id())
                     self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
-                    course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
                 else:
                     errors.append(_("Invalid course structure: ") + msg)
             except Exception as e:
@@ -58,6 +57,9 @@ class CourseTaskListPage(INGIniousAdminPage):
                     self.wipe_task(courseid, taskid)
                 except:
                     errors.append(_("Couldn't wipe task: ") + taskid)
+
+        # don't forget to reload the modified course
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         return self.page(course, errors, not errors)
 

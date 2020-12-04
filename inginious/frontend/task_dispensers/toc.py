@@ -47,7 +47,7 @@ class TableOfContents(TaskDispenser):
 
     def filter_accessibility(self, taskid, username):
         """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return True
+        return taskid in self._toc.get_tasks()
 
     def get_ordered_tasks(self):
         return OrderedDict(sorted(list(self._task_list.items()), key=lambda t: (self.get_task_order(t[1].get_id()), t[1].get_id())))
