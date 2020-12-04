@@ -19,13 +19,16 @@ class TableOfContents(TaskDispenser):
 
     @classmethod
     def get_id(cls):
+        """ Returns the task dispenser id """
         return "toc"
 
     @classmethod
     def get_name(cls, language):
+        """ Returns the localized task dispenser name """
         return _("Table of contents")
 
     def get_dispenser_data(self):
+        """ Returns the task dispenser data structure """
         return self._toc
 
     def render_edit(self, template_helper, course, task_data):
@@ -50,6 +53,7 @@ class TableOfContents(TaskDispenser):
         return taskid in self._toc.get_tasks()
 
     def get_ordered_tasks(self):
+        """ Returns a serialized version of the tasks structure as an OrderedDict"""
         return OrderedDict(sorted(list(self._task_list_func().items()), key=lambda t: (self.get_task_order(t[1].get_id()), t[1].get_id())))
 
     def get_task_order(self, taskid):
