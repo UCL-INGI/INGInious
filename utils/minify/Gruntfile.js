@@ -29,7 +29,7 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/audiences.js',
                         '../../inginious/frontend/static/js/groups.js',
                         '../../inginious/frontend/static/js/checked-list-group.js',
-                        '../../inginious/frontend/static/js/task_list.js'
+                        '../../inginious/frontend/static/js/task_dispensers.js'
                     ]
                 }
             }

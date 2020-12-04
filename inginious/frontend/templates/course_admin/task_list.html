@@ -93,7 +93,9 @@ $elif validated:
         $:_("Change saved.")
     </div>
 
-$:course.get_task_dispenser().render_edit(template_helper, course, tasks)
+<div id="dispenser_data">
+    $:course.get_task_dispenser().render_edit(template_helper, course, tasks)
+</div>
 
 <div class="row mt-3">
     <div class="col-md-6">
@@ -102,8 +104,9 @@ $:course.get_task_dispenser().render_edit(template_helper, course, tasks)
         </button>
     </div>
     <div class="col-md-6">
-        <button class="btn btn-primary btn-block" onclick="submit();">
+        <button class="btn btn-primary btn-block" onclick="dispenser_submit('$:course.get_task_dispenser().get_id()');">
             <i class="fa fa-save"></i> $:_("Save changes")
         </button>
     </div>
 </div>
+

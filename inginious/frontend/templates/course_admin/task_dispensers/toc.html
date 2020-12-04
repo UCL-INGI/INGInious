@@ -1,44 +1,6 @@
 $def with(course, course_structure, tasks)
-<input type="hidden" name="task_dispenser" value="toc">
-<style>
-    /* remove ghost when dragging and change cursor for draggable element */
-    .sortable-drag { opacity: 0; }
-    .handle { cursor: move; }
 
-    /* line for sections */
-    .divided {
-      display: flex;
-      align-items: center;
-    }
-    .divider {
-      flex-grow: 1;
-      border-bottom: 1px solid lightgrey;
-      margin: 5px
-    }
-
-    /* limit modal size */
-    #modal_task_list {
-        max-height: 400px;
-        overflow: auto
-    }
-
-    /* only display option applicable to the type of section */
-    .tasks_list_option, .sections_list_option { display: none; }
-    .tasks_list >div>div>div> .tasks_list_option { display: block; }
-    .sections_list >div>div>div> .sections_list_option { display: block; }
-</style>
-
-<script>
-    $$(function () {
-        $$(".tasks_list").each(function(){
-            draggable_tasks[this.id] = make_tasks_list_sortable($$(this));
-        });
-
-        $$(".sections_list").each(function(){
-            draggable_sections[this.id] = make_sections_list_sortable($$(this));
-        });
-    });
-</script>
+$:include.course_admin.task_dispensers.util(course, tasks)
 
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
@@ -48,95 +10,11 @@ $def with(course, course_structure, tasks)
 
 <div class="row">
     <div class="col-md-12">
-        <button class="btn btn-secondary btn-block" onclick="create_section($$('#course_structure'))">
+        <button class="btn btn-secondary btn-block" onclick="dispenser_util_create_section($$('#course_structure'))">
             <i class="fa fa-plus"></i> $:_("Add section")
         </button>
     </div>
 </div>
 
-$def delete_modal(section=True):
-    <div id="$('delete_section_modal' if section else 'delete_task_modal')" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                    <div class="modal-header">
-                        $if section:
-                            <h4 class="modal-title">$:_("Delete section")</h4>
-                        $else:
-                            <h4 class="modal-title">$:_("Delete task")</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        $if section:
-                            <p>$:_("Once saved, this will <b>permanently</b> delete this section, all its subsections and remove all the tasks and their files from INGInious.")</p>
-                        $else:
-                            <p>$:_("Once saved, this will <b>permanently</b> remove the task and its files from INGInious.")</p>
-
-                        <div class="form-check">
-                            <input class="wipe_tasks form-check-input" type="checkbox">
-                            <label  class="form-check-label">$:_("Wipe all submissions")</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
-                        $if section:
-                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_section(this, true)">$:_("Keep files")</button>
-                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_section(this, false)">$:_("Delete section")</button>
-                        $else:
-                            <button class="btn btn-warning submit" data-dismiss="modal" onclick="delete_task(this, true, '')">$:_("Keep files")</button>
-                            <button class="btn btn-danger submit" data-dismiss="modal" onclick="delete_task(this, false, '')">$:_("Delete task")</button>
-                    </div>
-            </div>
-        </div>
-    </div>
-
-$:delete_modal()
-$:delete_modal(section=False)
-
-
-<div class="modal fade" id="addTaskModal" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">$_("Add tasks")</h3>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body list-group">
-                <h4>$_("Create new task")</h4>
-                <div class="form-group row">
-                    <div class="col-sm-8"><input type="text" class="form-control" id="new_task_id" placeholder=$:_('"New task id"')/></div>
-                    <div class="col-sm-4"><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">$:_("Create new task")</a></div>
-                </div>
-                <h4>$_("Import from course filesystem")</h4>
-                <input id="searchTask" class="form-control" type="text" placeholder='$_("Search..")' onkeyup="search_task(this)">
-                <p id="no_task_available" class="text-center align-middle font-weight-bold">
-                    $_("No unassigned tasks in the filesystem of this course")
-                </p>
-                <br>
-                <div id="modal_task_list">
-                    $for taskid in tasks
-                    <div id= "modal_task_$:(taskid)" class="modal_task list-group-item list-group-item-action" onclick="click_modal_task(this)">
-                        <span class="task_name"> $tasks[taskid]["name"]</span> <br>
-                        <input style="display: none" type="checkbox" name="task" value="$:(taskid)">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="submit_new_tasks" onclick="add_tasks_to_section(this)" type="button" class="btn btn-success" data-dismiss="modal">$_("Add")</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
 <!-- Invisible element (for copy) -->
 $:include.course_admin.task_dispensers.empty_section("empty_section", "New section",  0, hidden=True)
-
-<div id="all_tasks" style="display: none">
-    $for taskid in tasks
-    <div id="task_$:(taskid)_clone" class="task handle list-group-item list-group-item-action d-flex">
-        <div class="task_name p-0">
-            $tasks[taskid]["name"]
-        </div>
-        $:include.course_admin.task_dispensers.task_buttons(course, taskid)
-    </div>
-</div>

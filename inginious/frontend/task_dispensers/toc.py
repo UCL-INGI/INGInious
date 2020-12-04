@@ -6,8 +6,8 @@
 import json
 from collections import OrderedDict
 
-from inginious.common.toc import check_toc
-from inginious.common.toc import SectionsList
+from inginious.frontend.task_dispensers.util import check_toc
+from inginious.frontend.task_dispensers.util import SectionsList
 from inginious.frontend.task_dispensers import TaskDispenser
 
 

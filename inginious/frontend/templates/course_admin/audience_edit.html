@@ -199,11 +199,11 @@ $elif msg:
 <script type="text/javascript">
         $$(function () {
         $$(".tasks_list").each(function(){
-            draggable_tasks[this.id] = make_tasks_list_sortable($$(this));
+            draggable_tasks[this.id] = dispenser_util_make_tasks_list_sortable($$(this));
         });
 
         $$(".sections_list").each(function(){
-            draggable_sections[this.id] = make_sections_list_sortable($$(this));
+            draggable_sections[this.id] = dispenser_util_make_sections_list_sortable($$(this));
         });
     });
 $$(document).ready(function() {

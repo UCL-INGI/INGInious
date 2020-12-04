@@ -2,7 +2,9 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-from inginious.common.exceptions import InvalidTocException
+
+class InvalidTocException(Exception):
+    pass
 
 
 class SectionsList(object):
