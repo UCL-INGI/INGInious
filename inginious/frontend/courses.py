@@ -58,8 +58,7 @@ class Course(object):
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
 
-        self._task_list = self._task_factory.get_all_tasks(self)
-        _migrate_from_v_0_6(content, self._task_list)
+        _migrate_from_v_0_6(content, self._task_factory.get_all_tasks(self))
 
         try:
             self._admins = self._content.get('admins', [])
@@ -81,7 +80,10 @@ class Course(object):
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
             task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'))
-            self._task_dispenser = task_dispenser_class(self._task_list, self._content.get("dispenser_data", ''))
+            # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
+            # to avoid them to be cached along with the course object. Passing the task factory as argument
+            # would require to pass the course too, and have a useless reference back.
+            self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self), self._content.get("dispenser_data", ''))
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
 
@@ -162,7 +164,7 @@ class Course(object):
         return self._registration
 
     def get_tasks(self, ordered=False):
-        return self._task_dispenser.get_ordered_tasks() if ordered else self._task_list
+        return self._task_dispenser.get_ordered_tasks() if ordered else self._task_factory.get_all_tasks(self)
 
     def get_access_control_method(self):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """

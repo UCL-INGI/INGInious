@@ -13,8 +13,8 @@ from inginious.frontend.task_dispensers import TaskDispenser
 
 class TableOfContents(TaskDispenser):
 
-    def __init__(self, course_tasks, dispenser_data):
-        self._task_list = course_tasks
+    def __init__(self, task_list_func, dispenser_data):
+        self._task_list_func = task_list_func
         self._toc = SectionsList(dispenser_data)
 
     @classmethod
@@ -36,7 +36,7 @@ class TableOfContents(TaskDispenser):
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
         return template_helper.get_renderer(with_layout=False).task_dispensers.toc(
-            course, self._task_list, tasks_data, tag_list, self._toc)
+            course, self._task_list_func(), tasks_data, tag_list, self._toc)
 
     @classmethod
     def check_dispenser_data(cls, dispenser_data):
@@ -50,7 +50,7 @@ class TableOfContents(TaskDispenser):
         return taskid in self._toc.get_tasks()
 
     def get_ordered_tasks(self):
-        return OrderedDict(sorted(list(self._task_list.items()), key=lambda t: (self.get_task_order(t[1].get_id()), t[1].get_id())))
+        return OrderedDict(sorted(list(self._task_list_func().items()), key=lambda t: (self.get_task_order(t[1].get_id()), t[1].get_id())))
 
     def get_task_order(self, taskid):
         """ Get the position of this task in the course """

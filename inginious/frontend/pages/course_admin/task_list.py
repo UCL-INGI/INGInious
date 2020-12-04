@@ -31,8 +31,8 @@ class CourseTaskListPage(INGIniousAdminPage):
             selected_task_dispenser = user_input.get("task_dispenser", "toc")
             task_dispenser_class = self.course_factory.get_task_dispensers().get(selected_task_dispenser, None)
             if task_dispenser_class:
-                self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser', task_dispenser_class.get_id())
-                self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', "")
+                self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser', task_dispenser_class.get_id())
+                self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', "")
             else:
                 errors.append(_("Invalid task dispenser"))
         else:
@@ -40,8 +40,8 @@ class CourseTaskListPage(INGIniousAdminPage):
                 task_dispenser = course.get_task_dispenser()
                 data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
                 if data:
-                    self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',task_dispenser.get_id())
-                    self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
+                    self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser',task_dispenser.get_id())
+                    self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', data)
                 else:
                     errors.append(_("Invalid course structure: ") + msg)
             except Exception as e:
@@ -85,6 +85,7 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         # Load tasks and verify exceptions
         files = self.task_factory.get_readable_tasks(course)
+
         output = {}
         if errors is None:
             errors = []
@@ -101,4 +102,5 @@ class CourseTaskListPage(INGIniousAdminPage):
                               "url": self.submission_url_generator(taskid)}
 
         task_dispensers = self.course_factory.get_task_dispensers()
+
         return self.template_helper.get_renderer().course_admin.task_list(course, task_dispensers, tasks_data, errors, validated, self.webdav_host)
