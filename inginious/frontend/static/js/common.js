@@ -94,7 +94,9 @@ function registerCodeEditor(textarea, lang, lines)
                            },
         extraKeys:         {
                                'Ctrl-Enter': function() {
-                                   $("#task-submit").click();
+                                 $('body,html').animate({
+                                   scrollTop: $('#task-submit').offset().top
+                                 }, 'fast');
                                },
                            },
     });
