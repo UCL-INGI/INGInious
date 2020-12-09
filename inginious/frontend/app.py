@@ -39,6 +39,7 @@ from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
 from inginious.frontend.task_problems import *
 from inginious.frontend.task_dispensers.toc import TableOfContents
+from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
@@ -234,7 +235,7 @@ def get_app(config):
         fs_provider = LocalFSProvider(task_directory)
 
     default_task_dispensers = {
-        task_dispenser.get_id(): task_dispenser for task_dispenser in [TableOfContents]
+        task_dispenser.get_id(): task_dispenser for task_dispenser in [TableOfContents, CombinatoryTest]
     }
 
     default_problem_types = {

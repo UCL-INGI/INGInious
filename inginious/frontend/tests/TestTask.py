@@ -14,8 +14,9 @@ from inginious.frontend.course_factory import create_factories
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.environment_types import register_base_env_types
 from inginious.frontend.task_dispensers.toc import TableOfContents
+from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
-task_dispensers = {TableOfContents.get_id(): TableOfContents}
+task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 

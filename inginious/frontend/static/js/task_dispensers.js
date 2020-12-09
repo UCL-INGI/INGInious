@@ -377,6 +377,10 @@ function dispenser_structure_toc() {
     return JSON.stringify(dispenser_util_get_sections_list($('#course_structure').children(".content")));
 }
 
+function dispenser_structure_combinatory_test() {
+    return JSON.stringify(dispenser_util_get_sections_list($('#course_structure').children(".content")));
+}
+
 function dispenser_submit(dispenser_id) {
     var structure_json = window['dispenser_structure_' + dispenser_id]();
     warn_before_exit = false;
