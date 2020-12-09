@@ -1,4 +1,4 @@
-$def with(course, tasks, section, level)
+$def with(course, tasks, section, level, display_subsections=True, config_fields={})
 $# print a terminal section and the tasks it contains
     <div id="section_$:_(section.get_id())" class="section tasks_list card mb-4" data-level="$:(level)" >
         <div class="section_header handle card-header d-flex justify-content-between pr-3">
@@ -6,9 +6,12 @@ $# print a terminal section and the tasks it contains
                 $:_(section.get_title())
             </span>
             <span style="display: none" class="divider"></span>
-
-            $:include.course_admin.task_dispensers.section_menu(True, False)
+            $:include.course_admin.task_dispensers.section_menu(True, False, display_subsections)
         </div>
+        $if config_fields:
+            <div class="config card-body bg-light">
+                $:include.course_admin.task_dispensers.section_config(section.get_config(), config_fields)
+            </div>
         <div class="content list-group list-group-flush">
             $for taskid in section.get_tasks():
                 $if taskid in tasks:

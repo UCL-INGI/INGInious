@@ -1,13 +1,18 @@
-$def with(id, title, level, hidden=False)
+$def with(id, title, level, hidden=False, display_subsections=True, config_fields={})
 $# print an empty section
+
     <div style="$('display: none' if hidden else 'display: block')" id="$:(id)" class="section tasks_list sections_list card mb-4" data-level="$:(level)">
         <div class="section_header handle card-header d-flex justify-content-between pr-3">
             <span class="title">
                 $:(title)
             </span>
             <span style="display: none" class="divider"></span>
-            $:include.course_admin.task_dispensers.section_menu(True, True)
+            $:include.course_admin.task_dispensers.section_menu(True, True, display_subsections)
         </div>
+        $if config_fields:
+            <div class="config card-body bg-light">
+                $:include.course_admin.task_dispensers.section_config({}, config_fields)
+            </div>
         <div data-level="0" class="content list-group list-group-flush">
             <p class="section_placeholder text-center align-middle m-2">
                 $:_("Drag tasks or section here.")

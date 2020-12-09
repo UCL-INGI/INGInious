@@ -334,6 +334,11 @@ function dispenser_util_get_sections_list(element) {
             "title": $(this).find(".title").first().text().trim(),
         };
 
+        const config = $(this).children(".config");
+        if (config.length) {
+            structure["config"] = dispenser_util_get_section_config(config);
+        }
+
         const content = $(this).children(".content");
         if ($(this).hasClass("tasks_list")) {
             structure["tasks_list"] = dispenser_util_get_tasks_list(content);
@@ -342,6 +347,14 @@ function dispenser_util_get_sections_list(element) {
         }
         return structure;
     }).get();
+}
+
+function dispenser_util_get_section_config(element) {
+    const config_list = {};
+    element.find(".section-config-item").each(function (index) {
+        config_list[this.id] = this.value;
+    });
+    return config_list;
 }
 
 function dispenser_util_get_tasks_list(element) {
