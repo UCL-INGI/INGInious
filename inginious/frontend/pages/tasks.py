@@ -61,14 +61,16 @@ class BaseTaskPage(object):
         if not self.user_manager.course_is_open_to_user(course, username, is_LTI):
             return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
+
         # Fetch the task
         try:
-            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI))
+            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI) or is_staff)
             task = tasks[taskid]
         except KeyError:
             raise web.notfound()
 
-        if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
+        if not self.user_manager.task_is_visible_by_user(task, username, is_LTI) and not is_staff:
             return self.template_helper.get_renderer().task_unavailable()
 
         # Compute previous and next taskid
@@ -145,14 +147,14 @@ class BaseTaskPage(object):
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
             return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
+        is_admin = self.user_manager.has_admin_rights_on_course(course, username)
+
         task = course.get_task(taskid)
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+        if not self.user_manager.task_is_visible_by_user(task, username, isLTI) and not is_staff:
             return self.template_helper.get_renderer().task_unavailable()
 
         self.user_manager.user_saw_task(username, courseid, taskid)
-
-        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
-        is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
         userinput = web.input()
         if "@action" in userinput and userinput["@action"] == "submit":
