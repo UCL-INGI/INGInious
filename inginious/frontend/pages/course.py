@@ -60,9 +60,11 @@ class CoursePage(INGIniousAuthPage):
             tasks = course.get_tasks()
 
             # Get 5 last submissions
-            last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
-            for submission in last_submissions:
+            last_submissions = []
+            for submission in self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}}):
+                if self.user_manager.task_is_visible_by_user(tasks[submission['taskid']], username, False):
                     submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
+                    last_submissions.append(submission)
 
             # Compute course/tasks scores
             tasks_data = {}
