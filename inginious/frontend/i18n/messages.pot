@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-12-11 14:14+0100\n"
+"POT-Creation-Date: 2020-12-11 15:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2574,6 +2574,16 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_list.html:28
 #: inginious/frontend/templates/course_admin/task_list.html:40
 msgid "Switch task dispenser"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/task_list.html:46
+msgid ""
+"This will wipe your current course structure. Tasks file won't be deleted"
+" but you'll have to import them again."
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/task_list.html:47
+msgid "New task dispenser:"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/task_list.html:67
