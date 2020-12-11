@@ -15,10 +15,9 @@ import time
 
 import web
 from bson.objectid import ObjectId
-from collections import OrderedDict
 from pymongo import ReturnDocument
 
-from inginious.common import exceptions
+from inginious.common.exceptions import TaskNotFoundException, CourseNotFoundException
 from inginious.frontend.pages.course import handle_course_unavailable
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
@@ -41,7 +40,7 @@ class BaseTaskPage(object):
     def preview_allowed(self, courseid, taskid):
         try:
             course = self.course_factory.get_course(courseid)
-        except exceptions.CourseNotFoundException as ex:
+        except CourseNotFoundException as ex:
             raise web.notfound(str(ex))
         return course.get_accessibility().is_open() and course.allow_preview()
 
@@ -52,7 +51,7 @@ class BaseTaskPage(object):
         # Fetch the course
         try:
             course = self.course_factory.get_course(courseid)
-        except exceptions.CourseNotFoundException as ex:
+        except CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 
         if is_LTI and not self.user_manager.course_is_user_registered(course):
@@ -63,21 +62,23 @@ class BaseTaskPage(object):
 
         is_staff = self.user_manager.has_staff_rights_on_course(course, username)
 
-        # Fetch the task
         try:
-            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI) or is_staff)
-            task = tasks[taskid]
-        except KeyError:
+            task = course.get_task(taskid)
+        except TaskNotFoundException:
             raise web.notfound()
 
-        if not self.user_manager.task_is_visible_by_user(task, username, is_LTI) and not is_staff:
+        task_is_visible = self.user_manager.task_is_visible_by_user(task, username, is_LTI)
+        if not task_is_visible and not is_staff:
             return self.template_helper.get_renderer().task_unavailable()
-
-        # Compute previous and next taskid
-        keys = list(tasks.keys())
-        index = keys.index(taskid)
-        previous_taskid = keys[index - 1] if index > 0 else None
-        next_taskid = keys[index + 1] if index < len(keys) - 1 else None
+        elif not task_is_visible and is_staff:
+            previous_taskid = None
+            next_taskid = None
+        else:
+            # Compute previous and next taskid
+            visible_tasks = [tid for tid, t in course.get_tasks(True).items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI)]
+            index = visible_tasks.index(taskid)
+            previous_taskid = visible_tasks[index - 1] if index > 0 else None
+            next_taskid = visible_tasks[index + 1] if index < len(visible_tasks) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
