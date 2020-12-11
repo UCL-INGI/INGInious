@@ -18,7 +18,9 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                 <th>$:_("email address")</th>
                 <th>$:_("# task tried")</th>
                 <th>$:_("# task done")</th>
-                <th>$:_("current grade")</th>
+                <th>$:_("current grade")
+                    <span class="badge badge-info" data-toggle="tooltip" data-placement="bottom" title=$:_('"The current grade is computed over the tasks that are visible for users."')>?</span>
+                </th>
                 <th>
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="$get_homepath()/admin/${course.get_id()}/students?csv_student" class="btn btn-info"

@@ -13,7 +13,10 @@ from inginious.frontend.tasks import Task
 from inginious.frontend.course_factory import create_factories
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.environment_types import register_base_env_types
+from inginious.frontend.task_dispensers.toc import TableOfContents
+from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
+task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
@@ -22,7 +25,7 @@ class test_tasks_basic(object):
     def setUp(self):
         register_base_env_types()
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs, problem_types)
+        self.course_factory, _ = create_factories(fs, task_dispensers, problem_types)
 
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
@@ -94,7 +97,7 @@ class test_tasks_problems(object):
     def setUp(self):
         register_base_env_types()
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs, problem_types)
+        self.course_factory, _ = create_factories(fs, task_dispensers, problem_types)
 
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''

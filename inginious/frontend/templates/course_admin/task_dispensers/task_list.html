@@ -1,0 +1,37 @@
+$def with(course, tasks, section, level, display_subsections=True, config_fields={})
+$# print a terminal section and the tasks it contains
+    <div id="section_$:_(section.get_id())" class="section tasks_list card mb-4" data-level="$:(level)" >
+        <div class="section_header handle card-header d-flex justify-content-between pr-3">
+            <span class="title">
+                $:_(section.get_title())
+            </span>
+            <span style="display: none" class="divider"></span>
+            $:include.course_admin.task_dispensers.section_menu(True, False, display_subsections)
+        </div>
+        $if config_fields:
+            <div class="config card-body bg-light">
+                $:include.course_admin.task_dispensers.section_config(section.get_config(), config_fields)
+            </div>
+        <div class="content list-group list-group-flush">
+            $for taskid in section.get_tasks():
+                $if taskid in tasks:
+                    <div id="task_$:(taskid)" class="task handle list-group-item list-group-item-action d-flex">
+                        <div class="task_name">
+                            $tasks[taskid]["name"]
+                        </div>
+                        $:include.course_admin.task_dispensers.task_buttons(course, taskid)
+                    </div>
+                $else:
+                    <div id="task_$:(taskid)" class="task handle list-group-item list-group-item-action d-flex bg-danger">
+                        <div class="task_name">
+                            $_("No valid task with id:") $taskid
+                        </div>
+                        <div class="ml-auto">
+                            <button class="delete_task btn btn-sm btn-warning" onclick="dispenser_util_delete_task(this, true, this.closest('.task').id.to_taskid())"
+                                    title=$:_('"Delete invalid task"') style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+        </div>
+    </div>

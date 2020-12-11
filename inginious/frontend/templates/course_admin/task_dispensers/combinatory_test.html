@@ -1,0 +1,30 @@
+$def with(course, course_structure, tasks, config_fields)
+
+$:include.course_admin.task_dispensers.util(course, tasks)
+
+<div class="alert alert-primary alert-dismissible fade show" role="alert">
+    <h4 class="alert-heading">$:_("Combinatory tests")</h4>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <p>$:_("Only the specified amount of tasks to be displayed will be shown to the user. There is no state: changing the amount of tasks per section, section position or section title will affect the effective task set a user will be displayed.")</p>
+    <hr>
+    <p class="mb-0">$:_("As an administrator, the only way to access all the tasks is through this administration page.")</p>
+</div>
+
+<div id="course_structure" data-level="2" class="sections_list pb-3">
+    <div class="content">
+        $:include.course_admin.task_dispensers.section(course, tasks, course_structure, 3, False, config_fields)
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-secondary btn-block" onclick="dispenser_util_create_section($$('#course_structure'))">
+            <i class="fa fa-plus"></i> $:_("Add section")
+        </button>
+    </div>
+</div>
+
+<!-- Invisible element (for copy) -->
+$:include.course_admin.task_dispensers.empty_section("empty_section", "New section",  0, hidden=True, display_subsections=False, config_fields=config_fields)

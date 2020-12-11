@@ -17,7 +17,7 @@ from yaml import SafeLoader
 
 from inginious.common.tags import Tag
 from inginious.frontend.tasks import Task
-from inginious.frontend.parsable_text import ParsableText
+from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.common.log import init_logging
 from inginious.frontend.course_factory import create_factories
 from inginious.client.client_sync import ClientSync
@@ -253,6 +253,7 @@ if __name__ == "__main__":
     parser.add_argument("task_dir", help="Courses directory")
     parser.add_argument("course_dir", help="Repository for the course to test")
     parser.add_argument("-f", "--file", help="Store in the specified file in a json format")
+    parser.add_argument("--tdisp", nargs="+", help="Python class import path for additionnal task dispensers")
     parser.add_argument("--ptype", nargs="+", help="Python class import path for additionnal subproblem types")
 
     args = parser.parse_args()
@@ -261,6 +262,10 @@ if __name__ == "__main__":
         # Init logging
         init_logging()
 
+    task_dispensers = {
+        task_dispenser.get_id(): task_dispenser for task_dispenser in [TableOfContents]
+    }
+
     problem_types = {
         problem_type.get_type(): problem_type for problem_type in [DisplayableCodeProblem,
                                                                    DisplayableCodeSingleLineProblem,
@@ -268,6 +273,16 @@ if __name__ == "__main__":
                                                                    DisplayableMultipleChoiceProblem,
                                                                    DisplayableMatchProblem]
     }
+
+    if args.tdisp:
+        for tdisp_loc in args.tdisp:
+            try:
+                tdisp = import_class(tdisp_loc)
+                task_dispensers[tdisp.get_id()] = tdisp
+            except:
+                print("Cannot load {}, exiting".format(tdisp_loc), file=sys.stderr)
+                exit(1)
+
     if args.ptype:
         for ptype_loc in args.ptype:
             try:
@@ -290,7 +305,7 @@ if __name__ == "__main__":
     fs_provider = LocalFSProvider(config["task_directory"])
 
     try:
-        course_factory, _ = create_factories(fs_provider, problem_types)  # used for getting tasks
+        course_factory, _ = create_factories(fs_provider, task_dispensers, problem_types)  # used for getting tasks
 
         client = create_client(config, course_factory, fs_provider)
 

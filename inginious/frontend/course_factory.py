@@ -15,15 +15,29 @@ from inginious.common.exceptions import InvalidNameException, CourseNotFoundExce
 from inginious.frontend.courses import Course
 from inginious.frontend.task_factory import TaskFactory
 
+
 class CourseFactory(object):
     """ Load courses from disk """
     _logger = logging.getLogger("inginious.course_factory")
 
-    def __init__(self, filesystem: FileSystemProvider, task_factory, plugin_manager):
+    def __init__(self, filesystem: FileSystemProvider, task_factory, plugin_manager, task_dispensers):
         self._filesystem = filesystem
         self._task_factory = task_factory
         self._plugin_manager = plugin_manager
+        self._task_dispensers = task_dispensers
         self._cache = {}
+
+    def add_task_dispenser(self, task_dispenser):
+        """
+        :param task_dispenser: TaskDispenser class
+        """
+        self._task_dispensers.update({task_dispenser.get_id(): task_dispenser})
+
+    def get_task_dispensers(self):
+        """
+        Returns the supported task dispensers by this course factory
+        """
+        return self._task_dispensers
 
     def get_course(self, courseid):
         """
@@ -210,14 +224,14 @@ class CourseFactory(object):
                     last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
 
         self._cache[courseid] = (
-            Course(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._plugin_manager),
+            Course(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._plugin_manager, self._task_dispensers),
             last_modif
         )
 
         self._task_factory.update_cache_for_course(courseid)
 
 
-def create_factories(fs_provider, task_problem_types, plugin_manager=None):
+def create_factories(fs_provider, task_dispensers, task_problem_types, plugin_manager=None):
     """
     Shorthand for creating Factories
     :param fs_provider: A FileSystemProvider leading to the courses
@@ -229,4 +243,4 @@ def create_factories(fs_provider, task_problem_types, plugin_manager=None):
         plugin_manager = PluginManager()
 
     task_factory = TaskFactory(fs_provider, plugin_manager, task_problem_types)
-    return CourseFactory(fs_provider, task_factory, plugin_manager), task_factory
+    return CourseFactory(fs_provider, task_factory, plugin_manager, task_dispensers), task_factory

@@ -1,0 +1,23 @@
+$def with(course, tasks, sections, level, display_subsections=True, config_fields={})
+    $for section in sections:
+        $if section.is_empty():
+            $:include.course_admin.task_dispensers.empty_section("section_" + section.get_id(), section.get_title(), level, False, False, config_fields)
+        $elif section.is_terminal():
+            $:include.course_admin.task_dispensers.task_list(course, tasks, section, level, display_subsections, config_fields)
+        $else:
+            <div id="section_$:_(section.get_id())" class="section sections_list mb-4" data-level="$:(level)">
+                <div class="section_header handle d-flex justify-content-between divided pr-3">
+                    <span class="title h$level mr-3">
+                        $:_(section.get_title())
+                    </span>
+                    <span class="divider"></span>
+                    $:include.course_admin.task_dispensers.section_menu(False, True, display_subsections)
+                </div>
+                $if config_fields:
+                    <div class="config card-body bg-light">
+                        $:include.course_admin.task_dispensers.section_config(section.get_config(), config_fields)
+                    </div>
+                <div class="content ml-4">
+                    $:include.course_admin.task_dispensers.section(course, tasks, section.get_sections_list(), level +1, config_fields)
+                </div>
+            </div>

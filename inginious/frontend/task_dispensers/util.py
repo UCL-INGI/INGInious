@@ -2,7 +2,12 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-from inginious.common.exceptions import InvalidTocException
+from collections import namedtuple
+
+SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type'])
+
+class InvalidTocException(Exception):
+    pass
 
 
 class SectionsList(object):
@@ -78,6 +83,7 @@ class Section(object):
             self._title = structure["title"]
         else:
             raise InvalidTocException(_("No title for one section"))
+        self._config = structure["config"] if "config" in structure else {}
 
     def get_id(self):
         """
@@ -90,6 +96,12 @@ class Section(object):
         :return: the title of this section
         """
         return self._title
+
+    def get_config(self):
+        """
+        :return: the config dict of this section
+        """
+        return self._config
 
 
 class NonTerminalSection(Section):

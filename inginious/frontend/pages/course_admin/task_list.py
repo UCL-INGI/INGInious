@@ -9,7 +9,7 @@ from collections import OrderedDict
 import bson
 import web
 
-from inginious.common.toc import check_toc
+
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 class CourseTaskListPage(INGIniousAdminPage):
@@ -26,27 +26,40 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         errors = []
         user_input = web.input()
-        try:
-            new_toc = json.loads(user_input["course_structure"])
-            valid, message = check_toc(new_toc)
-            if valid:
-                self.course_factory.update_course_descriptor_element(courseid, 'toc', new_toc)
-                course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
-            else:
-                errors.append(_("Invalid table of content: ") + message)
-        except:
-            errors.append(_("Something wrong happened"))
 
-        for taskid in json.loads(user_input["deleted_tasks"]):
+        if "task_dispenser" in user_input:
+            selected_task_dispenser = user_input.get("task_dispenser", "toc")
+            task_dispenser_class = self.course_factory.get_task_dispensers().get(selected_task_dispenser, None)
+            if task_dispenser_class:
+                self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser', task_dispenser_class.get_id())
+                self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', "")
+            else:
+                errors.append(_("Invalid task dispenser"))
+        else:
             try:
-                self.task_factory.delete_task(courseid, taskid)
-            except:
-                errors.append(_("Couldn't delete task: ") + taskid)
-        for taskid in json.loads(user_input["wiped_tasks"]):
-            try:
-                self.wipe_task(courseid, taskid)
-            except:
-                errors.append(_("Couldn't wipe task: ") + taskid)
+                task_dispenser = course.get_task_dispenser()
+                data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
+                if data:
+                    self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser',task_dispenser.get_id())
+                    self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', data)
+                else:
+                    errors.append(_("Invalid course structure: ") + msg)
+            except Exception as e:
+                errors.append(_("Something wrong happened: ") + str(e))
+
+            for taskid in json.loads(user_input.get("deleted_tasks", "[]")):
+                try:
+                    self.task_factory.delete_task(courseid, taskid)
+                except:
+                    errors.append(_("Couldn't delete task: ") + taskid)
+            for taskid in json.loads(user_input.get("wiped_tasks", "[]")):
+                try:
+                    self.wipe_task(courseid, taskid)
+                except:
+                    errors.append(_("Couldn't wipe task: ") + taskid)
+
+        # don't forget to reload the modified course
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         return self.page(course, errors, not errors)
 
@@ -72,6 +85,7 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         # Load tasks and verify exceptions
         files = self.task_factory.get_readable_tasks(course)
+
         output = {}
         if errors is None:
             errors = []
@@ -80,10 +94,13 @@ class CourseTaskListPage(INGIniousAdminPage):
                 output[task] = course.get_task(task)
             except Exception as inst:
                 errors.append({"taskid": task, "error": str(inst)})
-        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (course.get_task_dispenser().get_task_order(t[1].get_id()), t[1].get_id())))
 
         tasks_data = OrderedDict()
         for taskid in tasks:
             tasks_data[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()),
                               "url": self.submission_url_generator(taskid)}
-        return self.template_helper.get_renderer().course_admin.task_list(course, course.get_toc(), tasks_data, errors, validated, self.webdav_host)
+
+        task_dispensers = self.course_factory.get_task_dispensers()
+
+        return self.template_helper.get_renderer().course_admin.task_list(course, task_dispensers, tasks_data, errors, validated, self.webdav_host)

@@ -1,0 +1,21 @@
+$def with(tasks_list_option, sections_list_option, display_subsections)
+    <div class="dropdown ml-3">
+        <button type="button" style="font-size: 1.5rem;"
+                class="button fa fa-bars close border-transparent" data-toggle="dropdown">
+        </button>
+        <div class="dropdown-menu dropdown-menu-right rounded">
+            <a class="add_task tasks_list_option dropdown-item" onclick="dispenser_util_open_task_modal(this)" data-toggle="modal" data-target="#addTaskModal">
+                <i class="fa fa-plus"></i> $:_("Add tasks")
+            </a>
+            $if display_subsections:
+                <a class="add_section sections_list_option dropdown-item" onclick="dispenser_util_create_section($$(this).closest('.section'))">
+                    <i class="fa fa-plus"></i> $:_("Add subsection")
+                </a>
+            <a class="rename dropdown-item" onclick="dispenser_util_rename_section($$(this).closest('.section_header').children('.title'), false)">
+                <i class="fa fa-pencil"></i> $:_("Rename")
+            </a>
+            <a class="delete_section dropdown-item" data-toggle="modal" data-target="#delete_section_modal" onclick="dispenser_util_open_delete_modal(this)">
+                <i class="fa fa-trash"></i> $:_("Delete")
+            </a>
+        </div>
+    </div>

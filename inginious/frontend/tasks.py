@@ -191,13 +191,6 @@ class Task(object):
         """ Return the translation_fs parameter for this task"""
         return self._translations_fs
 
-    def get_old_order(self):
-        """ Return the the old ordering for compatibility reasons"""
-        try:
-            return int(self._data.get('order', -1))
-        except ValueError:
-            return -1
-
     def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""
         # Basic checks
@@ -208,7 +201,6 @@ class Task(object):
 
         return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
 
-
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """
         return self._weight
@@ -217,10 +209,6 @@ class Task(object):
         """  Get the accessible time of this task """
         vals = self._plugin_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
         return vals[0] if len(vals) and plugin_override else self._accessible
-
-    def is_visible_by_students(self):
-        """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return self.get_course().is_open_to_non_staff() and self.get_accessible_time().after_start()
 
     def get_deadline(self):
         """ Returns a string containing the deadline for this task """
@@ -284,11 +272,3 @@ class Task(object):
     def regenerate_input_random(self):
         """ Indicates if random inputs should be regenerated """
         return self._regenerate_input_random
-
-    def get_order(self):
-        """ Get the position of this task in the course """
-        tasks_id = self._course.get_toc().get_tasks()
-        if self._taskid in tasks_id:
-            return tasks_id.index(self._taskid)
-        else:
-            return len(tasks_id)

@@ -10,8 +10,11 @@ import shutil
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.course_factory import create_factories
 from inginious.common.tasks_problems import *
+from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.environment_types import register_base_env_types
+from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
+task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
 problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": FileProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
@@ -19,7 +22,7 @@ class TestCourse(object):
     def setUp(self):
         register_base_env_types()
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs, problem_types)
+        self.course_factory, _ = create_factories(fs, task_dispensers, problem_types)
 
     def test_course_loading(self):
         '''Tests if a course file loads correctly'''
@@ -88,7 +91,7 @@ class TestCourseWrite(object):
         register_base_env_types()
         self.dir_path = tempfile.mkdtemp()
         fs = LocalFSProvider(self.dir_path)
-        self.course_factory, _ = create_factories(fs, problem_types)
+        self.course_factory, _ = create_factories(fs, task_dispensers, problem_types)
 
     def tearDown(self):
         shutil.rmtree(self.dir_path)
