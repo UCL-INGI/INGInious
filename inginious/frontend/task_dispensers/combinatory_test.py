@@ -52,7 +52,8 @@ class CombinatoryTest(TaskDispenser):
         result = {username: [] for username in usernames}
         for section in self._data:
             task_list = section.get_tasks()
-            task_list = [taskid for taskid in task_list if tasks[taskid].get_accessible_time().after_start()]
+            task_list = [taskid for taskid in task_list if
+                         taskid in tasks and tasks[taskid].get_accessible_time().after_start()]
             amount_questions = int(section.get_config().get("amount", 0))
             for username in usernames:
                 rand = Random("{}#{}#{}".format(username, section.get_id(), section.get_title()))

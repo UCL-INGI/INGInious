@@ -51,7 +51,8 @@ class TableOfContents(TaskDispenser):
     def get_user_task_list(self, usernames):
         """ Returns a dictionary with username as key and the user task list as value """
         tasks = self._task_list_func()
-        task_list = [taskid for taskid in self._toc.get_tasks() if tasks[taskid].get_accessible_time().after_start()]
+        task_list = [taskid for taskid in self._toc.get_tasks() if
+                     taskid in tasks and tasks[taskid].get_accessible_time().after_start()]
         return {username: task_list for username in usernames}
 
     def get_ordered_tasks(self):
