@@ -46,21 +46,25 @@ class CombinatoryTest(TaskDispenser):
             config["amount"] = int(config.get("amount", 0))
         return new_toc if valid else None, errors
 
-    def filter_accessibility(self, taskid, username):
-        """ Returns true if the task is accessible by all students that are not administrator of the course """
+    def get_user_task_list(self, usernames):
+        """ Returns a dictionary with username as key and the user task list as value """
+        tasks = self._task_list_func()
+        result = {username: [] for username in usernames}
         for section in self._data:
             task_list = section.get_tasks()
-            if taskid in task_list:
-                amount_questions = int(section.get_config().get("amount", 0))
+            task_list = [taskid for taskid in task_list if tasks[taskid].get_accessible_time().after_start()]
+            amount_questions = int(section.get_config().get("amount", 0))
+            for username in usernames:
                 rand = Random("{}#{}#{}".format(username, section.get_id(), section.get_title()))
                 random_order_choices = list(task_list)
                 rand.shuffle(random_order_choices)
-                return taskid in random_order_choices[0:amount_questions]
-        return False
+                result[username] += random_order_choices[0:amount_questions]
+        return result
 
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
-        return OrderedDict(sorted(list(self._task_list_func().items()), key=lambda t: (self.get_task_order(t[1].get_id()), t[1].get_id())))
+        tasks = self._task_list_func()
+        return OrderedDict([(taskid, tasks[taskid]) for taskid in self._data.get_tasks()])
 
     def get_task_order(self, taskid):
         """ Get the position of this task in the course """

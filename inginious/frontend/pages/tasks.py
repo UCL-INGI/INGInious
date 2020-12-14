@@ -64,21 +64,20 @@ class BaseTaskPage(object):
 
         try:
             task = course.get_task(taskid)
+            if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
+                return self.template_helper.get_renderer().task_unavailable()
         except TaskNotFoundException:
             raise web.notfound()
 
-        task_is_visible = self.user_manager.task_is_visible_by_user(task, username, is_LTI)
-        if not task_is_visible and not is_staff:
-            return self.template_helper.get_renderer().task_unavailable()
-        elif not task_is_visible and is_staff:
+        user_task_list = course.get_task_dispenser().get_user_task_list([username])[username]
+        if taskid not in user_task_list:
             previous_taskid = None
             next_taskid = None
         else:
             # Compute previous and next taskid
-            visible_tasks = [tid for tid, t in course.get_tasks(True).items() if self.user_manager.task_is_visible_by_user(t, username, is_LTI)]
-            index = visible_tasks.index(taskid)
-            previous_taskid = visible_tasks[index - 1] if index > 0 else None
-            next_taskid = visible_tasks[index + 1] if index < len(visible_tasks) - 1 else None
+            index = user_task_list.index(taskid)
+            previous_taskid = user_task_list[index - 1] if index > 0 else None
+            next_taskid = user_task_list[index + 1] if index < len(user_task_list) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
@@ -152,7 +151,7 @@ class BaseTaskPage(object):
         is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
         task = course.get_task(taskid)
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI) and not is_staff:
+        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         self.user_manager.user_saw_task(username, courseid, taskid)

@@ -59,30 +59,29 @@ class CoursePage(INGIniousAuthPage):
         else:
             tasks = course.get_tasks()
 
+            user_task_list = course.get_task_dispenser().get_user_task_list([username])[username]
+
             # Get 5 last submissions
             last_submissions = []
-            for submission in self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}}):
-                if self.user_manager.task_is_visible_by_user(tasks[submission['taskid']], username, False):
-                    submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
-                    last_submissions.append(submission)
+            for submission in self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": user_task_list}}):
+                submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
+                last_submissions.append(submission)
 
             # Compute course/tasks scores
-            tasks_data = {}
-            user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
+            tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in user_task_list}
+            user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": user_task_list}})
             is_admin = self.user_manager.has_staff_rights_on_course(course, username)
             tasks_score = [0.0, 0.0]
 
-            for taskid, task in tasks.items():
-                tasks_data[taskid] = {"visible": self.user_manager.task_is_visible_by_user(task, username, False), "succeeded": False,
-                                      "grade": 0.0}
-                tasks_score[1] += task.get_grading_weight() if tasks_data[taskid]["visible"] else 0
+            for taskid in user_task_list:
+                tasks_score[1] += tasks[taskid].get_grading_weight()
 
             for user_task in user_tasks:
                 tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
                 tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
 
                 weighted_score = user_task["grade"]*tasks[user_task["taskid"]].get_grading_weight()
-                tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0
+                tasks_score[0] += weighted_score
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
 

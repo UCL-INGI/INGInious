@@ -48,13 +48,16 @@ class TableOfContents(TaskDispenser):
         valid, errors = check_toc(new_toc)
         return new_toc if valid else None, errors
 
-    def filter_accessibility(self, taskid, username):
-        """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return taskid in self._toc.get_tasks()
+    def get_user_task_list(self, usernames):
+        """ Returns a dictionary with username as key and the user task list as value """
+        tasks = self._task_list_func()
+        task_list = [taskid for taskid in self._toc.get_tasks() if tasks[taskid].get_accessible_time().after_start()]
+        return {username: task_list for username in usernames}
 
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
-        return OrderedDict(sorted(list(self._task_list_func().items()), key=lambda t: (self.get_task_order(t[1].get_id()), t[1].get_id())))
+        tasks = self._task_list_func()
+        return OrderedDict([(taskid, tasks[taskid]) for taskid in self._toc.get_tasks()])
 
     def get_task_order(self, taskid):
         """ Get the position of this task in the course """

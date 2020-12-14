@@ -18,19 +18,17 @@ $ registered = user_manager.course_is_user_registered(course)
     <div class="content list-group list-group-flush tasks-list">
         $for task in tasks:
             $ taskid = task.get_id()
-            $if tasks_data[taskid]["visible"]:
+            $if taskid in tasks_data:
                 $ succeeded=tasks_data[taskid]["succeeded"]
                 $ completion=tasks_data[taskid]["grade"]
                 <a href="$get_homepath()/course/$course.get_id()/$taskid" class="list-group-item list-group-item-action
-                    $if not user_manager.task_is_visible_by_user(task, user_manager.session_username()) or not task.get_accessible_time().is_open():
+                    $if not task.get_accessible_time().is_open():
                         disabled
                     ">
                     <div class="row">
                         <div class="col-xs-12 col-md-7 pl-1">
                             <i style="color: $('#468847;' if succeeded else 'transparent')" class="fa fa-check"></i>
                             $task.get_name(user_manager.session_language())
-                            $if not user_manager.task_is_visible_by_user(task, user_manager.session_username()) :
-                                - <b>$:_("task hidden to students")</b>
                             $if not task.get_accessible_time().is_open():
                                 - <b>$:_("deadline reached")</b>
                         </div>
