@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 from collections import namedtuple
 
-SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type'])
+SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type', 'default'])
 
 class InvalidTocException(Exception):
     pass

@@ -26,7 +26,7 @@ class CombinatoryTest(TaskDispenser):
     def render_edit(self, template_helper, course, task_data):
         """ Returns the formatted task list edition form """
         config_fields = {
-            "amount": SectionConfigItem(_("Amount of tasks to be displayed"), "number")
+            "amount": SectionConfigItem(_("Amount of tasks to be displayed"), "number", 0)
         }
         return template_helper.get_renderer(with_layout=False).course_admin.task_dispensers.combinatory_test(
             course, self._data, task_data, config_fields)

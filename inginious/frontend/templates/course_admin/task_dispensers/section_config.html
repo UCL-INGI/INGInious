@@ -4,7 +4,7 @@ $for id, data in config_fields.items():
     <div class="form-group row mb-0">
         <label for="$id" class="col-md-3 col-form-label-sm">$data.label</label>
         <div class="col-md-9">
-            <input id="$id" type="$data.type" class="form-control form-control-sm section-config-item" value="$section_config.get(id, '')">
+            <input id="$id" type="$data.type" class="form-control form-control-sm section-config-item" value="$section_config.get(id, data.default)">
         </div>
     </div>
 

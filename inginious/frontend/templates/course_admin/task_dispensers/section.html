@@ -1,7 +1,7 @@
 $def with(course, tasks, sections, level, display_subsections=True, config_fields={})
     $for section in sections:
         $if section.is_empty():
-            $:include.course_admin.task_dispensers.empty_section("section_" + section.get_id(), section.get_title(), level, False, False, config_fields)
+            $:include.course_admin.task_dispensers.empty_section("section_" + section.get_id(), section.get_title(), section.get_config(), level, False, False, config_fields)
         $elif section.is_terminal():
             $:include.course_admin.task_dispensers.task_list(course, tasks, section, level, display_subsections, config_fields)
         $else:
