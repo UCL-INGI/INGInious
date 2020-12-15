@@ -4,15 +4,11 @@
 # more information about the licensing of this file.
 
 """ Pages that allow editing of tasks """
-import copy
 import json
 import logging
-import re
 import tempfile
 from collections import OrderedDict
 from zipfile import ZipFile
-from natsort import natsorted
-
 import bson
 import web
 
@@ -20,8 +16,8 @@ from inginious.frontend.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
-from inginious.common.base import dict_from_prefix
-from inginious.common.base import id_checker
+from inginious.common.base import dict_from_prefix, id_checker
+from inginious.common.exceptions import TaskNotFoundException
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.tasks import Task
 
@@ -39,10 +35,8 @@ class CourseEditTask(INGIniousAdminPage):
 
         try:
             task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
-        except:
-            task_data = None
-        if task_data is None:
-            task_data = {}
+        except TaskNotFoundException:
+            raise web.notfound()
 
         # Ensure retrocompatibility
         task_data = _migrate_from_v_0_6(task_data)
@@ -59,7 +53,6 @@ class CourseEditTask(INGIniousAdminPage):
 
         additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
                                                         task_data=task_data, template_helper=self.template_helper)
-        sectionid = web.input().get("sectionid", None)
 
         return self.template_helper.get_renderer().course_admin.task_edit(
             course,
@@ -74,8 +67,7 @@ class CourseEditTask(INGIniousAdminPage):
             available_filetypes,
             AccessibleTime,
             CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
-            additional_tabs,
-            sectionid
+            additional_tabs
         )
 
     @classmethod
@@ -283,9 +275,5 @@ class CourseEditTask(INGIniousAdminPage):
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
-        if "sectionid" in data:
-            toc = course.get_task_dispenser().get_dispenser_data()
-            toc.add_task(taskid, data["sectionid"])
-            self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
 
         return json.dumps({"status": "ok"})

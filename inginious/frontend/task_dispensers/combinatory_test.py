@@ -40,10 +40,10 @@ class CombinatoryTest(TaskDispenser):
     def check_dispenser_data(cls, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
         new_toc = json.loads(dispenser_data)
-        valid, errors = check_toc(new_toc)
         for section in new_toc:
             config = section.setdefault("config", {})
             config["amount"] = int(config.get("amount", 0))
+        valid, errors = check_toc(new_toc)
         return new_toc if valid else None, errors
 
     def get_user_task_list(self, usernames):

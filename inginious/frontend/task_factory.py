@@ -8,9 +8,10 @@
 from os.path import splitext
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
-from inginious.common.base import id_checker
+from inginious.common.base import id_checker, get_json_or_yaml
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
-from inginious.common.exceptions import InvalidNameException, TaskNotFoundException, TaskUnreadableException, TaskReaderNotFoundException
+from inginious.common.exceptions import InvalidNameException, TaskNotFoundException, \
+    TaskUnreadableException, TaskReaderNotFoundException, TaskAlreadyExistsException
 
 from inginious.frontend.tasks import Task
 
@@ -258,6 +259,27 @@ class TaskFactory(object):
                 to_drop.append(tid)
         for tid in to_drop:
             del self._cache[(courseid, tid)]
+
+    def create_task(self, course, taskid, init_content):
+        """
+        :param course: a Course object
+        :param taskid: the task id of the task
+        :param init_content: initial descriptor content
+        :raise InvalidNameException or TaskAlreadyExistsException
+        Create a new course folder and set initial descriptor content, folder can already exist
+        """
+        if not id_checker(taskid):
+            raise InvalidNameException("Task with invalid name: " + taskid)
+
+        task_fs = self.get_task_fs(course.get_id(), taskid)
+        task_fs.ensure_exists()
+
+        if task_fs.exists("task.yaml"):
+            raise TaskAlreadyExistsException("Task with id " + taskid + " already exists.")
+        else:
+            task_fs.put("task.yaml", get_json_or_yaml("task.yaml", init_content))
+
+        get_course_logger(course.get_id()).info("Task %s created in the factory.", taskid)
 
     def delete_task(self, courseid, taskid):
         """
