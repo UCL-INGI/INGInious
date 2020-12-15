@@ -45,16 +45,22 @@ $var Navbar: $:NavbarF()
             </tr>
         </thead>
         <tbody>
-        $for task in data:
+        $for taskid, task in data.items():
             <tr
-                $if task["status"] == "notattempted":
+                $if not task["visible"]:
+                    class="bg-dark text-white"
+                $elif task["status"] == "notattempted":
                     class="table-warning"
                 $elif task["status"] == "succeeded":
                     class="table-success"
                 $elif task["status"] == "failed":
                     class="table-danger"
             >
-                <td>$task["name"]</td>
+                <td>
+                    $if not task["visible"]:
+                        <i class="fa fa-fw fa-ban"  data-toggle="tooltip" data-placement="top" title=$:_('"Not served by the task dispenser"')></i>
+                    $task["name"]
+                </td>
                 <td>
                     $if task["status"] == "notviewed":
                         $:_("Not viewed")

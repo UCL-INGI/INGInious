@@ -5,6 +5,7 @@
 
 
 import web
+from collections import OrderedDict
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
@@ -34,9 +35,10 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         """ Get all data and display the page """
         data = list(self.database.user_tasks.find({"username": username, "courseid": course.get_id()}))
 
-        tasks = course.get_tasks()
-        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(self.user_manager.session_language()),
-                                 "tried": 0, "status": "notviewed", "grade": 0,
+        tasks = course.get_tasks(True)
+        user_task_list = course.get_task_dispenser().get_user_task_list([username])[username]
+        result = OrderedDict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(self.user_manager.session_language()),
+                                 "tried": 0, "status": "notviewed", "grade": 0, "visible": False,
                                  "url": self.submission_url_generator(username, taskid)}) for taskid in tasks])
 
         for taskdata in data:
@@ -51,8 +53,10 @@ class CourseStudentInfoPage(INGIniousAdminPage):
                 result[taskdata["taskid"]]["grade"] = taskdata["grade"]
                 result[taskdata["taskid"]]["submissionid"] = str(taskdata["submissionid"])
 
+        for taskid in user_task_list:
+            result[taskid]["visible"] = True
+
         if "csv" in web.input():
             return make_csv(result)
 
-        results = sorted(list(result.values()), key=lambda result: (course.get_task_dispenser().get_task_order(result["taskid"]), result["taskid"]))
-        return self.template_helper.get_renderer().course_admin.student_info(course, username, results)
+        return self.template_helper.get_renderer().course_admin.student_info(course, username, result)
