@@ -4,15 +4,11 @@
 # more information about the licensing of this file.
 
 """ Pages that allow editing of tasks """
-import copy
 import json
 import logging
-import re
 import tempfile
 from collections import OrderedDict
 from zipfile import ZipFile
-from natsort import natsorted
-
 import bson
 import web
 
@@ -20,8 +16,8 @@ from inginious.frontend.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
-from inginious.common.base import dict_from_prefix
-from inginious.common.base import id_checker
+from inginious.common.base import dict_from_prefix, id_checker
+from inginious.common.exceptions import TaskNotFoundException
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.tasks import Task
 
@@ -39,10 +35,8 @@ class CourseEditTask(INGIniousAdminPage):
 
         try:
             task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
-        except:
-            task_data = None
-        if task_data is None:
-            task_data = {}
+        except TaskNotFoundException:
+            raise web.notfound()
 
         # Ensure retrocompatibility
         task_data = _migrate_from_v_0_6(task_data)
