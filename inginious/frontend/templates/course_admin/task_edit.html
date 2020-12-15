@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environment_types,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list,additional_tabs,sectionid)
+$def with (course,taskid,problem_types,task_data,environment_types,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list,additional_tabs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -92,8 +92,6 @@ $var Navbar: $:NavbarF()
 
         </div>
     </div>
-    $if sectionid is not None:
-        <input type="hidden" name="sectionid" value=$sectionid>
     <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</button>
 </form>
 

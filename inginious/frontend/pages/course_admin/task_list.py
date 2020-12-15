@@ -47,16 +47,22 @@ class CourseTaskListPage(INGIniousAdminPage):
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
 
+            for taskid in json.loads(user_input.get("new_tasks", "[]")):
+                try:
+                    self.task_factory.create_task(course, taskid, {
+                        "name": taskid, "accessible": False, "problems": {}, "environment_type": "mcq"})
+                except Exception as ex:
+                    errors.append(_("Couldn't delete task {} : ").format(taskid) + str(ex))
             for taskid in json.loads(user_input.get("deleted_tasks", "[]")):
                 try:
                     self.task_factory.delete_task(courseid, taskid)
-                except:
-                    errors.append(_("Couldn't delete task: ") + taskid)
+                except Exception as ex:
+                    errors.append(_("Couldn't delete task {} : ").format(taskid) + str(ex))
             for taskid in json.loads(user_input.get("wiped_tasks", "[]")):
                 try:
                     self.wipe_task(courseid, taskid)
-                except:
-                    errors.append(_("Couldn't wipe task: ") + taskid)
+                except Exception as ex:
+                    errors.append(_("Couldn't wipe task {} : ").format(taskid) + str(ex))
 
         # don't forget to reload the modified course
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)

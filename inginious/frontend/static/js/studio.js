@@ -5,21 +5,6 @@
 "use strict";
 
 /**
- * Redirect to the studio to create a new task
- */
-function studio_create_new_task()
-{
-    var task_id = $('#new_task_id');
-    var section_id = task_id.attr('data-target');
-    if(!task_id.val().match(/^[a-zA-Z0-9_\-]+$/))
-    {
-        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-        return;
-    }
-    window.location.href = window.location.href + "/../edit/task/" + task_id.val() + "?sectionid=" + section_id
-}
-
-/**
  * Load the studio, creating blocks for existing subproblems
  */
 function studio_load(data)

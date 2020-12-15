@@ -5,6 +5,7 @@
 
 var dispenser_deleted_tasks = [];
 var dispenser_wiped_tasks = [];
+var dispenser_new_tasks = [];
 var dragged_from;
 var draggable_sections = {};
 var draggable_tasks = {};
@@ -59,7 +60,8 @@ function dispenser_util_create_section(parent) {
  *  Adding task to sections  *
  *****************************/
 function dispenser_util_open_task_modal(target) {
-    $('#submit_new_tasks').attr('data-target', target.closest('.section').id);
+    $('#add_existing_tasks').attr('data-target', target.closest('.section').id);
+    $('#add_new_task').attr('data-target', target.closest('.section').id);
     $('#new_task_id').attr('data-target', target.closest('.section').id.to_section_id());
 
     var placed_task = [];
@@ -100,16 +102,30 @@ function dispenser_util_click_modal_task(task) {
 
 function dispenser_util_add_tasks_to_section(button) {
     var selected_tasks = [];
-    $.each($("input[name='task']:checked"), function () {
-        selected_tasks.push($(this).val());
-    });
+    var existing_task = $(button).attr("id") == "add_existing_tasks";
+    if(existing_task) {
+        $.each($("input[name='task']:checked"), function () {
+            selected_tasks.push($(this).val());
+        });
+    }
+    else {
+        selected_tasks.push($("#new_task_id").val());
+    }
 
     const section = $("#" + $(button).attr('data-target'));
     const content = section.children(".content");
 
     for (var i = 0; i < selected_tasks.length; i++) {
         warn_before_exit = true;
-        content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
+        if(existing_task)
+            content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
+        else {
+            var new_task_clone = $("#new_task_clone").clone();
+            new_task_clone.attr("id", 'task_' + selected_tasks[i]);
+            new_task_clone.children(".task_name").append(selected_tasks[i]);
+            content.append(new_task_clone);
+            dispenser_add_task(selected_tasks[i]);
+        }
     }
 
     dispenser_util_content_modified(section);
@@ -370,7 +386,11 @@ function dispenser_delete_task(taskid) {
 }
 
 function dispenser_wipe_task(taskid) {
-    dispenser_wiped_tasks.push(taskid)
+    dispenser_wiped_tasks.push(taskid);
+}
+
+function dispenser_add_task(taskid) {
+    dispenser_new_tasks.push(taskid);
 }
 
 function dispenser_structure_toc() {
@@ -386,6 +406,7 @@ function dispenser_submit(dispenser_id) {
     warn_before_exit = false;
     $("<form>").attr("method", "post").appendTo($("#dispenser_data")).hide()
         .append($("<input>").attr("name", "course_structure").val(structure_json))
+        .append($("<input>").attr("name", "new_tasks").val(JSON.stringify(dispenser_new_tasks)))
         .append($("<input>").attr("name", "deleted_tasks").val(JSON.stringify(dispenser_deleted_tasks)))
         .append($("<input>").attr("name", "wiped_tasks").val(JSON.stringify(dispenser_wiped_tasks))).submit();
 }
