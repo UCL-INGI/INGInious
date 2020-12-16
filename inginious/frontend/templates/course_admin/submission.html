@@ -31,7 +31,7 @@ $def NavbarF():
                 </a>
             </li>
             <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/submissions?user=$username&task=$task.get_id()">$:task.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/submissions?users=$username&tasks=$task.get_id()">$:task.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item active"><a href="#">$str(submission['_id'])[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
         </ol>
     </nav>
