@@ -91,7 +91,14 @@ function registerCodeEditor(textarea, lang, lines)
         lint:              function()
                            {
                                return []
-                           }
+                           },
+        extraKeys:         {
+                               'Ctrl-Enter': function() {
+                                 $('body,html').animate({
+                                   scrollTop: $('#task-submit').offset().top
+                                 }, 'fast');
+                               },
+                           },
     });
 
     if(is_single)
