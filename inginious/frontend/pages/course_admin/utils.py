@@ -74,7 +74,8 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
 
     def get_users(self, course):
         user_ids = self.user_manager.get_course_registered_users(course)
-        users = {user: self.user_manager.get_user_realname(user) or '' for user in user_ids}
+        users_info = self.user_manager.get_users_info(user_ids)
+        users = {user: users_info[user].realname if users_info[user] else '' for user in user_ids}
         return OrderedDict(sorted(users.items(), key=lambda x: x[1]))
 
     def get_input_params(self, user_input, course, limit=50):
