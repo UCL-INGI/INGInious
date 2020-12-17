@@ -3,8 +3,14 @@ $def with(section_config, config_fields)
 $for id, data in config_fields.items():
     <div class="form-group row mb-0">
         <label for="$id" class="col-md-3 col-form-label-sm">$data.label</label>
-        <div class="col-md-9">
-            <input id="$id" type="$data.type" class="form-control form-control-sm section-config-item" value="$section_config.get(id, data.default)">
+        <div class="col-md-9 text-right">
+            $if data.type == "checkbox":
+                $ append = 'checked' if section_config.get(id, data.default) else ''
+                $ classes = ''
+            $else:
+                $ append = 'value="{}"'.format(section_config.get(id, data.default))
+                $ classes = 'form-control form-control-sm'
+            <input id="$id" type="$data.type" class="$classes section-config-item" $:append>
         </div>
     </div>
 

@@ -1,10 +1,10 @@
-$def with(course, course_structure, tasks)
+$def with(course, course_structure, tasks, config_fields={})
 
 $:include.course_admin.task_dispensers.util(course, tasks)
 
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
-        $:include.course_admin.task_dispensers.section(course, tasks, course_structure, 3)
+        $:include.course_admin.task_dispensers.section(course, tasks, course_structure, 3, True, config_fields)
     </div>
 </div>
 
@@ -17,4 +17,4 @@ $:include.course_admin.task_dispensers.util(course, tasks)
 </div>
 
 <!-- Invisible element (for copy) -->
-$:include.course_admin.task_dispensers.empty_section("empty_section", "New section",  {}, 0, hidden=True)
+$:include.course_admin.task_dispensers.empty_section("empty_section", "New section",  {}, 0, True, True, config_fields)

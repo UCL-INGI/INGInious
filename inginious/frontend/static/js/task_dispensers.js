@@ -49,6 +49,7 @@ function dispenser_util_create_section(parent) {
     const level = Number(parent.attr("data-level"));
 
     const section = $("#empty_section").clone().show().appendTo(parent.children(".content"));
+    parent.children(".config").removeClass("bg-light");
     warn_before_exit = true;
     section.attr("data-level", level + 1);
 

@@ -14,10 +14,10 @@ $def with(course, tasks, sections, level, display_subsections=True, config_field
                     $:include.course_admin.task_dispensers.section_menu(False, True, display_subsections)
                 </div>
                 $if config_fields:
-                    <div class="config card-body bg-light">
+                    <div class="config card-body">
                         $:include.course_admin.task_dispensers.section_config(section.get_config(), config_fields)
                     </div>
                 <div class="content ml-4">
-                    $:include.course_admin.task_dispensers.section(course, tasks, section.get_sections_list(), level +1, config_fields)
+                    $:include.course_admin.task_dispensers.section(course, tasks, section.get_sections_list(), level +1, display_subsections, config_fields)
                 </div>
             </div>
