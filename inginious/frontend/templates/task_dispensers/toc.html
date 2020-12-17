@@ -8,7 +8,7 @@ $#
 $for section in sections:
     $if section.is_terminal():
         $ section_tasks = [tasks[taskid] for taskid in section.get_tasks() if taskid in tasks]
-        $:include.task_dispensers.task_list(course, section_tasks, tasks_data, tag_filter_list, section.get_id(), section.get_title())
+        $:include.task_dispensers.task_list(course, section_tasks, tasks_data, tag_filter_list, section.get_id(), section.get_title(), section.get_config())
     $else:
         <div id="section_$:_(section.get_id())" class="section sections-list mb-4">
             <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
@@ -17,10 +17,10 @@ $for section in sections:
                 </span>
                 <span class="divider"></span>
 
-                <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close pl-3">
+                <span style="font-size: 1.5rem;" class="dropdown_button fa $:('fa-caret-left' if section.get_config().get("closed", False) else 'fa-caret-down') close pl-3">
                 </span>
             </div>
-            <div class="content ml-4">
+            <div class="content ml-4" $:('style="display:none;"' if section.get_config().get("closed", False) else '')>
                 $:include.task_dispensers.toc(course, tasks, tasks_data, tag_filter_list, section.get_sections_list(), level+1)
             </div>
         </div>
