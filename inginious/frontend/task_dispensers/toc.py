@@ -6,8 +6,7 @@
 import json
 from collections import OrderedDict
 
-from inginious.frontend.task_dispensers.util import check_toc
-from inginious.frontend.task_dispensers.util import SectionsList
+from inginious.frontend.task_dispensers.util import check_toc, SectionsList, SectionConfigItem
 from inginious.frontend.task_dispensers import TaskDispenser
 
 
@@ -33,8 +32,11 @@ class TableOfContents(TaskDispenser):
 
     def render_edit(self, template_helper, course, task_data):
         """ Returns the formatted task list edition form """
+        config_fields = {
+            "closed": SectionConfigItem(_("Closed by default"), "checkbox", False)
+        }
         return template_helper.get_renderer(with_layout=False).course_admin.task_dispensers.toc(
-            course, self._toc, task_data)
+            course, self._toc, task_data, config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
@@ -47,6 +49,7 @@ class TableOfContents(TaskDispenser):
         new_toc = json.loads(dispenser_data)
         valid, errors = check_toc(new_toc)
         return new_toc if valid else None, errors
+
 
     def get_user_task_list(self, usernames):
         """ Returns a dictionary with username as key and the user task list as value """

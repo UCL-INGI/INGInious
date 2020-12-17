@@ -1,4 +1,4 @@
-$def with (course, tasks, tasks_data, tag_list, list_id, title)
+$def with (course, tasks, tasks_data, tag_list, list_id, title, config)
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
@@ -12,10 +12,10 @@ $ registered = user_manager.course_is_user_registered(course)
             $:_(title)
         </span>
 
-        <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close">
+        <span style="font-size: 1.5rem;" class="dropdown_button fa $:('fa-caret-left' if config.get("closed", False) else 'fa-caret-down') close">
         </span>
     </div>
-    <div class="content list-group list-group-flush tasks-list">
+    <div class="content list-group list-group-flush tasks-list" $:('style="display:none;"' if config.get("closed", False) else '')>
         $for task in tasks:
             $ taskid = task.get_id()
             $if taskid in tasks_data:
