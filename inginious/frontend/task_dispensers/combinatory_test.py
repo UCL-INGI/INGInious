@@ -65,7 +65,7 @@ class CombinatoryTest(TaskDispenser):
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
         tasks = self._task_list_func()
-        return OrderedDict([(taskid, tasks[taskid]) for taskid in self._data.get_tasks()])
+        return OrderedDict([(taskid, tasks[taskid]) for taskid in self._data.get_tasks() if taskid in tasks])
 
     def get_task_order(self, taskid):
         """ Get the position of this task in the course """
