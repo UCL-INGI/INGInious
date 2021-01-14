@@ -74,13 +74,15 @@ For Docker agent, all the work is done within the Asyncio event loop. The event 
 
 A new synchronous job generate the needed element. It begins with the file system, copying files (especially task files and $common files) and creating the container. 
 It continues by adding new info of the new container and then, of course, starts this one. This job runs within the default executor of the event loop.
+
 Once this is done, a safe task (for the agent) is generated for handling the running container (with the data generated from the synchronous job).
 The execution of a coroutine function (handle_running_container) is scheduled and a Task object will be returned. Third-party event loops can use their own subclass of Task for interoperability. In this case, the result type is a subclass of Task.
 When run() ends, these tasks are automatically cancelled.
+
 The handling of the container is manage through a socket. Messages with data are sent to the container with the run command to evaluate the code. 
 Container will then respond with three possible message: student_container, ssh or result.
 The first one starts a new student container.
 The second one, returns the information for a ssh connection.
 The last one, of course, return the results of the run command.
-The first two message will generate new action ( create a safe task for the student_container or create a job for ssh info)
+The first two message will generate new action ( create a safe task for the student_container or create a job for ssh info).
 The last one will simply set the results and send them back to the frontend for the display part.

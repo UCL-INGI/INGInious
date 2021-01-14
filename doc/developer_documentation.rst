@@ -5,6 +5,7 @@ Developer's documentation
    :maxdepth: 2
 
    dev_doc/understand_inginious
+   dev_doc/architectures
    dev_doc/submissions
    dev_doc/plugins
    dev_doc/how_to_extend
