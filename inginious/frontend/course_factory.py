@@ -99,6 +99,12 @@ class CourseFactory(object):
         course_structure[key] = value
         self.update_course_descriptor_content(courseid, course_structure)
 
+    def get_fs(self):
+        """
+        :return: a FileSystemProvider pointing to the task directory
+        """
+        return self._filesystem
+
     def get_course_fs(self, courseid):
         """
         :param courseid: 
