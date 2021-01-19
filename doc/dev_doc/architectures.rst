@@ -31,8 +31,18 @@ Finally, a ``tests`` package gather all the tests write to ensure the good behav
 Backend Architecture
 --------------------
 
+Backend package architecture is quite simple to understand are there are two important files. 
+
+First one is ``topic_priority_queue.py`` that defines a queue data structure based on topics. 
+
+The other one is ``backend.py`` which define the all backend logic base on message passing. Backend uses the topic priority queue to handle requests.
 
 
 Agent Architecture
 ------------------
 
+Agent package is split into python subpackages : Docker and MCQ.
+
+MCQ subpackage defines a class object that implements the MCQ Agent. This comes with translation configuration files.
+
+Docker subpackage also defines a class object that implements Docker Agent. An interface to Docker is also defined as utils for Docker mangement. Finally a timeout interface is also declared to especially manage timeout in agent.
