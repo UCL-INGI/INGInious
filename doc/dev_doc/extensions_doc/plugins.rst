@@ -144,6 +144,13 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Used to add Javascript files in the footer. 
     Should return the path to a Javascript file (relative to the root of INGInious).
+``get_lti_user`` (``ltipage``)
+    Returns: dict
+
+    ``ltipage`` : inginious.frontend.pages.LTILoginPage
+          id: `id` of the auth module to be used e.g. "ldap", defaults to None
+
+    Used to create to the user_info out of the LTILoginPage and the session data.
 ``course_accessibility`` (``course``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 

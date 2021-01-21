@@ -145,6 +145,12 @@ class LTILoginPage(INGIniousPage):
                                                data=None, error="Invalid LTI data")
 
         user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
+
+        if not user_profile:
+            hookres = course._plugin_manager.call_hook('get_lti_user', ltipage=self)
+            if hookres:
+               user_profile = hookres[0]
+
         if user_profile:
             self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"],
                                            user_profile["language"], user_profile.get("tos_accepted", False))
