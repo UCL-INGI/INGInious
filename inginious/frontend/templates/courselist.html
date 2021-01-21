@@ -2,7 +2,7 @@
 {# more information about the licensing of this file. #}
 
 {% extends "layout_jinja.html" %}
-{% block title %}{{_("Course list") }}{% endblock %}}
+{% block title %}{{_("Course list") }}{% endblock %}
 {% block column %}
     {% if not user_manager.session_logged_in() %}
         {% include "signin_button_jinja.html" %}

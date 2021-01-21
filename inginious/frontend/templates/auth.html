@@ -1,61 +1,67 @@
-$def with (auth_methods, error="")
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %}{{_("Welcome")}}{% endblock %}
 
-$var title: $:_("Welcome")
-
-$# Start content
-
+{% block content %}
 <div class="row justify-content-center">
     <div class="col-sm-4">
         <div class="card card-body bg-light">
-            $if error:
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">$:_("Close")</span></button>
-                    $:error
+            {% if error is defined and error %}
+            <div class="alert alert-danger" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">$:_("Close")</span></button>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if allow_registration %}
+            <form role="form" method="post">
+                <div class="form-group">
+                    <label>{{ _("Username") }} </label> <input type="text" class="form-control" name="login" placeholder="{{_('Username')}}" tabindex="1">
                 </div>
+                <div class="form-group">
+                    <label>{{ _("Password") }} <a href="{{get_homepath()}}/register#lostpasswd" tabindex="4">{{_("Lost password?")}}</a></label> <input type="password" class="form-control" name="password" placeholder="{{_('Password')}}" tabindex="2">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" tabindex="3">{{_("Sign in")}}</button>
+            </form>
+            {% endif %}
 
-            $if allow_registration:
-                <form role="form" method="post">
-                    <div class="form-group">
-                        <label>$:_("Username")</label> <input type="text" class="form-control" name="login" placeholder="$:_('Username')" tabindex="1">
-                    </div>
-                    <div class="form-group">
-                        <label>$:_("Password") <a href="$get_homepath()/register#lostpasswd" tabindex="4">$:_("Lost password?")</a></label> <input type="password" class="form-control" name="password" placeholder="$:_('Password')" tabindex="2">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block" tabindex="3">$:_("Sign in")</button>
-                </form>
+            {% set auth_meths = auth_methods.items() %}
 
-            $ auth_meths = auth_methods.items()
-            $ remaining = len(auth_meths)
-            $ on_line = min(remaining, 4)
+            {% set loop_info = namespace(remaining=0,on_line=0,authid=0) %}
 
-            $if remaining:
-                $if allow_registration:
-                    <hr/>
-                <h5 class="center-block text-center">$:_("Sign in with")</h5>
+            {% set loop_info.remaining = auth_meths | length %}
+            {% set loop_info.on_line = (loop_info.remaining, 4) | min %}
 
-            $ authid = 0
-            $for id, auth_method in auth_meths:
-                $if authid % on_line == 0:
+            {% if loop_info.remaining %}
+            {% if allow_registration %}<hr/> {% endif %}
+            <h5 class="center-block text-center"> {{_("Sign in with")}}</h5>
+            {% endif %}
+
+            {% set loop_info.authid = 0 %}
+            {% for id, auth_method in auth_meths %}
+
+                {%if loop_info.authid % loop_info.on_line == 0 %}
                     <div class="row justify-content-center">
+                {% endif %}
 
-                <div class="col-md-$(int(12/on_line)) text-center">
-                    <a href="$get_homepath()/auth/signin/$auth_method.get_id()">
-                        $:auth_method.get_imlink()
+                <div class="col-md-{{(12/loop_info.on_line) | int}} text-center">
+                    <a href="{{get_homepath()}}/auth/signin/{{auth_method.get_id()}}">
+                        {{ auth_method.get_imlink() | safe}}
                     </a>
                 </div>
 
-                $ remaining = remaining - 1
-                $if authid % on_line == on_line-1:
+                {% set loop_info.remaining = loop_info.remaining - 1 %}
+                {% if loop_info.authid % loop_info.on_line == loop_info.on_line-1 %}
                     </div>
-                    $ on_line = min(remaining, 4)
-                    $ authid = 0
-                $else:
-                    $ authid += 1
+                    {% set loop_info.on_line = (loop_info.remaining, 4) | min %}
+                    {% set loop_info.authid = 0 %}
+                {% else %}
+                    {% set loop_info.authid = loop_info.authid +  1 %}
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>
+{% endblock %}
