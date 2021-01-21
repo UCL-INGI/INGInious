@@ -19,6 +19,3 @@ This lets the authentification fully pluginable and adaptable to most of the soc
 LTI
 ---
 
-Groups & Audiences
-------------------
-

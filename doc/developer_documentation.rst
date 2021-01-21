@@ -8,6 +8,7 @@ Developer's documentation
    dev_doc/architectures
    dev_doc/submissions
    dev_doc/frontend
+   dev_doc/groupes_audiences
    dev_doc/exercices
    dev_doc/plugins
    dev_doc/how_to_extend
