@@ -80,5 +80,12 @@ class GroupPage(INGIniousAuthPage):
 
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
-        return self.template_helper.get_renderer().group(course, last_submissions, allowed_groups, groups, users,
-                                                            user_group, msg, error)
+        return self.template_helper.render("group.html",
+                                           course=course,
+                                           submissions=last_submissions,
+                                           allowed_groups=allowed_groups,
+                                           groups=groups,
+                                           users=users,
+                                           mygroup=user_group,
+                                           msg=msg,
+                                           error=error)

@@ -1,28 +1,23 @@
-$def with (course)
-
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
 <div id="unregister_modal" class="modal fade" role="dialog" aria-labelledby="unregister_modal_title" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" action="$get_homepath()/course/$course.get_id()">
+            <form method="post" action="{{ get_homepath() }}/course/{{ course.get_id() }}">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="unregister_modal_title">$:_("Unregister from {}").format(course.get_name(user_manager.session_language()))</h5>
+                    <h5 class="modal-title" id="unregister_modal_title">{{ _("Unregister from {}").format(course.get_name(user_manager.session_language())) }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h6><b>$:_("This will keep your submissions saved but will remove you from your group.")</b></h6>
-                    <h6>$:_("Are you sure ?")</h6>
+                    <h6><b>{{ _("This will keep your submissions saved but will remove you from your group.") }}</b></h6>
+                    <h6>{{ _("Are you sure ?") }}</h6>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                    <button type="submit" name="unregister" class="btn btn-danger">$:_("Unregister")</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ _("Cancel") }}</button>
+                    <button type="submit" name="unregister" class="btn btn-danger">{{ _("Unregister") }}</button>
                 </div>
             </form>
         </div>

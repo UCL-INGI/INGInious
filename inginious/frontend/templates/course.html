@@ -177,6 +177,6 @@ function filter_tag(tag) {
 
 {{ course.get_task_dispenser().render(template_helper, course, tasks_data, tag_filter_list) | safe }}
 
-{{ include.unregister_modal(course) | safe }}
+{% include "unregister_modal.html" %}
 
 {% endblock %}
