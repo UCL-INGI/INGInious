@@ -91,4 +91,9 @@ class CoursePage(INGIniousAuthPage):
             # Get user info
             user_info = self.user_manager.get_user_info(username)
 
-            return self.template_helper.get_renderer().course(user_info, course, last_submissions, tasks_data, course_grade, tag_list)
+            return self.template_helper.render("course.html", user_info=user_info,
+                                               course=course,
+                                               submissions=last_submissions,
+                                               tasks_data=tasks_data,
+                                               grade=course_grade,
+                                               tag_filter_list=tag_list)

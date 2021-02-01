@@ -1,138 +1,148 @@
-$def with (user_info, course, submissions, tasks_data, grade, tag_filter_list)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:course.get_name(user_manager.session_language())
-$ registered = user_manager.course_is_user_registered(course)
-$ staff = user_manager.has_staff_rights_on_course(course)
-$# Left column content
-$def ColumnF():
-    $:template_helper.call('course_menu', course=course, template_helper=template_helper)
-    $if registered or staff:
-        <h3>$:_("Current grade")</h3>
+{% set registered = user_manager.course_is_user_registered(course) %}
+{% set staff = user_manager.has_staff_rights_on_course(course) %}
+
+{% block title %}{{ course.get_name(user_manager.session_language()) }}{% endblock %}
+
+{% block column %}
+    {{ template_helper.call('course_menu', course=course, template_helper=template_helper) | safe }}
+    {% if registered or staff %}
+        <h3>{{ _("Current grade") }}</h3>
         <div class="progress mb-3">
-            <div class="progress-bar bg-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
-                $int(grade)%
+            <div class="progress-bar bg-success" aria-valuenow="{{grade|int}}" aria-valuemin="0" aria-valuemax="100" style="width: {{grade|int}}%;">
+                {{grade|int}} %
             </div>
         </div>
 
-        <h3>$:_("Last tried exercises")</h3>
+        <h3> {{_("Last tried exercises") }}</h3>
         <div class="list-group mb-3">
-            $if submissions:
-                $for submission in submissions:
+            {% if submissions %}
+                {% for submission in submissions %}
                     <a class="list-group-item list-group-item-action
-                        $if submission['status'] == 'done' and submission['result'] == 'success':
+                        {% if submission['status'] == 'done' and submission['result'] == 'success' %}
                             list-group-item-success
-                        $elif submission['status'] == 'done' and submission['result'] == 'save':
+                        {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
                             list-group-item-info
-                        $elif submission['status'] == 'waiting':
+                        {% elif submission['status'] == 'waiting' %}
                             list-group-item-warning
-                        $else:
+                        {% else %}
                             list-group-item-danger
-                        "
-                        href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                        $submission['taskname']
+                        {% endif %}"
+                        href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                        {{ submission['taskname'] }}
                     </a>
-            $else:
-                <a class="list-group-item list-group-item-action disabled submission-empty">$:_("No submissions")</a>
+                {% endfor %}
+            {% else %}
+                <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>
+            {% endif %}
         </div>
-    $if staff:
-        $if not course.is_open_to_non_staff():
+    {% endif %}
+    {%if staff %}
+        {% if not course.is_open_to_non_staff() %}
             <div class="alert alert-warning" role="alert">
-                $:_("This course is currently invisible for students. You can change this by modifying the \"accessibility\" option in the configuration of the course.")
+                {{ _("This course is currently invisible for students. You can change this by modifying the \"accessibility\" option in the configuration of the course.") }}
             </div>
+        {% endif %}
         <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
-                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Course administration")
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{ course.get_id() }}">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; {{ _("Course administration") }}
             </a>
         </div>
-    $elif registered:
+    {% elif registered %}
         <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/group/$course.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/group/{{ course.get_id() }}">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
-                $ mygroup = user_manager.get_course_user_group(course)
-                $if mygroup and user_manager.session_username() in mygroup['students']:
-                    $:_("Group : {}").format(mygroup['description'])
-                $else:
-                    $:_("Groups management")
+                {% set mygroup = user_manager.get_course_user_group(course) %}
+                {% if mygroup and user_manager.session_username() in mygroup['students'] %}
+                    {{ _("Group : {}").format(mygroup['description']) }}
+                {% else %}
+                    {{ _("Groups management") }}
+                {% endif %}
             </a>
-            $if course.allow_unregister():
+            {% if course.allow_unregister() %}
                 <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-action list-group-item-info">
-                    <i class="fa fa-user-times fa-fw"></i>&nbsp; $:_("Unregister from this course")
+                    <i class="fa fa-user-times fa-fw"></i>&nbsp; {{ _("Unregister from this course") }}
                 </a>
+            {% endif %}
         </div>
-    $elif not user_manager.session_logged_in():
-        $:include.signin_button()
-    $elif course.is_registration_possible(user_info):
-        <h3>$:_("Enroll in the course")</h3>
+    {% elif not user_manager.session_logged_in() %}
+        {% include "signin_button_jinja.html" %}
+    {% elif course.is_registration_possible(user_info) %}
+        <h3>{{ _("Enroll in the course") }}</h3>
 
         <div class="alert alert-warning" role="alert">
-            $:_("Please enroll in the course to be able to submit answers to problems.")
+            {{ _("Please enroll in the course to be able to submit answers to problems.") }}
         </div>
         <div class="list-group">
-            <a href="$get_homepath()/register/$course.get_id()" class="list-group-item list-group-item-action list-group-item-info">
-                <i class="fa fa-sign-in fa-fw"></i>&nbsp; $:_("Enroll in the course")
+            <a href="{{ get_homepath() }}/register/{{ course.get_id() }}" class="list-group-item list-group-item-action list-group-item-info">
+                <i class="fa fa-sign-in fa-fw"></i>&nbsp; {{ _("Enroll in the course") }}
             </a>
         </div>
+    {%endif %}
+{% endblock %}
 
-$var Column: $:ColumnF()
-
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            $if registered:
-                <li class="breadcrumb-item"><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-            $else:
-                <li class="breadcrumb-item"><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#">$course.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
+            {% if registered %}
+                <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{{get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            {% endif %}
+            <li class="breadcrumb-item active"><a href="#">{{ course.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-$# Start content
+{% block content %}
 <div class="row pr-3">
     <div class="col-md-8">
-        <h2>$:course.get_name(user_manager.session_language())</h2>
+        <h2>{{ course.get_name(user_manager.session_language()) }}</h2>
     </div>
 
-    $if tag_filter_list:
+    {%if tag_filter_list %}
         <div class="col-md-4  p-3">
             <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
-                <option value="">$:_("Filter tasks by tags")</option>
-                $for key, tag in tag_filter_list.items():
-                    $if tag.get_type() in [0, 2] and tag.is_visible_for_student():
-                        <option value="$tag.get_id()">$tag.get_name(user_manager.session_language())</option>
+                <option value=""> {{ _("Filter tasks by tags") }}</option>
+                {% for key, tag in tag_filter_list.items() %}
+                    {% if tag.get_type() in [0, 2] and tag.is_visible_for_student() %}
+                        <option value="{{ tag.get_id() }}">{{ tag.get_name(user_manager.session_language()) }}</option>
+                    {% endif %}
+                {% endfor %}
             </select>
         </div>
+    {% endif %}
 </div>
 
-$if course.get_descriptor().get("description", ""):
+{% if course.get_descriptor().get("description", "") %}
     <div class="mb-3" id="desc_accord" role="tablist" aria-multiselectable="true">
         <div class="card">
             <div class="card-header" id="course_desc_head">
                 <div style="cursor: pointer" data-toggle="collapse" data-parent="#desc_accord" href="#course_desc" aria-expanded="false" aria-controls="course_desc">
-                    <i class="fa fa-fw fa-chevron-right"></i>$:_("About this course")
+                    <i class="fa fa-fw fa-chevron-right"></i>{{ _("About this course") }}
                 </div>
             </div>
             <div id="course_desc" class="collapse" role="tabpanel" aria-labelledby="course_desc_head">
                 <div class="card-body">
-                    $:course.get_description(user_manager.session_language())
+                    {{ course.get_description(user_manager.session_language()) | safe}}
                 </div>
             </div>
         </div>
     </div>
+{%endif %}
 
 <script>
 function filter_tag(tag) {
     tag = tag.value;
-    $$("a", ".tasks-list").each(function(idx, elem) {
-        var task = $$(elem);
+    $("a", ".tasks-list").each(function(idx, elem) {
+        var task = $(elem);
         var found=false;
-        $$("div[id='tag']", task).each(function() {
-            if ($$(this).attr("data-tag-name") == tag){
+        $("div[id='tag']", task).each(function() {
+            if ($(this).attr("data-tag-name") == tag){
                 found=true;
             }
         });
@@ -165,6 +175,8 @@ function filter_tag(tag) {
     }
 </style>
 
-$:course.get_task_dispenser().render(template_helper, course, tasks_data, tag_filter_list)
+{{ course.get_task_dispenser().render(template_helper, course, tasks_data, tag_filter_list) | safe }}
 
-$:include.unregister_modal(course)
+{{ include.unregister_modal(course) | safe }}
+
+{% endblock %}
