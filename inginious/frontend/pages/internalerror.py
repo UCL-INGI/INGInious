@@ -16,4 +16,4 @@ class InternalError(HTTPError):
 
 def internalerror_generator(renderer):
     """ Returns a function which will include the message inside the inginious template """
-    return lambda message=None: InternalError(renderer.internalerror(message))
+    return lambda message=None: InternalError(renderer("internalerror.html", message=message))

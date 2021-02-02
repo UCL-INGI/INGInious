@@ -299,11 +299,11 @@ def get_app(config):
     appli.notfound = lambda message='Page not found': web.notfound(template_helper.get_renderer().notfound(message))
 
     # Forbidden page
-    appli.forbidden = lambda message='Forbidden': web.forbidden(template_helper.get_renderer().forbidden(message))
+    appli.forbidden = lambda message='Forbidden': web.forbidden(template_helper.render("forbidden.html", message=message))
 
     # Enable stacktrace display if needed
     web_debug = config.get('web_debug', False)
-    appli.internalerror = internalerror_generator(template_helper.get_renderer(False))
+    appli.internalerror = internalerror_generator(template_helper.render)
     if web_debug is True:
         web.config.debug = True
         appli.internalerror = debugerror
