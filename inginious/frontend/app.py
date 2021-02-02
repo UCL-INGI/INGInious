@@ -260,7 +260,6 @@ def get_app(config):
 
     template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/templates',
                                      'frontend/templates/layout',
-                                     'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
     register_utils(database, user_manager, template_helper)

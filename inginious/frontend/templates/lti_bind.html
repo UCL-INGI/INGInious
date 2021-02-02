@@ -1,46 +1,48 @@
-$def with (success, sessionid, data, error)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-
-$var title: $:_("Bind LTI")
-
-<h2>$:_("Binding to an existing LMS")</h2>
-$if error:
+{% extends "layout_jinja.html" %}
+{% block title %} {{ _("Bind LTI") }} {% endblock %}
+{% block content %}
+<h2>{{ _("Binding to an existing LMS") }}</h2>
+{% if error %}
     <div class="alert alert-danger">
-        $error
+        {{ error }}
     </div>
+{% endif %}
 
-$if data:
+{%if data %}
     <div class="card border-warning">
-        <div class="card-header bg-warning text-white">$:_("Authorization required")</div>
+        <div class="card-header bg-warning text-white">{{ _("Authorization required") }}</div>
       <div class="card-body">
-          $:_("You are going to bind your INGInious account <strong>{realname} [{username}]</strong> with the following LTI tool and context:").format(realname=user_manager.session_realname(), username=user_manager.session_username())
+          {{ _("You are going to bind your INGInious account <strong>{realname} [{username}]</strong> with the following LTI tool and context:").format(realname=user_manager.session_realname(), username=user_manager.session_username()) | safe }}
           <ul>
-              <li><strong>$:_("Tool name:")</strong> $data["tool_name"]</li>
-              <li><strong>$:_("Tool description:")</strong> $data["tool_description"]</li>
-              <li><strong>$:_("Tool URL:")</strong> $data["tool_url"]</li>
-              <li><strong>$:_("Tool context:")</strong> $data["context_label"] - $data["context_title"]</li>
-              <li><strong>$:_("Tool identifiers:")</strong> $data["username"] - $data["realname"]</li>
+              <li><strong>{{ _("Tool name:") }}</strong> {{ data["tool_name"] }}</li>
+              <li><strong>{{ _("Tool description:") }}</strong> {{ data["tool_description"] }}</li>
+              <li><strong>{{ _("Tool URL:") }}</strong> {{ data["tool_url"] }}</li>
+              <li><strong>{{ _("Tool context:") }}</strong> {{ data["context_label"] }} - {{ data["context_title"] }}</li>
+              <li><strong>{{ _("Tool identifiers:") }}</strong> {{ data["username"] }} - {{ data["realname"] }}</li>
           </ul>
           This operation cannot be undone.
       </div>
         <div class="card-footer text-right">
             <div class="btn-group-sm">
                 <form method="post">
-                    <button type="submit" class="btn btn-sm btn-primary">$:_("Bind my account")</button>
-                    <button type="button" onclick="window.close()" class="btn btn-sm btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="submit" class="btn btn-sm btn-primary">{{ _("Bind my account") }}</button>
+                    <button type="button" onclick="window.close()" class="btn btn-sm btn-default" data-dismiss="modal">{{ _("Cancel") }}</button>
                 </form>
             </div>
         </div>
     </div>
+{% endif %}
 
-$if success:
+{%if success %}
     <script type="text/javascript">
         window.onload = function() {
-            window.opener.location.href = "$get_homepath(True)/@$sessionid@/lti/login";
+            window.opener.location.href = "{{ get_homepath(True) }}/@{{ sessionid }}@/lti/login";
             window.close();
         }
     </script>
+{% endif %}
+
+{% endblock %}

@@ -55,31 +55,37 @@ class LTIBindPage(INGIniousAuthPage):
     def GET_AUTH(self):
         input_data = web.input()
         if "sessionid" not in input_data:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Missing LTI session id"))
+            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+                                               data=None, error=_("Missing LTI session id"))
 
         try:
             cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
         except KeyError:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
+            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+                                               data=None, error=_("Invalid LTI session id"))
 
-        return self.template_helper.get_renderer().lti_bind(False, cookieless_session["session_id"], data, "")
+        return self.template_helper.render("lti_bind.html", success=False,
+                                           sessionid=cookieless_session["session_id"], data=data, error="")
 
     def POST_AUTH(self):
         input_data = web.input()
         if "sessionid" not in input_data:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Missing LTI session id"))
+            return self.template_helper.render("lti_bind.html",success=False, sessionid="",
+                                               data= None, error=_("Missing LTI session id"))
 
         try:
             cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
         except KeyError:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
+            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+                                               data=None, error=_("Invalid LTI session id"))
 
         try:
             course = self.course_factory.get_course(data["task"][0])
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI data"))
+            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+                                               data=None, error=_("Invalid LTI data"))
 
         if data:
             user_profile = self.database.users.find_one({"username": self.user_manager.session_username()})
@@ -98,10 +104,13 @@ class LTIBindPage(INGIniousAuthPage):
                                  data["task"][0],
                                  data["consumer_key"],
                                  user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"], ""))
-                return self.template_helper.get_renderer().lti_bind(False, cookieless_session["session_id"],
-                                                                    data, _("Your account is already bound with this context."))
+                return self.template_helper.render("lti_bind.html", success=False,
+                                                   sessionid=cookieless_session["session_id"],
+                                                   data=data,
+                                                   error=_("Your account is already bound with this context."))
 
-        return self.template_helper.get_renderer().lti_bind(True, cookieless_session["session_id"], data, "")
+        return self.template_helper.render("lti_bind.html", success=True,
+                                           sessionid=cookieless_session["session_id"], data=data, error="")
 
 
 class LTILoginPage(INGIniousPage):
@@ -122,7 +131,8 @@ class LTILoginPage(INGIniousPage):
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI data")
+            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+                                               data=None, error="Invalid LTI data")
 
         user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
         if user_profile:
@@ -132,7 +142,7 @@ class LTILoginPage(INGIniousPage):
         if self.user_manager.session_logged_in():
             raise web.seeother(self.app.get_homepath() + "/lti/task")
 
-        return self.template_helper.get_renderer().lti_login(False)
+        return self.template_helper.render("lti_login.html")
 
     def POST(self):
         """
