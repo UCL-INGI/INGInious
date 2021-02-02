@@ -98,64 +98,66 @@
     {% endblock %}
 </head>
 
-
-
 <body class="sidebar-state-0">
     <div class="row" id="inginious-top">
         <div id="inginious-sidebar-top" class="col">
-            <a id="inginious-logo" class="col" href="{{ get_homepath() }}/index">
+            <a id="inginious-logo" class="col" href="{{ get_homepath() ~ '/index' if not is_lti() else '#' }}">
                 <div id="inginious-logo-text"><img src="{{get_homepath(True)}}/static/images/header.png" alt="logo"/> INGInious</div>
             </a>
             <button class="col" onclick="$('body').toggleClass('sidebar-state-0'); $('body').toggleClass('sidebar-state-1');" id="inginious-sidebar-toggle" title="{{ _('Open menu') }}"><i class="fa fa-bars fa-fw"></i></button>
         </div>
         <div id="inginious-topbar" class="col flex-grow-1 flex-shrink-1">
-            {% block navbar %}{% endblock %}
+            {% if not is_lti() %}
+                {% block navbar %}{% endblock %}
+            {% endif %}
         </div>
     </div>
 
     <div class="row" id="main-container">
         <div id="inginious-sidebar" class="col">
             <div id="inginious-sidebar-content">
-                <div class="list-group">
-                    {% if user_manager.session_logged_in() %}
-                        {# Change to teacher privilege when created #}
-                        {% if user_manager.user_is_superadmin() %}
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
-                        {% endif %}
-                        <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a>
-                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseUserMenu" role="button" aria-expanded="false" aria-controls="collapseUserMenu">
-                            <i class="fa fa-user fa-fw"></i> {{ user_manager.session_realname() }} <span class="caret"></span>
-                        </a>
-                        <div class="collapse list-group-collapse" id="collapseUserMenu">
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/mycourses"><i class="fa fa-th-list fa-fw"></i> {{ _("My courses") }}</a>
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/preferences"><i class="fa fa-gears fa-fw"></i> {{ _("Preferences") }}</a>
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/queue"><i class="fa fa-dashboard fa-fw"></i> {{ _("Service status") }}</a>
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
-                        </div>
-                    {% else %}
-                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseLang" role="button" aria-expanded="false" aria-controls="collapseLang">
-                            <i class="fa fa-globe fa-fw"></i> {{ _("English") }} <span class="caret"></span>
-                        </a>
-                        <div class="collapse list-group-collapse" id="collapseLang">
-                            {% for code, language in available_languages.items() %}
-                                <a href="?lang={{code}}" class="list-group-item list-group-item-action"><i class="fa fa-chevron-right fa-fw"></i> {{ code }} ({{ language }})</a>
-                            {% endfor %}
-                        </div>
+                {% if not is_lti() %}
+                    <div class="list-group">
+                        {% if user_manager.session_logged_in() %}
+                            {# Change to teacher privilege when created #}
+                            {% if user_manager.user_is_superadmin() %}
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
+                            {% endif %}
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a>
+                            <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseUserMenu" role="button" aria-expanded="false" aria-controls="collapseUserMenu">
+                                <i class="fa fa-user fa-fw"></i> {{ user_manager.session_realname() }} <span class="caret"></span>
+                            </a>
+                            <div class="collapse list-group-collapse" id="collapseUserMenu">
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/mycourses"><i class="fa fa-th-list fa-fw"></i> {{ _("My courses") }}</a>
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/preferences"><i class="fa fa-gears fa-fw"></i> {{ _("Preferences") }}</a>
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/queue"><i class="fa fa-dashboard fa-fw"></i> {{ _("Service status") }}</a>
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
+                            </div>
+                        {% else %}
+                            <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseLang" role="button" aria-expanded="false" aria-controls="collapseLang">
+                                <i class="fa fa-globe fa-fw"></i> {{ _("English") }} <span class="caret"></span>
+                            </a>
+                            <div class="collapse list-group-collapse" id="collapseLang">
+                                {% for code, language in available_languages.items() %}
+                                    <a href="?lang={{code}}" class="list-group-item list-group-item-action"><i class="fa fa-chevron-right fa-fw"></i> {{ code }} ({{ language }})</a>
+                                {% endfor %}
+                            </div>
 
-                        <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist">
-                            <i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}
-                        </a>
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist">
+                                <i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}
+                            </a>
 
-                        {% if allow_registration %}
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/register">
-                                <i class="fa fa-pencil fa-fw"></i> {{ _("Register") }}
+                            {% if allow_registration %}
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/register">
+                                    <i class="fa fa-pencil fa-fw"></i> {{ _("Register") }}
+                                </a>
+                            {% endif %}
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/signin">
+                                <i class="fa fa-sign-in fa-fw"></i> {{ _("Sign in") }}
                             </a>
                         {% endif %}
-                        <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/signin">
-                            <i class="fa fa-sign-in fa-fw"></i> {{ _("Sign in") }}
-                        </a>
-                    {% endif %}
-                </div>
+                    </div>
+                {% endif %}
                 {% if self.column() %}
                     <div class="mb-3"></div>
                     {% block column %}{% endblock %}
@@ -166,10 +168,14 @@
             {% block content %}{% endblock %}
 
             <div id="footer">
-                &copy; 2014-2021 Universit&eacute; catholique de Louvain.<br>
-                <a target="_blank" href="http://www.inginious.org" class="navbar-link">
-                    {{ _("INGInious is distributed under AGPL license") }}
-                </a>
+                {% if is_lti() %}
+                    {{ _('Powered by <a href="http://www.inginious.org" target="_blank">INGInious</a>, a free and open-source grading tool.') | safe }}
+                {% else %}
+                    &copy; 2014-2021 Universit&eacute; catholique de Louvain.<br>
+                    <a target="_blank" href="http://www.inginious.org" class="navbar-link">
+                        {{ _("INGInious is distributed under AGPL license") }}
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

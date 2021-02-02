@@ -25,10 +25,9 @@ class TemplateHelper(object):
         """
         Init the Template Helper
         :param plugin_manager: an instance of a PluginManager
-        :param user_manager: an instance of UserManager. Can be None; in this case, LTI layout detection will never be used.
+        :param user_manager: an instance of UserManager.
         :param default_template_dir: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
         :param default_layout: the path to the layout. If it is not absolute, it will be taken from the root of the inginious package.
-        :param default_layout_lti: same but for the lti layout
         :param use_minified: weither to use minified js/css or not. Use True in production, False in dev envs.
         """
 
