@@ -295,7 +295,7 @@ def get_app(config):
                                                                                  plugin_manager, user_manager))
 
     # Not found page
-    appli.notfound = lambda message='Page not found': web.notfound(template_helper.get_renderer().notfound(message))
+    appli.notfound = lambda message='Page not found': web.notfound(template_helper.render("notfound.html", message=message))
 
     # Forbidden page
     appli.forbidden = lambda message='Forbidden': web.forbidden(template_helper.render("forbidden.html", message=message))
