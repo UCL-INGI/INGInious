@@ -1,108 +1,117 @@
-$def with (open_courses,registrable_courses,submissions,success)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %}{{ _("My courses") }}{% endblock %}
 
-$var title: $:_("My courses")
-
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list"></i> $:_("My courses")
-                <span class="sr-only">$:_("(current)")</span></a>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list"></i> {{ _("My courses") }}
+                <span class="sr-only">{{ _("(current)") }}</span></a>
             </li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-$# Left column content
-$def ColumnF():
-    <h3> $:_("My courses")</h3>
+{% block column %}
+    <h3> {{ _("My courses") }}</h3>
     <div class="alert alert-warning" role="alert">
-        $:_("This page lists all the courses you are currently enrolled in. You can find new courses on the course list page.")
+        {{ _("This page lists all the courses you are currently enrolled in. You can find new courses on the course list page.") }}
     </div>
     <div class="list-group mb-3">
-        <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/courselist">
+        <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/courselist">
             <i class="fa fa-fw fa-th-list"></i>
-            $:_("Course list")
+            {{ _("Course list") }}
         </a>
     </div>
 
-    <h3>$:_("Last tried exercises")</h3>
+    <h3>{{ _("Last tried exercises") }}</h3>
     <div class="list-group">
-        $if submissions:
-            $for submission in submissions:
+        {% if submissions %}
+            {% for submission in submissions %}
                 <a class="list-group-item list-group-item-action
-                    $if submission['status'] == 'done' and submission['result'] == 'success':
+                    {% if submission['status'] == 'done' and submission['result'] == 'success' %}
                         list-group-item-success
-                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+                    {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
                         list-group-item-info
-                    $elif submission['status'] == 'waiting':
+                    {% elif submission['status'] == 'waiting' %}
                         list-group-item-warning
-                    $else:
+                    {% else %}
                         list-group-item-danger
-                    "
-                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    <b>$submission["task"].get_course().get_name(user_manager.session_language())</b>: $submission["task"].get_name(user_manager.session_language())
+                    {% endif %}"
+                    href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                    <b>{{ submission["task"].get_course().get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
                 </a>
-        $else:
-            <a class="list-group-item list-group-item-action disabled submission-empty">$:_("No submissions")</a>
+            {% endfor %}
+        {% else %}
+            <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>
+        {% endif %}
     </div>
-    $:template_helper.call('main_menu', template_helper=template_helper)
-$var Column: $:ColumnF()
+    {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
+{% endblock %}
 
-$# Start content
-<h2>$:_("My courses")</h2>
+{% block content %}
+<h2>{{ _("My courses") }}</h2>
 <div class="list-group">
-	$if len(open_courses) != 0:
-        $ username = user_manager.session_username()
-        $for courseid, course in open_courses.items():
-            <a href="$get_homepath()/course/$courseid" class="list-group-item list-group-item-action $(('list-group-item-warning' if not course.is_lti() else 'list-group-item-info') if not course.is_open_to_non_staff() else '')">
+	{%if open_courses %}
+        {% set username = user_manager.session_username() %}
+        {% for courseid, course in open_courses.items() %}
+            <a href="{{ get_homepath() }}/course/{{ courseid }}" class="list-group-item list-group-item-action
+                {% if course.is_lti() %}
+                    list-group-item-info
+                {% elif not course.is_open_to_non_staff() %}
+                    list-group-item-warning
+                {% endif %}">
                 <div class="row">
                     <div class="col-xs-12 col-md-8">
-                        $course.get_name(user_manager.session_language())
+                        {{ course.get_name(user_manager.session_language()) }}
                     </div>
                     <div class="col-xs-12 col-md-4">
                         <i class="pull-right">
-                            $if not course.is_open_to_non_staff():
-                                $if course.is_lti():
-                                    $:_("LTI course") -
-                                $else:
-                                    $:_("Hidden course") -
+                            {% if course.is_lti() %}
+                                {{ _("LTI course") }} -
+                            {% elif not course.is_open_to_non_staff() %}
+                                {{ _("Hidden course") }} -
+                            {% endif %}
 
-                            $if username in course.get_admins() or user_manager.user_is_superadmin():
-                                $:_("Administrator")
-                            $elif username in course.get_tutors():
-                                $:_("Tutor")
-                            $elif user_manager.course_is_user_registered(course):
-                                $:_("Student")
+                            {% if username in course.get_admins() or user_manager.user_is_superadmin() %}
+                                {{ _("Administrator") }}
+                            {% elif username in course.get_tutors() %}
+                                {{ _("Tutor") }}
+                            {% elif user_manager.course_is_user_registered(course) %}
+                                {{ _("Student") }}
+                            {% endif %}
                         </i>
                     </div>
                 </div>
             </a>
-    $else:
-        <a href="#register" class="list-group-item list-group-item-action disabled">$:_("You are not registered to any course")</a>
+        {% endfor %}
+    {% else %}
+        <a href="#register" class="list-group-item list-group-item-action disabled">{{ _("You are not registered to any course") }}</a>
+    {% endif %}
 </div>
-$if user_manager.user_is_superadmin():
+{% if user_manager.user_is_superadmin() %}
     <hr/>
-    $if success == True:
+    {% if success == True %}
         <div class="alert alert-success alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $:_("Course created.")
+            {{ _("Course created.") }}
         </div>
-    $if success == False:
+    {% elif success == False %}
         <div class="alert alert-danger alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $:_("Failed to create the course.")
+            {{ _("Failed to create the course.") }}
         </div>
+    {% endif %}
     <form class="form row" role="form" method="post">
         <div class="form-group col-sm-8">
-            <label class="sr-only" for="new_courseid">$:_("Course")</label>
-            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="$:_('New course id')">
+            <label class="sr-only" for="new_courseid">{{ _("Course") }}</label>
+            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="{{ _('New course id') }}">
         </div>
         <div class="form-group col-sm-4">
-            <button type="submit" class="btn btn-block btn-primary">$:_("Create new course")</button>
+            <button type="submit" class="btn btn-block btn-primary">{{ _("Create new course") }}</button>
         </div>
     </form>
+{% endif %}
+{% endblock %}

@@ -62,4 +62,8 @@ class MyCoursesPage(INGIniousAuthPage):
 
         registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name(self.user_manager.session_language())))
 
-        return self.template_helper.get_renderer().mycourses(open_courses, registerable_courses, except_free_last_submissions, success)
+        return self.template_helper.render("mycourses.html",
+                                           open_courses=open_courses,
+                                           registrable_courses=registerable_courses,
+                                           submissions=except_free_last_submissions,
+                                           success=success)
