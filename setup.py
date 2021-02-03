@@ -39,7 +39,7 @@ test_requires = [
 ]
 
 doc_requires = [
-    "sphinx-tabs >= 1.1.13",
+    "sphinx-tabs < 2",
     "ipython >= 7.6.1"
 ]
 
