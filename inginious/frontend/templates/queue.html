@@ -1,111 +1,116 @@
-$def with (jobs_running, jobs_waiting, from_timestamp)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %} {{ _("Job queue") }} {% endblock %}
 
-$var title: $:_("Job queue")
-
-$# Start content
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-dashboard"></i> $:_("Job queue")
-                <span class="sr-only">$:_("(current)")</span></a>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-dashboard"></i> {{ _("Job queue") }}
+                <span class="sr-only">{{ _("(current)") }}</span></a>
             </li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-<h2>$:_("Job queue")</h2>
-<p>$:_("This page shows a <strong>snapshot</strong> of the job queue.")</p>
+{% block content %}
+<h2>{{ _("Job queue") }}</h2>
+<p>{{ _("This page shows a <strong>snapshot</strong> of the job queue.") | safe }}</p>
 
-<h3>$:_("Running jobs")</h3>
-$if jobs_running is not None and len(jobs_running) > 0:
+<h3>{{ _("Running jobs") }}</h3>
+{%if jobs_running is not none and jobs_running|length > 0 %}
     <table class="table table-striped">
         <tr>
-            <th>$:_("Type")</th>
-            <th>$:_("Agent name")</th>
-            <th>$:_("Name")</th>
-            <th>$:_("Launcher name")</th>
-            <th>$:_("Started at")</th>
-            <th>$:_("Timeout at")</th>
-            <th>$:_("Action")</th>
+            <th>{{_("Type")}}</th>
+            <th>{{_("Agent name")}}</th>
+            <th>{{_("Name")}}</th>
+            <th>{{_("Launcher name")}}</th>
+            <th>{{_("Started at")}}</th>
+            <th>{{_("Timeout at")}}</th>
+            <th>{{_("Action")}}</th>
         </tr>
-        $for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time) in jobs_running:
+        {% for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_time) in jobs_running %}
             <tr>
-                <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
-                <td>$agent_name</td>
-                <td>$info</td>
-                <td>$launcher</td>
-                <td>$from_timestamp(started_at).strftime("%d/%m/%Y %H:%M:%S")</td>
+                <td data-toggle="tooltip" data-placement="right" title="{{job_id}}">Task</td>
+                <td>{{agent_name}}</td>
+                <td>{{info}}</td>
+                <td>{{launcher}}</td>
+                <td>{{from_timestamp(started_at).strftime("%d/%m/%Y %H:%M:%S")}}</td>
                 <td>
-                    $if max_time >= 0:
-                        $from_timestamp(started_at+max_time).strftime("%d/%m/%Y %H:%M:%S")
-                    $else:
-                        $:_("No timeout set")
+                    {% if max_time >= 0 %}
+                        {{from_timestamp(started_at+max_time).strftime("%d/%m/%Y %H:%M:%S")}}
+                    {% else %}
+                        {{_("No timeout set")}}
+                    {% endif %}
                 </td>
                 <td>
-                $if user_manager.user_is_superadmin():
-                    <button type="button" data-toggle="modal" data-job_id="$job_id" data-target="#kill_modal" class="btn btn-warning" title="Kill Job">
+                {% if user_manager.user_is_superadmin() %}
+                    <button type="button" data-toggle="modal" data-job_id="{{job_id}}" data-target="#kill_modal" class="btn btn-warning" title="Kill Job">
                         <i class="fa fa-remove">
                         </i>
                     </button>
+                {% endif %}
                 </td>
             </tr>
+        {% endfor %}
     </table>
-$else:
-    <p>$:_("There are no jobs running")</p>
+{% else %}
+    <p>{{ _("There are no jobs running") }}</p>
+{% endif %}
 
-<h3>$:_("Jobs in queue")</h3>
-$if jobs_waiting is not None and len(jobs_waiting) > 0:
+<h3>{{ _("Jobs in queue") }}</h3>
+{% if jobs_waiting is not none and jobs_waiting|length > 0 %}
     <table class="table table-striped">
         <tr>
-            <th>$:_("Type")</th>
-            <th>$:_("Name")</th>
-            <th>$:_("Launcher name")</th>
-            <th>$:_("Maximum runtime in seconds")</th>
-            <th>$:_("Action")</th>
+            <th>{{_("Type")}}</th>
+            <th>{{_("Name")}}</th>
+            <th>{{_("Launcher name")}}</th>
+            <th>{{_("Maximum runtime in seconds")}}</th>
+            <th>{{_("Action")}}</th>
         </tr>
-        $for (job_id, is_current_client_job, info, launcher, max_time) in jobs_waiting:
+        {% for (job_id, is_current_client_job, info, launcher, max_time) in jobs_waiting %}
         <tr>
-            <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
-            <td>$info</td>
-            <td>$launcher</td>
+            <td data-toggle="tooltip" data-placement="right" title="{{job_id}}">Task</td>
+            <td>{{info}}</td>
+            <td>{{launcher}}</td>
             <td>
-                $if max_time >= 0:
-                    $max_time
-                $else:
-                    $:_("No timeout set")
+                {% if max_time >= 0 %}
+                    {{max_time}}
+                {% else %}
+                    {{_("No timeout set")}}
+                {% endif %}
             </td>
             <td>
-            $if user_manager.user_is_superadmin():
-                <button type="button" data-toggle="modal" data-job_id="$job_id" data-target="#kill_modal" class="btn btn-warning" title="Kill Job">
+            {% if user_manager.user_is_superadmin() %}
+                <button type="button" data-toggle="modal" data-job_id="{{job_id}}" data-target="#kill_modal" class="btn btn-warning" title="Kill Job">
                     <i class="fa fa-remove">
                     </i>
                 </button>
+            {% endif %}
             </td>
         </tr>
+        {% endfor %}
     </table>
-$else:
-    <p>$:_("There are no jobs waiting in queue")</p>
+{% else %}
+    <p>{{_("There are no jobs waiting in queue")}}</p>
+{% endif %}
 
 <div id="kill_modal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">$:_("Kill job") </h4>
+                    <h4 class="modal-title">{{ _("Kill job") }}</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>$:_("Are you sure ?")</p>
+                    <p>{{_("Are you sure ?")}}</p>
                 </div>
                 <div class="modal-footer">
                     <form method="post">
                         <input type="hidden" name="jobid" id="jobid">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                        <button type="submit" name="reset" class="btn btn-danger">$:_("Kill")</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                        <button type="submit" name="reset" class="btn btn-danger">{{_("Kill")}}</button>
                     </form>
                 </div>
             </div>
@@ -113,7 +118,8 @@ $else:
 </div>
 
 <script type="text/javascript">
-    $$('#kill_modal').on('show.bs.modal', function (event) {
-      $$('#jobid').val($$(event.relatedTarget).data('job_id'));
+    $('#kill_modal').on('show.bs.modal', function (event) {
+      $('#jobid').val($(event.relatedTarget).data('job_id'));
     });
 </script>
+{% endblock %}
