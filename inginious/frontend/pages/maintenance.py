@@ -13,8 +13,8 @@ class MaintenancePage(INGIniousPage):
 
     def GET(self):
         """ GET request """
-        return self.template_helper.get_renderer(False).maintenance()
+        return self.template_helper.render("maintenance.html")
 
     def POST(self):
         """ POST request """
-        return self.template_helper.get_renderer(False).maintenance()
+        return self.template_helper.render("maintenance.html")

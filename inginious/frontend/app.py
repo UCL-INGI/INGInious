@@ -208,9 +208,9 @@ def get_app(config):
         template_helper = TemplateHelper(PluginManager(), None,
                                          'frontend/templates',
                                          'frontend/templates/layout',
-                                         'frontend/templates/layout_lti',
                                          config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+        template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
         appli.template_helper = template_helper
         appli.init_mapping(urls_maintenance)

@@ -53,7 +53,7 @@
     <script src="{{get_homepath(True)}}/static/js/libs/sentry-io-bundle.min.js" type="text/javascript" charset="utf-8"></script>
     <script>
         Sentry.init({ dsn: "{{sentry_io_url}}" });
-        {% if user_manager.session_logged_in() %}
+        {% if user_manager is defined and user_manager.session_logged_in() %}
             Sentry.configureScope(function(scope) {
                 scope.setUser({
                     "username": "{{user_manager.session_username()}}",
@@ -118,7 +118,7 @@
             <div id="inginious-sidebar-content">
                 {% if not is_lti() %}
                     <div class="list-group">
-                        {% if user_manager.session_logged_in() %}
+                        {% if user_manager is defined and user_manager.session_logged_in() %}
                             {# Change to teacher privilege when created #}
                             {% if user_manager.user_is_superadmin() %}
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
