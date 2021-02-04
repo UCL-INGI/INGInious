@@ -65,7 +65,7 @@ class BaseTaskPage(object):
         try:
             task = course.get_task(taskid)
             if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
-                return self.template_helper.get_renderer().task_unavailable()
+                return self.template_helper.render("task_unavailable.html")
         except TaskNotFoundException:
             raise web.notfound()
 
@@ -166,7 +166,7 @@ class BaseTaskPage(object):
 
         task = course.get_task(taskid)
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
-            return self.template_helper.get_renderer().task_unavailable()
+            return self.template_helper.render("task_unavailable.html")
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
@@ -388,7 +388,7 @@ class TaskPageStaticDownload(INGIniousPage):
 
                 task = course.get_task(taskid)
                 if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
-                    return self.template_helper.get_renderer().task_unavailable()
+                    return self.template_helper.render("task_unavailable.html")
 
                 public_folder = task.get_fs().from_subfolder("public")
             (method, mimetype_or_none, file_or_url) = public_folder.distribute(path_norm, False)
