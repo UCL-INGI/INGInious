@@ -265,7 +265,7 @@ class INGIniousStaticPage(INGIniousPage):
         title = filecontent["title"]
         content = ParsableText.rst(filecontent["content"], initial_header_level=2)
 
-        return self.template_helper.get_renderer().static(title, content)
+        return self.template_helper.render("static.html", pagetitle=title, content=content)
 
 
 def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str, name: str, id:str, placeholder:str=None, single=False):
