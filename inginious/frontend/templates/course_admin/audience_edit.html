@@ -181,6 +181,13 @@ $elif msg:
                                 <i class="fa fa-user-times"></i>
                             </a>
                         </li>
+                    $else:
+                        <li data-username="$username" class="list-group-item group-entry">
+                            <span id="$username"><i class="fa fa-arrows"></i>  $username - $:_("Not yet registered to the course")</span>
+                            <a class="pull-right" id="user_delete" href="#" onclick="javascript:audiences_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>
+                                <i class="fa fa-user-times"></i>
+                            </a>
+                        </li>
             </ul>
         </div>
 
