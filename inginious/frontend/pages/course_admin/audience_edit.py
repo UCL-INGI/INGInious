@@ -92,7 +92,7 @@ class CourseEditAudience(INGIniousAdminPage):
             for username in audiences_dict[0]["students"]:
                 userdata = self.database.users.find_one({"username": username})
                 if userdata is None:
-                    msg = _("User not found : " +username)
+                    msg = _("User not found : {}".format(username))
                     error = True
                     # Display the page
                     return self.display_page(course, audienceid, msg, error)
