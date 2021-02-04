@@ -21,7 +21,7 @@ def get_menu(app, current, renderer, plugin_manager, user_manager):
     # Hook should return a tuple (link,name) where link is the relative link from the index of the preferences.
     additional_entries = [entry for entry in plugin_manager.call_hook('prefs_menu') if entry is not None]
 
-    return renderer.preferences.menu(default_entries + additional_entries, current)
+    return renderer("preferences/menu.html", entries=default_entries + additional_entries, current=current)
 
 
 class RedirectPage(INGIniousAuthPage):

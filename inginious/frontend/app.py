@@ -291,7 +291,7 @@ def get_app(config):
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
     template_helper.add_other("preferences_menu",
-                              lambda current: preferences_utils.get_menu(appli, current, template_helper.get_renderer(False),
+                              lambda current: preferences_utils.get_menu(appli, current, template_helper.render,
                                                                                  plugin_manager, user_manager))
 
     # Not found page
