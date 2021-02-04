@@ -170,16 +170,17 @@ $elif msg:
             <input id="size" type="hidden" class="form-control" value="0">
             <ul id="group_0" class="students list-group list-group-flush">
                 $for username in audience["students"]:
-                    $ user=users_info[username]
-                    <li data-username="$username" class="list-group-item group-entry">
-                        $if users_info[username] is not None:
-                            <span id="$username"><i class="fa fa-arrows"></i> $user.realname ($username)</span>
-                        $else:
-                            <span id="$username"><i class="fa fa-arrows"></i>  $username</span>
-                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:audiences_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>
-                            <i class="fa fa-user-times"></i>
-                        </a>
-                    </li>
+                    $if username in users_info:
+                        $ user=users_info[username]
+                        <li data-username="$username" class="list-group-item group-entry">
+                            $if user is not None:
+                                <span id="$username"><i class="fa fa-arrows"></i> $user.realname ($username)</span>
+                            $else:
+                                <span id="$username"><i class="fa fa-arrows"></i>  $username</span>
+                            <a class="pull-right" id="user_delete" href="#" onclick="javascript:audiences_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>
+                                <i class="fa fa-user-times"></i>
+                            </a>
+                        </li>
             </ul>
         </div>
 
