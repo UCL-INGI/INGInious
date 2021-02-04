@@ -1,26 +1,40 @@
-$def with(course, tasks, tasks_data, tag_filter_list, sections, level=3)
-$# Recursively print a list of sections and their content
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$for section in sections:
-    $if section.is_terminal():
-        $ section_tasks = [tasks[taskid] for taskid in section.get_tasks() if taskid in tasks]
-        $:include.task_dispensers.task_list(course, section_tasks, tasks_data, tag_filter_list, section.get_id(), section.get_title(), section.get_config())
-    $else:
-        <div id="section_$:_(section.get_id())" class="section sections-list mb-4">
+{# Recursively print a list of sections and their content #}
+
+{% set level = level|default(3, true) %}
+
+{% for section in sections %}
+    {% if section.is_terminal() %}
+        {% set ns = namespace(section_tasks=[]) %}
+        {% for taskid in section.get_tasks() if taskid in tasks %}
+            {% set ns.section_tasks = ns.section_tasks + [tasks[taskid]] %}
+        {% endfor %}
+        {% with tasks=ns.section_tasks, tag_list=tag_filter_list, list_id=section.get_id(), title=section.get_title(), config=section.get_config() %}
+            {% include "task_dispensers/task_list.html" %}
+        {% endwith %}
+    {% else %}
+        <div id="section_{{ section.get_id() }}" class="section sections-list mb-4">
             <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
-                <span class="title h$level mr-3">
-                    $:_(section.get_title())
+                <span class="title h{{level}} mr-3">
+                    {{ _(section.get_title()) }}
                 </span>
                 <span class="divider"></span>
 
-                <span style="font-size: 1.5rem;" class="dropdown_button fa $:('fa-caret-left' if section.get_config().get("closed", False) else 'fa-caret-down') close pl-3">
+                <span style="font-size: 1.5rem;" class="dropdown_button fa
+                 {% if section.get_config().get('closed', False) %}
+                    fa-caret-left
+                 {% else %}
+                    fa-caret-down
+                 {% endif %} close pl-3">
                 </span>
             </div>
-            <div class="content ml-4" $:('style="display:none;"' if section.get_config().get("closed", False) else '')>
-                $:include.task_dispensers.toc(course, tasks, tasks_data, tag_filter_list, section.get_sections_list(), level+1)
+            <div class="content ml-4" style="{% if section.get_config().get('closed', False) %} display:none; {% endif %}">
+                {% with sections=section.get_sections_list(), level=level+1 %}
+                    {% include "task_dispensers/toc.html" %}
+                {% endwith %}
             </div>
         </div>
+    {% endif %}
+{% endfor %}
