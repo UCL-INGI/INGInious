@@ -288,7 +288,7 @@ def generate_user_selection_box(user_manager: UserManager, render_func, current_
     :return: HTML code for the box
     """
     current_users = [{"realname": y.realname if y is not None else x, "username": x} for x, y in user_manager.get_users_info(current_users).items()]
-    return render_func("utils/user_selection_box.html", current_users=current_users, course_id=course_id, name=name, id=id, placeholder=placeholder, single=single)
+    return render_func("course_admin/user_selection_box.html", current_users=current_users, course_id=course_id, name=name, id=id, placeholder=placeholder, single=single)
 
 
 def register_utils(database, user_manager, template_helper: TemplateHelper):
