@@ -70,7 +70,7 @@
             {% endif %}
         </div>
     {% elif not user_manager.session_logged_in() %}
-        {% include "signin_button_jinja.html" %}
+        {% include "signin_button.html" %}
     {% elif course.is_registration_possible(user_info) %}
         <h3>{{ _("Enroll in the course") }}</h3>
 
