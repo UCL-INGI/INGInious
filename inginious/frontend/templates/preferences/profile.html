@@ -1,90 +1,98 @@
-$def with (terms_page, privacy_page, msg, error)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %}_("My profile") {% endblock %}
 
-$var title: $:_("My profile")
+{% block column %}
+{{ template_helper.call('preferences_menu',current='profile') | safe }}
+{% endblock %}
 
-$var Column: $:template_helper.call('preferences_menu',current='profile')
-
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+                <a href="{{ get_homepath() }}/preferences" title="{{ _('Preferences') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
             </li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-user"></i> $:_("My profile") <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-user"></i> {{ _("My profile") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-<h2>$:_("My profile")</h2>
+{% block content %}
+<h2>{{ _("My profile") }}</h2>
 
-$if error:
+{% if error %}
     <div class="alert alert-danger alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:msg
+        {{msg}}
     </div>
-$elif msg:
+{% elif msg %}
     <div class="alert alert-success alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:msg
+        {{msg}}
     </div>
+{% endif %}
 
-$if not user_manager.session_username():
+{% if not user_manager.session_username() %}
     <div class="alert alert-warning alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:_("Please set a new username")
+        {{_("Please set a new username")}}
     </div>
+{% endif %}
 
-$if is_tos_defined and not user_manager.session_tos_signed():
+{% if is_tos_defined and not user_manager.session_tos_signed() %}
     <div class="alert alert-warning alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:_("Please accept the Terms of Service and Data Privacy")
+        {{_("Please accept the Terms of Service and Data Privacy")}}
     </div>
+{% endif %}
 
 <form method="post">
     <div class="row">
         <div class="col-sm-12">
-            <label class="control-label">$:_("Username :") </label>
-            <input name="username" type="text" class="form-control" value="$user_manager.session_username()" $('disabled' if user_manager.session_username() else '')>
+            <label class="control-label">{{ _("Username :") }} </label>
+            <input name="username" type="text" class="form-control" value="{{ user_manager.session_username() }}" {% if user_manager.session_username() %} disabled {% endif %}>
         </div>
         <div class="col-sm-12">
-            <label class="control-label">$:_("Complete name :") </label>
-            <input name="realname" type="text" class="form-control" value="$user_manager.session_realname()">
+            <label class="control-label">{{ _("Complete name :") }} </label>
+            <input name="realname" type="text" class="form-control" value="{{ user_manager.session_realname() }}">
         </div>
         <div class="col-sm-12">
-            <label class="control-label">$:_("Email address :") </label>
-            <input name="email" type="text" class="form-control" value="$user_manager.session_email()" disabled>
+            <label class="control-label">{{_("Email address :")}} </label>
+            <input name="email" type="text" class="form-control" value="{{ user_manager.session_email() }}" disabled>
         </div>
         <div class="col-sm-12">
-            <label class="control-label">$:_("Language :") </label>
+            <label class="control-label">{{ _("Language :") }} </label>
             <select name="language" class="form-control">
-                $for code, language in available_languages.items():
-                <option value="$code" $('selected' if code == user_manager.session_language() else '')>$language</option>
+                {% for code, language in available_languages.items() %}
+                <option value="{{code}}" {% if code == user_manager.session_language() %} selected {% endif %}>{{ language }}</option>
+                {% endfor %}
             </select>
         </div>
-        $if allow_registration:
+        {% if allow_registration %}
             <div class="col-sm-12">
-                <label class="control-label">$:_("Old password :") </label>
+                <label class="control-label">{{ _("Old password :") }} </label>
                 <input name="oldpasswd" type="password" class="form-control">
             </div>
             <div class="col-sm-6">
-                <label class="control-label">$:_("New password (min. 6 characters) :") </label>
+                <label class="control-label">{{ _("New password (min. 6 characters) :") }} </label>
                 <input name="passwd" type="password" class="form-control">
             </div>
             <div class="col-sm-6">
-                <label class="control-label">$:_("Confirm new password :") </label>
+                <label class="control-label">{{ _("Confirm new password :") }} </label>
                 <input name="passwd2" type="password" class="form-control">
             </div>
-        $if is_tos_defined:
+        {% endif %}
+        {%if is_tos_defined %}
             <div class="col-sm-12 mt-sm-3">
-                <input name="term_policy_check" type="checkbox" $('checked' if user_manager.session_tos_signed() else '')> $:_("I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy policy{a2end}.").format(a1start='<a href="/pages/' + terms_page + '">', a1end='</a>', a2start='<a href="/pages/' + privacy_page + '">', a2end='</a>')
+                <input name="term_policy_check" type="checkbox" {% if user_manager.session_tos_signed() %} checked {% endif %} >
+                {{ _("I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy policy{a2end}.").format(a1start='<a href="/pages/' + terms_page + '">', a1end='</a>', a2start='<a href="/pages/' + privacy_page + '">', a2end='</a>') | safe }}
             </div>
+        {% endif %}
         <div class="col-sm-12"><br />
-            <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> $:_("Save my profile")</button>
+            <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> {{ _("Save my profile") }}</button>
         </div>
     </div>
 </form>
+{% endblock %}
