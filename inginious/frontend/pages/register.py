@@ -32,8 +32,8 @@ class RegistrationPage(INGIniousPage):
         elif "reset" in data:
             msg, error, reset = self.get_reset_data(data)
 
-        return self.template_helper.get_renderer().register(self.app.terms_page, self.app.privacy_page,
-                                                            reset, msg, error)
+        return self.template_helper.render("register.html", terms_page=self.app.terms_page,
+                                           privacy_page=self.app.privacy_page, reset=reset, msg=msg, error=error)
 
     def get_reset_data(self, data):
         """ Returns the user info to reset """
@@ -205,5 +205,5 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
             if not error:
                 reset = None
 
-        return self.template_helper.get_renderer().register(self.app.terms_page, self.app.privacy_page,
-                                                            reset, msg, error)
+        return self.template_helper.render("register.html", terms_page=self.app.terms_page,
+                                           privacy_page=self.app.privacy_page, reset=reset, msg=msg, error=error)

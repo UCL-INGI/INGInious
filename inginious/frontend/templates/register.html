@@ -1,97 +1,97 @@
-$def with (terms_page, privacy_page, reset, msg, error)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %} {{ _("Register") }} {% endblock %}
+{% block content %}
 
-$var title: $:_("Register")
-
-$if error:
+{% if error %}
     <div class="alert alert-danger alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:msg
+        {{ msg }}
     </div>
-$elif msg:
+{% elif msg %}
     <div class="alert alert-success alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:msg
+        {{ msg }}
     </div>
+{% endif %}
 
-$if reset is None:
+{% if reset is none %}
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2>$:_("Register in INGInious")</h2>
+            <h2>{{ _("Register in INGInious") }}</h2>
             <form method="post" class="form-horizontal">
                 <div class="row">
                     <div class="col-sm-12">
-                        <label class="control-label">$:_("Username (min. 4 alphanumerical characters) :") </label>
+                        <label class="control-label">{{ _("Username (min. 4 alphanumerical characters) :") }} </label>
                         <input name="username" type="text" class="form-control">
                     </div>
                     <div class="col-sm-12">
-                        <label class="control-label">$:_("Complete name :") </label>
+                        <label class="control-label">{{ _("Complete name :") }} </label>
                         <input name="realname" type="text" class="form-control">
                     </div>
                     <div class="col-sm-12">
-                        <label class="control-label">$:_("Email address :") </label>
+                        <label class="control-label">{{ _("Email address :") }} </label>
                         <input name="email" type="text" class="form-control">
                     </div>
                     <div class="col-sm-6">
-                        <label class="control-label">$:_("Password (min. 6 characters) :") </label>
+                        <label class="control-label">{{ _("Password (min. 6 characters) :") }} </label>
                         <input name="passwd" type="password" class="form-control">
                     </div>
                     <div class="col-sm-6">
-                        <label class="control-label">$:_("Confirm password :") </label>
+                        <label class="control-label">{{ _("Confirm password :") }} </label>
                         <input name="passwd2" type="password" class="form-control">
                     </div>
-                    $if is_tos_defined:
+                    {% if is_tos_defined %}
                         <div class="col-sm-12 mt-sm-3">
-                            <input name="term_policy_check" type="checkbox"> $:_("I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy policy{a2end}.").format(a1start='<a href="/pages/'+ terms_page + '">', a1end='</a>', a2start='<a href="/pages/' + privacy_page + '">', a2end='</a>')
+                            <input name="term_policy_check" type="checkbox"> {{ _("I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy policy{a2end}.").format(a1start='<a href="/pages/'+ terms_page + '">', a1end='</a>', a2start='<a href="/pages/' + privacy_page + '">', a2end='</a>') | safe }}
                         </div>
+                    {% endif %}
                     <div class="col-sm-12"><br />
-                        <button type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> $:_("Sign up")</button>
+                        <button type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> {{ _("Sign up") }}</button>
                     </div>
                 </div>
             </form>
         </div>
         <div id="lostpasswd" class="col-md-6">
-            <h2>$:_("Lost password ?")</h2>
+            <h2>{{_("Lost password ?")}}</h2>
             <form method="post" class="form-horizontal">
                 <div class="row">
                     <div class="col-sm-12">
-                        <label class="control-label">$:_("Email address :") </label>
+                        <label class="control-label">{{_("Email address :")}} </label>
                         <input name="recovery_email" type="text" class="form-control">
                     </div>
                     <div class="col-sm-12"><br />
-                        <button type="submit" name="lostpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> $:_("Reset my password")</button>
+                        <button type="submit" name="lostpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> {{_("Reset my password")}}</button>
                     </div>
                 </div>
             </form>
 
         </div>
     </div>
-$else:
+{% else %}
     <h2></h2>
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    $:_("Set new password for {} [{}]".format(reset["realname"],reset["username"]))
+                    {{ _("Set new password for {} [{}]".format(reset["realname"],reset["username"])) }}
                 </div>
                 <div class="card-body">
                     <form method="post" class="form-horizontal">
                         <div class="row">
                             <div class="col-sm-6">
-                                <label class="control-label">$:_("Password (min. 6 characters) :") </label>
+                                <label class="control-label">{{_("Password (min. 6 characters) :")}} </label>
                                 <input name="passwd" type="password" class="form-control">
                             </div>
                             <div class="col-sm-6">
-                                <label class="control-label">$:_("Confirm password :") </label>
+                                <label class="control-label">{{_("Confirm password :")}} </label>
                                 <input name="passwd2" type="password" class="form-control">
                             </div>
                             <div class="col-sm-12"><br />
-                                <input type="hidden" name="reset_hash" value="$reset['hash']">
-                                <button type="submit" name="resetpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> $:_("Set new password")</button>
+                                <input type="hidden" name="reset_hash" value="{{reset['hash']}}">
+                                <button type="submit" name="resetpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> {{ _("Set new password") }}</button>
                             </div>
                         </div>
                     </form>
@@ -99,3 +99,5 @@ $else:
             </div>
         </div>
     </div>
+{% endif %}
+{% endblock %}
