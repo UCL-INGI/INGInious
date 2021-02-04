@@ -47,7 +47,7 @@ class DeletePage(INGIniousAuthPage):
         if not userdata or not self.app.allow_deletion:
             raise self.app.forbidden(message=_("User unavailable or deletion is forbidden."))
 
-        return self.template_helper.get_renderer().preferences.delete("", False)
+        return self.template_helper.render("preferences/delete.html", msg="", error=False)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
@@ -62,4 +62,4 @@ class DeletePage(INGIniousAuthPage):
         if "delete" in data:
             msg, error = self.delete_account(data)
 
-        return self.template_helper.get_renderer().preferences.delete(msg, error)
+        return self.template_helper.render("preferences/delete.html", msg=msg, error=error)
