@@ -1,49 +1,50 @@
-$def with (bindings, auth_methods, msg, error)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %} {{ _("Authentication bindings") }} {% endblock %}
 
-$var title: $:_("Authentication bindings")
+{% block column %}
+{{ template_helper.call('preferences_menu',current='bindings') | safe }}
+{% endblock %}
 
-$var Column: $:template_helper.call('preferences_menu',current='bindings')
-
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+                <a href="{{ get_homepath() }}/preferences" title="{{ _('Preferences') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
             </li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-id-card-o"></i> $:_("Authentication bindings") <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-id-card-o"></i> {{ _("Authentication bindings") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-$if error:
+{% block content %}
+<h2>{{_("Authentication bindings")}}</h2>
+
+{% if error %}
     <div class="alert alert-danger alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:msg
+        {{msg}}
     </div>
-$elif msg:
+{% elif msg %}
     <div class="alert alert-success alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        $:msg
+        {{msg}}
     </div>
+{% endif %}
 
-
-<h2>$:_("Authentication bindings")</h2>
 <form id="revoke" method="post">
     <input id="revoke_auth_binding"  name="revoke_auth_binding" type="hidden" val="">
 </form>
-$for id, auth_method in auth_methods.items():
-    $if id in bindings.keys():
+{% for id, auth_method in auth_methods.items() %}
+    {% if id in bindings.keys() %}
         <div class="card mb-3">
             <div class="card-header">
-                $auth_method.get_name()
+                {{ auth_method.get_name() }}
                 <div class="pull-right">
-                    <a href="$get_homepath()/auth/signin/$auth_method.get_id()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Refresh fields"')><i class="fa fa-refresh fa-fw"></i></a>
-                    <a href="#" onclick="$$('#revoke_auth_binding').val('$auth_method.get_id()'); $$('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Revoke access"')>
+                    <a href="{{ get_homepath() }}/auth/signin/{{auth_method.get_id()}}" data-toggle="tooltip" data-placement="bottom" title="{{ _('Refresh fields') }}"><i class="fa fa-refresh fa-fw"></i></a>
+                    <a href="#" onclick="$('#revoke_auth_binding').val('{{auth_method.get_id()}}'); $('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title="{{ _('Revoke access') }}">
                         <i style="color:red;" class="fa fa-trash-o fa-fw"></i>
                     </a>
                 </div>
@@ -51,32 +52,40 @@ $for id, auth_method in auth_methods.items():
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-1">
-                        $:auth_method.get_imlink()
+                        {{ auth_method.get_imlink() | safe }}
                     </div>
                     <div class="col-md-11">
-                        <p>$:_("Identifier"): $bindings[id][0]</p>
-                        $if bindings[id][1]:
-                            <p>$:_("Additional fields"): </p>
+                        <p>{{ _("Identifier") }}: {{bindings[id][0]}}</p>
+                        {% if bindings[id][1] %}
+                            <p>{{ _("Additional fields") }}: </p>
                             <ul>
-                                $for key, val in bindings[id][1].items():
-                                    <li>$id.$key : $val</li>
+                                {% for key, val in bindings[id][1].items() %}
+                                    <li>{{id}}.{{key}} : {{val}}</li>
+                                {% endfor %}
                             </ul>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-<h3>$:_("Add a new binding")</h3>
+    {% endif %}
+{% endfor %}
+
+<h3>{{_("Add a new binding")}}</h3>
     <form class="form row" role="form" method="post">
         <div class="form-group col-sm-9">
-            <label class="sr-only" for="register_courseid">Course</label>
             <select class="form-control" id="auth_binding" name="auth_binding">
-                <option value="">$:_("Select a authentication binding")</option>
-                $for id, auth_method in auth_methods.items():
-                    $if id not in bindings:
-                        <option value="$auth_method.get_id()">$auth_method.get_name()</option>
+                <option value="">{{_("Select a authentication binding")}}</option>
+                {% for id, auth_method in auth_methods.items() %}
+                    {% if id not in bindings %}
+                        <option value="{{auth_method.get_id()}}">{{auth_method.get_name()}}</option>
+                    {% endif %}
+                {% endfor %}
             </select>
         </div>
         <div class="form-group col-sm-3">
-            <button type="submit" class="btn btn-block btn-secondary">$:_("Add new binding")</button>
+            <button type="submit" class="btn btn-block btn-secondary">{{_("Add new binding")}}</button>
         </div>
     </form>
+
+{% endblock %}
