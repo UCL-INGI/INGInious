@@ -33,8 +33,8 @@ class CombinatoryTest(TaskDispenser):
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
-        return template_helper.get_renderer(with_layout=False).task_dispensers.toc(
-            course, self._task_list_func(), tasks_data, tag_list, self._data)
+        return template_helper.render("task_dispensers/toc.html", course=course, tasks=self._task_list_func(),
+                                      tasks_data=tasks_data, tag_filter_list=tag_list, sections=self._data)
 
     @classmethod
     def check_dispenser_data(cls, dispenser_data):

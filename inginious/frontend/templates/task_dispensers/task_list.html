@@ -1,52 +1,58 @@
-$def with (course, tasks, tasks_data, tag_list, list_id, title, config)
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$ registered = user_manager.course_is_user_registered(course)
+{% set registered = user_manager.course_is_user_registered(course) %}
 
-<div id="section_$:_(list_id)" class="section tasks_list card mb-4">
+<div id="section_{{ list_id }}" class="section tasks_list card mb-4">
     <div class="section_header card-header d-flex justify-content-between pr-3" onclick="dropdown(this)">
         <span class="title">
-            $:_(title)
+            {{ _(title) }}
         </span>
 
-        <span style="font-size: 1.5rem;" class="dropdown_button fa $:('fa-caret-left' if config.get("closed", False) else 'fa-caret-down') close">
+        <span style="font-size: 1.5rem;" class="dropdown_button fa
+         {% if config.get('closed', False) %}
+             fa-caret-left
+         {% else %}
+             fa-caret-down
+         {% endif %} close">
         </span>
     </div>
-    <div class="content list-group list-group-flush tasks-list" $:('style="display:none;"' if config.get("closed", False) else '')>
-        $for task in tasks:
-            $ taskid = task.get_id()
-            $if taskid in tasks_data:
-                $ succeeded=tasks_data[taskid]["succeeded"]
-                $ completion=tasks_data[taskid]["grade"]
-                <a href="$get_homepath()/course/$course.get_id()/$taskid" class="list-group-item list-group-item-action
-                    $if not task.get_accessible_time().is_open():
-                        disabled
-                    ">
+    <div class="content list-group list-group-flush tasks-list" style="{% if config.get('closed', False) %} display:none; {% endif %}">
+        {% for task in tasks %}
+            {% set taskid = task.get_id() %}
+            {% if taskid in tasks_data %}
+                {% set succeeded = tasks_data[taskid]["succeeded"] %}
+                {% set completion = tasks_data[taskid]["grade"] %}
+                <a href="{{ get_homepath() }}/course/{{course.get_id()}}/{{taskid}}" class="list-group-item list-group-item-action
+                    {% if not task.get_accessible_time().is_open() %} disabled {% endif %}">
                     <div class="row">
                         <div class="col-xs-12 col-md-7 pl-1">
-                            <i style="color: $('#468847;' if succeeded else 'transparent')" class="fa fa-check"></i>
-                            $task.get_name(user_manager.session_language())
-                            $if not task.get_accessible_time().is_open():
-                                - <b>$:_("deadline reached")</b>
+                            <i style="color: {% if succeeded %}#468847{% else %}transparent{% endif %};" class="fa fa-check"></i>
+                            {{ task.get_name(user_manager.session_language()) }}
+                            {% if not task.get_accessible_time().is_open() %}
+                                - <b> {{ _("deadline reached") }} </b>
+                            {% endif %}
                         </div>
                         <div class="col-xs-12 col-md-5">
-                            $if registered:
+                            {% if registered %}
                                 <div class="progress">
-                                    <div class="progress-bar bg-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                                        $(int(completion) if completion.is_integer() else completion)%
+                                    <div class="progress-bar bg-success" aria-valuenow="{{ completion | int }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ completion | int }}%">
+                                        {% if completion.is_integer() %}{{ completion | int }}{% else %}{{ completion }}{% endif %} %
                                     </div>
                                 </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div id="tags_of_task" style="display:none;">
-                        $for category in task.get_categories():
-                            $ tag = tag_list[category]
-                            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-                                <div id="tag" data-tag-name="$:tag.get_id()"></div>
+                        {% for category in task.get_categories() %}
+                            {% set tag = tag_list[category] %}
+                            {% if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course) %}
+                                <div id="tag" data-tag-name="{{tag.get_id()}}"></div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </a>
+            {% endif %}
+        {% endfor %}
     </div>
 </div>
