@@ -88,6 +88,16 @@ class CourseEditAudience(INGIniousAdminPage):
                 raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
         else:
             audiences_dict = json.loads(data["audiences"])
+            student_list = self.user_manager.get_course_registered_users(course, False)
+            for username in audiences_dict[0]["students"]:
+                userdata = self.database.users.find_one({"username": username})
+                if userdata is None:
+                    msg = _("User not found : " +username)
+                    error = True
+                    # Display the page
+                    return self.display_page(course, audienceid, msg, error)
+                elif username not in student_list:
+                    self.user_manager.course_register_user(course, username)
             self.database.audiences.update_one(
                 {"_id": ObjectId(audiences_dict[0]["_id"])},
                 {"$set": {"students": audiences_dict[0]["students"],
