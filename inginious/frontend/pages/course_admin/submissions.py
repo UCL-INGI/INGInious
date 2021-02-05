@@ -120,9 +120,11 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
         data, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
 
-        return self.template_helper.get_renderer().course_admin.submissions(course, users, tutored_users, audiences,
-                                                                                tutored_audiences, tasks, params, data,
-                                                                                json.dumps(params), pages, page, msgs)
+        return self.template_helper.render("course_admin/submissions.html", course=course, users=users,
+                                           tutored_users=tutored_users, audiences=audiences,
+                                           tutored_audiences=tutored_audiences, tasks=tasks, old_params=params,
+                                           data=data, displayed_selection=json.dumps(params),
+                                           number_of_pages=pages, page_number=page, msgs=msgs)
 
     def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None, best_only=False):
         """ Returns the list of submissions and corresponding aggragations based on inputs """

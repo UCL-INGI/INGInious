@@ -1,39 +1,41 @@
-$def with (course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, data, displayed_selection, number_of_pages, page_number, msgs)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
+{% block title %}{{ _("Submissions") }}{% endblock %}
 
-$var title: $:_("Submissions")
+{% block column %}
+{{ template_helper.call('course_admin_menu',course=course,current='submissions') | safe }}
+{% endblock %}
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='submissions')
-$ is_admin = user_manager.has_admin_rights_on_course(course)
-
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cloud-download"></i> $:_("Submissions") <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cloud-download"></i> {{ _("Submissions") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-<h2>$:_("Submissions")</h2>
+{% block content %}
+{% set is_admin = user_manager.has_admin_rights_on_course(course) %}
+
+<h2>{{_("Submissions")}}</h2>
 
 <!-- Query submissions -->
-$:include.course_admin.submissions_tabs.query(course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, "submissions#alerts", False)
+{{ include.course_admin.submissions_tabs.query(course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, "submissions#alerts", False) | safe }}
 
 <!-- Alerts -->
 <div id="alerts">
-    $for msg in msgs:
+    {% for msg in msgs %}
     <div class="alert alert-warning alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        $msg
+        {{ msg }}
     </div>
+    {% endfor %}
 </div>
 
 <!-- Submission table -->
@@ -41,106 +43,137 @@ $:include.course_admin.submissions_tabs.query(course, users, tutored_users, audi
     <thead class="table-borderless">
         <tr>
             <th></th>
-            $if "show_stud_name" in old_params:
-                <th>$:_("student name")</th>
-            $else:
-                <th>$:_("username")</th>
-            $if "show_task_name" in old_params:
-                <th>$:_("task name")</th>
-            $else:
-                <th>$:_("taskid")</th>
-            $if "show_id" in old_params:
-                <th>$:_("id")</th>
-            <th>$:_("submitted on")</th>
-            <th>$:_("result")</th>
-            $if "show_tags" in old_params:
-                <th>$:_("tags")</th>
+            <th>
+                {% if "show_stud_name" in old_params %}
+                    {{ _("student name") }}
+                {% else %}
+                    {{ _("username") }}
+                {% endif %}
+            </th>
+            <th>
+                {% if "show_task_name" in old_params %}
+                    {{ _("task name")}}
+                {% else %}
+                    {{ _("taskid") }}
+                {% endif %}
+            </th>
+            {% if "show_id" in old_params %}
+                <th>{{ _("id") }}</th>
+            {% endif %}
+            <th>{{ _("submitted on") }}</th>
+            <th>{{ _("result") }}</th>
+            {% if "show_tags" in old_params %}
+                <th>{{ _("tags") }}</th>
+            {% endif %}
             <th>
                 <form method="post" action="submissions#alerts">
-                    <input type="hidden" name="displayed_selection" value="$displayed_selection">
+                    <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
                     <div class="btn-group btn-group-sm" role="group">
-                        <button class="btn btn-info" type="submit" name="csv" formmethod="post" title="$:_('Download CSV')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
+                        <button class="btn btn-info" type="submit" name="csv" formmethod="post" title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
                         <div class="btn btn-danger" data-toggle="modal" data-target="#download_modal">
-                            <div data-toggle="tooltip" data-placement="top" title="$:_('Download current selection')"><i class="fa fa-download"></i></div>
+                            <div data-toggle="tooltip" data-placement="top" title="{{ _('Download current selection') }}"><i class="fa fa-download"></i></div>
                         </div>
-                        $if is_admin:
-                            <button class="btn btn-warning" type="submit" name="replay" formmethod="post" title="$:_('Replay current selection')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
+                        {% if is_admin %}
+                            <button class="btn btn-warning" type="submit" name="replay" formmethod="post" title="{{ _('Replay current selection') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
+                        {% endif %}
                     </div>
                 </form>
             </th>
         </tr>
     </thead>
     <tbody>
-    $for submission in data:
-        $ succeeded = "result" in submission and submission["result"] == "success"
-        <tr class="$('table-success' if succeeded else 'table-warning' if submission['status'] == 'waiting' else 'table-danger')">
+    {% for submission in data %}
+        {% set succeeded = "result" in submission and submission["result"] == "success" %}
+        <tr class="
+        {% if succeeded %}
+            table-success
+        {% elif submission['status'] == 'waiting' %}
+            table-warning
+        {%else %}
+            table-danger
+        {%endif %}">
             <td>
-                $if "best" in submission and submission["best"]:
-                    <i class="fa fa-star" title=$submission["_id"] data-toggle="tooltip" data-placement="bottom"></i>
+                {% if "best" in submission and submission["best"] %}
+                    <i class="fa fa-star" title="{{ submission['_id'] }}" data-toggle="tooltip" data-placement="bottom"></i>
+                {% endif %}
             </td>
             <td>
-                $for user in submission["username"]:
-                    $if "show_stud_name" in old_params:
-                        $(users[user] if user in users else '?')<br>
-                    $else:
-                        $user<br>
+                {% for user in submission["username"] %}
+                    {% if "show_stud_name" in old_params %}
+                        {{ users[user] if user in users else '?' }}<br>
+                    {% else %}
+                        {{ user }}<br>
+                    {% endif %}
+                {% endfor %}
             </td>
-            $if "show_task_name" in old_params:
-                <td>$tasks[submission["taskid"]].get_name(user_manager.session_language())</td>
-            $else:
-                <td>$submission["taskid"]</td>
-            $if "show_id" in old_params:
-                <td>$submission["_id"]</td>
-            <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
+            {% if "show_task_name" in old_params %}
+                <td>{{ tasks[submission["taskid"]].get_name(user_manager.session_language()) }}</td>
+            {% else %}
+                <td>{{ submission["taskid"] }}</td>
+            {% endif %}
+            {% if "show_id" in old_params %}
+                <td>{{ submission["_id"] }}</td>
+            {% endif %}
+            <td>{{ submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") }}</td>
             <td id="status">
-                $if succeeded:
-                    $:_("Succeeded")
-                $elif submission['status'] == 'waiting':
-                    $:_("Waiting")
-                $else:
-                    $:_("Failed")
-                ($submission.get("grade",0.0)%)
+                {% if succeeded %}
+                    {{_("Succeeded")}}
+                {%elif submission['status'] == 'waiting' %}
+                    {{_("Waiting")}}
+                {% else %}
+                    {{_("Failed")}}
+                {% endif %}
+                ({{ submission.get("grade", 0.0) }}%)
             </td>
 
             <!-- TAGS td -->
-            $if "show_tags" in old_params:
+            {% if "show_tags" in old_params %}
                 <td>
-                $ course_tags = course.get_tags()
-                $for key in course.get_task(submission['taskid']).get_categories()
-                    $ tag = course_tags[key]
-                    $if tag.get_type() == 0 :
+                {% set course_tags = course.get_tags() %}
+                {% for key in course.get_task(submission['taskid']).get_categories() %}
+                    {% set tag = course_tags[key] %}
+                    {% if tag.get_type() == 0  %}
                         <span style="line-height: 18px;">
-                            <span class="badge alert-success" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                            <span class="badge alert-success" id="{{tag.get_id()}}">{{ tag.get_name(user_manager.session_language()) }}</span>
                         </span>
-                    $elif tag.get_type() == 1:
+                    {% elif tag.get_type() == 1 %}
                         <span style="line-height: 18px;">
-                            <span class="badge alert-danger" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                            <span class="badge alert-danger" id="{{tag.get_id()}}"> {{ tag.get_name(user_manager.session_language()) }}</span>
                         </span>
-                $# Auto-tags not defined in task
-                $if "tests" in submission:
-                    $for tag in submission["tests"]:
-                        $if tag.startswith("*auto-tag-"):
+                    {% endif %}
+                {% endfor %}
+                {# Auto-tags not defined in task #}
+                {% if "tests" in submission %}
+                    {% for tag in submission["tests"] %}
+                        {% if tag.startswith("*auto-tag-") %}
                             <span style="line-height: 18px;">
-                                $if len(submission["tests"][tag]) > 30:
-                                    <span class="badge alert-default" data-toggle="tooltip" data-placement="left" data-original-title="$submission['tests'][tag]">$submission["tests"][tag][:30]…</span>
-                                $else:
-                                    <span class="badge alert-default">$submission["tests"][tag]</span>
+                                {% if len(submission["tests"][tag]) > 30 %}
+                                    <span class="badge alert-default" data-toggle="tooltip" data-placement="left" data-original-title="{{submission['tests'][tag]}}">{{ submission["tests"][tag][:30] }} …</span>
+                                {% else %}
+                                    <span class="badge alert-default">{{ submission["tests"][tag] }}</span>
+                                {% endif %}
                             </span>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 </td>
+            {% endif %}
             <!-- END TAGS td -->
 
             <td>
                 <div class="btn-group btn-group-sm" role="group">
-                    <a href="$get_homepath()/submission/$submission['_id']"
-                       class="btn btn-secondary" title=$:_('"View submission"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/submissions?download_submission=$submission['_id']#alerts" class="btn btn-secondary" title=$:_('"Download submission"') data-toggle="tooltip"
+                    <a href="{{get_homepath()}}/submission/{{submission['_id']}}"
+                       class="btn btn-secondary" title="{{ _('View submission') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?download_submission={{submission['_id']}}#alerts" class="btn btn-secondary" title="{{ _('Download submission') }}" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
-                    $if is_admin:
-                        <a href="#alerts" class="replay btn btn-secondary" title=$:_('"Replay submission"') data-toggle="tooltip" data-submissionid="$submission['_id']"
+                    {% if is_admin %}
+                        <a href="#alerts" class="replay btn btn-secondary" title=" {{ _('Replay submission') }}" data-toggle="tooltip" data-submissionid="{{ submission['_id'] }}"
                            data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                    {% endif %}
                 </div>
             </td>
         </tr>
+    {% endfor %}
     </tbody>
 </table>
 
@@ -148,21 +181,21 @@ $:include.course_admin.submissions_tabs.query(course, users, tutored_users, audi
 <div class="d-flex justify-content-center">
     <ul id="pagination" class="pagination-sm"></ul>
     <form id="page_form" method="post" action="submissions#alerts">
-        <input type="hidden" name="displayed_selection" value="$displayed_selection">
+        <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
         <input id="page_input" type="hidden" name="page" value="1">
     </form>
 </div>
 
 <script>
-    $$('#pagination').twbsPagination({
-        totalPages: $number_of_pages,
-        startPage: $page_number,
+    $('#pagination').twbsPagination({
+        totalPages: {{ number_of_pages }},
+        startPage: {{ page_number }},
         visiblePages: 5,
 
         onPageClick: function (event, page) {
-            if(page != $page_number) {
-                $$("#page_input").val(page)
-                $$("#page_form").submit();
+            if(page != {{ page_number }}) {
+                $("#page_input").val(page)
+                $("#page_form").submit();
             }
 
         }
@@ -174,31 +207,33 @@ $:include.course_admin.submissions_tabs.query(course, users, tutored_users, audi
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="post" action="submissions#alerts">
-                <input type="hidden" name="displayed_selection" value="$displayed_selection">
+                <input type="hidden" name="displayed_selection" value="{{ displayed_selection }}">
                 <div class="modal-header">
-                    <h4 class="modal-title">$:_("Download format")</h4>
+                    <h4 class="modal-title">{{ _("Download format") }}</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body row">
-                    <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
+                    <label class="col-sm-2 control-label">{{ _("Folder format") }}</label>
                     <div class="col-sm-10">
-                        $ valid_formats = ["taskid/username", "taskid/audience", "username/taskid", "audience/taskid"]
-                        $for entry in valid_formats:
+                        {% set valid_formats = ["taskid/username", "taskid/audience", "username/taskid", "audience/taskid"] %}
+                        {% set valid_formats_t = [_("taskid/username"), _("taskid/audience"), _("username/taskid"), _("audience/taskid") ] %}
+                        {% for entry in valid_formats %}
                             <div class="radio">
-                                <label><input type="radio" name="download_type" value="$entry"> $:_(entry)</label>
+                                <label><input type="radio" name="download_type" value="{{entry}}"> {{ _(entry) }}</label>
                             </div>
+                        {% endfor %}
                         <label class="form-check-label">
-                            <input name="eval_dl" class="form-check-input" type="checkbox"> $:_("Only evaluation submissions")
+                            <input name="eval_dl" class="form-check-input" type="checkbox"> {{_("Only evaluation submissions")}}
                         </label>
                         <br>
                         <label class="form-check-label">
-                            <input name="simplify" class="form-check-input" type="checkbox"> $:_("Simplified file tree")
+                            <input name="simplify" class="form-check-input" type="checkbox"> {{ _("Simplified file tree") }}
                         </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                        <button type="submit" name="download" formmethod="post" class="btn btn-info">$:_("Download")</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{{ _("Cancel") }}</button>
+                        <button type="submit" name="download" formmethod="post" class="btn btn-info">{{ _("Download") }}</button>
                 </div>
             </form>
         </div>
@@ -206,19 +241,22 @@ $:include.course_admin.submissions_tabs.query(course, users, tutored_users, audi
 </div>
 <!-- Modal to download submissions END -->
 
-<script>
-    $if is_admin:
-        $$(".replay").click (function (event) {
-            var row = $$(this).rparent(3);
-            $$.ajax({
+{% if is_admin %}
+    <script>
+        $(".replay").click (function (event) {
+            var row = $(this).rparent(3);
+            $.ajax({
                 type: "POST",
-                url: "/admin/${course.get_id()}/submissions",
-                data: "replay_submission=" + $$(this).data("submissionid"),
+                url: "/admin/{{course.get_id()}}/submissions",
+                data: "replay_submission=" + $(this).data("submissionid"),
                 success: function(data) {
-                    row.find("#status").text($:_('"Waiting"') + " (0.0%)");
+                    row.find("#status").text("{{ _('Waiting') }} (0.0%)");
                     row.removeClass();
                     row.addClass("table-warning");
                 }
             });
         });
-</script>
+    </script>
+{%endif %}
+
+{% endblock %}
