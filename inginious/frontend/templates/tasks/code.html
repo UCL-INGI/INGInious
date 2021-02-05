@@ -1,18 +1,12 @@
-$def with (inputId,header,lines,maxChars,language,optional,default)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-<div id="task_alert_$inputId" class="task_alert_problem"></div>
-$:header
+<div id="task_alert_{{inputId}}" class="task_alert_problem"></div>
 
-<textarea name="$inputId"
-          $if "/" in inputId:
-              class="code-editor form-control"
-          $else:
-              class="code-editor form-control single"
-          data-x-language="$language"
-          data-x-lines="$lines"
-          data-optional="$bool(optional)"
->$default</textarea>
+{{ header | safe }}
+
+<textarea name="{{inputId}}"
+          class="code-editor form-control {% if '/' in inputId %} single {% endif %}"
+          data-x-language="{{language}}"
+          data-x-lines="{{lines}}"
+          data-optional="{% if optional %}{{True}}{% else %}{{False}}{% endif %}">{{ default }}</textarea>

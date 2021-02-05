@@ -67,7 +67,9 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
         """ Show BasicCodeProblem and derivatives """
         header = ParsableText(self.gettext(language,self._header), "rst",
                               translation=self.get_translation_obj(language))
-        return str(DisplayableCodeProblem.get_renderer(template_helper).tasks.code(self.get_id(), header, 8, 0, self._language, self._optional, self._default))
+        return template_helper.render("tasks/code.html", inputId=self.get_id(), header=header,
+                                      lines=8, maxChars=0, language=self._language, optional=self._optional,
+                                      default=self._default)
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
@@ -95,8 +97,8 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
         """ Show InputBox """
         header = ParsableText(self.gettext(language, self._header), "rst",
                               translation=self.get_translation_obj(language))
-        return str(DisplayableCodeSingleLineProblem.get_renderer(template_helper)
-                   .tasks.single_line_code(self.get_id(), header, "text", 0, self._optional, self._default))
+        return template_helper.render("tasks/single_line_code.html", inputId=self.get_id(), header=header, type="text",
+                                      maxChars=0, optional=self._optional, default=self._default)
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
@@ -133,7 +135,8 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
         """ Show FileBox """
         header = ParsableText(self.gettext(language, self._header), "rst",
                               translation=self.get_translation_obj(language))
-        return str(DisplayableFileProblem.get_renderer(template_helper).tasks.file(self.get_id(), header, self._max_size, self._allowed_exts))
+        return template_helper.render("tasks/file.html", inputId=self.get_id(), header=header,
+                                      max_size=self._max_size, allowed_exts=self._allowed_exts)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
@@ -193,10 +196,12 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
         header = ParsableText(self.gettext(language, self._header), "rst",
                               translation=self.get_translation_obj(language))
 
-        return str(DisplayableMultipleChoiceProblem.get_renderer(template_helper).tasks.multiple_choice(
-            self.get_id(), header, self._multiple, choices,
-            lambda text: ParsableText(self.gettext(language, text) if text else "", "rst",
-                                      translation=self.get_translation_obj(language))))
+        return template_helper.render("tasks/multiple_choice.html", pid=self.get_id(), header=header,
+                                      checkbox=self._multiple, choices=choices,
+                                      func=lambda text: ParsableText(
+                                          self.gettext(language, text) if text else "", "rst",
+                                          translation=self.get_translation_obj(language))
+                                      )
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
@@ -221,7 +226,7 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
         """ Show MatchProblem """
         header = ParsableText(self.gettext(language, self._header), "rst",
                               translation=self.get_translation_obj(language))
-        return str(DisplayableMatchProblem.get_renderer(template_helper).tasks.match(self.get_id(), header))
+        return template_helper.render("tasks/match.html", inputId=self.get_id(), header=header)
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):

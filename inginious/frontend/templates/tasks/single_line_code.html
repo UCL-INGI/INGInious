@@ -1,26 +1,15 @@
-$def with (inputId,header,type,maxChars,optional,default)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-<div id="task_alert_$inputId" class="task_alert_problem"></div>
-$:header
-<input
-    $if type== "text":
-        type="text"
-    $elif type == "integer":
-        type="number"
-    $elif type == "decimal":
-        type="number"
-    name="$inputId"
-    value="$default"
-    $if "/" in inputId:
-        class="monospace form-control form-inline"
-    $else:
-        class="monospace form-control"
-    $if maxChars != 0:
-        maxlength="$maxChars"
-        style="width:${maxChars+1}em"
-    data-optional="$bool(optional)"
+<div id="task_alert_{{inputId}}" class="task_alert_problem"></div>
+{{ header | safe }}
+<input type="{% if type == 'integer' or type == 'decimal' %}number{%else %}text{% endif %}"
+    name="{{inputId}}"
+    value="{{default}}"
+    class="monospace form-control {% if '/' in inputId %}form-inline{% endif %}"
+    {%if maxChars != 0 %}
+        maxlength="{{maxChars}}"
+        style="width:{{maxChars+1}}em"
+    {% endif %}
+    data-optional="{% if optional %}{{True}}{% else %}{{False}}{% endif %}"
 />

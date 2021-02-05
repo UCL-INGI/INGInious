@@ -1,35 +1,23 @@
-$def with (inputId,header,max_size,allowed_exts)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-<div id="task_alert_$inputId" class="task_alert_problem"></div>
-$:header
+<div id="task_alert_{{inputId}}" class="task_alert_problem"></div>
+{{ header | safe }}
 
-$def sizeof_fmt(num):
-        $ num=float(num)
-        $for x in ['bytes','KB','MB','GB']:
-                $if -1024 < num < 1024:
-                        $return "%3.1f%s" % (num, x)
-                $ num /= 1024.0
-        $return "%3.1f%s" % (num, 'TB')
+<a href="" id="download-input-file-{{inputId}}" style="display:none; margin-bottom: 10px;" class="btn btn-info btn-block">{{ _("Click here to download the file you submitted previously") }}</a>
 
-<a href="" id="download-input-file-$inputId" style="display:none; margin-bottom: 10px;" class="btn btn-info btn-block">$:_("Click here to download the file you submitted previously")</a>
-
-
-$ allowed_exts= allowed_exts or default_allowed_file_extensions
-$ max_size= max_size or default_max_file_size
+{% set allowed_exts= allowed_exts or default_allowed_file_extensions %}
+{% set max_size= max_size or default_max_file_size %}
 <input
         type="file"
-        name="$inputId"
-        data-max-size="$max_size"
-        data-allowed-exts="$json(allowed_exts)"
+        name="{{inputId}}"
+        data-max-size="{{max_size}}"
+        data-allowed-exts="{{ json(allowed_exts) }}"
         /><br/>
 
-<object id="download-input-file-pdf-$inputId" data="" type="application/pdf" style="display:none; width: 100%; min-height: 800px;">
+<object id="download-input-file-pdf-{{inputId}}" data="" type="application/pdf" style="display:none; width: 100%; min-height: 800px;">
     <embed src="" type="application/pdf"/>
 </object>
 
-$:_("Max file size:") $sizeof_fmt(max_size)<br/>
-$:_("Allowed extensions:") $', '.join(allowed_exts)
+{{ _("Max file size:") }} {{  max_size | float | filesizeformat(true) }}<br/>
+{{ _("Allowed extensions:") }} {{ ', '.join(allowed_exts) }}
