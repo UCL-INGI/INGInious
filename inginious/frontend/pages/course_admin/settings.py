@@ -100,4 +100,4 @@ class CourseSettings(INGIniousAdminPage):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
-        return self.template_helper.get_renderer().course_admin.settings(course, errors, saved)
+        return self.template_helper.render("course_admin/settings.html", course=course, errors=errors, saved=saved)
