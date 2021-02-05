@@ -223,10 +223,12 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
         if "progress_csv" in web.input():
             return make_csv(stats_progress)
 
-        return self.template_helper.get_renderer().course_admin.stats(course, users, tutored_users, audiences,
-                                                                      tutored_audiences, tasks, params, stats_graph,
-                                                                      stats_tasks, stats_users, stats_progress,
-                                                                      stats_global, display_hours, msgs)
+        return self.template_helper.render("course_admin/stats.html", course=course, users=users,
+                                           tutored_users=tutored_users, audiences=audiences,
+                                           tutored_audiences=tutored_audiences, tasks=tasks, old_params=params,
+                                           stats_graph=stats_graph, stats_tasks=stats_tasks, stats_users=stats_users,
+                                           stats_progress=stats_progress, stats_global=stats_global,
+                                           display_hour=display_hours, msgs=msgs)
 
 
 def compute_statistics(tasks, data, ponderation):
