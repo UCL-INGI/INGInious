@@ -85,7 +85,9 @@
             </table>
         </div>
         <div role="tabpanel" class="tab-pane card-body" id="tab_submissions">
-            {{ include.course_admin.submissions_tabs.query(course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, "stats#alerts", True) | safe }}
+            {% with target="stats#alerts", is_stats=True %}
+                {% include "course_admin/submissions_query.html" %}
+            {% endwith %}
             <!-- Alerts -->
             <div id="alerts">
                 {% for msg in msgs %}

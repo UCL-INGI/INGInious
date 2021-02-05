@@ -1,0 +1,261 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<script>
+    $(function() {
+        $('#date_before_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        $('#date_after_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+
+        $('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
+        {
+            if($(e.target).attr('href') == "#audience_filter")  $('input[type="checkbox"]', $('#user_filter')).prop('checked', false).change()
+            else $('input[type="checkbox"]', $('#audience_filter')).prop('checked', false).change();
+        });
+
+    });
+</script>
+
+
+<div class="card mb-3 section">
+    <div id="query_header" class="card-header" onclick="dropdown(this)">
+        <span class="title"> {{ _("Query submissions") }} </span>
+        <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close"> </span>
+    </div>
+
+    <div class="card-body content">
+        <form id="select_form" method="post" action="{{ target }}">
+            <!-- Users -->
+            {% set show_audiences = not old_params["users"] and old_params["audiences"] %}
+            <div id="panel-user-audience" class="card mb-3">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li role="presentation" class="nav-item">
+                            <a class="nav-link {% if not show_audiences %}active{% endif %}" href="#user_filter" aria-controls="user_filter"
+                               role="tab" data-toggle="tab">{{ _("Select students") }}</a>
+                        </li>
+                        <li role="presentation" class="nav-item">
+                            <a class="nav-link {% if show_audiences %}active{% endif %}" href="#audience_filter" aria-controls="audience_filter"
+                               role="tab" data-toggle="tab">{{ _('Select audiences') }}</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select_active(true, this)">{{ _("Select all") }}</button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_active(false, this)">{{ _("Deselect all") }}</button>
+                        </li>
+                        {% if tutored_users|length != 0 or tutored_audiences|length != 0 %}
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
+                                    ['{{ tutored_users | join("','") }}'], ['{{ tutored_audiences | join("','") }}'])"> {{ _("Tutored only") }}</button>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane {% if not show_audiences %} active {% endif %}" id="user_filter">
+                        {% if users|length == 0 %}
+                            <div class="alert alert-warning">{{ _("No user to display") }}</div>
+                        {% else %}
+                            <ul class="list-group list-group-flush checked-list-box">
+                                {% for userid, username in users.items() %}
+                                    <li class="list-group-item"
+                                        data-checked="{{'true' if userid in old_params['users'] and not show_audiences else 'false' }}"
+                                        data-value="{{ userid }}" data-name="users">{{ username }} ({{ userid }})</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane {% if show_audiences %} active {% endif %}" id="audience_filter">
+                        {% if audiences|length == 0 %}
+                            <div class="alert alert-warning">{{ _('No audience to display') }}</div>
+                        {% else %}
+                            <ul class="list-group list-group-flush checked-list-box">
+                                {% for audience in audiences %}
+                                    <li class="list-group-item" data-value="{{ audience['_id'] }}" data-name="audiences"
+                                        data-checked="{{ 'true' if str(audience['_id']) in old_params['audiences'] and show_audiences else 'false' }}">
+                                        {{ audience['description'] }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Tasks -->
+                <div class="col-sm-8">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <span class="nav-link active" href="#" role="tab" data-toggle="tab">{{ _("Select tasks") }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select(true, this)">{{ _("Select all") }}</button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">{{ _("Deselect all") }}</button>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <ul class="list-group list-group-flush checked-list-box">
+                        {% for taskid, task in tasks.items() %}
+                            <li class="list-group-item" data-value="{{taskid}}" data-name="tasks" data-checked="{{ 'true' if taskid in old_params['tasks'] else 'false' }}">
+                                {{ task.get_name(user_manager.session_language()) }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                </div>
+
+                <!-- Organisational Tags -->
+                <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <span class="nav-link active" href="#" role="tab" data-toggle="tab">{{ _("Select tags") }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select(true, this)">{{ _("Select all") }}</button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">{{ _("Deselect all") }}</button>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <ul class="list-group list-group-flush checked-list-box">
+                        {% for key, t in course.get_tags().items() %}
+                            {% if t.get_type() == 2 %}
+                                <li class="list-group-item" data-value="{{ key }}" data-name="org_tags" data-checked="{{ 'true' if key in old_params['org_tags'] else 'false' }}">
+                                    {{ t.get_name(user_manager.session_language()) }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                </div>
+            </div>
+
+            <!-- Advanced query -->
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <div class="card section">
+                        <div class="card-header" onclick="dropdown(this)">
+                            <span class="title">{{ _("Advanced query") }}</span>
+                            <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-left close"> </span>
+                        </div>
+                        <div class="content card-body" style="display: none">
+                            <!-- Checkboxs -->
+                            {% set  list_checkboxes = [("eval", _("Only evaluation submissions")),
+                                                ("crashes_only", _("Only timeouts and crashes")),
+                                                ("show_tags", _("Show tags")),
+                                                ("show_id", _("Show submission id")),
+                                                ("show_task_name", _("Show task name")),
+                                                ("show_stud_name", _("Show student name"))] %}
+                            <div class="col-xs-12 form-group">
+                                {% for c in list_checkboxes %}
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label"></label>
+                                        <input name="{{ c[0] }}" class="form-check-input" type="checkbox" {% if c[0] in old_params %} checked {% endif %}>
+                                        {{ c[1] }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Grade -->
+                            <div class="col-xs-4 form-group row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">{{ _("Min grade") }}</label>
+                                    <input name="grade_min" class="form-control" type="number" id="select_grade_min" placeholder="0" value="{{old_params.get('grade_min', '')}}"/>
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">{{ _("Max grade") }}</label>
+                                    <input name="grade_max" class="form-control" type="number" id="select_grade_max" placeholder="100" value="{{old_params.get('grade_max', '')}}"/>
+                                </div>
+                            </div>
+                            <!-- Date -->
+                            <div class="col-xs-8 form-group row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">{{ _("After date") }}</label>
+                                    <div class="input-group date" id="date_after_picker" data-target-input="nearest">
+                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{old_params.get('date_after', '')}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <div class="input-group-append" data-target="#date_after_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">{{ _("Before date") }}</label>
+                                    <div class="input-group date" id="date_before_picker" data-target-input="nearest">
+                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{old_params.get('date_before', '')}}" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
+                                        <div class="input-group-append" data-target="#date_before_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sort by -->
+                            <div class="col-xs-12 form-group row">
+                                {% if is_stats %}
+                                    <div class="col-xs-3 col-sm-3">
+                                        <label>{{ _("Limit") }}</label>
+                                        <input name="limit" class="form-control" type="number" id="select_limit" value="{{ old_params.get('limit', '500') }}"/>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4">
+                                        <label>{{ _("Statistics") }}</label>
+                                        <select name="stat" class="form-control">
+                                            <option value="normal" {% if old_params.get('stat', 'normal')  == 'normal' %} selected {% endif %}>{{ _("Normal statistics") }}</option>
+                                            <option value="pond_stat"  {% if old_params.get('stat', 'normal') == 'pond_stat' %} selected {% endif%}>{{ _("Weighted statistics") }}</option>
+                                        </select>
+                                    </div>
+                                {% else %}
+                                    <div class="col-xs-3 col-sm-3">
+                                        <label>{{ _("Sort by") }}</label>
+                                        <select name="sort_by" class="form-control" id="select_sort_by">
+                                        {% set allowed_sort = [("submitted_on", _("Submitted on")),
+                                                         ("username", _("User")),
+                                                         ("grade", _("Grade")),
+                                                         ("taskid", _("Task id"))] %}
+                                        {% for value, name in allowed_sort %}
+                                            <option value="{{ value }}" {% if old_params.get('sort_by', 'submitted_on') == value %} selected {% endif %}>{{ name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3">
+                                        <label>{{ _("Order") }}</label>
+                                        <select name="order" class="form-control" id="select_order">
+                                            <option value="0" {% if old_params.get('order', 0) == 0 %} selected {% endif %}>{{ _("Descending") }}</option>
+                                            <option value="1" {% if old_params.get('order', 0) == 1 %} selected {% endif %}>{{ _("Ascending") }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3"  title="{{ _('Only visual. Download, replay and csv always consider all queried submissions.') }}" data-toggle="tooltip" data-placement="top">
+                                        <label>{{ _("Submissions per page") }} *</label>
+                                        <input name="limit" class="form-control" type="number" id="select_limit" value="{{ old_params.get('limit', '50') }}"/>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validate -->
+            <div class="btn-group pull-right mb-2">
+                <button type="button" class="btn btn-danger btn-block m-1 p-2 pl-4 pr-4" onclick="window.location.href='{{get_homepath()}}/admin/{{course.get_id()}}/new_submissions'">
+                    <i class="fa fa-undo"></i> {{ _("Reset") }}
+                </button>
+                <button type="submit" class="btn btn-primary btn-block m-1 p-2 pl-4 pr-4">
+                    <i class="fa fa-check"></i> {{ _("Filter") }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

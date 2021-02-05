@@ -26,7 +26,9 @@
 <h2>{{_("Submissions")}}</h2>
 
 <!-- Query submissions -->
-{{ include.course_admin.submissions_tabs.query(course, users, tutored_users, audiences, tutored_audiences, tasks, old_params, "submissions#alerts", False) | safe }}
+{% with target="submissions#alerts", is_stats=False %}
+    {% include "course_admin/submissions_query.html" %}
+{% endwith %}
 
 <!-- Alerts -->
 <div id="alerts">
