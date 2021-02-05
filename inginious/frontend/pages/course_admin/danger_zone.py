@@ -221,4 +221,5 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
         backups = self.get_backup_list(course)
 
-        return self.template_helper.get_renderer().course_admin.danger_zone(course, thehash, backups, msg, error)
+        return self.template_helper.render("course_admin/danger_zone.html", course=course, thehash=thehash,
+                                           backups=backups, msg=msg, error=error)

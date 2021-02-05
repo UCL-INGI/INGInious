@@ -1,47 +1,47 @@
-$def with (course, thehash, backups, msg, error)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:_("Danger zone")
+{% block title %} {{_("Danger zone")}} {% endblock %}
 
-$def ColumnF():
-    $:template_helper.call('course_admin_menu',course=course,current='danger')
-$var Column: $:ColumnF()
+{% block column %}
+    {{ template_helper.call('course_admin_menu',course=course,current='danger') | safe }}
+{% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-bomb"></i> $:_("Danger zone") <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-bomb"></i> {{ _("Danger zone") }} <span class="sr-only"> {{_("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-<h2>$:_("Danger zone")</h2>
-$if error:
+{% block content %}
+<h2>{{ _("Danger zone") }}</h2>
+{% if error %}
     <div class="alert alert-warning alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        $:msg
+        {{msg}}
     </div>
-$elif msg:
+{% elif msg %}
     <div class="alert alert-success alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        $:msg
+        {{msg}}
     </div>
+{% endif %}
 
 <div class="card">
     <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs" role="tablist">
             <li role="presentation" class="nav-item">
-                <a class=" active nav-link" href="#tab_archive_data" role="tab" data-toggle="tab"><i class="fa fa-archive fa-fw"></i> $:_("Archive data")</a>
+                <a class=" active nav-link" href="#tab_archive_data" role="tab" data-toggle="tab"><i class="fa fa-archive fa-fw"></i> {{ _("Archive data") }}</a>
             </li>
             <li role="presentation" class="nav-item">
-                <a href="#tab_delete_course" class="nav-link" role="tab" data-toggle="tab"><i class="fa fa-trash fa-fw"></i> $:_("Delete course")</a>
+                <a href="#tab_delete_course" class="nav-link" role="tab" data-toggle="tab"><i class="fa fa-trash fa-fw"></i> {{ _("Delete course") }}</a>
             </li>
         </ul>
     </div>
@@ -49,18 +49,18 @@ $elif msg:
         <div role="tabpanel" class="card-body tab-pane active" id="tab_archive_data">
             <div class="card border-warning mb-3">
                 <div class="card-header bg-warning text-white">
-                    $:_("Archive course data")
+                    {{ _("Archive course data") }}
                 </div>
                 <div class="card-body">
-                    $:_("<p>This will reset and backup all course data (submissions, audiences, groups, user statistics) from the database.</p><p>To confirm your will, please type the course id below :</p>")
+                    {{ _("<p>This will reset and backup all course data (submissions, audiences, groups, user statistics) from the database.</p><p>To confirm your will, please type the course id below :</p>") | safe }}
                     <form class="form-horizontal" method="post">
-                        <input type="hidden" name="token" value="$thehash">
+                        <input type="hidden" name="token" value="{{ thehash }}">
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" placeholder="course id" name="courseid" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <button type="submit" name="wipeall" class="btn btn-block btn-warning"><i class="fa fa-archive"></i> $:_("Archive course data")</button>
+                                <button type="submit" name="wipeall" class="btn btn-block btn-warning"><i class="fa fa-archive"></i> {{ _("Archive course data") }}</button>
                             </div>
                         </div>
                     </form>
@@ -72,18 +72,18 @@ $elif msg:
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title">$:_("Restore backup from {}").format('<span class="backupdate"></span>')</h4>
+                                <h4 class="modal-title"> {{ _("Restore backup from {}").format('<span class="backupdate"></span>') | safe }}</h4>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             </div>
                             <div class="modal-body">
-                                $:_("<p>This will restore your course data to {}. Are you sure ?</p>").format("<span class='backupdate'></span>")
+                                {{ _("<p>This will restore your course data to {}. Are you sure ?</p>").format("<span class='backupdate'></span>") | safe }}
                             </div>
                             <div class="modal-footer">
                                 <form method="post">
                                     <input type="hidden" name="backupdate" id="backupdate">
-                                    <input type="hidden" name="token" value="$thehash">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
-                                    <button type="submit" name="restore" class="btn btn-danger">$:_("Restore backup")</button>
+                                    <input type="hidden" name="token" value="{{ thehash }}">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                                    <button type="submit" name="restore" class="btn btn-danger">{{ _("Restore backup") }}</button>
                                 </form>
                             </div>
                         </div>
@@ -91,42 +91,43 @@ $elif msg:
                 </div>
 
                 <div class="card-header">
-                    $:_("Backups")
+                    {{ _("Backups") }}
                 </div>
                 <table class="table mb-0">
                     <thead class="table-borderless">
                         <tr>
-                            <th>$:_("backup date")</th>
-                            <th><span class="pull-right">$:_("download")</span></th>
+                            <th>{{ _("backup date") }}</th>
+                            <th><span class="pull-right"> {{ _("download") }}</span></th>
                         </tr>
                     </thead>
                     <tbody>
-                        $for backup in backups:
+                        {% for backup in backups %}
                             <tr>
-                                <td>$backup['date']</td>
+                                <td>{{ backup['date'] }}</td>
                                 <td>
                                     <div class="pull-right btn-group btn-group-sm">
 
-                                        <button type="button" data-backupdate="$backup['date']" data-backupfile="$backup['file']" data-toggle="modal" data-target="#restore_modal" class="btn btn-danger restore" title="$:_('Restore backup')">
+                                        <button type="button" data-backupdate="{{backup['date']}}" data-backupfile="{{backup['file']}}" data-toggle="modal" data-target="#restore_modal" class="btn btn-danger restore" title="{{ _('Restore backup') }}">
                                             <i class="fa fa-recycle"></i>
                                         </button>
 
-                                        <a href="?download=$backup['file']" class="btn btn-secondary" title=$:_('"Download backup"')
+                                        <a href="?download={{backup['file']}}" class="btn btn-secondary" title="{{ _('Download backup') }}"
                                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                     </div>
                                 </td>
                             </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
                 <script type="text/javascript">
-                        $$('#restore_modal').on('show.bs.modal', function (event) {
-                          $$('.modal-dialog .backupdate').each(function (index) {
-                              $$(this).text($$(event.relatedTarget).data('backupdate'));
+                        $('#restore_modal').on('show.bs.modal', function (event) {
+                          $('.modal-dialog .backupdate').each(function (index) {
+                              $(this).text($(event.relatedTarget).data('backupdate'));
                           });
-                          $$('.modal-dialog #backupdate').val($$(event.relatedTarget).data('backupfile'));
+                          $('.modal-dialog #backupdate').val($(event.relatedTarget).data('backupfile'));
                         });
-                        $$(".restore").each(function(index) {
-                            $$(this).tooltip({"placement": "bottom"});
+                        $(".restore").each(function(index) {
+                            $(this).tooltip({"placement": "bottom"});
                         });
                 </script>
             </div>
@@ -134,19 +135,19 @@ $elif msg:
         <div role="tabpanel" class="tab-pane card-body" id="tab_delete_course">
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
-                    $:_("Delete course")
+                    {{ _("Delete course") }}
                 </div>
                 <div class="card-body">
-                    $:_("<p> This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious.</p><p>To confirm your will, please type the course id below :</p>")
+                    {{ _("<p> This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious.</p><p>To confirm your will, please type the course id below :</p>") | safe }}
                     <form class="form-horizontal" method="post">
-                        <input type="hidden" name="token" value="$thehash">
+                        <input type="hidden" name="token" value="{{ thehash }}">
                         <div class="row">
                             <div class="col-md-6">
                                 <input type="text" placeholder="course id" name="courseid" class="form-control">
                             </div>
                             <div class="col-md-6">
                                 <button type="button" data-toggle="modal" data-target="#delete_modal" class="btn btn-block btn-danger">
-                                    <i class="fa fa-trash"></i> $:_("Delete course")
+                                    <i class="fa fa-trash"></i> {{ _("Delete course") }}
                                 </button>
                             </div>
                         </div>
@@ -154,15 +155,15 @@ $elif msg:
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">$:_("Delete course")</h4>
+                                        <h4 class="modal-title">{{ _("Delete course") }}</h4>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     </div>
                                     <div class="modal-body">
-                                        $:_("<p>This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious. Are you really sure ?</p>")
+                                        {{ _("<p>This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious. Are you really sure ?</p>") | safe }}
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
-                                        <button type="submit" name="deleteall" class="btn btn-danger">$:_("Delete course")</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                                        <button type="submit" name="deleteall" class="btn btn-danger">{{ _("Delete course") }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -173,3 +174,4 @@ $elif msg:
         </div>
     </div>
 </div>
+{% endblock %}
