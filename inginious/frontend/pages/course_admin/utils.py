@@ -359,7 +359,8 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additional_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]
 
-    return renderer.course_admin.menu(course, default_entries + additional_entries, current)
+    return renderer("course_admin/menu.html", course=course,
+                    entries=default_entries + additional_entries, current=current)
 
 
 class CourseRedirect(INGIniousAdminPage):

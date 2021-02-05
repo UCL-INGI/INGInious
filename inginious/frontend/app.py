@@ -288,7 +288,7 @@ def get_app(config):
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
     template_helper.add_to_template_globals("is_tos_defined", is_tos_defined)
     template_helper.add_other("course_admin_menu",
-                              lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
+                              lambda course, current: course_admin_utils.get_menu(course, current, template_helper.render,
                                                                                   plugin_manager, user_manager))
     template_helper.add_other("preferences_menu",
                               lambda current: preferences_utils.get_menu(appli, current, template_helper.render,
