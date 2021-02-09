@@ -1,36 +1,35 @@
-$def with (course,taskid,problem_types,task_data,environment_types,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list,additional_tabs)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:_("Edit {}").format(taskid)
+{% block title %}{{ _("Edit {}").format(taskid) }}{% endblock %}
 
-$def ColumnF():
-    $:template_helper.call('course_admin_menu',course=course,current='tasks')
-    <button class="btn btn-primary btn-block mt-3 task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
-$var Column: $:ColumnF()
+{% block column %}
+    {{ template_helper.call('course_admin_menu',course=course,current='tasks') | safe }}
+    <button class="btn btn-primary btn-block mt-3 task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
+{% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/tasks" title=$:_('"Tasks"') data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}/tasks" title="{{ _('Tasks') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-tasks"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#">$:_("Edit task \"{}\"").format(taskid) <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#">{{ _("Edit task \"{}\"").format(taskid) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
+{% block content %}
 <h2>
-    $:_("Edit task \"{}\"").format(taskid)
+    {{_("Edit task \"{}\"").format(taskid)}}
     <div class="pull-right">
         <div class="btn-group">
-            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</button>
-            <a id="switch" class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> $:_("View task")</a>
+            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
+            <a id="switch" class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"><i class="fa fa-search"></i> {{ _("View task") }}</a>
         </div>
     </div>
 </h2>
@@ -44,55 +43,56 @@ $var Navbar: $:NavbarF()
             <ul class="nav nav-tabs card-header-tabs" id="edit_task_tabs" role="tablist">
                 <li role="presentation" class="nav-item">
                     <a href="#tab_basic" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                    fa-cog fa-fw"></i>&nbsp; $:_("Basic settings")</a></li>
+                    fa-cog fa-fw"></i>&nbsp; {{_("Basic settings")}}</a></li>
                 <li role="presentation" class="nav-item">
                     <a href="#tab_environment" class="nav-link" aria-controls="environment" role="tab" data-toggle="tab"><i class="fa
-                    fa-cube fa-fw"></i>&nbsp; $:_("Environment")</a></li>
+                    fa-cube fa-fw"></i>&nbsp; {{_("Environment")}}</a></li>
                 <li role="presentation" class="nav-item">
                     <a href="#tab_subproblems" class="nav-link" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
-                    fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
+                    fa-list-ul fa-fw"></i>&nbsp; {{_("Subproblems")}}</a></li>
                 <li role="presentation" class="nav-item">
                     <a href="#tab_files" class="nav-link" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
-                    fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
+                    fa-edit fa-fw"></i>&nbsp; {{_("Task files")}}</a></li>
 
-                $for tab_id, link, tab_content in additional_tabs:
-                    <li role="presentation" class="nav-item"><a href="#$tab_id" class="nav-link" aria-controls="$tab_id" role="tab" data-toggle="tab">$:link</a></li>
+                {% for tab_id, link, tab_content in additional_tabs %}
+                    <li role="presentation" class="nav-item"><a href="#{{tab_id}}" class="nav-link" aria-controls="{{tab_id}}" role="tab" data-toggle="tab">{{link | safe}}</a></li>
+                {% endfor %}
             </ul>
         </div>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
-                $:include.course_admin.edit_tabs.basic(course,task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
+                {{ include.course_admin.edit_tabs.basic(course,task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html) | safe }}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_environment">
-                $:include.course_admin.edit_tabs.environment(task_data,environment_types,environments,contains_is_html)
+                {{ include.course_admin.edit_tabs.environment(task_data,environment_types,environments,contains_is_html) | safe }}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">
-                $:include.course_admin.edit_tabs.subproblems(problem_types)
+                {{ include.course_admin.edit_tabs.subproblems(problem_types) | safe }}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_files">
                 <ul class="nav nav-tabs" id="edit_file_tabs" role="tablist">
                     <li class="nav-item" >
                         <a href="#tab_file_list" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab">
-                            <i class="fa fa-cog fa-list-ul"></i>&nbsp; $:_("File list")
+                            <i class="fa fa-cog fa-list-ul"></i>&nbsp; {{ _("File list") }}
                         </a>
                     </li>
                 </ul>
                 <div id="edit_file_tabs_content" class="tab-content">
-                    $:include.course_admin.edit_tabs.files(course,taskid,file_list,None)
+                    {{ include.course_admin.edit_tabs.files(course,taskid,file_list,None) | safe }}
                 </div>
             </div>
 
-            $for tab_id, link, tab_content in additional_tabs:
-                <div role="tabpanel" class="card-body tab-pane" id="$tab_id">
-                    $:tab_content
+            {% for tab_id, link, tab_content in additional_tabs %}
+                <div role="tabpanel" class="card-body tab-pane" id="{{tab_id}}">
+                    {{tab_content | safe}}
                 </div>
-
+            {% endfor %}
         </div>
     </div>
-    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</button>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
 </form>
 
 <div id="delete_modal" class="modal fade">
@@ -100,19 +100,19 @@ $var Navbar: $:NavbarF()
         <div class="modal-content">
             <form method="post">
                 <div class="modal-header">
-                    <h4 class="modal-title">$:_("Delete task")</h4>
+                    <h4 class="modal-title">{{_("Delete task")}}</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>$:_("This will <b>permanently</b> remove the task and its files from INGInious.")</p>
+                    <p>{{ _("This will <b>permanently</b> remove the task and its files from INGInious.") | safe }}</p>
                     <div class="form-check">
                           <input class="form-check-input" type="checkbox" name="wipe">
-                        <label  class="form-check-label">$:_("Wipe all submissions")</label>
+                        <label  class="form-check-label">{{ _("Wipe all submissions") }}</label>
                       </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
-                    <button type="submit" name="delete" class="btn btn-danger">$:_("Delete task")</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{_("Cancel")}}</button>
+                    <button type="submit" name="delete" class="btn btn-danger">{{_("Delete task")}}</button>
                 </div>
             </form>
         </div>
@@ -121,14 +121,14 @@ $var Navbar: $:NavbarF()
 
 <!-- Must be out of the form -->
 <div id="subproblem_templates" style="display:none">
-    $for key, problem_type in problem_types.items():
-        <div id="subproblem_$key">
+    {% for key, problem_type in problem_types.items() %}
+        <div id="subproblem_{{key}}">
             <div class="card mb-3" id="subproblem_well_PID" >
                 <div class="card-header" role="tab" id="heading_PID">
                     <div class="row">
                         <div class="col-md-10" >
                             <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
-                                <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
+                                <i class="fa fa-bars"></i> {{_("Problem id:")}} <span id="pid-PID">PID</span>
                             </span>
                         </div>
                         <div class="col-md-2">
@@ -140,28 +140,32 @@ $var Navbar: $:NavbarF()
                 </div>
                 <div id="collapse_PID" class="collapse in" role="tabpanel" aria-labelledby="heading_PID">
                     <div class="card-body">
-                        <input type="hidden" name="problem[PID][type]" value="$key"/>
+                        <input type="hidden" name="problem[PID][type]" value="{{key}}"/>
                         <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                         <div class="form-group row">
-                            <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
+                            <label for="name-PID" class="col-sm-2 control-label">{{_("Name")}}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
+                                <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="{{ _('A title for this question') }}"/>
                             </div>
                         </div>
-                        $:problem_type.show_editbox(template_helper, key, user_manager.session_language())
+                        {{ problem_type.show_editbox(template_helper, key, user_manager.session_language()) | safe }}
                     </div>
                 </div>
             </div>
         </div>
-        <div id="subproblem_$(key)_templates">
-            $:problem_type.show_editbox_templates(template_helper, key, user_manager.session_language())
+        <div id="subproblem_{{key}}_templates">
+            {{ problem_type.show_editbox_templates(template_helper, key, user_manager.session_language()) | safe }}
         </div>
+    {% endfor %}
 </div>
-$:include.course_admin.edit_tabs.file_modals()
+
+{{ include.course_admin.edit_tabs.file_modals() | safe }}
 
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">
-    delete_subproblem_message = '$:_("Are you sure that you want to delete this subproblem?")';
-    problem_data = $:json(problemdata);
-    $$ (function(){ studio_load(problem_data); });
+    delete_subproblem_message = '{{_("Are you sure that you want to delete this subproblem?")}}';
+    problem_data = {{ problemdata | tojson | safe }};
+    $(function(){ studio_load(problem_data); });
 </script>
+
+{% endblock %}

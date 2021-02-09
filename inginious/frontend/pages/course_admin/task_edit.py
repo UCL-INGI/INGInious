@@ -54,21 +54,15 @@ class CourseEditTask(INGIniousAdminPage):
         additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
                                                         task_data=task_data, template_helper=self.template_helper)
 
-        return self.template_helper.get_renderer().course_admin.task_edit(
-            course,
-            taskid,
-            self.task_factory.get_problem_types(),
-            task_data,
-            environment_types,
-            environments,
-            task_data.get('problems',{}),
-            self.contains_is_html(task_data),
-            current_filetype,
-            available_filetypes,
-            AccessibleTime,
-            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
-            additional_tabs
-        )
+        return self.template_helper.render("course_admin/task_edit.html", course=course, taskid=taskid,
+                                           problem_types=self.task_factory.get_problem_types(), task_data=task_data,
+                                           environment_types=environment_types, environments=environments,
+                                           problemdata=task_data.get('problems', {}),
+                                           contains_is_html=self.contains_is_html(task_data),
+                                           current_filetype=current_filetype,
+                                           available_filetypes=available_filetypes, AccessibleTime=AccessibleTime,
+                                           file_list=CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
+                                           additional_tabs=additional_tabs)
 
     @classmethod
     def contains_is_html(cls, data):
