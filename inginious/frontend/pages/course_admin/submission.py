@@ -76,4 +76,6 @@ class SubmissionPage(INGIniousAdminPage):
             } for pid in (set(submission["input"]) - set(to_display))
         })
 
-        return self.template_helper.get_renderer().course_admin.submission(course, task, submission, to_display.values())
+        return self.template_helper.render("course_admin/submission.html", course=course, task=task,
+                                           submission=submission, to_display=to_display.values(),
+                                           pdict={problem.get_id(): problem.get_type() for problem in task.get_problems()})

@@ -1,131 +1,150 @@
-$def with (course,task,submission,to_display)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$ username = submission['username'][0]
-$ user_realname= user_manager.get_user_realname(username)
-$var title: $:task.get_name(user_manager.session_language()) - $:user_realname - $:course.get_name(user_manager.session_language())
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+{% set username = submission['username'][0] %}
+{% set user_realname= user_manager.get_user_realname(username) %}
 
 
+{% block title %} {{task.get_name(user_manager.session_language()) }} - {{ user_realname }} - {{ course.get_name(user_manager.session_language()) }} {% endblock %}
 
-$ is_admin = user_manager.has_admin_rights_on_course(course)
-$ course_tags = course.get_tags()
-$ task_categories = task.get_categories()
+{% block column %}
+{{ template_helper.call('course_admin_menu',course=course,current='submissions') | safe }}
+{% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
             <li class="breadcrumb-item">
-                <a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                     <i class="fa fa-user-secret"></i>
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="$get_homepath()/admin/$course.get_id()/students" title=$:_('"Students"') data-toggle="tooltip" data-placement="bottom">
+                <a href="{{get_homepath()}}/admin/{{course.get_id()}}/students" title="{{ _('Students') }}" data-toggle="tooltip" data-placement="bottom">
                     <i class="fa fa-user"></i>
                 </a>
             </li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/submissions?users=$username&tasks=$task.get_id()">$:task.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item active"><a href="#">$str(submission['_id'])[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}/student/{{username}}">{{user_realname}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?users={{username}}&tasks={{task.get_id()}}">{{ task.get_name(user_manager.session_language()) }}</a></li>
+            <li class="breadcrumb-item active"><a href="#">{{ submission['_id'] | string }}<span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-<h2>$:_("Submission {}").format(str(submission['_id'])[0:10]) - "$:task.get_name(user_manager.session_language())" - $user_realname ($username)</h2>
+{% block content %}
+
+{% set is_admin = user_manager.has_admin_rights_on_course(course) %}
+{% set course_tags = course.get_tags() %}
+{% set task_categories = task.get_categories() %}
+
+<h2>{{ _("Submission {}").format(str(submission['_id'])[0:10])}} - "{{ task.get_name(user_manager.session_language()) }}" - {{ user_realname }} ({{username}})</h2>
 <div class="alert alert-info text-center">
-    $:_("This page show what was shown to the student when (s)he made his/her submission.") <br/>
+    {{ _("This page show what was shown to the student when (s)he made his/her submission.") }} <br/>
     <form method="post">
         <div class="row">
             <div class="col-md-12" style="margin:2px 0px 2px 0px;">
-                <a onclick="$$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
-                    <i class="fa fa-filter fa-fw"></i> $:_("Click here to hide/display context informations")
+                <a onclick="$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
+                    <i class="fa fa-filter fa-fw"></i> {{ _("Click here to hide/display context informations") }}
                 </a>
             </div>
-            $if "result"  in submission:
+            {% if "result"  in submission %}
                 <div class="col-md-12" style="margin:2px 0px 2px 0px;">
-                    <a href="$get_homepath()/admin/$course.get_id()/submissions?download_submission=$submission['_id']" class="btn btn-sm btn-block btn-primary">
-                        <i class="fa fa-download fa-fw"></i> $:_("Download full submission")
+                    <a href="{{ get_homepath() }}/admin/{{ course.get_id() }}/submissions?download_submission={{ submission['_id'] }}" class="btn btn-sm btn-block btn-primary">
+                        <i class="fa fa-download fa-fw"></i> {{ _("Download full submission") }}
                     </a>
                 </div>
-
-            $if is_admin:
+            {% endif %}
+            {% if is_admin %}
                 <div class="col-md-4" style="margin:2px 0px 2px 0px;">
                     <button type="submit" name="replay" class="btn btn-sm btn-block btn-primary">
-                        <i class="fa fa-refresh fa-fw"></i> $:_("Replay submission")
+                        <i class="fa fa-refresh fa-fw"></i> {{_("Replay submission")}}
                     </button>
                 </div>
-            <div class="col-md-$('4' if is_admin else '12')" style="margin:2px 0px 2px 0px;">
+            {% endif %}
+            <div class="col-md-{{ ('4' if is_admin else '12') }}" style="margin:2px 0px 2px 0px;">
                 <button type="submit" name="replay-copy" class="btn btn-sm btn-block btn-primary">
-                    <i class="fa fa-copy fa-fw"></i> $:_("Replay as {}").format(user_manager.session_realname())
+                    <i class="fa fa-copy fa-fw"></i> {{ _("Replay as {}").format(user_manager.session_realname()) }}
                 </button>
             </div>
-            $if is_admin:
+            {% if is_admin %}
                 <div class="col-md-4" style="margin:2px 0px 2px 0px;">
                     <button type="submit" name="replay-debug" class="btn btn-sm btn-block btn-primary">
-                        <i class="fa fa-terminal fa-fw"></i> $:_("Replay/debug as {}").format(user_manager.session_realname())
+                        <i class="fa fa-terminal fa-fw"></i> {{ _("Replay/debug as {}").format(user_manager.session_realname()) }}
                     </button>
                 </div>
-
+            {% endif %}
         </div>
     </form>
 </div>
 <div class="student_view">
-    $:task.get_context(user_manager.session_language())
+    {{ task.get_context(user_manager.session_language()) | safe }}
 </div>
 
 <!-- Tags -->
-$ visible_tags = [course_tags[category] for category in task_categories if course_tags[category].is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
+{% set ns = namespace(visible_tags=[]) %}
+{% for category in task_categories %}
+    {% if course_tags[category].is_visible_for_student() or user_manager.has_staff_rights_on_course(course) %}
+        {% set ns.visible_tags = ns.visible_tags + [course_tags[category]] %}
+    {% endif %}
+{% endfor %}
 
-$# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
-$# We do not show the tag header for students if they can not get tags
-$if len(visible_tags) > 0 :
-    <h3>$:_("Tags")</h3>
+{# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags #}
+{# We do not show the tag header for students if they can not get tags #}
+{% if visible_tags|length > 0 %}
+    <h3>{{ _("Tags") }}</h3>
     <div class="mb-3" id="main_tag_group">
-    $for tag in visible_tags:
-        $if tag.get_type() == 0:
-            <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(user_manager.session_language())">$:tag.get_name(user_manager.session_language())</span>
-        $elif tag.get_type() == 1:
-            <span class="badge alert-danger" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(user_manager.session_language())" style="display:none;">$:tag.get_name(user_manager.session_language())</span>
+    {% for tag in visible_tags %}
+        {% if tag.get_type() == 0 %}
+            <span class="badge alert-info" id="{{tag.get_id()}}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language())}}">{{ tag.get_name(user_manager.session_language()) }}</span>
+        {% elif tag.get_type() == 1 %}
+            <span class="badge alert-danger" id="{{tag.get_id()}}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}" style="display:none;">{{ tag.get_name(user_manager.session_language()) }}</span>
+        {% endif %}
+    {% endfor %}
     </div>
+{% endif %}
 <!-- End Tags -->
 
 
-<form id="task" method="post" action="$get_homepath()/course/$course.get_id()/$task.get_id()">
+<form id="task" method="post" action="{{get_homepath()}}/course/{{course.get_id()}}/{{task.get_id()}}">
 
 <div id="task_alert"></div>
 
-$ task_problems = {problem.get_id(): problem for problem in task.get_problems()}
-$for key, problem in enumerate(to_display):
+{% set task_problems={} %}
+{% for problem in task.get_problems() %}
+    {% set problem = task_problems.update({problem.get_id(): problem}) %}
+{% endfor %}
+
+{% for problem in to_display %}
+    {% set key = loop.index %}
     <div class="card mb-3 problem">
         <div class="card-header">
-            Question ${key+1}: $problem["name"]
-            <a href="$get_homepath()/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="pull-right" title=$:_('"Download as file"')
+            Question {{key+1}}: {{problem["name"]}}
+            <a href="{{get_homepath()}}/course/{{course.get_id()}}/{{task.get_id()}}?submissionid={{submission['_id']}}&questionid={{problem['id']}}" class="pull-right" title="_('Download as file') }}"
                data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-download"></i>
             </a>
         </div>
         <div class="card-body">
-            $if problem["id"] in task_problems:
-                $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
-            $elif not problem["defined"]:
-                <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
-            $else:
-                <span class="text-warning">$:_("This problem is not present in the submission.")</span>
+            {% if problem["id"] in task_problems %}
+                {{ task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username) | safe }}
+            {% elif not problem["defined"] %}
+                <span class="text-warning">{{_("This problem id is not defined in the task.")}}</span>
+            {% else %}
+                <span class="text-warning">{{_("This problem is not present in the submission.")}}</span>
+            {% endif %}
         </div>
     </div>
+{% endfor %}
 </form>
 <script type="text/javascript">
-$ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
-var problems_types = $:pdict
+var problems_types = {{ pdict | safe }};
 
-$$(document).ready(function() {
-    loadOldSubmissionInput("$submission['_id']", false);
-    waitForSubmission("$submission['_id']");
+$(document).ready(function() {
+    loadOldSubmissionInput("{{submission['_id']}}", false);
+    waitForSubmission("{{submission['_id']}}");
 });
 </script>
+{% endblock %}
