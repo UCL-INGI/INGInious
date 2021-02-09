@@ -83,10 +83,11 @@ class CourseStudentListPage(INGIniousAdminPage):
         if "csv_student" in web.input():
             return make_csv(user_data)
 
-        return self.template_helper.get_renderer().course_admin.student_list(course, list(user_data.values()),
-                                                                             split_audiences, active_tab, student_list,
-                                                                             audience_list, other_students, users_info,
-                                                                             groups, error, msg)
+        return self.template_helper.render("course_admin/student_list.html",course=course,
+                                           user_data=list(user_data.values()), audiences=split_audiences,
+                                           active_tab=active_tab, student_list=student_list, audience_list=audience_list,
+                                           other_students=other_students, users_info=users_info, groups=groups,
+                                           error=error, msg=msg)
 
     def get_student_list_params(self, course):
         users = sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
