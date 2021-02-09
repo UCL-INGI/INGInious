@@ -1,51 +1,51 @@
-$def with (course, saved, error)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
+{% block title %} {{ _("Tags") }} | {{ course.get_name(user_manager.session_language()) }} {% endblock %}
 
-$var title: $:_("Tags") | $:course.get_name(user_manager.session_language())
+{% block column %}
+    {{ template_helper.call('course_admin_menu',course=course,current='tags') | safe }}
+{% endblock %}
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='tags')
-$ is_admin = user_manager.has_admin_rights_on_course(course)
-
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-tags"></i> $:_("Tags") <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-tags"></i> {{ _("Tags") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-<h2>$:_("Tags")</h2>
-$if error:
+{% block content %}
+<h2>{{_("Tags")}}</h2>
+{% if error %}
     <div class="alert alert-danger" role="alert">
-        $error
+        {{error}}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-$elif saved:
+{% elif saved %}
     <div class="alert alert-success" role="alert">
-        $:_("Settings saved.")
+        {{ _("Settings saved.") }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+{% endif %}
 
 <form id="tags_form" method="post" enctype="multipart/form-data" class="form-horizontal">
 <table id="table" class="table">
     <thead class="table-borderless">
         <tr>
-            <th>$:_("id")</th>
-            <th>$:_("name")</th>
-            <th>$:_("description")</th>
-            <th>$:_("show to students")</th>
-            <th>$:_("type ")</th>
+            <th>{{_("id")}}</th>
+            <th>{{_("name")}}</th>
+            <th>{{_("description")}}</th>
+            <th>{{_("show to students")}}</th>
+            <th>{{_("type ")}}</th>
         </tr>
     </thead>
     <tbody>
@@ -58,37 +58,37 @@ $elif saved:
         <td><input disabled type="checkbox" class="form-control" name="tags[NEW][visible]" VISIBLE_REPLACE)/></td>
         <td>
             <select disabled  class="form-control" name="tags[NEW][type]">
-                <option value="0" TYPE_REPLACE_0>$:_("Skill")</option>
-                <option value="1" TYPE_REPLACE_1>$:_("Misconception")</option>
-                <option value="2" TYPE_REPLACE_2>$:_("Category")</option>
+                <option value="0" TYPE_REPLACE_0>{{_("Skill")}}</option>
+                <option value="1" TYPE_REPLACE_1>{{_("Misconception")}}</option>
+                <option value="2" TYPE_REPLACE_2>{{_("Category")}}</option>
             </select>
         </td>
     </tr>
 
-    $ i=-1
-    $for key, tag in course.get_descriptor().get("tags", {}).items():
-        $ i=i+1
-        $ id = key
-        $ name = tag["name"] if "name" in tag else "Unknow name"
-        $ description = tag["description"] if "description" in tag else ""
-        $ type = tag["type"] if "type" in tag else 0
-        $ visible = tag["visible"] if "visible" in tag else False
-        <tr id="$i">
-            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id"/></td>
-            <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
-            <td><textarea class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
-            <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
+    {% for key, tag in course.get_descriptor().get("tags", {}).items() %}
+        {% set name = tag["name"] if "name" in tag else _("Unknown name") %}
+        {% set description = tag["description"] if "description" in tag else "" %}
+        {% set type = tag["type"] if "type" in tag else 0 %}
+        {% set visible = tag["visible"] if "visible" in tag else False %}
+        <tr id="{{loop.index}}">
+            <td><input type="text" id="id_{{loop.index}}" class="form-control" name="tags[{{loop.index}}][id]" value="{{ key }}"/></td>
+            <td><input type="text" class="form-control" name="tags[{{loop.index}}][name]" value="{{name}}"/></td>
+            <td><textarea class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[{{loop.index}}][description]" rows="1" style="resize:none">{{description}}</textarea></td>
+            <td><input type="checkbox" class="form-control" name="tags[{{loop.index}}][visible]" {% if visible %} checked="checked" {% endif %}/></td>
             <td>
-                <select class="form-control" name="tags[$i][type]">
-                    <option value="0" $('selected="selected"' if int(type) == 0 else '')>$:_("Skill")</option>
-                    <option value="1" $('selected="selected"' if int(type) == 1 else '')>$:_("Misconception")</option>
-                    <option value="2" $('selected="selected"' if int(type) == 2 else '')>$:_("Category")</option>
+                <select class="form-control" name="tags[{{loop.index}}][type]">
+                    <option value="0" {% if type|int == 0 %} selected="selected" {% endif %}>{{_("Skill")}}</option>
+                    <option value="1" {% if type|int == 1 %} selected="selected" {% endif %}>{{_("Misconception")}}</option>
+                    <option value="2" {% if type|int == 2 %} selected="selected" {% endif %}>{{_("Category")}}</option>
                 </select>
             </td>
         </tr>
+    {% endfor %}
     </tbody>
 </table>
 
-    <button type="button" class="mt-3 btn btn-info btn-block" onclick="studio_add_tag_line(-1)"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
-    <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><i class="fa fa-save"></i> $:_("Save changes")</button>
+    <button type="button" class="mt-3 btn btn-info btn-block" onclick="studio_add_tag_line(-1)"><i class="fa fa-plus fa-lg"></i> {{ _("New tag") }}</button>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
 </form>
+
+{% endblock %}

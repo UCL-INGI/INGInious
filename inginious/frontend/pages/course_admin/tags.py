@@ -60,4 +60,4 @@ class CourseTagsPage(INGIniousAdminPage):
         return self.show_page(course, False, "")
 
     def show_page(self, course, saved, error):
-        return self.template_helper.get_renderer().course_admin.tags(course, saved, error)
+        return self.template_helper.render("course_admin/tags.html", course=course, saved=saved, error=error)
