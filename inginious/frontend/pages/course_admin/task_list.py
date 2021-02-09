@@ -109,4 +109,6 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         task_dispensers = self.course_factory.get_task_dispensers()
 
-        return self.template_helper.get_renderer().course_admin.task_list(course, task_dispensers, tasks_data, errors, validated, self.webdav_host)
+        return self.template_helper.render("course_admin/task_list.html", course=course,
+                                           task_dispensers=task_dispensers, tasks=tasks_data, errors=errors,
+                                           validated=validated, webdav_host=self.webdav_host)
