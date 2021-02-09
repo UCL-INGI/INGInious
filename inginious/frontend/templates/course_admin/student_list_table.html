@@ -1,103 +1,104 @@
-$def with (course,user_data,is_staff)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% set  is_admin = user_manager.has_admin_rights_on_course(course) %}
 
-$ is_admin = user_manager.has_admin_rights_on_course(course)
 <form method="post">
     <table class="table">
         <thead class="table-borderless">
             <tr>
-                $if is_staff:
-                    <th>$:_("member")</th>
-                $else:
-                    <th>$:_("student")</th>
-                <th>$:_("username")</th>
-                <th>$:_("email address")</th>
-                <th>$:_("# task tried")</th>
-                <th>$:_("# task done")</th>
-                <th>$:_("current grade")
-                    <span class="badge badge-info" data-toggle="tooltip" data-placement="bottom" title=$:_('"The current grade is computed over the tasks that are visible for users."')>?</span>
+                {% if is_staff %}
+                    <th>{{_("member")}}</th>
+                {% else %}
+                    <th>{{_("student")}}</th>
+                {% endif %}
+                <th>{{_("username")}}</th>
+                <th>{{_("email address")}}</th>
+                <th>{{_("# task tried")}}</th>
+                <th>{{_("# task done")}}</th>
+                <th>{{_("current grade")}}
+                    <span class="badge badge-info" data-toggle="tooltip" data-placement="bottom" title="{{ _('The current grade is computed over the tasks that are visible for users.') }}">?</span>
                 </th>
                 <th>
                     <div class="btn-group btn-group-sm" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/students?csv_student" class="btn btn-info"
-                           title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                        <a href="$get_homepath()/admin/${course.get_id()}/submissions" class="btn btn-secondary"
-                           title=$:_('"View  all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        $if not is_staff and is_admin:
-                            <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning remove_user" title=$:_('"Unregister all"')><i class="fa fa-user-times"></i></button>
+                        <a href="{{get_homepath()}}/admin/{{course.get_id()}}/students?csv_student" class="btn btn-info"
+                           title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                        <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions" class="btn btn-secondary"
+                           title="{{ _('View  all submissions') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        {% if not is_staff and is_admin %}
+                            <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning remove_user" title="{{ _('Unregister all') }}"><i class="fa fa-user-times"></i></button>
+                        {% endif %}
                     </div>
                 </th>
             </tr>
         </thead>
         <tbody>
-        $for user in user_data:
+        {% for user in user_data %}
              <tr>
                 <td>
-                    $(user["realname"] or user["username"])
+                    {{ user["realname"] or user["username"] }}
                 </td>
                 <td>
-                    $user["username"]
+                    {{user["username"]}}
                 </td>
                 <td>
-                    <a href='mailto:$user["email"]'>$user["email"]</a>
+                    <a href="mailto:{{user['email']}}">{{user["email"]}}</a>
                 </td>
-                <td>$user["task_tried"]</td>
-                <td>$user["task_succeeded"]</td>
+                <td>{{user["task_tried"]}}</td>
+                <td>{{user["task_succeeded"]}}</td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="$user['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user['grade']%">
-                            <span>$user["grade"]%</span>
+                        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ user['grade'] | int }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ user['grade'] | int }}%">
+                            <span>{{ user["grade"] }}%</span>
                         </div>
                     </div>
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user['username']" class="btn btn-secondary" title="$:_('View submissions')"
+                        <a href="{{get_homepath()}}/admin/{{course.get_id()}}/student/{{user['username']}}" class="btn btn-secondary" title="{{ _('View submissions') }}"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        $if is_admin and not is_staff:
-                            <button type="button" data-username="$user['username']" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
+                        {% if is_admin and not is_staff %}
+                            <button type="button" data-username="{{user['username']}}" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
+                        {% endif %}
                     </div>
                 </td>
             </tr>
+        {% endfor %}
         </tbody>
     </table>
 
-    $if not is_staff:
+    {% if not is_staff %}
         <div id="remove_modal" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">$:_("Unregister") <span class="username"></span></h4>
+                        <h4 class="modal-title">{{ _("Unregister") }} <span class="username"></span></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
-                        <p>$:_("This will remove {} from the course. Are you sure ?").format('<span class="username"></span>')</p>
+                        <p>{{ _("This will remove {} from the course. Are you sure ?").format('<span class="username"></span>') | safe }}</p>
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="type" id="type">
                         <input type="hidden" name="username" id="username">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                        <button type="submit" name="remove_student" class="btn btn-danger">$:_("Remove {}").format('<span class="username"></span>')</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                        <button type="submit" name="remove_student" class="btn btn-danger">{{ _("Remove {}").format('<span class="username"></span>') | safe }}</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <script type="text/javascript">
-            $$('#remove_modal').on('show.bs.modal', function (event) {
-              $$('.modal-dialog .username').each(function (index) {
-                  $$(this).text($$(event.relatedTarget).data('username'));
+            $('#remove_modal').on('show.bs.modal', function (event) {
+              $('.modal-dialog .username').each(function (index) {
+                  $(this).text($(event.relatedTarget).data('username'));
               });
-              $$('.modal-dialog #username').val($$(event.relatedTarget).data('username'));
-              $$('.modal-dialog #type').val($$(event.relatedTarget).data('type'));
+              $('.modal-dialog #username').val($(event.relatedTarget).data('username'));
+              $('.modal-dialog #type').val($(event.relatedTarget).data('type'));
             });
-            $$(".remove_user").each(function(index) {
-                $$(this).tooltip({"placement": "bottom"});
+            $(".remove_user").each(function(index) {
+                $(this).tooltip({"placement": "bottom"});
             });
         </script>
-
+    {% endif %}
 </form>

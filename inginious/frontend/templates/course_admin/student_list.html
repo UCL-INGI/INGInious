@@ -55,7 +55,9 @@
             {% set len_all_users = user_data|length %}
             {% set len_staff = course.get_staff()|length %}
             <p>{{ _("Number of students") }} : {{ len_all_users - len_staff }}</p>
-            {{ include.course_admin.student_list_table(course,user_data[len_staff:len_all_users], False) | safe }}
+            {% with user_data=user_data[len_staff:len_all_users], is_staff=False %}
+                {% include "course_admin/student_list_table.html" %}
+            {% endwith %}
             {% if user_manager.has_admin_rights_on_course(course) %}
                 <form method="post">
                     <div class="form-group row">
@@ -68,7 +70,9 @@
             {% endif %}
         </div>
         <div role="tabpanel" class="card-body tab-pane" id="tab_staff">
-            {{ include.course_admin.student_list_table(course,user_data[0:(course.get_staff()|length)], True) | safe }}
+            {% with user_data=user_data[0:(course.get_staff()|length)], is_staff=True %}
+                {% include "course_admin/student_list_table.html" %}
+            {% endwith %}
         </div>
         <div role="tabpanel" class="card-body tab-pane" id="tab_audiences">
             <div class="pull-right">
