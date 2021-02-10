@@ -5,7 +5,9 @@
 
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
-        {{ include.course_admin.task_dispensers.section(course, tasks, course_structure, 3, True, config_fields) | safe }}
+        {% with sections=course_structure,level=3,display_subsections=True,config_fields=config_fields %}
+           {% include "course_admin/task_dispensers/section.html" %}
+        {% endwith %}
     </div>
 </div>
 
