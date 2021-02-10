@@ -209,7 +209,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
-        return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice_templates(key)
+        return template_helper.render("course_admin/subproblems/multiple_choice_templates.html", key=key)
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableProblem):

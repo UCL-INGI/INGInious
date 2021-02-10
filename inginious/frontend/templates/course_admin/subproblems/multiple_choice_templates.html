@@ -1,38 +1,34 @@
-$def with (key)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
-
-<div id="subproblem_$(key)_choice" style="display:none;">
+<div id="subproblem_{{key}}_choice" style="display:none;">
     <div class="card">
         <div class="card-body">
                 <div class="form-group row">
-                    <label for="choice-PID-CHOICE" class="col-sm-2 control-label">$:_("Content")</label>
+                    <label for="choice-PID-CHOICE" class="col-sm-2 control-label">{{_("Content")}}</label>
                     <div class="col-sm-10">
-                        <textarea class="form-control subproblem_$(key)_text" name="problem[PID][choices][CHOICE][text]"
+                        <textarea class="form-control subproblem_{{key}}_text" name="problem[PID][choices][CHOICE][text]"
                                   placeholder="The name of this choice" id="choice-PID-CHOICE"></textarea>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">$:_("Feedback message (displayed when selected)")</label>
+                    <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">{{_("Feedback message (displayed when selected)")}}</label>
 
                     <div class="col-sm-10">
-                        <textarea class="form-control subproblem_$(key)_feedback" name="problem[PID][choices][CHOICE][feedback]"
-                                  placeholder="$:_('An optional feedback message')" id="choice-feedback-PID-CHOICE"></textarea>
+                        <textarea class="form-control subproblem_{{key}}_feedback" name="problem[PID][choices][CHOICE][feedback]"
+                                  placeholder="{{ _('An optional feedback message') }}" id="choice-feedback-PID-CHOICE"></textarea>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-6">
-                        <input type="checkbox" style="display: none" class="subproblem_$(key)_valid" name="problem[PID][choices][CHOICE][valid]"/>
+                        <input type="checkbox" style="display: none" class="subproblem_{{key}}_valid" name="problem[PID][choices][CHOICE][valid]"/>
                         <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_toggle_choice('problem[PID][choices][CHOICE][valid]')">
-                            <i class="fa fa-fw fa-times"></i> $:_("Valid ?")
+                            <i class="fa fa-fw fa-times"></i> {{ _("Valid ?") }}
                         </button>
                     </div>
                     <div class="col-sm-6">
                         <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
-                            <i class="fa fa-remove"></i> $:_("Delete")
+                            <i class="fa fa-remove"></i> {{ _("Delete") }}
                         </button>
                     </div>
                 </div>
