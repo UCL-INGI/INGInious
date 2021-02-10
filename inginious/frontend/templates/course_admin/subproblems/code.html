@@ -1,36 +1,34 @@
-$def with (key, multiline)
-
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
 <div class="form-group row">
-    <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
+    <label for="header-PID" class="col-sm-2 control-label">{{ _("Context") }}</label>
     <div class="col-sm-10">
         <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
     </div>
 </div>
-$if multiline:
+{% if multiline %}
     <div class="form-group row">
-        <label for="language-PID" class="col-sm-2 control-label">$:_("Language")</label>
+        <label for="language-PID" class="col-sm-2 control-label">{{_("Language")}}</label>
         <div class="col-sm-10">
-            <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="$:_('Language used in this question (c/cpp/java/python/oz/...)')"/>
+            <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="{{ _('Language used in this question (c/cpp/java/python/oz/...)') }}"/>
         </div>
     </div>
+{% endif %}
 <div class="form-group row">
-    <label for="type-PID" class="col-sm-2 control-label">$:_("Type")</label>
+    <label for="type-PID" class="col-sm-2 control-label">{{_("Type")}}</label>
     <div class="col-sm-10">
         <select class="form-control" disabled="disabled">
-            $if multiline:
-                <option value="$key">$:_("Multiline code")</option>
-            $else:
-                <option value="$key">$:_("Single-line code")</option>
+            {% if multiline %}
+                <option value="{{key}}">{{_("Multiline code")}}</option>
+            {% else %}
+                <option value="{{key}}">{{_("Single-line code")}}</option>
+            {% endif %}
         </select>
     </div>
 </div>
 <div class="form-group row">
-    <label for="optional-PID" class="col-sm-2 control-label">$:_("Optional?")</label>
+    <label for="optional-PID" class="col-sm-2 control-label">{{_("Optional?")}}</label>
 
     <div class="col-sm-10">
         <div class="checkbox"><label>
@@ -40,11 +38,12 @@ $if multiline:
 </div>
 
 <div class="form-group row">
-    <label for="default-PID" class="col-sm-2 control-label">$:_("Default value")</label>
+    <label for="default-PID" class="col-sm-2 control-label">{{_("Default value")}}</label>
     <div class="col-sm-10">
-        $if multiline:
+        {% if multiline %}
             <textarea id="default-PID" class="form-control" name="problem[PID][default]"></textarea>
-        $else:
+        {% else %}
             <input type="text" class="form-control" id="default-PID" name="problem[PID][default]" placeholder="No default value"/>
+        {% endif %}
     </div>
 </div>

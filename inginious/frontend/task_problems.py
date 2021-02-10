@@ -73,7 +73,7 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return DisplayableCodeProblem.get_renderer(template_helper).course_admin.subproblems.code(key, True)
+        return template_helper.render("course_admin/subproblems/code.html", key=key, multiline=True)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
@@ -102,7 +102,7 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return DisplayableCodeSingleLineProblem.get_renderer(template_helper).course_admin.subproblems.code(key, False)
+        return template_helper.render("course_admin/subproblems/code.html", key=key, multiline=False)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
