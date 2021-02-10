@@ -91,7 +91,7 @@
             <div class="task_name p-0">
                 {{ tasks[taskid]["name"] }}
             </div>
-            {{ include.course_admin.task_dispensers.task_buttons(course, taskid) | safe }}
+            {% include "course_admin/task_dispensers/task_buttons.html" %}
         </div>
     {% endfor %}
     <div id="new_task_clone" class="task handle list-group-item list-group-item-action d-flex">
