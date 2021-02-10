@@ -14,8 +14,8 @@ def example_task_editor_tab(course, taskid, task_data, template_helper):
 def example_task_editor_tab_2(course, taskid, task_data, template_helper):
     tab_id = 'tab_example_2'
     link = '<i class="fa fa-edit fa-fw"></i>&nbsp; Example tab 2'
-    content = template_helper.get_custom_renderer(_BASE_RENDERER_PATH, layout=False).example_tab_2(course, taskid,
-                                                                                                   task_data)
+    content = template_helper.render("example_tab_2.html", template_folder=_BASE_RENDERER_PATH,
+                                     course=course, taskid=taskid, task_data=task_data)
 
     return tab_id, link, content
 
