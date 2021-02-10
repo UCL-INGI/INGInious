@@ -1,88 +1,109 @@
-$def with (course, start, end, blackout, tasks, results, activity)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:course.get_name(user_manager.session_language()) - Scoreboard
+{% block title %} {{ course.get_name(user_manager.session_language()) }} - Scoreboard {% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
 		<ol class="breadcrumb">
-			<li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+			<li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a></li>
 			<li class="breadcrumb-item active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
 		</ol>
 	</nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-$if end > end.now():
-    <meta http-equiv="refresh" content="30" />
+{% block head %}
+	{{ super() }}
+	{% if end > end.now() %}
+		<meta http-equiv="refresh" content="30" />
+	{% endif %}
+{% endblock %}
 
-<h2>$course.get_name(user_manager.session_language()) - Scoreboard</h2>
+{% block content %}
+<h2>{{course.get_name(user_manager.session_language())}} - Scoreboard</h2>
 
 <div class="card card-body bg-light mb-3">
 	<div class="row">
         <div class="col-md-4" style="margin-top:2px;">
-            Contest starts: $start.strftime('%d/%m/%Y %H:%M:%S')<br/>
-            Contest ends: $end.strftime('%d/%m/%Y %H:%M:%S')<br/>
+            Contest starts: {{start.strftime('%d/%m/%Y %H:%M:%S')}}<br/>
+            Contest ends: {{end.strftime('%d/%m/%Y %H:%M:%S')}}<br/>
         </div>
         <div class="col-md-4" style="margin-top:2px;">
-            $if start > start.now():
-                <span class="contest_starting_time" starts-at="$start.strftime('%Y-%m-%d %H:%M:%S')"></span>
-            $else:
-                <span class="contest_remaining_time" ends-at="$end.strftime('%Y-%m-%d %H:%M:%S')"></span>
-                $if blackout != end:
-                    <br/><span class="contest_blackout_time" blackout-at="$blackout.strftime('%Y-%m-%d %H:%M:%S')"></span>
-        </div>
+            {% if start > start.now() %}
+                <span class="contest_starting_time" starts-at="{{start.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
+            {% else %}
+                <span class="contest_remaining_time" ends-at="{{end.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
+                {% if blackout != end %}
+                    <br/><span class="contest_blackout_time" blackout-at="{{blackout.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
+                {% endif %}
+			{% endif %}
+		</div>
         <div class="col-md-4" style="margin-top:2px;">
-            $if end > end.now():
+            {% if end > end.now() %}
                 The scoreboard will refresh every 30 seconds.
+			{% endif %}
         </div>
     </div>
 </div>
 
-$if start <= start.now():
+{% if start <= start.now() %}
 	<table class="contest_scoreboard mb-3">
 	    <thead>
 	        <th class="contest_rank">Rank</th>
 	        <th class="contest_contestant">Contestant</th>
 	        <th colspan="2" class="contest_score_header">Score</th>
-	        $for taskid in tasks:
-	            <th class="contest_task"><a href="$get_homepath()/course/${course.get_id()}/$taskid">$taskid</a></th>
-	    </thead>
-	    $for username, data in results.items():
+	        {% for taskid in tasks %}
+	            <th class="contest_task"><a href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}">{{taskid}}</a></th>
+	        {% endfor %}
+		</thead>
+	    {% for username, data in results.items() %}
 	        <tr>
-	            <td class="contest_rank">$data['displayed_rank']</td>
-	            <td class="contest_contestant">$data['name']</td>
-	            <td class="contest_score_task">$data['score'][0]</td>
-	            <td class="contest_score_time">$int(data['score'][1])</td>
-	            $for taskid in tasks:
-	                $if data['tasks'][taskid]['status'] == 'ACF':
-	                    <td class="contest_task contest_ac_first">${data['tasks'][taskid]['tries']}/$int(data['tasks'][taskid]['score'])</td>
-	                $elif data['tasks'][taskid]['status'] == 'AC':
-	                    <td class="contest_task contest_ac">${data['tasks'][taskid]['tries']}/$int(data['tasks'][taskid]['score'])</td>
-	                $elif data['tasks'][taskid]['status'] != 'NA':
-	                    <td class="contest_task contest_wa_tle">$data['tasks'][taskid]['tries']</td>
-	                $else:
+	            <td class="contest_rank">{{data['displayed_rank']}}</td>
+	            <td class="contest_contestant">{{data['name']}}</td>
+	            <td class="contest_score_task">{{data['score'][0]}}</td>
+	            <td class="contest_score_time">{{ data['score'][1] | int }}</td>
+	            {% for taskid in tasks %}
+	                {% if data['tasks'][taskid]['status'] == 'ACF' %}
+	                    <td class="contest_task contest_ac_first">
+							{{data['tasks'][taskid]['tries']}}/{{ data['tasks'][taskid]['score'] | int }}
+						</td>
+	                {% elif data['tasks'][taskid]['status'] == 'AC' %}
+	                    <td class="contest_task contest_ac">
+							{{data['tasks'][taskid]['tries']}}/{{ data['tasks'][taskid]['score'] | int }}
+						</td>
+	                {% elif data['tasks'][taskid]['status'] != 'NA' %}
+	                    <td class="contest_task contest_wa_tle">
+							{{data['tasks'][taskid]['tries']}}
+						</td>
+	                {% else %}
 	                    <td class="contest_task contest_na">0</td>
+					{% endif %}
+				{% endfor %}
 	        </tr>
+		{% endfor %}
 	</table>
 	<h3>Activity</h3>
 	<table class="table table-centered table-bordered">
 	    <tr><th>Time</th><th>Contestant</th><th>Task</th><th>Result</th></tr>
-	    $for a in activity:
+	    {% for a in activity %}
 	        <tr>
-	            <td>$a['when'].strftime("%d/%m/%Y %H:%M:%S")</td>
-	            <td>$a['user']</td>
-	            <td>$a['taskid']</td>
+	            <td>{{a['when'].strftime("%d/%m/%Y %H:%M:%S")}}</td>
+	            <td>{{a['user']}}</td>
+	            <td>{{a['taskid']}}</td>
 	            <td>
-	                $if a['result']:
+	                {% if a['result'] %}
 	                    Succeeded
-	                $else:
+	                {% else %}
 	                    Failed
+					{% endif %}
 	            </td>
 	        </tr>
+		{% endfor %}
 	</table>
-$else:
+{% else %}
     <div class="alert alert-warning">Contest has not started yet.</div>
+{% endif %}
+
+{% endblock %}

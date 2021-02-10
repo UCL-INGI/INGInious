@@ -1,31 +1,34 @@
-$def with (course, data, errors, saved)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:course.get_name(user_manager.session_language()) - Contest settings
+{% block title %} {{course.get_name(user_manager.session_language())}} - Contest settings {% endblock %}
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='contest')
+{% block column %}
+    {{ template_helper.call('course_admin_menu',course=course,current='contest') | safe }}
+{% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="Administration" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
             <li class="breadcrumb-item active"><a href="#"><i class="fa fa-trophy"></i> Contest plugin <span class="sr-only">(current)</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
+{% block content %}
 <h2>Contest settings</h2>
-$if errors is not None:
-    $for error in errors:
-        <div class="alert alert-danger" role="alert">$error</div>
-$elif saved:
+{% if errors is not none %}
+    {% for error in errors %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endfor %}
+{% elif saved %}
     <div class="alert alert-success" role="alert">Settings saved.</div>
+{% endif %}
 <p>This plugin allows you to perform algorithm contests between your students, in the same way as the contests from the ACM-ICPC.<br/>
 Most of the courses administrators will keep this plugin disabled.
 <br/><br/>
@@ -36,15 +39,13 @@ Tasks will never be hidden after the end of the contest, but newer submissions w
 You may want to configure the course such that:<br/>
 accessibility date of the course &lt; registration start date &lt; registration end date &lt; contest start &lt; contest end.<br/>
 </p>
-<form id="edit_contest_form" action="$get_homepath()/admin/${course.get_id()}/contest" method="post" class="form-horizontal">
+<form id="edit_contest_form" action="{{get_homepath()}}/admin/{{course.get_id()}}/contest" method="post" class="form-horizontal">
     <div class="form-group row">
         <label for="enabled" class="col-sm-2 control-label">Enable contest plugin</label>
         <div class="col-sm-10">
             <div class="checkbox"><label>
                 <input type="checkbox" value="1" id="enabled" name="enabled"
-                    $if data['enabled']:
-                        checked="checked"
-                />&nbsp;
+                    {{ 'checked="checked"' if data['enabled'] }} />&nbsp;
             </label></div>
         </div>
     </div>
@@ -52,14 +53,14 @@ accessibility date of the course &lt; registration start date &lt; registration 
         <label for="start" class="col-sm-2 control-label">Contest starts</label>
         <div class="col-sm-10">
             <div class='input-group date' id='start_picker' data-target-input="nearest">
-                <input data-target='#start_picker' name="start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['start']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
+                <input data-target='#start_picker' name="start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{data['start']}}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
                 <div class="input-group-append" data-target="#start_picker" data-toggle="datetimepicker">
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
             </div>
             <script type="text/javascript">
-                \$(function() {
-                    \$('#start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                $(function() {
+                    $('#start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
@@ -68,14 +69,14 @@ accessibility date of the course &lt; registration start date &lt; registration 
         <label for="end" class="col-sm-2 control-label">Contest ends</label>
         <div class="col-sm-10">
             <div class='input-group date' id='end_picker' data-target-input="nearest">
-                <input data-target='#end_picker' name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['end']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
+                <input data-target='#end_picker' name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{data['end']}}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
                 <div class="input-group-append" data-target="#end_picker" data-toggle="datetimepicker">
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
             </div>
             <script type="text/javascript">
-                \$(function() {
-                    \$('#end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                $(function() {
+                    $('#end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
@@ -83,14 +84,16 @@ accessibility date of the course &lt; registration start date &lt; registration 
     <div class="form-group row">
         <label for="blackout" class="col-sm-2 control-label">Blackout duration (in hours)</label>
         <div class="col-sm-10">
-             <input type="text" class="form-control" id="blackout" name="blackout" placeholder="0" value="$data['blackout']">
+             <input type="text" class="form-control" id="blackout" name="blackout" placeholder="0" value="{{data['blackout']}}">
         </div>
     </div>
     <div class="form-group row">
         <label for="penalty" class="col-sm-2 control-label">Penalty for wrong submissions (in minutes)</label>
         <div class="col-sm-10">
-             <input type="text" class="form-control" id="penalty" name="penalty" placeholder="0" value="$data['penalty']">
+             <input type="text" class="form-control" id="penalty" name="penalty" placeholder="0" value="{{data['penalty']}}">
         </div>
     </div>
     <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-floppy-o"></i> Save changes</button>
 </form>
+
+{% endblock %}
