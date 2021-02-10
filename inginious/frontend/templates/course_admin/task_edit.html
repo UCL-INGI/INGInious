@@ -81,7 +81,9 @@
                     </li>
                 </ul>
                 <div id="edit_file_tabs_content" class="tab-content">
-                    {{ include.course_admin.edit_tabs.files(course,taskid,file_list,None) | safe }}
+                    {% with error=None %}
+                        {% include "course_admin/edit_tabs/files.html" %}
+                    {% endwith %}
                 </div>
             </div>
 

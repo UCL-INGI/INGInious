@@ -54,8 +54,11 @@ class CourseTaskFiles(INGIniousAdminPage):
 
     def show_tab_file(self, courseid, taskid, error=None):
         """ Return the file tab """
-        return self.template_helper.get_renderer(False).course_admin.edit_tabs.files(
-            self.course_factory.get_course(courseid), taskid, self.get_task_filelist(self.task_factory, courseid, taskid), error)
+        return self.template_helper.render("course_admin/edit_tabs/files.html",
+                                           course=self.course_factory.get_course(courseid),
+                                           taskid=taskid,
+                                           file_list=self.get_task_filelist(self.task_factory, courseid, taskid),
+                                           error=error)
 
     @classmethod
     def get_task_filelist(cls, task_factory, courseid, taskid):
