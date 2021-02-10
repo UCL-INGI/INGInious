@@ -230,7 +230,7 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return DisplayableMatchProblem.get_renderer(template_helper).course_admin.subproblems.match(key)
+        return template_helper.render("course_admin/subproblems/match.html", key=key)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
