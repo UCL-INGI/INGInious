@@ -5,7 +5,7 @@
     {% if section.is_empty() %}
         {{ include.course_admin.task_dispensers.empty_section("section_" + section.get_id(), section.get_title(), section.get_config(), level, False, False, config_fields) | safe }}
     {% elif section.is_terminal() %}
-        {{ include.course_admin.task_dispensers.task_list(course, tasks, section, level, display_subsections, config_fields) | safe }}
+        {% include "course_admin/task_dispensers/task_list.html" %}
     {% else %}
         <div id="section_{{section.get_id()}}" class="section sections_list mb-4" data-level="{{level}}">
             <div class="section_header handle d-flex justify-content-between divided pr-3">
