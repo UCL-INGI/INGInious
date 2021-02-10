@@ -61,7 +61,7 @@
         </div>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
-                {{ include.course_admin.edit_tabs.basic(course,task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html) | safe }}
+                {% include "course_admin/edit_tabs/basic.html" %}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_environment">
