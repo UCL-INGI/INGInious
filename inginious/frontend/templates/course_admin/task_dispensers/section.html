@@ -15,7 +15,9 @@
                     {{ section.get_title() }}
                 </span>
                 <span class="divider"></span>
-                {{ include.course_admin.task_dispensers.section_menu(False, True, display_subsections) | safe }}
+                {% with tasks_list_option=False, sections_list_option=True %}
+                    {% include "course_admin/task_dispensers/section_menu.html" %}
+                {% endwith %}
             </div>
             {% if config_fields %}
                 <div class="config card-body">

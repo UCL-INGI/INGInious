@@ -9,7 +9,9 @@
             {{ section.get_title() }}
         </span>
         <span style="display: none" class="divider"></span>
-        {{ include.course_admin.task_dispensers.section_menu(True, False, display_subsections) | safe }}
+        {% with tasks_list_option=True, sections_list_option=False %}
+            {% include "course_admin/task_dispensers/section_menu.html" %}
+        {% endwith %}
     </div>
     {% if config_fields %}
         <div class="config card-body bg-light">
