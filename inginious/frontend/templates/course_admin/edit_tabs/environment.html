@@ -31,6 +31,6 @@
             </div>
         </div>
 
-        {{ envtypeobj.studio_env_template(include, task_data, contains_is_html) | safe }}
+        {{ envtypeobj.studio_env_template(template_helper, task_data, contains_is_html) | safe }}
     </div>
 {% endfor %}

@@ -48,4 +48,5 @@ class DockerEnvType(FrontendEnvType):
         return out
 
     def studio_env_template(self, templator, task, allow_html: bool):
-        return templator.course_admin.edit_tabs.env_docker(task.get("environment_parameters", {}), allow_html)
+        return templator.render("course_admin/edit_tabs/env_docker.html", env_params=task.get("environment_parameters", {}),
+                                content_is_html=allow_html)
