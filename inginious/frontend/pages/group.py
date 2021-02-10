@@ -28,9 +28,9 @@ class GroupPage(INGIniousAuthPage):
         msg = ""
         data = web.input()
         if self.user_manager.has_staff_rights_on_course(course):
-            raise self.app.forbidden(message=_("You don't have staff rights on this course."))
+            raise self.app.forbidden(message=_("You can't access this page as a member of the staff."))
         elif not self.user_manager.course_is_open_to_user(course, lti=False):
-            return self.template_helper.get_renderer().course_unavailable()
+            return self.template_helper.render("course_unavailable.html")
         elif "register_group" in data:
             if course.can_students_choose_group():
 
