@@ -382,7 +382,7 @@
 >
     {# Hide input random in form #}
     {% for elem in input_random_list %}
-        <input type="hidden" name="@random_{{ loop.index }}" id="random_input" value="{{ elem }}"/>
+        <input type="hidden" name="@random_{{ loop.index - 1 }}" id="random_input" value="{{ elem }}"/>
     {% endfor %}
     <input type="hidden" name="@action" value="submit"/>
     {% for problem in task.get_problems() %}
@@ -391,7 +391,7 @@
                 <div class="card-heading">
                     <h5 class="card-header">
                         {% if task.get_problems()|length != 1 %}
-                            {{ _("Question {}").format(loop.index + 1) }}:
+                            {{ _("Question {}").format(loop.index) }}:
                         {% endif %}
                         {{ problem.get_name(user_manager.session_language()) }}
                     </h5>
