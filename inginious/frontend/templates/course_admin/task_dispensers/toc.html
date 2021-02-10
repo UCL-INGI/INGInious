@@ -1,7 +1,7 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{{ include.course_admin.task_dispensers.util(course, tasks) | safe }}
+{% include "course_admin/task_dispensers/util.html" %}
 
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
