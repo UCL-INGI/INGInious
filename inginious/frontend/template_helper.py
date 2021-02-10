@@ -62,25 +62,26 @@ class TemplateHelper(object):
         """ Add a variable to will be accessible in the templates """
         self._template_globals[name] = value
 
-    def render(self, path, base_template_folder=None, **tpl_kwargs):
+    def render(self, path, template_folder="", **tpl_kwargs):
         """
         Parse the Jinja template named "path" and render it with args *tpl_args and **tpl_kwargs
         :param path: Path of the template, relative to the base folder
-        :param base_template_folder: base folder. If none, the base template folder is used. Use functools.partial to
-            create custom renderers.
+        :param template_folder: add the specified folder to the templates PATH.
         :param tpl_kwargs: named args sent to the template
         :return: the rendered template, as a str
         """
-        return self._get_jinja_renderer(base_template_folder).get_template(path).render(**tpl_kwargs)
+        return self._get_jinja_renderer(template_folder).get_template(path).render(**tpl_kwargs)
 
     @lru_cache(None)
-    def _get_jinja_renderer(self, base_template_folder=None):
-        if base_template_folder is None:
-            base_template_folder = self._template_dir
-        # if base_template_folder is not an absolute path, take it wrt INGInious root folder
-        base_template_folder = os.path.join(inginious.get_root_path(), base_template_folder)
+    def _get_jinja_renderer(self, template_folder=""):
+        # Always include the main template folder
+        template_folders = [os.path.join(inginious.get_root_path(), self._template_dir)]
 
-        env = Environment(loader=FileSystemLoader(base_template_folder),
+        # Include the additional template folder if specified
+        if template_folder:
+            template_folders += [os.path.join(inginious.get_root_path(), template_folder)]
+
+        env = Environment(loader=FileSystemLoader(template_folders),
                           autoescape=select_autoescape(['html', 'htm', 'xml']))
         env.globals.update(self._template_globals)
 
