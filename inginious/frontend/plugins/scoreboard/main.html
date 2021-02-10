@@ -1,26 +1,28 @@
-$def with (course, scoreboards)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:course.get_name(user_manager.session_language()) - Available scoreboards
+{% block title %} {{course.get_name(user_manager.session_language())}} - Available scoreboards {% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
             <li class="breadcrumb-item active"><a href="#"><i class="fa fa-trophy"></i> Scoreboards <span class="sr-only">(current)</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
+{% block content %}
 <h3>Available scoreboards</h3>
 <div class="list-group">
-    $if len(scoreboards):
-        $for sid, name in scoreboards.items():
-            <a href="$get_homepath()/scoreboard/$course.get_id()/$sid" class="list-group-item list-group-item-action">$name</a>
-    $else:
+    {% if scoreboards|length %}
+        {% for sid, name in scoreboards.items() %}
+            <a href="{{get_homepath()}}/scoreboard/{{course.get_id()}}/{{sid}}" class="list-group-item list-group-item-action">{{name}}</a>
+        {% endfor %}
+    {% else %}
         <a href="#" class="list-group-item list-group-item-action disabled">No scoreboards have been defined for this course</a>
+    {% endif %}
 </div>
+{% endblock %}

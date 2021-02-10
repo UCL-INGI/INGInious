@@ -29,7 +29,8 @@ class ScoreBoardCourse(INGIniousAuthPage):
         if len(names) == 0:
             raise web.notfound()
 
-        return self.template_helper.get_custom_renderer('frontend/plugins/scoreboard').main(course, names)
+        return self.template_helper.render("main.html", template_folder="frontend/plugins/scoreboard",
+                                           course=course, scoreboards=names)
 
 
 def sort_func(overall_result_per_user, reverse):
@@ -172,8 +173,9 @@ class ScoreBoard(INGIniousAuthPage):
 
             table.append(line)
 
-        renderer = self.template_helper.get_custom_renderer('frontend/plugins/scoreboard')
-        return renderer.scoreboard(course, scoreboardid, scoreboard_name, header, table, emphasized_columns)
+        return self.template_helper.render("scoreboard.html", template_folder="frontend/plugins/scoreboard",
+                                           course=course, scoreboardid=scoreboardid, scoreboard_name=scoreboard_name,
+                                           header=header, table=table, emphasized_columns=emphasized_columns)
 
 
 def course_menu(course, template_helper):
@@ -181,7 +183,8 @@ def course_menu(course, template_helper):
     scoreboards = course.get_descriptor().get('scoreboard', [])
 
     if scoreboards != []:
-        return str(template_helper.get_custom_renderer('frontend/plugins/scoreboard', layout=False).course_menu(course))
+        return template_helper.render("course_menu.html", template_folder='frontend/plugins/scoreboard',
+                                          course=course)
     else:
         return None
 
@@ -196,7 +199,8 @@ def task_menu(course, task, template_helper):
                 tolink.append((sid, scoreboard["name"]))
 
         if tolink:
-            return str(template_helper.get_custom_renderer('frontend/plugins/scoreboard', layout=False).task_menu(course, tolink))
+            return template_helper.render("task_menu.html", template_folder="frontend/plugins/scoreboard",
+                                          course=course, links=tolink)
         return None
     except:
         return None

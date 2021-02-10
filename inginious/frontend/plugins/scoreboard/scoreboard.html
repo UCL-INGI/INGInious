@@ -1,36 +1,41 @@
-$def with (course, scoreboardid, scoreboard_name, header, table, emphasized_columns)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$#
-$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
-$# more information about the licensing of this file.
-$#
+{% extends "layout_jinja.html" %}
 
-$var title: $:course.get_name(user_manager.session_language()) - Available scoreboards
+{% block title %} {{course.get_name(user_manager.session_language())}} - {{scoreboard_name}} {% endblock %}
 
-$def NavbarF():
+{% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/scoreboard/$course.get_id()"><i class="fa fa-trophy"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#">$scoreboard_name <span class="sr-only">(current)</span></a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/scoreboard/{{course.get_id()}}"><i class="fa fa-trophy"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">{{scoreboard_name}} <span class="sr-only">(current)</span></a></li>
         </ol>
     </nav>
-$var Navbar: $:NavbarF()
+{% endblock %}
 
-$def showline(type, line):
+{% block content %}
+
+<h2>{{scoreboard_name}}</h2>
+<table class="table table-hover">
     <tr>
-        $for colid, val in enumerate(line):
-            <$type
-                $if colid in emphasized_columns:
-                    class="table-info"
-            >
-                $val
-            </$type>
+        {% for val in header %}
+            <th {{ 'class="table-info"'|safe if (loop.index - 1) in emphasized_columns }}>
+                {{val}}
+            </th>
+        {% endfor %}
     </tr>
 
-<h3>$scoreboard_name</h3>
-<table class="table table-hover">
-    $:showline('th', header)
-    $for line in table:
-        $:showline('td', line)
+    {% for line in table %}
+        <tr>
+            {% for val in line %}
+                <td {{ 'class="table-info"'|safe if (loop.index - 1) in emphasized_columns }}>
+                    {{val}}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
 </table>
+
+{% endblock %}
