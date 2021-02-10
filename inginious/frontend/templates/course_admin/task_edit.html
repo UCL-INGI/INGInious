@@ -161,7 +161,7 @@
     {% endfor %}
 </div>
 
-{{ include.course_admin.edit_tabs.file_modals() | safe }}
+{% include "course_admin/edit_tabs/file_modals.html" %}
 
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">
