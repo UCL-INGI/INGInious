@@ -73,12 +73,12 @@
     <div class="col-sm-10">
         <label>
             <input type="radio" value="false" name="groups" id="groups"
-                {{ 'checked="checked"' if not task_data.get('groups', False) }}/>
+                {{ 'checked="checked"'|safe if not task_data.get('groups', False) }}/>
             {{ _("Individually") }}
         </label><br/>
         <label>
             <input type="radio" value="true" name="groups"
-                {{ 'checked="checked"' if task_data.get('groups', False) }} />
+                {{ 'checked="checked"'|safe if task_data.get('groups', False) }} />
             {{_("Per group")}}
         </label>
     </div>
@@ -89,14 +89,14 @@
         {% set stored_submissions = task_data.get('stored_submissions', 0) %}
         <label>
             <input type="radio" value="true" name="store_all" id="store_all"
-                {{ 'checked="checked"' if stored_submissions == 0 }} />
+                {{ 'checked="checked"'|safe if stored_submissions == 0 }} />
             {{_("All submissions")}}
         </label><br/>
         <div class="row">
             <div class="col-xs-12 col-lg-3">
                 <label>
                     <input type="radio" value="false" name="store_all"
-                        {{ 'checked="checked"' if stored_submissions > 0 }} />
+                        {{ 'checked="checked"'|safe if stored_submissions > 0 }} />
                     {{ _("Only the last {nbr_submissions} submissions").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="stored_submissions" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (stored_submissions|string if stored_submissions > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
                 </label>
             </div>
@@ -114,7 +114,7 @@
             <div class="col-xs-12 col-lg-3">
                 <label>
                     <input type="radio" value="hard" name="submission_limit"
-                        {{ 'checked="checked"' if submission_limit["period"] == -1 and submission_limit['amount'] > 0 }} />
+                        {{ 'checked="checked"'|safe if submission_limit["period"] == -1 and submission_limit['amount'] > 0 }} />
                     {{ _("Hard limit: {nbr_submissions} submission(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] > 0 else '')|string + '" placeholder="5"  type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
                 </label>
             </div>
@@ -123,7 +123,7 @@
             <div class="col-xs-12 col-lg-3">
                 <label>
                     <input type="radio" value="soft" name="submission_limit"
-                        {{ 'checked="checked"' if submission_limit['period'] > 0 }} />
+                        {{ 'checked="checked"'|safe if submission_limit['period'] > 0 }} />
                     {{ _("Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['amount'] > 0 and submission_limit['period'] > 0 else '')|string + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>', nbr_hours='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['period'] if submission_limit['period'] > 0 else '')|string + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>') | safe }}
                 </label>
             </div>
@@ -135,12 +135,12 @@
     <div class="col-sm-10">
         <label>
             <input type="radio" value="best" name="evaluate" id="evaluate"
-                {{ 'checked="checked"' if task_data.get('evaluate', 'best') == 'best' }}
+                {{ 'checked="checked"'|safe if task_data.get('evaluate', 'best') == 'best' }}
             /> {{ _("Best submission") }}
         </label><br/>
         <label>
             <input type="radio" value="last" name="evaluate"
-                {{ 'checked="checked"' if task_data.get('evaluate', 'best') == 'last' }}
+                {{ 'checked="checked"'|safe if task_data.get('evaluate', 'best') == 'last' }}
             /> {{ _("Last submission") }}
         </label>
     </div>
@@ -150,19 +150,19 @@
     <div class="col-sm-10">
         <label>
             <input type="radio" value="false" name="accessible"
-                {{ 'checked="checked"' if task_data.get('accessible',True) == False }} />
+                {{ 'checked="checked"'|safe if task_data.get('accessible',True) == False }} />
             {{_("Never")}}
         </label><br/>
         <label>
             <input type="radio" value="true" name="accessible"
-                {{ 'checked="checked"' if task_data.get('accessible',True) == True }} />
+                {{ 'checked="checked"'|safe if task_data.get('accessible',True) == True }} />
             {{_("Always")}}
         </label><br/>
         <div class="row">
             <div class="col-xs-12 col-lg-3">
                 <label class="control-label">
                     <input type="radio" value="custom" name="accessible"
-                        {{'checked="checked"' if task_data.get('accessible',True) not in [True, False] }} />
+                        {{'checked="checked"'|safe if task_data.get('accessible',True) not in [True, False] }} />
                     {%set text = _("Custom, from: {} to: {}").split("{}") %}
                     {{ text[0] }}</label>
             </div>
@@ -226,7 +226,7 @@
     <div class="col-md-1">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="regenerate_input_random" name="regenerate_input_random"
-                   {{ 'checked="checked"' if task_data.get('regenerate_input_random',False) }} />
+                   {{ 'checked="checked"'|safe if task_data.get('regenerate_input_random',False) }} />
         </div>
     </div>
 </div>
