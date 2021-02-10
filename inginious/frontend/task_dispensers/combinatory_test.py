@@ -28,8 +28,8 @@ class CombinatoryTest(TaskDispenser):
         config_fields = {
             "amount": SectionConfigItem(_("Amount of tasks to be displayed"), "number", 0)
         }
-        return template_helper.get_renderer(with_layout=False).course_admin.task_dispensers.combinatory_test(
-            course, self._data, task_data, config_fields)
+        return template_helper.render("course_admin/task_dispensers/combinatory_test.html", course=course,
+                                      course_structure=self._data, tasks=task_data, config_fields=config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
