@@ -1,20 +1,21 @@
-$def with(course, course_structure, tasks, config_fields={})
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$:include.course_admin.task_dispensers.util(course, tasks)
+{{ include.course_admin.task_dispensers.util(course, tasks) | safe }}
 
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
-        $:include.course_admin.task_dispensers.section(course, tasks, course_structure, 3, True, config_fields)
+        {{ include.course_admin.task_dispensers.section(course, tasks, course_structure, 3, True, config_fields) | safe }}
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-12">
-        <button class="btn btn-secondary btn-block" onclick="dispenser_util_create_section($$('#course_structure'))">
-            <i class="fa fa-plus"></i> $:_("Add section")
+        <button class="btn btn-secondary btn-block" onclick="dispenser_util_create_section($('#course_structure'))">
+            <i class="fa fa-plus"></i> {{ _("Add section") }}
         </button>
     </div>
 </div>
 
 <!-- Invisible element (for copy) -->
-$:include.course_admin.task_dispensers.empty_section("empty_section", "New section",  {}, 0, True, True, config_fields)
+{{ include.course_admin.task_dispensers.empty_section("empty_section", "New section",  {}, 0, True, True, config_fields) | safe }}

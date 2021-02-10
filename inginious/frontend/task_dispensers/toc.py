@@ -35,8 +35,8 @@ class TableOfContents(TaskDispenser):
         config_fields = {
             "closed": SectionConfigItem(_("Closed by default"), "checkbox", False)
         }
-        return template_helper.get_renderer(with_layout=False).course_admin.task_dispensers.toc(
-            course, self._toc, task_data, config_fields)
+        return template_helper.render("course_admin/task_dispensers/toc.html", course=course,
+                                      course_structure=self._toc, tasks=task_data, config_fields=config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
