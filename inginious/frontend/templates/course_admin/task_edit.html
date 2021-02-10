@@ -65,7 +65,7 @@
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_environment">
-                {{ include.course_admin.edit_tabs.environment(task_data,environment_types,environments,contains_is_html) | safe }}
+                {% include "course_admin/edit_tabs/environment.html" %}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">
