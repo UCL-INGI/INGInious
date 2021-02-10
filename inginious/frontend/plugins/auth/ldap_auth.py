@@ -60,8 +60,8 @@ class LdapAuthMethod(AuthMethod):
 class LDAPAuthenticationPage(AuthenticationPage):
     def GET(self, id):
         settings = self.user_manager.get_auth_method(id).get_settings()
-        return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
-                                                                                                         False)
+        return self.template_helper.render("custom_auth_form.html", template_folder="frontend/plugins/auth",
+                                           settings=settings, error=False)
 
     def POST(self, id):
         # Get configuration
@@ -72,8 +72,8 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
         # do not send empty password to the LDAP
         if password.rstrip() == "":
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Empty password")
+            return self.template_helper.render("custom_auth_form.html", template_folder="frontend/plugins/auth",
+                                               settings=settings, error= _("Empty password"))
 
         try:
             # Connect to the ldap
@@ -90,8 +90,8 @@ class LDAPAuthenticationPage(AuthenticationPage):
             logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
         except LDAPException as e:
             logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Cannot contact host")
+            return self.template_helper.render("custom_auth_form.html", template_folder="frontend/plugins/auth",
+                                               settings=settings, error=_("Cannot contact host"))
 
         attr_cn = settings.get("cn", "cn")
         attr_mail = settings.get("mail", "mail")
@@ -102,8 +102,8 @@ class LDAPAuthenticationPage(AuthenticationPage):
         except (LDAPException, IndexError) as ex:
             logger.exception("Can't get user data : " + str(ex))
             conn.unbind()
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Unknown user")
+            return self.template_helper.render("custom_auth_form.html", template_folder="frontend/plugins/auth",
+                                               settings=settings, error=_("Unknown user"))
 
         if conn.rebind(user_data['dn'], password=password):
             try:
@@ -117,12 +117,13 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
             except KeyError as e:
                 logger.exception("Can't get field " + str(e) + " from your LDAP server")
-                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                    settings, "Can't get field " + str(e) + " from your LDAP server")
+                return self.template_helper.render("custom_auth_form.html",
+                                                   template_folder="frontend/plugins/auth", settings=settings,
+                                                   error=_("Can't get field {} from your LDAP server").format(str(e)))
             except LDAPException as e:
                 logger.exception("Can't get some user fields")
-                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                    settings, "Can't get some user fields")
+                return self.template_helper.render("custom_auth_form.html", template_folder="frontend/plugins/auth",
+                                                   settings=settings, error=_("Can't get some user fields"))
             finally:
                 conn.unbind()
 
@@ -134,8 +135,8 @@ class LDAPAuthenticationPage(AuthenticationPage):
         else:
             logger.debug('Auth Failed')
             conn.unbind()
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Incorrect password")
+            return self.template_helper.render("custom_auth_form.html", base_template_folder="frontend/plugins/auth",
+                                               settings=settings, error=_("Incorrect password"))
 
 
 def init(plugin_manager, _, _2, conf):
