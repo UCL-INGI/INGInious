@@ -129,7 +129,7 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return DisplayableFileProblem.get_renderer(template_helper).course_admin.subproblems.file(key)
+        return template_helper.render("course_admin/subproblems/file.html", key=key)
 
     def show_input(self, template_helper, language, seed):
         """ Show FileBox """
