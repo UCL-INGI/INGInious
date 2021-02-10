@@ -205,7 +205,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice(key)
+        return template_helper.render("course_admin/subproblems/multiple_choice.html", key=key)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
