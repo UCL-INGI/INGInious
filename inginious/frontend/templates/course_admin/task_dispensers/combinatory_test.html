@@ -30,4 +30,6 @@
 </div>
 
 <!-- Invisible element (for copy) -->
-{{ include.course_admin.task_dispensers.empty_section("empty_section", "New section", {}, 0, hidden=True, display_subsections=False, config_fields=config_fields) | safe }}
+{% with id="empty_section", title=_("New section"), config={}, level=0, hidden=True, display_subsections=False %}
+   {% include "course_admin/task_dispensers/empty_section.html" %}
+{% endwith %}
