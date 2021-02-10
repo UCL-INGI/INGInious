@@ -13,7 +13,9 @@
     </div>
     {% if config_fields %}
         <div class="config card-body bg-light">
-            {{ include.course_admin.task_dispensers.section_config(section.get_config(), config_fields) | safe }}
+            {% with section_config=section.get_config(), config_fields=config_fields %}
+               {% include "course_admin/task_dispensers/section_config.html" %}
+            {% endwith %}
         </div>
     {% endif %}
     <div class="content list-group list-group-flush">

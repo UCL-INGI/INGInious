@@ -3,7 +3,9 @@
 
 {% for section in sections %}
     {% if section.is_empty() %}
-        {{ include.course_admin.task_dispensers.empty_section("section_" + section.get_id(), section.get_title(), section.get_config(), level, False, False, config_fields) | safe }}
+        {% with id="section_" + section.get_id(), title=section.get_title(), config=section.get_config(), level=level, hidden=False, display_subsections=False %}
+            {% include "course_admin/task_dispensers/empty_section.html" %}
+        {% endwith %}
     {% elif section.is_terminal() %}
         {% include "course_admin/task_dispensers/task_list.html" %}
     {% else %}
@@ -17,7 +19,9 @@
             </div>
             {% if config_fields %}
                 <div class="config card-body">
-                    {{ include.course_admin.task_dispensers.section_config(section.get_config(), config_fields) | safe }}
+                    {% with section_config=section.get_config(), config_fields=config_fields %}
+                       {% include "course_admin/task_dispensers/section_config.html" %}
+                    {% endwith %}
                 </div>
             {% endif %}
             <div class="content ml-4">

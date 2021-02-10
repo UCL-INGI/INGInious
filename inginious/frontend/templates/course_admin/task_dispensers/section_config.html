@@ -1,16 +1,18 @@
-$def with(section_config, config_fields)
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
 
-$for id, data in config_fields.items():
+{% for id, data in config_fields.items() %}
     <div class="form-group row mb-0">
-        <label for="$id" class="col-md-3 col-form-label-sm">$data.label</label>
+        <label for="{{ id }}" class="col-md-3 col-form-label-sm">{{data.label}}</label>
         <div class="col-md-9 text-right">
-            $if data.type == "checkbox":
-                $ append = 'checked' if section_config.get(id, data.default) else ''
-                $ classes = ''
-            $else:
-                $ append = 'value="{}"'.format(section_config.get(id, data.default))
-                $ classes = 'form-control form-control-sm'
-            <input id="$id" type="$data.type" class="$classes section-config-item" $:append>
+            {% if data.type == "checkbox" %}
+                {% set append = 'checked' if section_config.get(id, data.default) else '' %}
+                {% set classes = '' %}
+            {% else %}
+                {% set append = 'value="{}"'.format(section_config.get(id, data.default)) %}
+                {% set classes = 'form-control form-control-sm' %}
+            {% endif %}
+            <input id="{{ id }}" type="{{ data.type }}" class="{{ classes }} section-config-item" {{ append | safe}}>
         </div>
     </div>
-
+{% endfor %}
