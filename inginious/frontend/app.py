@@ -205,10 +205,7 @@ def get_app(config):
     builtins.__dict__['_'] = appli.gettext
 
     if config.get("maintenance", False):
-        template_helper = TemplateHelper(PluginManager(), None,
-                                         'frontend/templates',
-                                         'frontend/templates/layout',
-                                         config.get('use_minified_js', True))
+        template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
@@ -258,9 +255,7 @@ def get_app(config):
 
     submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
 
-    template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/templates',
-                                     'frontend/templates/layout',
-                                     config.get('use_minified_js', True))
+    template_helper = TemplateHelper(plugin_manager, user_manager, config.get('use_minified_js', True))
 
     register_utils(database, user_manager, template_helper)
 

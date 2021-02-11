@@ -21,7 +21,7 @@ class TemplateHelper(object):
     # templates are rendered
     _WEB_CTX_KEY = "inginious_tpl_helper"
 
-    def __init__(self, plugin_manager, user_manager, default_template_dir, default_layout, use_minified=True):
+    def __init__(self, plugin_manager, user_manager, use_minified=True):
         """
         Init the Template Helper
         :param plugin_manager: an instance of a PluginManager
@@ -40,9 +40,9 @@ class TemplateHelper(object):
                               "javascript_footer": (lambda **_: self._javascript_helper("footer")),
                               "css": (lambda **_: self._css_helper())}
         self._plugin_manager = plugin_manager
-        self._template_dir = default_template_dir
+        self._template_dir = 'frontend/templates'
         self._user_manager = user_manager # can be None!
-        self._layout = default_layout
+        self._layout_old = 'frontend/templates/layout_old'
         self._template_globals = {}
 
         # include is only needed in webpy templates as jinja supports it by default
@@ -112,7 +112,7 @@ class TemplateHelper(object):
         if isinstance(layout, str):
             layout_path = os.path.join(root_path, layout)
         elif layout is True:
-            layout_path = os.path.join(root_path, self._layout)
+            layout_path = os.path.join(root_path, self._layout_old)
         else:
             layout_path = None
 
