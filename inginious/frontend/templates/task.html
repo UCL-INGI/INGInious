@@ -284,7 +284,7 @@
                 <li class="breadcrumb-item"><a href="{{ get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
             {% endif %}
             <li class="breadcrumb-item"><a href="{{ get_homepath() }}/course/{{ course.get_id() }}">{{ course.get_name(user_manager.session_language()) }}</a></li>
-            <li class="breadcrumb-item active"><span>{{ task.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></span></li>
+            <li class="breadcrumb-item active"><a href="#">{{ task.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
 {% endblock %}
