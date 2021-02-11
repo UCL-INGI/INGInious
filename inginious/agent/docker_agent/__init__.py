@@ -730,5 +730,5 @@ class DockerAgent(Agent):
                         used_envtypes.add(v.envtype)
                         retval.append(v)
                     else:
-                        self._logger.warning("%s was detected as a runtime; it would duplicate another one, so we ignore it.", runtime, str(v))
+                        self._logger.warning("%s was detected as a runtime; it would duplicate another one, so we ignore it. %s", runtime, str(v))
         return retval
