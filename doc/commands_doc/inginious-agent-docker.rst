@@ -15,8 +15,8 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
                            [--debug-ports DEBUG_PORTS] [--tmpdir TMPDIR]
                            [--concurrency CONCURRENCY] [-v] [--debugmode]
                            [--disable-autorestart]
+                           [--runtime RUNTIME [RUNTIME ...]]
                            [--tasks TASKS | --fs {local}] [--fs-help]
-                           [--kata]
                            backend
 
 
@@ -62,9 +62,17 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
 
    Disables the auto restart on agent failure.
 
-.. option:: --kata
+.. option:: --runtime
 
-   Uses kata-containers as runtime
+   Add a runtime, such as crun, runc or kata. If no runtime is given, the available runtimes are detected automatically.
+
+   Expects at least 2 arguments: the name of the runtime (eg runc),
+   the name of the environment type (eg docker or kata). You can then add flags:
+
+   - 'root' indicates that the runtime starts containers as root
+   - 'shared' indicates that the containers on this runtime use the host kernel (i.e. they are not VMs)"
+
+   Common values are 'runc docker shared' and 'kata-runtime kata root'.
 
 .. option:: backend
 
