@@ -43,6 +43,7 @@ from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
 from inginious.frontend.flask_migration.app_dispatcher import PathDispatcher
 from inginious.frontend.flask_migration.flask_app import app as flask_app
+from inginious.frontend.flask_migration.mongo_sessions import MongoDBSessionInterface
 
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
@@ -187,6 +188,11 @@ def get_app(config):
 
     webpy_app = CookieLessCompatibleApplication(MongoStore(database, 'sessions', web.config.session_parameters.timeout))
     appli = PathDispatcher(webpy_app.wsgifunc(), flask_app)
+    flask_app.config.from_mapping(**config)
+    flask_app.session_interface = MongoDBSessionInterface(
+        mongo_client, config.get('mongo_opt', {}).get('database', 'INGInious'),
+        "sessions", config.get('SESSION_USE_SIGNER', False), True  # config.get('SESSION_PERMANENT', True)
+    )
 
     # Init gettext
     available_translations = {
