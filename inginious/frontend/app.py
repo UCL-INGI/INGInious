@@ -185,7 +185,7 @@ def get_app(config):
         database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
-    webpy_app = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
+    webpy_app = CookieLessCompatibleApplication(MongoStore(database, 'sessions', web.config.session_parameters.timeout))
     appli = PathDispatcher(webpy_app.wsgifunc(), flask_app)
 
     # Init gettext

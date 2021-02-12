@@ -272,6 +272,7 @@ class CookieLessCompatibleSession:
                     self._initializer()
 
         self._data["ip"] = web.ctx.ip
+        self._data["_permanent"] = True  # ensure compatibility with flask permanent sessions
         self._data["cookieless"] = cookieless
         self._origdata.update(deepcopy(self._data.__dict__))
 
