@@ -41,6 +41,9 @@ from inginious.frontend.task_problems import *
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
+from inginious.frontend.flask_migration.app_dispatcher import PathDispatcher
+from inginious.frontend.flask_migration.flask_app import app as flask_app
+
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
     r'/index', 'inginious.frontend.pages.index.IndexPage',
@@ -182,7 +185,8 @@ def get_app(config):
         database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
-    appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
+    webpy_app = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
+    appli = PathDispatcher(webpy_app.wsgifunc(), flask_app)
 
     # Init gettext
     available_translations = {
@@ -198,20 +202,20 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
-    appli.add_translation("en", gettext.NullTranslations())  # English does not need translation ;-)
+    webpy_app.add_translation("en", gettext.NullTranslations())  # English does not need translation ;-)
     for lang in available_translations.keys():
-        appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
+        webpy_app.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
 
-    builtins.__dict__['_'] = appli.gettext
+    builtins.__dict__['_'] = webpy_app.gettext
 
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
-        template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+        template_helper.add_to_template_globals("get_homepath", webpy_app.get_homepath)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
-        appli.template_helper = template_helper
-        appli.init_mapping(urls_maintenance)
-        return appli.wsgifunc(), appli.stop
+        webpy_app.template_helper = template_helper
+        webpy_app.init_mapping(urls_maintenance)
+        return appli, webpy_app.stop
 
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
@@ -245,7 +249,7 @@ def get_app(config):
 
     course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager)
 
-    user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
+    user_manager = UserManager(webpy_app.get_session(), database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
@@ -275,7 +279,7 @@ def get_app(config):
     template_helper.add_to_template_globals("_", _)
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
-    template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+    template_helper.add_to_template_globals("get_homepath", webpy_app.get_homepath)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
     template_helper.add_to_template_globals("user_manager", user_manager)
@@ -286,56 +290,56 @@ def get_app(config):
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.render,
                                                                                   plugin_manager, user_manager))
     template_helper.add_other("preferences_menu",
-                              lambda current: preferences_utils.get_menu(appli, current, template_helper.render,
+                              lambda current: preferences_utils.get_menu(webpy_app, current, template_helper.render,
                                                                                  plugin_manager, user_manager))
 
     # Not found page
-    appli.notfound = lambda message='Page not found': web.notfound(template_helper.render("notfound.html", message=message))
+    webpy_app.notfound = lambda message='Page not found': web.notfound(template_helper.render("notfound.html", message=message))
 
     # Forbidden page
-    appli.forbidden = lambda message='Forbidden': web.forbidden(template_helper.render("forbidden.html", message=message))
+    webpy_app.forbidden = lambda message='Forbidden': web.forbidden(template_helper.render("forbidden.html", message=message))
 
     # Enable stacktrace display if needed
     web_debug = config.get('web_debug', False)
-    appli.internalerror = internalerror_generator(template_helper.render)
+    webpy_app.internalerror = internalerror_generator(template_helper.render)
     if web_debug is True:
         web.config.debug = True
-        appli.internalerror = debugerror
+        webpy_app.internalerror = debugerror
     elif isinstance(web_debug, str):
         web.config.debug = False
-        appli.internalerror = emailerrors(web_debug, appli.internalerror)
+        webpy_app.internalerror = emailerrors(web_debug, webpy_app.internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
-    appli.plugin_manager = plugin_manager
-    appli.course_factory = course_factory
-    appli.task_factory = task_factory
-    appli.submission_manager = submission_manager
-    appli.user_manager = user_manager
-    appli.template_helper = template_helper
-    appli.database = database
-    appli.gridfs = gridfs
-    appli.client = client
-    appli.default_allowed_file_extensions = default_allowed_file_extensions
-    appli.default_max_file_size = default_max_file_size
-    appli.backup_dir = config.get("backup_directory", './backup')
-    appli.webterm_link = config.get("webterm", None)
-    appli.lti_outcome_manager = lti_outcome_manager
-    appli.allow_registration = config.get("allow_registration", True)
-    appli.allow_deletion = config.get("allow_deletion", True)
-    appli.available_languages = available_languages
-    appli.welcome_page = config.get("welcome_page", None)
-    appli.terms_page = config.get("terms_page", None)
-    appli.privacy_page = config.get("privacy_page", None)
-    appli.static_directory = config.get("static_directory", "./static")
-    appli.webdav_host = config.get("webdav_host", None)
+    webpy_app.plugin_manager = plugin_manager
+    webpy_app.course_factory = course_factory
+    webpy_app.task_factory = task_factory
+    webpy_app.submission_manager = submission_manager
+    webpy_app.user_manager = user_manager
+    webpy_app.template_helper = template_helper
+    webpy_app.database = database
+    webpy_app.gridfs = gridfs
+    webpy_app.client = client
+    webpy_app.default_allowed_file_extensions = default_allowed_file_extensions
+    webpy_app.default_max_file_size = default_max_file_size
+    webpy_app.backup_dir = config.get("backup_directory", './backup')
+    webpy_app.webterm_link = config.get("webterm", None)
+    webpy_app.lti_outcome_manager = lti_outcome_manager
+    webpy_app.allow_registration = config.get("allow_registration", True)
+    webpy_app.allow_deletion = config.get("allow_deletion", True)
+    webpy_app.available_languages = available_languages
+    webpy_app.welcome_page = config.get("welcome_page", None)
+    webpy_app.terms_page = config.get("terms_page", None)
+    webpy_app.privacy_page = config.get("privacy_page", None)
+    webpy_app.static_directory = config.get("static_directory", "./static")
+    webpy_app.webdav_host = config.get("webdav_host", None)
 
     # Init the mapping of the app
-    appli.init_mapping(urls)
+    webpy_app.init_mapping(urls)
 
     # Loads plugins
-    plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
+    plugin_manager.load(client, webpy_app, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
 
     # Start the inginious.backend
     client.start()
 
-    return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client)
+    return appli, lambda: _close_app(webpy_app, mongo_client, client)

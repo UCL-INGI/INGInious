@@ -29,7 +29,9 @@ install_requires = [
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
     "zipstream >= 1.1.4",
-    "WsgiDAV >= 3.0.0"
+    "WsgiDAV >= 3.0.0",
+    "Werkzeug >= 1.0.0",
+    "Flask >= 1.1.0"
 ]
 
 test_requires = [
