@@ -41,6 +41,7 @@ class INGIniousMainRunner:
         self.intern = None
         self.internal_socket_send = None
         self.running_student_container = None
+        self.run_as_root = False
 
     def copy_tree(self, src, dst, symlinks=False, ignore=None):
         """ Custom copy tree to allow to copy into existing directories """
@@ -64,8 +65,12 @@ class INGIniousMainRunner:
                 os.chown(os.path.join(root, f), 4242, 4242)
 
     def set_limits(self):
-        os.setgid(4242)
-        os.setuid(4242)
+        if not self.run_as_root:
+            self._logger.info("Running as worker/4242")
+            os.setgid(4242)
+            os.setuid(4242)
+        else:
+            self._logger.info("Running as root")
         os.environ["HOME"] = "/task"
         resource.setrlimit(resource.RLIMIT_NPROC, (1000, 1000))
 
@@ -73,7 +78,7 @@ class INGIniousMainRunner:
         st = os.stat(filename)
         os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
-    def execute_process(self, args, stdin_string="", as_root=False):
+    def execute_process(self, args, stdin_string="", internal_command=False):
         if not isinstance(args, list):
             args = [args]
 
@@ -85,7 +90,7 @@ class INGIniousMainRunner:
 
         stdout = tempfile.TemporaryFile()
         stderr = tempfile.TemporaryFile()
-        if as_root:
+        if internal_command:
             p = subprocess.Popen(args, stdin=stdin, stdout=stdout, stderr=stderr)
         else:
             self.set_executable(args[0])
@@ -215,7 +220,7 @@ class INGIniousMainRunner:
         try:
             if message["type"] == "ssh_key":
                 # copy the dict manually to ensure the corectness of the message
-                await self.write_stdout({"type": "ssh_key", "ssh_key": message["ssh_key"]})
+                await self.write_stdout({"type": "ssh_key", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"]})
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return False
             if message["type"] == "run_student":
@@ -299,6 +304,9 @@ class INGIniousMainRunner:
         # Determining if debug mode or not
         debug = (sys.argv[1:] and sys.argv[1] == '--debug') or data.get("debug", False)
 
+        # Run as root?
+        self.run_as_root = data.get('run_as_root', False)
+
         # Create input data directory
         if not os.path.exists("/.__input"):
             os.mkdir("/.__input")
@@ -374,33 +382,41 @@ class INGIniousMainRunner:
                 inginious_container_api.feedback.set_global_result('crash')
                 inginious_container_api.feedback.set_global_feedback("'/task/run' could not be found")
         else:  # start the ssh server
-            # generate a password for the worker user
-            password, _ = self.execute_process(["/usr/bin/openssl", "rand", "-base64", "10"], as_root=True)
+            # generate a password for the ssh user
+            password, _ = self.execute_process(["/usr/bin/openssl", "rand", "-base64", "10"], internal_command=True)
             password = password.decode('utf8').strip()
-            self.execute_process(["/usr/bin/bash", "-c", "echo 'worker:%s' | chpasswd" % password], as_root=True)
+
+            ssh_user = "root" if self.run_as_root else "worker"
+            self.execute_process(["/usr/bin/bash", "-c", "echo '{}:{}' | chpasswd".format(ssh_user, password)],
+                                 internal_command=True)
 
             # generate the host keys
-            self.execute_process(["/usr/bin/ssh-keygen", "-A"], as_root=True)
+            self.execute_process(["/usr/bin/ssh-keygen", "-A"], internal_command=True)
 
             # remove /run/nologin if it exists
             if os.path.exists("/run/nologin"):
                 os.unlink("/run/nologin")
 
             # Start the ssh server
-            self.execute_process(
-                ["/usr/sbin/sshd", "-p", "22", "-o", "PermitRootLogin=no", "-o", "PasswordAuthentication=yes",
-                 "-o", "StrictModes=no", "-o", "AllowUsers=worker"], as_root=True)
+            self.execute_process(["/usr/sbin/sshd", "-p", "22",
+                                  "-o", "PermitRootLogin={}".format("yes" if self.run_as_root else "no"),
+                                  "-o", "PasswordAuthentication=yes", "-o", "StrictModes=no", "-o",
+                                  "AllowUsers={}".format(ssh_user)], internal_command=True)
 
-            self._loop.call_soon_threadsafe(asyncio.ensure_future,
-                                            self.send_intern_message({"type": "ssh_key", "ssh_key": password}))
+            self._loop.call_soon_threadsafe(asyncio.ensure_future, self.send_intern_message({
+                "type": "ssh_key",
+                "ssh_user": ssh_user,
+                "ssh_key": password
+            }))
 
             # Wait until someone connects to the server
             connected_workers = 0
             attempts = 0
             while connected_workers == 0 and attempts < 120:
                 time.sleep(1)
-                stdout, stderr = self.execute_process(["/bin/bash", "-c", "ps -f -C sshd | grep 'worker@pts' | wc -l"],
-                                                      as_root=True)
+                stdout, stderr = self.execute_process(["/bin/bash", "-c",
+                                                       "ps -f -C sshd | grep '{}@pts' | wc -l".format(ssh_user)],
+                                                      internal_command=True)
                 connected_workers = int(stdout)
                 attempts += 1
 
@@ -409,8 +425,9 @@ class INGIniousMainRunner:
                 attempts = 0
                 while connected_workers != 0 and attempts < 60 * 30:
                     time.sleep(1)
-                    stdout, stderr = self.execute_process(
-                        ["/bin/bash", "-c", "ps -f -C sshd | grep 'worker@pts' | wc -l"], as_root=True)
+                    stdout, stderr = self.execute_process(["/bin/bash", "-c",
+                                                           "ps -f -C sshd | grep '{}@pts' | wc -l".format(ssh_user)],
+                                                          internal_command=True)
                     connected_workers = int(stdout)
                     attempts += 1
             else:

@@ -230,7 +230,7 @@ class Client(BetterParanoidPirateClient):
     async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug, ssh_callback,
                                     **kwargs):  # pylint: disable=unused-argument
         try:
-            await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.password))
+            await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.user, message.password))
         except:
             self._logger.exception("Error occurred while calling ssh_callback for job %s", message.job_id)
 

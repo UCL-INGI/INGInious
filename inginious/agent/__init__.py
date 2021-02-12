@@ -188,7 +188,7 @@ class Agent(object, metaclass=ABCMeta):
             await self.send_job_result(message.job_id, "crash", "An unknown error occurred in the agent. Please contact your course "
                                                                 "administrator.")
 
-    async def send_ssh_job_info(self, job_id: BackendJobId, host: str, port: int, key: str):
+    async def send_ssh_job_info(self, job_id: BackendJobId, host: str, port: int, username: str, key: str):
         """
         Send info about the SSH debug connection to the backend/client. Must be called *at most once* for each job.
         :exception JobNotRunningException: is raised when the job is not running anymore (send_job_result already called)
@@ -199,7 +199,7 @@ class Agent(object, metaclass=ABCMeta):
         if self.__running_job[job_id]:
             raise TooManyCallsException()
         self.__running_job[job_id] = True  # now we have sent ssh info
-        await ZMQUtils.send(self.__backend_socket, AgentJobSSHDebug(job_id, host, port, key))
+        await ZMQUtils.send(self.__backend_socket, AgentJobSSHDebug(job_id, host, port, username, key))
 
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
                               tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, state: str = "", archive: Optional[bytes] = None,

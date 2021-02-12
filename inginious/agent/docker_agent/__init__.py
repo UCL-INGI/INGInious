@@ -26,6 +26,7 @@ from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
 
+
 @dataclass
 class DockerRunningJob:
     message: BackendNewJob
@@ -74,7 +75,7 @@ class DockerAgent(Agent):
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
 
-        self._runtimes = runtimes
+        self._runtimes = {x.envtype: x for x in runtimes} if runtimes is not None else None
 
         self._logger = logging.getLogger("inginious.agent.docker")
 
@@ -120,14 +121,14 @@ class DockerAgent(Agent):
 
         # Auto discover containers
         self._logger.info("Discovering containers")
-        self._containers = await self._docker.get_containers(self._runtimes)
+        self._containers = await self._docker.get_containers(self._runtimes.values())
 
         if self._address_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
             self._address_host = await self._docker.get_host_ip(next(iter(next(iter(self._containers.values())).values()))["id"])
         if self._address_host is None:
-            self._logger.warning(
-                "Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
+            self._logger.warning("Cannot find external host IP. Please indicate it in the configuration. "
+                                 "Remote SSH debug has been deactivated.")
             self._external_ports = None
         else:
             self._logger.info("External address for SSH remote debug is %s", self._address_host)
@@ -435,7 +436,7 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_running_container(self, info:DockerRunningJob, future_results):
+    async def handle_running_container(self, info: DockerRunningJob, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._docker.attach_to_container(info.container_id)
         try:
@@ -447,9 +448,11 @@ class DockerAgent(Agent):
             return None
 
         # Send hello msg
-        hello_msg = {"type": "start", "input": info.inputdata, "debug": info.debug, "envtypes": {x.envtype: x.shared_kernel for x in self._runtimes}}
+        hello_msg = {"type": "start", "input": info.inputdata, "debug": info.debug, "envtypes": {x.envtype: x.shared_kernel for x in self._runtimes.values()}}
         if info.run_cmd is not None:
             hello_msg["run_cmd"] = info.run_cmd
+        if self._runtimes[info.environment_type].run_as_root:
+            hello_msg["run_as_root"] = True
         await self._write_to_container_stdin(write_stream, hello_msg)
         result = None
 
@@ -488,7 +491,8 @@ class DockerAgent(Agent):
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
                                 self._logger.info("%s %s", info.container_id, str(msg))
-                                await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22], msg["ssh_key"])
+                                await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22],
+                                                             msg["ssh_user"], msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 result = msg["result"]
@@ -712,23 +716,21 @@ class DockerAgent(Agent):
             await self._end_clean()
             raise
 
-    def _detect_runtimes(self):
+    def _detect_runtimes(self) -> Dict[str, DockerRuntime]:
         heuristic = [
             ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, shared_kernel=True, envtype="docker")),
             ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, shared_kernel=True, envtype="docker")),
             ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, shared_kernel=False, envtype="kata")),
         ]
-        used_envtypes = set()
-        retval = []
+        retval = {}
 
         for runtime in self._docker.sync.list_runtimes().keys():
             for h_runtime, f in heuristic:
                 if h_runtime in runtime:
                     v = f(runtime)
-                    if v.envtype not in used_envtypes:
+                    if v.envtype not in retval:
                         self._logger.info("Using %s as runtime with parameters %s", runtime, str(v))
-                        used_envtypes.add(v.envtype)
-                        retval.append(v)
+                        retval[v.envtype] = v
                     else:
                         self._logger.warning("%s was detected as a runtime; it would duplicate another one, so we ignore it. %s", runtime, str(v))
         return retval

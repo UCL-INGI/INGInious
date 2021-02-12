@@ -281,9 +281,14 @@ class BaseTaskPage(object):
             tags = []
 
         if "ssh_host" in data:
-            return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
-                               'ssh_host': data["ssh_host"], 'ssh_port': data["ssh_port"],
-                               'ssh_password': data["ssh_password"]})
+            return json.dumps({
+                'status': "waiting",
+                'text': "<b>SSH server active</b>",
+                'ssh_host': data["ssh_host"],
+                'ssh_port': data["ssh_port"],
+                'ssh_user': data["ssh_user"],
+                'ssh_password': data["ssh_password"]
+            })
 
         # Here we are waiting. Let's send some useful information.
         waiting_data = self.submission_manager.get_job_queue_info(data["jobid"]) if "jobid" in data else None

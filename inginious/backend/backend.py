@@ -319,7 +319,7 @@ class Backend(object):
         if message.job_id not in self._job_running:
             self._logger.warning("Agent %s sent ssh debug info for job %s, but it is not in the list of running jobs", agent_addr, message.job_id)
         await ZMQUtils.send_with_addr(self._client_socket, self._job_running[message.job_id].client_addr,
-                                      BackendJobSSHDebug(message.job_id, message.host, message.port, message.password))
+                                      BackendJobSSHDebug(message.job_id, message.host, message.port, message.user, message.password))
 
     async def run(self):
         self._logger.info("Backend started")
