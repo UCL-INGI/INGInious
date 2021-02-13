@@ -70,7 +70,7 @@ def create_arch(configuration, tasks_fs, context, course_factory):
 
     backend_link = configuration.get("backend", "local")
     if backend_link == "local":
-        logger.info("Starting a simple arch (backend, docker-agent, kata-agent and mcq-agent) locally")
+        logger.info("Starting a simple arch (backend, docker-agent and mcq-agent) locally")
 
         local_config = configuration.get("local-config", {})
         concurrency = local_config.get("concurrency", multiprocessing.cpu_count())
