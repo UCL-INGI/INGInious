@@ -223,8 +223,8 @@ class INGIniousMainRunner:
                 await self.write_stdout({"type": "ssh_key", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"]})
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return False
-            if message["type"] == "run_student":
-                # copy the dict manually to ensure the corectness of the message
+            if message["type"] == "run_student" and self.shared_kernel:  # disable run_student on non-shared kernels (TODO fix me)
+                # copy the dict manually to ensure the correctness of the message
                 self.running_student_container[message["socket_id"]] = addr
                 await self.write_stdout({"type": "run_student", "environment": message["environment"],
                                          "time_limit": message["time_limit"],
@@ -304,8 +304,9 @@ class INGIniousMainRunner:
         # Determining if debug mode or not
         debug = (sys.argv[1:] and sys.argv[1] == '--debug') or data.get("debug", False)
 
-        # Run as root?
+        # Run as root? Shared kernel?
         self.run_as_root = data.get('run_as_root', False)
+        self.shared_kernel = data.get('shared_kernel', False)
 
         # Create input data directory
         if not os.path.exists("/.__input"):
@@ -336,6 +337,10 @@ class INGIniousMainRunner:
         self.set_directory_rights("/task")
         self.set_directory_rights("/.__output")
         self.set_directory_rights("/archive")
+
+        # Set a flag file indicating if the runtime allows run_student to be run
+        if self.shared_kernel:
+            open('/.__input/__shared_kernel', 'w').close()
 
         ok_to_start = True
 

@@ -451,8 +451,9 @@ class DockerAgent(Agent):
         hello_msg = {"type": "start", "input": info.inputdata, "debug": info.debug, "envtypes": {x.envtype: x.shared_kernel for x in self._runtimes.values()}}
         if info.run_cmd is not None:
             hello_msg["run_cmd"] = info.run_cmd
-        if self._runtimes[info.environment_type].run_as_root:
-            hello_msg["run_as_root"] = True
+        hello_msg["run_as_root"] = self._runtimes[info.environment_type].run_as_root
+        hello_msg["shared_kernel"] = self._runtimes[info.environment_type].shared_kernel
+
         await self._write_to_container_stdin(write_stream, hello_msg)
         result = None
 
