@@ -13,7 +13,8 @@ class PathDispatcher(object):
     def __init__(self, webpy_app, flask_app):
         self.webpy_app = webpy_app
         self.flask_app = flask_app
-        self.urls = (r"/flask",)
+        urls = (r"/flask",)
+        self.urls = tuple((r"(/@[a-f0-9A-F_]*@)?" + a) for a in urls)
 
     def __call__(self, environ, start_response):
         go_to_flask = self._match(self.urls, environ.get("PATH_INFO", "").strip())

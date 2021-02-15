@@ -3,11 +3,13 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
+# TODO : Clean this code after migration !!
+
 # This code is based on Flask-Session, copyright (c) 2014 by Shipeng Feng.
 # https://flasksession.readthedocs.io/
 
+import re
 import base64
-from uuid import uuid4
 from datetime import datetime
 from bson.binary import Binary, USER_DEFINED_SUBTYPE
 from bson.objectid import ObjectId
@@ -62,7 +64,7 @@ class WebPyLikeSerializer:
 class MongoDBSession(CallbackDict, SessionMixin):
     """Baseclass for server-side based sessions."""
 
-    def __init__(self, initial=None, sid=None, permanent=None):
+    def __init__(self, initial=None, sid=None, permanent=None, cookieless=False):
         def on_update(self):
             self.modified = True
         CallbackDict.__init__(self, initial, on_update)
@@ -71,8 +73,9 @@ class MongoDBSession(CallbackDict, SessionMixin):
             self.permanent = permanent
         self.modified = False
 
+        # These fields are kept in the session dict to ensure retrompatibility with web.py
         self['session_id'] = sid
-        self['cookieless'] = False
+        self['cookieless'] = cookieless
 
 
 class MongoDBSessionInterface(SessionInterface):
@@ -104,11 +107,19 @@ class MongoDBSessionInterface(SessionInterface):
                       key_derivation='hmac')
 
     def open_session(self, app, request):
-        sid = request.cookies.get(app.session_cookie_name)
+        # Check for cookieless session in the path
+        path_session = re.match(r"(/@)([a-f0-9A-F_]*)(@)", request.path)
+        if path_session:  # Cookieless session
+            cookieless = True
+            sid = path_session.group(2)
+        else:
+            cookieless = False
+            sid = request.cookies.get(app.session_cookie_name)
+
         if not sid:
             sid = self._generate_sid()
-            return self.session_class(sid=sid, permanent=self.permanent)
-        if self.use_signer:
+            return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
+        if not path_session and self.use_signer:
             signer = self._get_signer(app)
             if signer is None:
                 return None
@@ -117,7 +128,7 @@ class MongoDBSessionInterface(SessionInterface):
                 sid = sid_as_bytes.decode()
             except BadSignature:
                 sid = self._generate_sid()
-                return self.session_class(sid=sid, permanent=self.permanent)
+                return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
 
         store_id = sid
         document = self.store.find_one({'_id': store_id})
@@ -129,10 +140,10 @@ class MongoDBSessionInterface(SessionInterface):
             try:
                 val = document['data']
                 data = self.serializer.loads(want_bytes(val))
-                return self.session_class(data, sid=sid)
+                return self.session_class(data, sid=sid, cookieless=cookieless)
             except:
-                return self.session_class(sid=sid, permanent=self.permanent)
-        return self.session_class(sid=sid, permanent=self.permanent)
+                return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
+        return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
 
     def save_session(self, app, session, response):
         domain = self.get_cookie_domain(app)
@@ -148,6 +159,7 @@ class MongoDBSessionInterface(SessionInterface):
         httponly = self.get_cookie_httponly(app)
         secure = self.get_cookie_secure(app)
         expires = self.get_expiration_time(app, session)
+        cookieless = session.get("cookieless", False)
         val = self.serializer.dumps(dict(session))
         self.store.update({'_id': store_id},
                           {'data': val,
@@ -156,6 +168,7 @@ class MongoDBSessionInterface(SessionInterface):
             session_id = self._get_signer(app).sign(want_bytes(session.sid))
         else:
             session_id = session.sid
-        response.set_cookie(app.session_cookie_name, session_id,
-                            expires=expires, httponly=httponly,
-                            domain=domain, path=path, secure=secure)
+        if not cookieless:
+            response.set_cookie(app.session_cookie_name, session_id,
+                                expires=expires, httponly=httponly,
+                                domain=domain, path=path, secure=secure)
