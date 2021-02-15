@@ -8,9 +8,11 @@
 import hashlib
 import os
 import tarfile
+import tempfile
 import urllib.request
 from binascii import hexlify
 import docker
+from docker.errors import BuildError
 
 from gridfs import GridFS
 from pymongo import MongoClient
@@ -37,9 +39,9 @@ class Installer:
     def __init__(self, config_path=None):
         self._config_path = config_path
 
-        #######################################
-        #          Display functions          #
-        #######################################
+    #######################################
+    #          Display functions          #
+    #######################################
 
     def _display_header(self, title):
         """ Displays an header in the console """
@@ -69,7 +71,7 @@ class Installer:
         print(WARNING + content + ENDC)
         print("")
 
-    def _ask_with_default(self, question, default):
+    def _ask_with_default(self, question, default=""):
         default = str(default)
         answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
         if answer == "":
@@ -130,7 +132,7 @@ class Installer:
         options.update(task_directory_opt)
 
         self._display_header("CONTAINERS")
-        self.configure_containers(options)
+        self.select_containers_to_build()
 
         self._display_header("MISC")
         misc_opt = self.configure_misc()
@@ -354,17 +356,7 @@ class Installer:
             self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
             if self._ask_boolean("Would you like to download them ?", True):
                 try:
-                    filename, _ = urllib.request.urlretrieve(
-                        "https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball")
-                    with tarfile.open(filename, mode="r:gz") as thetarfile:
-                        members = thetarfile.getmembers()
-                        commonpath = os.path.commonpath([tarinfo.name for tarinfo in members])
-
-                        for member in members:
-                            member.name = member.name[len(commonpath) + 1:]
-                            if member.name:
-                                thetarfile.extract(member, task_directory)
-
+                    self._retrieve_and_extract_tarball("https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball", task_directory)
                     self._display_info("Successfully downloaded and copied demonstration tasks.")
                 except Exception as e:
                     self._display_error("An error occurred while copying the directory: %s" % str(e))
@@ -377,65 +369,71 @@ class Installer:
     #             CONTAINERS              #
     #######################################
 
-    def download_containers(self, to_download, current_options):
-        """ Download the chosen containers on all the agents """
-        if current_options["backend"] == "local":
-            self._display_info("Connecting to the local Docker daemon...")
-            try:
-                docker_connection = docker.from_env()
-            except:
-                self._display_error("Cannot connect to local Docker daemon. Skipping download.")
-                return
+    def _build_container(self, name, folder):
+        self._display_info("Building container {}...".format(name))
+        docker_connection = docker.from_env()
+        docker_connection.images.build(path=folder, tag=name)
+        self._display_info("done.".format(name))
 
-            for image in to_download:
-                try:
-                    self._display_info("Downloading image %s. This can take some time." % image)
-                    docker_connection.images.pull(image + ":latest")
-                except Exception as e:
-                    self._display_error("An error occurred while pulling the image: %s." % str(e))
-        else:
-            self._display_warning(
-                "This installation tool does not support the backend configuration directly, if it's not local. You will have to "
-                "pull the images by yourself. Here is the list: %s" % str(to_download))
+    def select_containers_to_build(self):
+        if not self._ask_boolean("Build the default containers? This is highly recommended, and is required to build other containers.", True):
+            self._display_info("Skipping container building.")
+            return
 
-    def configure_containers(self, current_options):
-        """ Configures the container dict """
-        containers = [
-            ("default", "Default container. For Bash and Python 2 tasks"),
-            ("cpp", "Contains gcc and g++ for compiling C++"),
-            ("java7", "Contains Java 7"),
-            ("java8scala", "Contains Java 8 and Scala"),
-            ("mono", "Contains Mono, which allows to run C#, F# and many other languages"),
-            ("oz", "Contains Mozart 2, an implementation of the Oz multi-paradigm language, made for education"),
-            ("php", "Contains PHP 5"),
-            ("pythia0compat", "Compatibility container for Pythia 0"),
-            ("pythia1compat", "Compatibility container for Pythia 1"),
-            ("r", "Can run R scripts"),
-            ("sekexe", "Can run an user-mode-linux for advanced tasks")
-        ]
+        try:
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                self._display_info("Downloading the base container source directory...")
+                self._retrieve_and_extract_tarball("https://api.github.com/repos/UCL-INGI/INGInious/tarball", tmpdirname)
+                self._build_container("ingi/inginious-c-base", os.path.join(tmpdirname, "base-containers", "base"))
+                self._build_container("ingi/inginious-c-default", os.path.join(tmpdirname, "base-containers", "default"))
 
-        default_download = ["default"]
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                self._display_info("Downloading the other containers source directory...")
+                self._retrieve_and_extract_tarball("https://api.github.com/repos/UCL-INGI/INGInious-containers/tarball", tmpdirname)
 
-        self._display_question(
-            "The tool will now propose to download some base container image for multiple languages.")
-        self._display_question(
-            "Please note that the download of these images can take a lot of time, so choose only the images you need")
+                todo = {"ingi/inginious-c-base": None, "ingi/inginious-c-default": "ingi/inginious-c-base"}
+                available_containers = set(os.listdir(os.path.join(tmpdirname, 'grading')))
+                self._display_info("Done.")
 
-        to_download = []
-        for container_name, description in containers:
-            if self._ask_boolean("Download %s (%s) ?" % (container_name, description),
-                                 container_name in default_download):
-                to_download.append("ingi/inginious-c-%s" % container_name)
+                def add_container(container):
+                    if container in todo:
+                        return
+                    line_from = \
+                    [l for l in open(os.path.join(tmpdirname, 'grading', container, 'Dockerfile')).read().split("\n") if
+                     l.startswith("FROM")][0]
+                    supercontainer = line_from.strip()[4:].strip().split(":")[0]
+                    if supercontainer.startswith("ingi/") and supercontainer not in todo:
+                        self._display_info("Container {} requires container {}, I'll build it too.".format(container, supercontainer))
+                        add_container(supercontainer)
+                    todo[container] = supercontainer if supercontainer.startswith("ingi/") else None
 
-        self.download_containers(to_download, current_options)
+                self._display_info("The following containers can be built:")
+                for container in available_containers:
+                    self._display_info("\t"+container)
+                while True:
+                    answer = self._ask_with_default("Indicate the name of a container to build, or press enter to continue")
+                    if answer == "":
+                        break
+                    if answer not in available_containers:
+                        self._display_warning("Unknown container. Please retry")
+                    else:
+                        self._display_info("Ok, I'll build container {}".format(answer))
+                        add_container(answer)
 
-        wants = self._ask_boolean("Do you want to manually add some images?", False)
-        while wants:
-            image = self._ask_with_default("Container image name (leave this field empty to skip)", "")
-            if image == "":
-                break
-
-        self._display_info("Configuration of the containers done.")
+                done = {"ingi/inginious-c-base", "ingi/inginious-c-default"}
+                del todo["ingi/inginious-c-base"]
+                del todo["ingi/inginious-c-default"]
+                while len(todo) != 0:
+                    todo_now = [x for x, y in todo.items() if y is None or y in done]
+                    for x in todo_now:
+                        del todo[x]
+                    for container in todo_now:
+                        try:
+                            self._build_container("ingi/inginious-c-{}".format(container), os.path.join(tmpdirname, 'grading', container))
+                        except BuildError:
+                            self._display_error("An error occured while building the container. Please retry manually.")
+        except Exception as e:
+            self._display_error("An error occurred while copying the directory: {}".format(e))
 
     #######################################
     #                MISC                 #
@@ -549,3 +547,14 @@ class Installer:
     def support_remote_debugging(self):
         """ Returns True if the frontend supports remote debugging, False else"""
         return True
+
+    def _retrieve_and_extract_tarball(self, link, folder):
+        filename, _ = urllib.request.urlretrieve(link)
+        with tarfile.open(filename, mode="r:gz") as thetarfile:
+            members = thetarfile.getmembers()
+            commonpath = os.path.commonpath([tarinfo.name for tarinfo in members])
+
+            for member in members:
+                member.name = member.name[len(commonpath) + 1:]
+                if member.name:
+                    thetarfile.extract(member, folder)
