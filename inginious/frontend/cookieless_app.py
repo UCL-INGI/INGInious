@@ -10,6 +10,8 @@ import hashlib
 from web import utils
 import web
 from web.session import SessionExpired
+from bson.objectid import ObjectId
+from itsdangerous import Signer, BadSignature, want_bytes
 
 
 class CookieLessCompatibleApplication(web.application):
@@ -242,7 +244,18 @@ class CookieLessCompatibleSession:
 
         if session_id is None:
             cookie_name = self._config.cookie_name
-            self._data["session_id"] = web.cookies().get(cookie_name)
+            sid = web.cookies().get(cookie_name)
+
+            # Unsign cookie
+            if sid:
+                signer = self._get_signer()
+                try:
+                    sid_as_bytes = signer.unsign(sid.encode("utf-8"))
+                    sid = sid_as_bytes.decode()
+                except BadSignature:
+                    sid = self._generate_session_id()
+
+            self._data["session_id"] = sid
             cookieless = False
         else:
             if session_id == '':
@@ -310,20 +323,17 @@ class CookieLessCompatibleSession:
         samesite = self._config.samesite
         if expires is None:
             expires = self._config.timeout
+
+        # Sign the session_id for the cookie
+        session_id = self._get_signer().sign(want_bytes(session_id)).decode("utf-8")
         web.setcookie(cookie_name, session_id, expires=expires, domain=cookie_domain, httponly=httponly, secure=secure, path=cookie_path, samesite=samesite)
+
+    def _get_signer(self):
+        return Signer(self._config.secret_key, salt='flask-session', key_derivation='hmac')
 
     def _generate_session_id(self):
         """Generate a random id for session"""
-
-        while True:
-            rand = os.urandom(16)
-            now = time.time()
-            secret_key = self._config.secret_key
-            session_id = hashlib.sha1(("%s%s%s%s" % (rand, now, utils.safestr(web.ctx.ip), secret_key)).encode("utf-8"))
-            session_id = session_id.hexdigest()
-            if session_id not in self.store:
-                break
-        return session_id
+        return str(ObjectId())
 
     def _valid_session_id(self, session_id):
         return self._session_id_regex.match(session_id)
