@@ -4,10 +4,7 @@
 # more information about the licensing of this file.
 
 urls = (
-    r'/?', 'inginious.frontend.pages.index.IndexPage',
-    r'/index', 'inginious.frontend.pages.index.IndexPage',
     r'/courselist', 'inginious.frontend.pages.courselist.CourseListPage',
-    r'/pages/([^/]+)', 'inginious.frontend.pages.utils.INGIniousStaticPage',
     r'/signin', 'inginious.frontend.pages.utils.SignInPage',
     r'/logout', 'inginious.frontend.pages.utils.LogOutPage',
     r'/register', 'inginious.frontend.pages.register.RegistrationPage',

@@ -48,8 +48,7 @@ from inginious.frontend.webpy.mapping import urls as webpy_mapping
 from inginious.frontend.webpy.mapping import urls_maintenance
 from inginious.frontend.webpy.mongo_sessions import MongoStore
 
-from inginious.frontend.flask.flask_app import CookielessConverter
-from inginious.frontend.flask.helloview import HelloView
+from inginious.frontend.flask.mapping import init_flask_mapping
 from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
 
 from werkzeug.exceptions import InternalServerError
@@ -156,8 +155,8 @@ def get_app(config):
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
     flask_app = flask.Flask(__name__)
-    flask_app.url_map.converters['cookieless'] = CookielessConverter
-    flask_app.add_url_rule('/<cookieless:sessionid>flask', view_func=HelloView.as_view('helloview'))
+    init_flask_mapping(flask_app)
+
     flask_app.config.from_mapping(**config)
     flask_app.session_interface = MongoDBSessionInterface(
         mongo_client, config.get('mongo_opt', {}).get('database', 'INGInious'),
