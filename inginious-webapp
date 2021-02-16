@@ -23,7 +23,7 @@ os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "8
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.dirname(__file__))
 
-from inginious.frontend.static_middleware import StaticMiddleware
+from werkzeug.middleware.shared_data import SharedDataMiddleware
 from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.common.base import load_json_or_yaml
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     # Add static redirection and request log
     root_path = inginious.get_root_path()
-    application = StaticMiddleware(application, [
+    application = SharedDataMiddleware(application, [
         ('/static/', os.path.join(root_path, 'frontend', 'static'))
     ])
     application = CustomLogMiddleware(application, logging.getLogger("inginious.webapp.requests"))

@@ -1,7 +1,7 @@
 from flask import Flask
 from werkzeug.routing import BaseConverter
 
-from inginious.frontend.flask_migration.helloview import HelloView
+from inginious.frontend.flask.helloview import HelloView
 
 app = Flask(__name__)
 

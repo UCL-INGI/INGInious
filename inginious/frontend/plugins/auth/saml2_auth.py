@@ -14,7 +14,7 @@ import web
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
-from inginious.frontend.cookieless_app import AvoidCreatingSession
+from inginious.frontend.webpy.cookieless_app import AvoidCreatingSession
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.user_manager import AuthMethod
 

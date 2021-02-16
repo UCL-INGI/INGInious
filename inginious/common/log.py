@@ -33,12 +33,9 @@ class CustomLogMiddleware:
     """ WSGI middleware for logging the status in webpy"""
 
     def __init__(self, app, logger):
-        import web
-        self.debug_web = web.debug
         self.app = app
         self.logger = logger
         self.format = '%s - - [%s] "%s %s %s" - %s'
-        self._web_debug = web.debug
 
     def __call__(self, environ, start_response):
         def xstart_response(status, response_headers, *args):

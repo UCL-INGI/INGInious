@@ -19,10 +19,10 @@ from inginious.frontend.pages.internalerror import internalerror_generator
 
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
-from inginious.frontend.cookieless_app import CookieLessCompatibleApplication
+from inginious.frontend.webpy.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.pages.utils import register_utils
 from inginious.frontend.plugin_manager import PluginManager
-from inginious.frontend.session_mongodb import MongoStore
+from inginious.frontend.webpy.session_mongodb import MongoStore
 from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.submission_manager import update_pending_jobs
 from inginious.frontend.template_helper import TemplateHelper
@@ -41,9 +41,9 @@ from inginious.frontend.task_problems import *
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
-from inginious.frontend.flask_migration.app_dispatcher import PathDispatcher
-from inginious.frontend.flask_migration.flask_app import app as flask_app
-from inginious.frontend.flask_migration.mongo_sessions import MongoDBSessionInterface
+from inginious.frontend.flask.app_dispatcher import PathDispatcher
+from inginious.frontend.flask.flask_app import app as flask_app
+from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
 
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
