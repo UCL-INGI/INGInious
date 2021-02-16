@@ -1,9 +1,9 @@
-from flask import Flask
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
 from werkzeug.routing import BaseConverter
-
-from inginious.frontend.flask.helloview import HelloView
-
-app = Flask(__name__)
 
 
 class CookielessConverter(BaseConverter):
@@ -15,8 +15,3 @@ class CookielessConverter(BaseConverter):
 
     def to_url(self, value):
         return "@" + str(value) + "@/"
-
-
-app.url_map.converters['cookieless'] = CookielessConverter
-
-app.add_url_rule('/<cookieless:sessionid>flask', view_func=HelloView.as_view('helloview'))

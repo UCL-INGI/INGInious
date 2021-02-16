@@ -1,7 +1,3 @@
-#### FLASK MIGRATION
-SESSION_COOKIE_NAME: inginious_session_id
-PERMANENT_SESSION_LIFETIME: 86400
-
 # Backend
 # Can be:
 # - "local" (run containers on the same machine)

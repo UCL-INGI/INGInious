@@ -16,11 +16,6 @@ import json
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code. """
 
-    # _WEB_CTX_KEY is the name of the key in web.ctx that stores entries made available to the whole
-    # current thread. It allows to store javascript/css "addons" that will be displayed later when the
-    # templates are rendered
-    _WEB_CTX_KEY = "inginious_tpl_helper"
-
     def __init__(self, plugin_manager, user_manager, use_minified=True):
         """
         Init the Template Helper
@@ -44,6 +39,7 @@ class TemplateHelper(object):
         self._user_manager = user_manager # can be None!
         self._layout_old = 'frontend/templates/layout_old'
         self._template_globals = {}
+        self._ctx = {"javascript": {"footer": [], "header": []}, "css": []}
 
         # include is only needed in webpy templates as jinja supports it by default
         self.add_to_template_globals("include", self.get_custom_renderer(self._template_dir, layout=False))
@@ -164,11 +160,7 @@ class TemplateHelper(object):
 
     def _get_ctx(self):
         """ Get web.ctx object for the Template helper """
-        if self._WEB_CTX_KEY not in web.ctx:
-            web.ctx[self._WEB_CTX_KEY] = {
-                "javascript": {"footer": [], "header": []},
-                "css": []}
-        return web.ctx.get(self._WEB_CTX_KEY)
+        return self._ctx
 
     def _generic_hook(self, name, **kwargs):
         """ A generic hook that links the TemplateHelper with PluginManager """

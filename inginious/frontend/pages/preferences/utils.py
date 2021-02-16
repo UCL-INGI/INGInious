@@ -9,7 +9,8 @@ import web
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-def get_menu(app, current, renderer, plugin_manager, user_manager):
+def get_menu(app_func, current, renderer, plugin_manager, user_manager):
+    app = app_func()
     default_entries = []
 
     default_entries += [("profile", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("My profile")),

@@ -21,7 +21,6 @@ class CookieLessCompatibleApplication(web.application):
         """
         super(CookieLessCompatibleApplication, self).__init__((), globals(), autoreload=False)
         self._session = CookieLessCompatibleSession(self, session_storage)
-        self._translations = {}
 
         # hacky fix until web.py is fixed
         self.processors = [self.fix_unloadhook(x) for x in self.processors]
@@ -68,17 +67,6 @@ class CookieLessCompatibleApplication(web.application):
                 return fix_generator(y)
             return y
         return fix
-
-    def add_translation(self, lang, translation):
-        self._translations[lang] = translation
-
-    def get_translation_obj(self, lang=None):
-        if lang is None:
-            lang = self._session.get("language", "")
-        return self._translations.get(lang, gettext.NullTranslations())
-
-    def gettext(self, *args, **kwargs):
-        return self.get_translation_obj().gettext(*args, **kwargs)
 
     def get_session(self):
         return self._session
@@ -137,23 +125,11 @@ class CookieLessCompatibleApplication(web.application):
             self._session.language = input_data["lang"]
         elif "language" not in self._session:
             for lang in re.split("[,;]+", web.ctx.environ.get("HTTP_ACCEPT_LANGUAGE", "")):
-                if lang in self._translations.keys():
+                if lang in self.i18n_manager.translations.keys():
                     self._session.language = lang
                     break
 
         return super(CookieLessCompatibleApplication, self)._delegate(f, fvars, args[1:])
-
-    def get_homepath(self, ignore_session=False, force_cookieless=False):
-        """
-        :param ignore_session: Ignore the cookieless session_id that should be put in the URL
-        :param force_cookieless: Force the cookieless session; the link will include the session_creator if needed.
-        """
-        if not ignore_session and self._session.get("session_id") is not None and self._session.get("cookieless", False):
-            return web.ctx.homepath + "/@" + self._session.get("session_id") + "@"
-        elif not ignore_session and force_cookieless:
-            return web.ctx.homepath + "/@@"
-        else:
-            return web.ctx.homepath
 
 
 class AvoidCreatingSession(Exception):

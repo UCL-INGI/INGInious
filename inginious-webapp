@@ -13,7 +13,7 @@ import os
 import signal
 import sys
 
-import web
+from werkzeug.serving import run_simple
 
 # Apache wsgi module only set env vars when a request is done
 os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
@@ -88,9 +88,5 @@ if __name__ == "__main__":
     application = CustomLogMiddleware(application, logging.getLogger("inginious.webapp.requests"))
 
     # Launch the app
-    server = web.httpserver.WSGIServer((host, int(port)), application)
-    try:
-        server.start()
-    except KeyboardInterrupt:
-        server.stop()
-
+    if __name__ == "__main__":
+        run_simple(host, port, application, use_debugger=config.get("web_debug", False), threaded=True)

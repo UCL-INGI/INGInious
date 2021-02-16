@@ -61,9 +61,9 @@ class PluginManager(object):
                 kwargs = out
         return kwargs
 
-    def load(self, client, webpy_app, course_factory, task_factory, database, user_manager, submission_manager, config):
+    def load(self, client, appli_func, course_factory, task_factory, database, user_manager, submission_manager, config):
         """ Loads the plugin manager. Must be done after the initialisation of the client """
-        self._app = webpy_app
+        self._app = appli_func()
         self._task_factory = task_factory
         self._database = database
         self._user_manager = user_manager
