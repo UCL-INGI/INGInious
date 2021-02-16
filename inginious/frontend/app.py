@@ -13,6 +13,7 @@ import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
+import flask
 
 from inginious.frontend.environment_types import register_base_env_types
 from inginious.frontend.pages.internalerror import internalerror_generator
@@ -255,7 +256,7 @@ def get_app(config):
 
     course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager)
 
-    user_manager = UserManager(webpy_app.get_session(), database, config.get('superadmins', []))
+    user_manager = UserManager(lambda: webpy_app.get_session() if web.ctx.keys() else flask.session, database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
@@ -316,28 +317,29 @@ def get_app(config):
         webpy_app.internalerror = emailerrors(web_debug, webpy_app.internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
-    webpy_app.plugin_manager = plugin_manager
-    webpy_app.course_factory = course_factory
-    webpy_app.task_factory = task_factory
-    webpy_app.submission_manager = submission_manager
-    webpy_app.user_manager = user_manager
-    webpy_app.template_helper = template_helper
-    webpy_app.database = database
-    webpy_app.gridfs = gridfs
-    webpy_app.client = client
-    webpy_app.default_allowed_file_extensions = default_allowed_file_extensions
-    webpy_app.default_max_file_size = default_max_file_size
-    webpy_app.backup_dir = config.get("backup_directory", './backup')
-    webpy_app.webterm_link = config.get("webterm", None)
-    webpy_app.lti_outcome_manager = lti_outcome_manager
-    webpy_app.allow_registration = config.get("allow_registration", True)
-    webpy_app.allow_deletion = config.get("allow_deletion", True)
-    webpy_app.available_languages = available_languages
-    webpy_app.welcome_page = config.get("welcome_page", None)
-    webpy_app.terms_page = config.get("terms_page", None)
-    webpy_app.privacy_page = config.get("privacy_page", None)
-    webpy_app.static_directory = config.get("static_directory", "./static")
-    webpy_app.webdav_host = config.get("webdav_host", None)
+    for theapp in [webpy_app, flask_app]:
+        theapp.plugin_manager = plugin_manager
+        theapp.course_factory = course_factory
+        theapp.task_factory = task_factory
+        theapp.submission_manager = submission_manager
+        theapp.user_manager = user_manager
+        theapp.template_helper = template_helper
+        theapp.database = database
+        theapp.gridfs = gridfs
+        theapp.client = client
+        theapp.default_allowed_file_extensions = default_allowed_file_extensions
+        theapp.default_max_file_size = default_max_file_size
+        theapp.backup_dir = config.get("backup_directory", './backup')
+        theapp.webterm_link = config.get("webterm", None)
+        theapp.lti_outcome_manager = lti_outcome_manager
+        theapp.allow_registration = config.get("allow_registration", True)
+        theapp.allow_deletion = config.get("allow_deletion", True)
+        theapp.available_languages = available_languages
+        theapp.welcome_page = config.get("welcome_page", None)
+        theapp.terms_page = config.get("terms_page", None)
+        theapp.privacy_page = config.get("privacy_page", None)
+        theapp.static_directory = config.get("static_directory", "./static")
+        theapp.webdav_host = config.get("webdav_host", None)
 
     # Init the mapping of the app
     webpy_app.init_mapping(urls)

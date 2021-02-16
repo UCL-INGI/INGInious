@@ -209,7 +209,8 @@ def get_app(config):
 
     fs_provider = LocalFSProvider(config["tasks_directory"])
     course_factory, task_factory = create_factories(fs_provider, {}, {}, None)
-    user_manager = UserManager(MongoStore(database, 'sessions'), database, config.get('superadmins', []))
+    session_store = MongoStore(database, 'sessions')
+    user_manager = UserManager(lambda: session_store, database, config.get('superadmins', []))
 
     config = dict(wsgidav_app.DEFAULT_CONFIG)
     config["provider_mapping"] = {"/": INGIniousFilesystemProvider(course_factory, task_factory)}

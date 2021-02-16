@@ -9,6 +9,7 @@ import hashlib
 from typing import Dict, Optional
 
 import web
+from flask import current_app, request
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
@@ -87,14 +88,14 @@ UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", 
 
 
 class UserManager:
-    def __init__(self, session_dict, database, superadmins):
+    def __init__(self, session_func, database, superadmins):
         """
-        :type session_dict: web.session.Session
+        :type session_func: web.session.Session
         :type database: pymongo.database.Database
         :type superadmins: list(str)
         :param superadmins: list of the super-administrators' usernames
         """
-        self._session = session_dict
+        self._session_func = session_func
         self._database = database
         self._superadmins = superadmins
         self._auth_methods = OrderedDict()
@@ -104,39 +105,43 @@ class UserManager:
     #           User session management          #
     ##############################################
 
+    @property
+    def _session(self):
+        return self._session_func()
+
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """
-        return "loggedin" in self._session and self._session.loggedin is True
+        return "loggedin" in self._session and self._session["loggedin"] is True
 
     def session_username(self):
         """ Returns the username from the session, if one is open. Else, returns None"""
         if not self.session_logged_in():
             return None
-        return self._session.username
+        return self._session["username"]
 
     def session_email(self):
         """ Returns the email of the current user in the session, if one is open. Else, returns None"""
         if not self.session_logged_in():
             return None
-        return self._session.email
+        return self._session["email"]
 
     def session_realname(self):
         """ Returns the real name of the current user in the session, if one is open. Else, returns None"""
         if not self.session_logged_in():
             return None
-        return self._session.realname
+        return self._session["realname"]
 
     def session_tos_signed(self):
         """ Returns True if the current user has signed the tos"""
         if not self.session_logged_in():
             return None
-        return self._session.tos_signed
+        return self._session["tos_signed"]
 
     def session_token(self):
         """ Returns the token of the current user in the session, if one is open. Else, returns None"""
         if not self.session_logged_in():
             return None
-        return self._session.token
+        return self._session["token"]
 
     def session_lti_info(self):
         """ If the current session is an LTI one, returns a dict in the form 
@@ -156,7 +161,7 @@ class UserManager:
             If the current session is not an LTI one, returns None.
         """
         if "lti" in self._session:
-            return self._session.lti
+            return self._session["lti"]
         return None
 
     def session_cookieless(self):
@@ -182,52 +187,57 @@ class UserManager:
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
-            self._session.token = token
+            self._session["token"] = token
 
     def set_session_realname(self, realname):
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
-            self._session.realname = realname
+            self._session["realname"] = realname
 
     def set_session_tos_signed(self):
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
-            self._session.tos_signed = True
+            self._session["tos_signed"] = True
 
     def set_session_language(self, language):
-        self._session.language = language
+        self._session["language"] = language
 
     def _set_session(self, username, realname, email, language, tos_signed):
         """ Init the session. Preserves potential LTI information. """
-        self._session.loggedin = True
-        self._session.email = email
-        self._session.username = username
-        self._session.realname = realname
-        self._session.language = language
-        self._session.tos_signed = tos_signed
-        self._session.token = None
+        self._session["loggedin"] = True
+        self._session["email"] = email
+        self._session["username"] = username
+        self._session["realname"] = realname
+        self._session["language"] = language
+        self._session["tos_signed"] = tos_signed
+        self._session["token"] = None
         if "lti" not in self._session:
-            self._session.lti = None
+            self._session["lti"] = None
 
     def _destroy_session(self):
         """ Destroy the session """
-        self._session.loggedin = False
-        self._session.email = None
-        self._session.username = None
-        self._session.realname = None
-        self._session.token = None
-        self._session.lti = None
-        self._session.tos_signed = None
+        self._session["loggedin"] = False
+        self._session["email"] = None
+        self._session["username"] = None
+        self._session["realname"] = None
+        self._session["token"] = None
+        self._session["lti"] = None
+        self._session["tos_signed"] = None
 
     def create_lti_session(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url,
                            outcome_result_id, tool_name, tool_desc, tool_url, context_title, context_label):
         """ Creates an LTI cookieless session. Returns the new session id"""
 
         self._destroy_session()  # don't forget to destroy the current session (cleans the threaded dict from web.py)
-        self._session.load('')  # creates a new cookieless session
+
+        if web.ctx.keys():
+            self._session.load('')  # creates a new cookieless session
+        else:
+            current_app.session_interface.open_session(current_app, request)
+
         session_id = self._session.session_id
 
-        self._session.lti = {
+        self._session["lti"] = {
             "email": email,
             "username": user_id,
             "realname": realname,
