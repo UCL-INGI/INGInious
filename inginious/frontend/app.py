@@ -50,6 +50,7 @@ from inginious.frontend.webpy.mongo_sessions import MongoStore
 
 from inginious.frontend.flask.mapping import init_flask_mapping
 from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
+from inginious.frontend.flask.mail import mail
 
 from werkzeug.exceptions import InternalServerError
 
@@ -98,6 +99,15 @@ def _put_configuration_defaults(config):
     config["SESSION_USE_SIGNER"] = True
     config["PERMANENT_SESSION_LIFETIME"] = config['session_parameters']["timeout"]
     config["SECRET_KEY"] = config['session_parameters']["secret_key"]
+
+    smtp_conf = config.get('smtp', None)
+    if smtp_conf is not None:
+        config["MAIL_SERVER"] = smtp_conf["host"]
+        config["MAIL_PORT"] = int(smtp_conf["port"])
+        config["MAIL_USE_TLS"]: bool(smtp_conf.get("starttls", False))
+        config["MAIL_USERNAME"] = smtp_conf.get("username", None)
+        config["MAIL_PASSWORD"] = smtp_conf.get("password", None)
+        config["MAIL_DEFAULT_SENDER"] = smtp_conf.get("sendername", "no-reply@ingnious.org")
 
     return config
 
@@ -253,6 +263,7 @@ def get_app(config):
     is_tos_defined = config.get("privacy_page", "") and config.get("terms_page", "")
 
     # Init web mail
+    mail.init_app(flask_app)
     smtp_conf = config.get('smtp', None)
     if smtp_conf is not None:
         web.config.smtp_server = smtp_conf["host"]
