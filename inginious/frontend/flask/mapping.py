@@ -10,6 +10,7 @@ from inginious.frontend.pages.index import IndexPage
 from inginious.frontend.pages.courselist import CourseListPage
 from inginious.frontend.pages.preferences.bindings import BindingsPage
 from inginious.frontend.pages.preferences.delete import DeletePage
+from inginious.frontend.pages.preferences.profile import ProfilePage
 
 class CookielessConverter(BaseConverter):
     # Parse the cookieless sessionid at the beginning of the url
@@ -30,4 +31,4 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences/bindings', view_func=BindingsPage.as_view('bindingspage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences/delete', view_func=DeletePage.as_view('deletepage'))
-
+    flask_app.add_url_rule('/<cookieless:sessionid>preferences/profile', view_func=ProfilePage.as_view('profilepage'))
