@@ -311,6 +311,7 @@ def get_app(config):
 
     # Insert the needed singletons into the application, to allow pages to call them
     for theapp in [webpy_app, flask_app]:
+        theapp.get_homepath = get_homepath_func
         theapp.plugin_manager = plugin_manager
         theapp.course_factory = course_factory
         theapp.task_factory = task_factory
