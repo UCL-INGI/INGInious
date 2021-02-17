@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 urls = (
-    r'/course/([^/]+)', 'inginious.frontend.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.pages.tasks.TaskPageStaticDownload',
     r'/group/([^/]+)', 'inginious.frontend.pages.group.GroupPage',
