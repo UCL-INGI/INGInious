@@ -119,6 +119,17 @@ class INGIniousAuthPage(INGIniousPage):
         return False
 
 
+class SignInPage(INGIniousAuthPage):
+    def GET_AUTH(self, *args, **kwargs):
+        return redirect("/mycourses")
+
+    def POST_AUTH(self, *args, **kwargs):
+        return redirect("/mycourses")
+
+    def GET(self):
+        return INGIniousAuthPage.GET(self)
+
+
 class INGIniousStaticPage(INGIniousPage):
     cache = {}
 

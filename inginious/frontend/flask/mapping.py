@@ -12,6 +12,8 @@ from inginious.frontend.pages.preferences.bindings import BindingsPage
 from inginious.frontend.pages.preferences.delete import DeletePage
 from inginious.frontend.pages.preferences.profile import ProfilePage
 from inginious.frontend.pages.preferences.utils import PrefRedirectPage
+from inginious.frontend.pages.utils_flask import SignInPage
+
 
 class CookielessConverter(BaseConverter):
     # Parse the cookieless sessionid at the beginning of the url
@@ -28,6 +30,7 @@ def init_flask_mapping(flask_app):
     flask_app.url_map.converters['cookieless'] = CookielessConverter
     flask_app.add_url_rule('/<cookieless:sessionid>', view_func=IndexPage.as_view('indexpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>index', view_func=IndexPage.as_view('indexpage.alias'))
+    flask_app.add_url_rule('/<cookieless:sessionid>signin', view_func=SignInPage.as_view('signinpage')),
     flask_app.add_url_rule('/<cookieless:sessionid>pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences', view_func=PrefRedirectPage.as_view('prefredirectpage'))
