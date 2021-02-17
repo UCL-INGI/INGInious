@@ -8,7 +8,7 @@
 # Imported from https://github.com/whilefalse/webpy-mongodb-sessions/.
 """ Saves sessions in the database """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Pattern
 from time import time
 
@@ -73,8 +73,8 @@ def needs_encode(obj):
 
 #: field name used for id
 _id = '_id'
-#: field name used for accessed time
-_atime = 'atime'
+#: field name used for expiration time
+_expiration = 'expiration'
 #: field name used for data
 _data = 'data'
 
@@ -82,9 +82,10 @@ _data = 'data'
 class MongoStore(Store):
     """ Allow to store web.py sessions in MongoDB """
 
-    def __init__(self, database, collection_name='sessions'):
+    def __init__(self, database, collection_name='sessions', permanent_session_lifetime=2678400):
         self.collection = database[collection_name]
-        self.collection.ensure_index(_atime)
+        self.collection.ensure_index(_expiration)
+        self.session_lifetime = timedelta(seconds=permanent_session_lifetime)
 
     def encode(self, sessiondict):
         return dict((k, Binary(Store.encode(self, v), USER_DEFINED_SUBTYPE) if needs_encode(v) else v)
@@ -101,23 +102,22 @@ class MongoStore(Store):
         sess = self.collection.find_one({_id: sessionid})
         if not sess:
             raise KeyError(sessionid)
-        self.collection.update({_id: sessionid}, {'$set': {_atime: time()}})
+        self.collection.update({_id: sessionid}, {'$set': {_expiration: datetime.utcnow() + self.session_lifetime}})
         return self.decode(sess[_data])
 
     def __setitem__(self, sessionid, sessiondict):
         data = self.encode(sessiondict)
-        self.collection.save({_id: sessionid, _data: data, _atime: time()})
+        self.collection.save({_id: sessionid, _data: data, _expiration: datetime.utcnow() + self.session_lifetime})
 
     def __delitem__(self, sessionid):
         self.collection.remove({_id: sessionid})
 
     def cleanup(self, timeout):
         '''
-        Removes all sessions older than ``timeout`` seconds.
+        Ignores webpy `timeout`` and rely on the same permanent session lifetime mechanism as Flask.
         Called automatically on every session access.
         '''
-        cutoff = time() - timeout
-        self.collection.remove({_atime: {'$lt': cutoff}})
+        self.collection.remove({_expiration: {'$lt': datetime.utcnow()}})
 
 
 if __name__ == '__main__':

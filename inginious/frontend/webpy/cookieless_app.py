@@ -10,6 +10,8 @@ import hashlib
 from web import utils
 import web
 from web.session import SessionExpired
+from bson.objectid import ObjectId
+from itsdangerous import Signer, BadSignature, want_bytes
 
 
 class CookieLessCompatibleApplication(web.application):
@@ -19,7 +21,6 @@ class CookieLessCompatibleApplication(web.application):
         """
         super(CookieLessCompatibleApplication, self).__init__((), globals(), autoreload=False)
         self._session = CookieLessCompatibleSession(self, session_storage)
-        self._translations = {}
 
         # hacky fix until web.py is fixed
         self.processors = [self.fix_unloadhook(x) for x in self.processors]
@@ -67,17 +68,6 @@ class CookieLessCompatibleApplication(web.application):
             return y
         return fix
 
-    def add_translation(self, lang, translation):
-        self._translations[lang] = translation
-
-    def get_translation_obj(self, lang=None):
-        if lang is None:
-            lang = self._session.get("language", "")
-        return self._translations.get(lang, gettext.NullTranslations())
-
-    def gettext(self, *args, **kwargs):
-        return self.get_translation_obj().gettext(*args, **kwargs)
-
     def get_session(self):
         return self._session
 
@@ -112,9 +102,6 @@ class CookieLessCompatibleApplication(web.application):
 
         self.mapping = [(r"(/@[a-f0-9A-F_]*@)?" +a, b) for a,b in group(mapping, 2)]
 
-    def add_mapping(self, pattern, classname):
-        self.mapping.append((r"(/@[a-f0-9A-F_]*@)?" + pattern, classname))
-
     def _delegate(self, f, fvars, args=None):
         if args is None:
             args = [None]
@@ -135,23 +122,11 @@ class CookieLessCompatibleApplication(web.application):
             self._session.language = input_data["lang"]
         elif "language" not in self._session:
             for lang in re.split("[,;]+", web.ctx.environ.get("HTTP_ACCEPT_LANGUAGE", "")):
-                if lang in self._translations.keys():
+                if lang in self.l10n_manager.translations.keys():
                     self._session.language = lang
                     break
 
         return super(CookieLessCompatibleApplication, self)._delegate(f, fvars, args[1:])
-
-    def get_homepath(self, ignore_session=False, force_cookieless=False):
-        """
-        :param ignore_session: Ignore the cookieless session_id that should be put in the URL
-        :param force_cookieless: Force the cookieless session; the link will include the session_creator if needed.
-        """
-        if not ignore_session and self._session.get("session_id") is not None and self._session.get("cookieless", False):
-            return web.ctx.homepath + "/@" + self._session.get("session_id") + "@"
-        elif not ignore_session and force_cookieless:
-            return web.ctx.homepath + "/@@"
-        else:
-            return web.ctx.homepath
 
 
 class AvoidCreatingSession(Exception):
@@ -242,7 +217,18 @@ class CookieLessCompatibleSession:
 
         if session_id is None:
             cookie_name = self._config.cookie_name
-            self._data["session_id"] = web.cookies().get(cookie_name)
+            sid = web.cookies().get(cookie_name)
+
+            # Unsign cookie
+            if sid:
+                signer = self._get_signer()
+                try:
+                    sid_as_bytes = signer.unsign(sid.encode("utf-8"))
+                    sid = sid_as_bytes.decode()
+                except BadSignature:
+                    sid = self._generate_session_id()
+
+            self._data["session_id"] = sid
             cookieless = False
         else:
             if session_id == '':
@@ -272,6 +258,7 @@ class CookieLessCompatibleSession:
                     self._initializer()
 
         self._data["ip"] = web.ctx.ip
+        self._data["_permanent"] = True  # ensure compatibility with flask permanent sessions
         self._data["cookieless"] = cookieless
         self._origdata.update(deepcopy(self._data.__dict__))
 
@@ -309,20 +296,17 @@ class CookieLessCompatibleSession:
         samesite = self._config.samesite
         if expires is None:
             expires = self._config.timeout
+
+        # Sign the session_id for the cookie
+        session_id = self._get_signer().sign(want_bytes(session_id)).decode("utf-8")
         web.setcookie(cookie_name, session_id, expires=expires, domain=cookie_domain, httponly=httponly, secure=secure, path=cookie_path, samesite=samesite)
+
+    def _get_signer(self):
+        return Signer(self._config.secret_key, salt='flask-session', key_derivation='hmac')
 
     def _generate_session_id(self):
         """Generate a random id for session"""
-
-        while True:
-            rand = os.urandom(16)
-            now = time.time()
-            secret_key = self._config.secret_key
-            session_id = hashlib.sha1(("%s%s%s%s" % (rand, now, utils.safestr(web.ctx.ip), secret_key)).encode("utf-8"))
-            session_id = session_id.hexdigest()
-            if session_id not in self.store:
-                break
-        return session_id
+        return str(ObjectId())
 
     def _valid_session_id(self, session_id):
         return self._session_id_regex.match(session_id)

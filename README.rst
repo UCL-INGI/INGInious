@@ -12,6 +12,8 @@ INGInious
 .. image:: http://weblate.info.ucl.ac.be/widgets/inginious/-/frontend/svg-badge.svg
     :target: http://weblate.info.ucl.ac.be/engage/inginious/?utm_source=widget
 
+**Important !** : Web framework migration in progress. Deploying master branch in production environment is highly discouraged !
+
 INGInious is an intelligent grader that allows secured and automated testing of code made by students.
 
 It is written in Python and uses Docker_ to run student's code inside a secured environment.

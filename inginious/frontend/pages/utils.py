@@ -229,45 +229,6 @@ class LogOutPage(INGIniousAuthPage):
         raise web.seeother("/courselist")
 
 
-class INGIniousStaticPage(INGIniousPage):
-    cache = {}
-
-    def GET(self, page):
-        return self.show_page(page)
-
-    def POST(self, page):
-        return self.show_page(page)
-
-    def show_page(self, page):
-        static_directory = self.app.static_directory
-        language = self.user_manager.session_language()
-
-        # Check for the file
-        filename = None
-        mtime = None
-        filepaths = [os.path.join(static_directory, page + ".yaml"),
-                     os.path.join(static_directory, page + "." + language + ".yaml")]
-
-        for filepath in filepaths:
-            if os.path.exists(filepath):
-                filename = filepath
-                mtime = os.stat(filepath).st_mtime
-
-        if not filename:
-            raise self.app.notfound(message=_("File doesn't exist."))
-
-        # Check and update cache
-        if INGIniousStaticPage.cache.get(filename, (0, None))[0] < mtime:
-            with open(filename, "r") as f:
-                INGIniousStaticPage.cache[filename] = mtime, custom_yaml.load(f)
-
-        filecontent = INGIniousStaticPage.cache[filename][1]
-        title = filecontent["title"]
-        content = ParsableText.rst(filecontent["content"], initial_header_level=2)
-
-        return self.template_helper.render("static.html", pagetitle=title, content=content)
-
-
 def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str, name: str, id:str, placeholder:str=None, single=False):
     """
     Returns the HTML for a user selection box.
