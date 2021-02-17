@@ -14,6 +14,7 @@ from inginious.frontend.pages.preferences.profile import ProfilePage
 from inginious.frontend.pages.preferences.utils import PrefRedirectPage
 from inginious.frontend.pages.utils_flask import SignInPage, LogOutPage
 from inginious.frontend.pages.register import RegistrationPage
+from inginious.frontend.pages.social import AuthenticationPage, CallbackPage, SharePage
 
 
 class CookielessConverter(BaseConverter):
@@ -34,6 +35,9 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>signin', view_func=SignInPage.as_view('signinpage')),
     flask_app.add_url_rule('/<cookieless:sessionid>logout', view_func=LogOutPage.as_view('logoutpage')),
     flask_app.add_url_rule('/<cookieless:sessionid>register', view_func=RegistrationPage.as_view('registrationpage')),
+    flask_app.add_url_rule('/<cookieless:sessionid>auth/signin/<auth_id>', view_func=AuthenticationPage.as_view('authenticationpage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>auth/callback/<auth_id>', view_func=CallbackPage.as_view('callbackpage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>auth/share/<auth_id>', view_func=SharePage.as_view('sharepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences', view_func=PrefRedirectPage.as_view('prefredirectpage'))
