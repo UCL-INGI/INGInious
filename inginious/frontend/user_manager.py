@@ -317,18 +317,19 @@ class UserManager:
         self._database.users.update_one({"email": email},
                                         {"$set": {"realname": realname, "username": username, "language": language}},
                                         upsert=True)
-        self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
+        ip = web.ctx.ip if web.ctx.keys() else request.remote_addr
+        self._logger.info("User %s connected - %s - %s - %s", username, realname, email, ip)
         self._set_session(username, realname, email, language, tos_accepted)
         return True
 
     def disconnect_user(self):
         """
         Disconnects the user currently logged-in
-        :param ip_addr: the ip address of the client, that will be logged
         """
         if self.session_logged_in():
+            ip = web.ctx.ip if web.ctx.keys() else request.remote_addr
             self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(),
-                              self.session_email(), web.ctx.ip)
+                              self.session_email(), ip)
         self._destroy_session()
 
     def get_users_info(self, usernames) -> Dict[str, Optional[UserInfo]]:
