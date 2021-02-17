@@ -90,7 +90,7 @@ UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", 
 class UserManager:
     def __init__(self, session_func, database, superadmins):
         """
-        :type session_func: web.session.Session
+        :type session_func: function returning the session dict
         :type database: pymongo.database.Database
         :type superadmins: list(str)
         :param superadmins: list of the super-administrators' usernames
