@@ -125,7 +125,7 @@ class CookieLessCompatibleApplication(web.application):
             self._session.language = input_data["lang"]
         elif "language" not in self._session:
             for lang in re.split("[,;]+", web.ctx.environ.get("HTTP_ACCEPT_LANGUAGE", "")):
-                if lang in self.i18n_manager.translations.keys():
+                if lang in self.l10n_manager.translations.keys():
                     self._session.language = lang
                     break
 

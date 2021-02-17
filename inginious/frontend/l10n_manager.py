@@ -6,7 +6,7 @@
 import gettext
 
 
-class I18nManager:
+class L10nManager:
 
     def __init__(self, session_func):
         self.translations = {}

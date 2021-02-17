@@ -27,7 +27,7 @@ from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.submission_manager import update_pending_jobs
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
-from inginious.frontend.i18n_manager import I18nManager
+from inginious.frontend.l10n_manager import L10nManager
 from pymongo import MongoClient
 from web.debugerror import debugerror, emailerrors
 
@@ -187,13 +187,13 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
-    i18n_manager = I18nManager(session_func)
+    l10n_manager = L10nManager(session_func)
 
-    i18n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
+    l10n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
     for lang in available_translations.keys():
-        i18n_manager.translations[lang] = gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang])
+        l10n_manager.translations[lang] = gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang])
 
-    builtins.__dict__['_'] = i18n_manager.gettext
+    builtins.__dict__['_'] = l10n_manager.gettext
 
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
@@ -316,7 +316,7 @@ def get_app(config):
         theapp.task_factory = task_factory
         theapp.submission_manager = submission_manager
         theapp.user_manager = user_manager
-        theapp.i18n_manager = i18n_manager
+        theapp.l10n_manager = l10n_manager
         theapp.template_helper = template_helper
         theapp.database = database
         theapp.gridfs = gridfs

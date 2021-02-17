@@ -28,10 +28,10 @@ class INGIniousFlaskPage(INGIniousPage, MethodView):
             return redirect(url_for(request.endpoint, **request.view_args) + query_string)
 
         # Check for language
-        if "lang" in request.args and request.args["lang"] in self.app.i18n_manager.translations.keys():
+        if "lang" in request.args and request.args["lang"] in self.app.l10n_manager.translations.keys():
             self.user_manager.set_session_language(request.args["lang"])
         elif "language" not in session:
-            best_lang = request.accept_languages.best_match(self.app.i18n_manager.translations.keys(), default="en")
+            best_lang = request.accept_languages.best_match(self.app.l10n_manager.translations.keys(), default="en")
             self.user_manager.set_session_language(best_lang)
 
         return ""
