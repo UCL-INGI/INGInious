@@ -10,11 +10,11 @@ from flask import session, redirect, url_for, request
 from flask.views import MethodView
 
 from inginious.common import custom_yaml
-from inginious.frontend.pages.utils import INGIniousPage
+from inginious.frontend.pages.utils import INGIniousPage as INGIniousWebPyPage
 from inginious.frontend.parsable_text import ParsableText
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, NotAcceptable
 
-class INGIniousFlaskPage(INGIniousPage, MethodView):
+class INGIniousPage(INGIniousWebPyPage, MethodView):
     @property
     def app(self):
         """ Returns the web application singleton """
@@ -45,7 +45,81 @@ class INGIniousFlaskPage(INGIniousPage, MethodView):
         return pre_check if pre_check else self.POST(*args, **kwargs)
 
 
-class INGIniousStaticPage(INGIniousFlaskPage):
+class INGIniousAuthPage(INGIniousPage):
+    """
+    Augmented version of INGIniousPage that checks if user is authenticated.
+    """
+
+    def POST_AUTH(self, *args, **kwargs):  # pylint: disable=unused-argument
+        raise NotAcceptable()
+
+    def GET_AUTH(self, *args, **kwargs):  # pylint: disable=unused-argument
+        raise NotAcceptable()
+
+    def GET(self, *args, **kwargs):
+        """
+        Checks if user is authenticated and calls GET_AUTH or performs logout.
+        Otherwise, returns the login template.
+        """
+        if self.user_manager.session_logged_in():
+            if (not self.user_manager.session_username() or (self.app.terms_page is not None and
+                                                             self.app.privacy_page is not None and
+                                                             not self.user_manager.session_tos_signed()))\
+                    and not self.__class__.__name__ == "ProfilePage":
+                return redirect("/preferences/profile")
+
+            if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
+                self.user_manager.disconnect_user()
+                return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods())
+
+            return self.GET_AUTH(*args, **kwargs)
+        elif self.preview_allowed(*args, **kwargs):
+            return self.GET_AUTH(*args, **kwargs)
+        else:
+            error = ''
+            if "binderror" in request.args:
+                error = _("An account using this email already exists and is not bound with this service. "
+                          "For security reasons, please log in via another method and bind your account in your profile.")
+            if "callbackerror" in request.args:
+                error = _("Couldn't fetch the required information from the service. Please check the provided "
+                          "permissions (name, email) and contact your INGInious administrator if the error persists.")
+            return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(), error=error)
+
+    def POST(self, *args, **kwargs):
+        """
+        Checks if user is authenticated and calls POST_AUTH or performs login and calls GET_AUTH.
+        Otherwise, returns the login template.
+        """
+        if self.user_manager.session_logged_in():
+            if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
+                return redirect("/preferences/profile")
+
+            if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
+                self.user_manager.disconnect_user()
+                return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods())
+
+            return self.POST_AUTH(*args, **kwargs)
+        else:
+            user_input = request.form
+            if "login" in user_input and "password" in user_input:
+                if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
+                    return self.GET_AUTH(*args, **kwargs)
+                else:
+                    return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(), error=_("Invalid login/password"))
+            elif self.preview_allowed(*args, **kwargs):
+                return self.POST_AUTH(*args, **kwargs)
+            else:
+                return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods())
+
+    def preview_allowed(self, *args, **kwargs):
+        """
+            If this function returns True, the auth check is disabled.
+            Override this function with a custom check if needed.
+        """
+        return False
+
+
+class INGIniousStaticPage(INGIniousPage):
     cache = {}
 
     def GET(self, pageid):

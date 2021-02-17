@@ -228,6 +228,7 @@ class LogOutPage(INGIniousAuthPage):
         self.user_manager.disconnect_user()
         raise web.seeother("/courselist")
 
+
 def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str, name: str, id:str, placeholder:str=None, single=False):
     """
     Returns the HTML for a user selection box.
