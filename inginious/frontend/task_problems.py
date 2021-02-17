@@ -117,7 +117,7 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
     def adapt_input_for_backend(self, input_data):
         try:
             input_data[self.get_id()] = {"filename": input_data[self.get_id()].filename,
-                                                  "value": input_data[self.get_id()].value}
+                                                  "value": input_data[self.get_id()].read()}
         except:
             input_data[self.get_id()] = {}
         return input_data

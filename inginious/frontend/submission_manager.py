@@ -16,6 +16,7 @@ from datetime import datetime
 import bson
 import pymongo
 import web
+from flask import request
 from bson.objectid import ObjectId
 from pymongo.collection import ReturnDocument
 
@@ -187,7 +188,7 @@ class WebAppSubmissionManager:
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
-            submission["user_ip"] = web.ctx.ip
+            submission["user_ip"] = web.ctx.ip if web.ctx.keys() else request.remote_addr
             submissionid = self._database.submissions.insert(submission)
 
         # Clean the submission document in db
@@ -262,7 +263,7 @@ class WebAppSubmissionManager:
             "submitted_on": datetime.now(),
             "username": [username],
             "response_type": task.get_response_type(),
-            "user_ip": web.ctx.ip
+            "user_ip": web.ctx.ip if web.ctx.keys() else request.remote_addr
         }
 
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
@@ -304,7 +305,7 @@ class WebAppSubmissionManager:
 
         self._logger.info("New submission from %s - %s - %s/%s - %s", self._user_manager.session_username(),
                           self._user_manager.session_email(), task.get_course_id(), task.get_id(),
-                          web.ctx['ip'])
+                          web.ctx.ip if web.ctx.keys() else request.remote_addr)
 
         return submissionid, to_remove
 
