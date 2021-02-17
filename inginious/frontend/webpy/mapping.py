@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 urls = (
-    r'/logout', 'inginious.frontend.pages.utils.LogOutPage',
     r'/register', 'inginious.frontend.pages.register.RegistrationPage',
     r'/auth/signin/([^/]+)', 'inginious.frontend.pages.social.AuthenticationPage',
     r'/auth/callback/([^/]+)', 'inginious.frontend.pages.social.CallbackPage',

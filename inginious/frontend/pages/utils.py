@@ -219,14 +219,6 @@ class SignInPage(INGIniousAuthPage):
         return INGIniousAuthPage.GET(self)
 
 
-class LogOutPage(INGIniousAuthPage):
-    def GET_AUTH(self, *args, **kwargs):
-        self.user_manager.disconnect_user()
-        raise web.seeother("/courselist")
-
-    def POST_AUTH(self, *args, **kwargs):
-        self.user_manager.disconnect_user()
-        raise web.seeother("/courselist")
 
 
 def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str, name: str, id:str, placeholder:str=None, single=False):

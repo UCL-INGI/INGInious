@@ -14,6 +14,7 @@ from inginious.frontend.pages.utils import INGIniousPage as INGIniousWebPyPage
 from inginious.frontend.parsable_text import ParsableText
 from werkzeug.exceptions import NotFound, NotAcceptable
 
+
 class INGIniousPage(INGIniousWebPyPage, MethodView):
     @property
     def app(self):
@@ -128,6 +129,16 @@ class SignInPage(INGIniousAuthPage):
 
     def GET(self):
         return INGIniousAuthPage.GET(self)
+
+
+class LogOutPage(INGIniousAuthPage):
+    def GET_AUTH(self, *args, **kwargs):
+        self.user_manager.disconnect_user()
+        return redirect("/courselist")
+
+    def POST_AUTH(self, *args, **kwargs):
+        self.user_manager.disconnect_user()
+        return redirect("/courselist")
 
 
 class INGIniousStaticPage(INGIniousPage):
