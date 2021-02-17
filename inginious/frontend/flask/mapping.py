@@ -7,6 +7,7 @@ from werkzeug.routing import BaseConverter
 
 from inginious.frontend.pages.utils_flask import INGIniousStaticPage
 from inginious.frontend.pages.index import IndexPage
+from inginious.frontend.pages.courselist import CourseListPage
 
 
 class CookielessConverter(BaseConverter):
@@ -25,3 +26,4 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>', view_func=IndexPage.as_view('indexpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>index', view_func=IndexPage.as_view('indexpage.alias'))
     flask_app.add_url_rule('/<cookieless:sessionid>pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
