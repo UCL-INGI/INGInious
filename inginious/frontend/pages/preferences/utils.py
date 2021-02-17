@@ -9,14 +9,13 @@ import web
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-def get_menu(app_func, current, renderer, plugin_manager, user_manager):
-    app = app_func()
+def get_menu(allow_deletion, current, renderer, plugin_manager, user_manager):
     default_entries = []
 
     default_entries += [("profile", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("My profile")),
                         ("bindings", "<i class='fa fa-id-card-o fa-fw'></i>&nbsp; " + _("Authentication bindings"))]
 
-    if app.allow_deletion:
+    if allow_deletion:
         default_entries += [("delete", "<i class='fa fa-user-times fa-fw'></i>&nbsp; " + _("Delete my account"))]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the preferences.

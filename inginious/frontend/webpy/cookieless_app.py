@@ -102,9 +102,6 @@ class CookieLessCompatibleApplication(web.application):
 
         self.mapping = [(r"(/@[a-f0-9A-F_]*@)?" +a, b) for a,b in group(mapping, 2)]
 
-    def add_mapping(self, pattern, classname):
-        self.mapping.append((r"(/@[a-f0-9A-F_]*@)?" + pattern, classname))
-
     def _delegate(self, f, fvars, args=None):
         if args is None:
             args = [None]

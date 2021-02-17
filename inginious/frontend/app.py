@@ -164,7 +164,7 @@ def get_app(config):
     )
 
     webpy_app = CookieLessCompatibleApplication(MongoStore(database, 'sessions', web.config.session_parameters.timeout))
-    appli = AppDispatcher(webpy_app.wsgifunc(), flask_app.wsgi_app)
+    appli = AppDispatcher(webpy_app.wsgifunc(), flask_app.wsgi_app, lambda: webpy_app.mapping)
 
     # TODO : These should be removed after flask migration
     session_func = lambda: webpy_app.get_session() if web.ctx.keys() else flask.session
@@ -277,8 +277,9 @@ def get_app(config):
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.render,
                                                                                   plugin_manager, user_manager))
     template_helper.add_other("preferences_menu",
-                              lambda current: preferences_utils.get_menu(appli_func, current, template_helper.render,
-                                                                                 plugin_manager, user_manager))
+                              lambda current: preferences_utils.get_menu(config.get("allow_deletion", True),
+                                                                         current, template_helper.render,
+                                                                         plugin_manager, user_manager))
 
     # Not found page
     def flask_not_found(e):
@@ -340,7 +341,7 @@ def get_app(config):
     webpy_app.init_mapping(webpy_mapping)
 
     # Loads plugins
-    plugin_manager.load(client, appli_func, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
+    plugin_manager.load(client, webpy_app, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
 
     # Start the inginious.backend
     client.start()
