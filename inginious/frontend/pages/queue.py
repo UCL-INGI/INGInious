@@ -5,10 +5,10 @@
 
 """ Job queue status page """
 
-import web
+from flask import request
 from datetime import datetime
 
-from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.pages.utils_flask import INGIniousAuthPage
 
 
 class QueuePage(INGIniousAuthPage):
@@ -22,7 +22,7 @@ class QueuePage(INGIniousAuthPage):
 
     def POST_AUTH(self, *args, **kwargs):
         if self.user_manager.user_is_superadmin():
-            inputs = web.input()
+            inputs = request.form
             jobid = inputs["jobid"]
             self.client.kill_job(jobid)
         return self.GET_AUTH()
