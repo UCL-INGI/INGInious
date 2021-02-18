@@ -24,6 +24,13 @@ from inginious.frontend.pages.lti import LTITaskPage, LTILaunchPage, LTIBindPage
 from inginious.frontend.pages.group import GroupPage
 from inginious.frontend.pages.marketplace import MarketplacePage
 from inginious.frontend.pages.marketplace_course import MarketplaceCoursePage
+from inginious.frontend.pages.api.auth_methods import APIAuthMethods
+from inginious.frontend.pages.api.authentication import APIAuthentication
+from inginious.frontend.pages.api.courses import APICourses
+from inginious.frontend.pages.api.tasks import APITasks
+from inginious.frontend.pages.api.submissions import APISubmissions
+from inginious.frontend.pages.api.submissions import APISubmissionSingle
+
 
 class CookielessConverter(BaseConverter):
     # Parse the cookieless sessionid at the beginning of the url
@@ -66,4 +73,11 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>lti/bind', view_func=LTIBindPage.as_view('ltibindpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>lti/login', view_func=LTILoginPage.as_view('ltiloginpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>lti/asset/<path:asset_url>', view_func=LTIAssetPage.as_view('ltiassetpage'))
-
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/auth_methods', view_func=APIAuthMethods.as_view('apiauthmethods'))
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/authentication', view_func=APIAuthentication.as_view('apiauthentication'))
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses', view_func=APICourses.as_view('apicourses.alias'), defaults={'courseid': None})
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>', view_func=APICourses.as_view('apicourses'))
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks', view_func=APITasks.as_view('apitasks.alias'), defaults={'taskid': None})
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks/<taskid>', view_func=APITasks.as_view('apitasks'))
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks/<taskid>/submissions', view_func=APISubmissions.as_view('apisubmissions.alias'))
+    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks/<taskid>/submissions/<submissionid>', view_func=APISubmissionSingle.as_view('apisubmissions'))

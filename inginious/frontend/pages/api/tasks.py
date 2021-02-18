@@ -27,7 +27,7 @@ class APITasks(APIAuthenticatedPage):
                 val[key] = self._check_for_parsable_text(val2)
         return val
 
-    def API_GET(self, courseid, taskid=None):  # pylint: disable=arguments-differ
+    def API_GET(self, courseid, taskid):  # pylint: disable=arguments-differ
         """
             List tasks available to the connected client. Returns a dict in the form
 

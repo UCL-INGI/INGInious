@@ -18,16 +18,7 @@ urls = (
     r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
     r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
-    r'/admin/([^/]+)/search_user/(.+)', 'inginious.frontend.pages.course_admin.search_user.CourseAdminSearchUserPage',
-    r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
-    r'/api/v0/authentication', 'inginious.frontend.pages.api.authentication.APIAuthentication',
-    r'/api/v0/courses', 'inginious.frontend.pages.api.courses.APICourses',
-    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)', 'inginious.frontend.pages.api.courses.APICourses',
-    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks', 'inginious.frontend.pages.api.tasks.APITasks',
-    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)', 'inginious.frontend.pages.api.tasks.APITasks',
-    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'inginious.frontend.pages.api.submissions.APISubmissions',
-    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
-        'inginious.frontend.pages.api.submissions.APISubmissionSingle'
+    r'/admin/([^/]+)/search_user/(.+)', 'inginious.frontend.pages.course_admin.search_user.CourseAdminSearchUserPage'
 )
 
 urls_maintenance = (
