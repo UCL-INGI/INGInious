@@ -5,6 +5,7 @@
 
 from werkzeug.routing import BaseConverter
 
+from inginious.frontend.pages.maintenance import MaintenancePage
 from inginious.frontend.pages.utils_flask import INGIniousStaticPage
 from inginious.frontend.pages.index import IndexPage
 from inginious.frontend.pages.queue import QueuePage
@@ -41,6 +42,10 @@ class CookielessConverter(BaseConverter):
 
     def to_url(self, value):
         return "@" + str(value) + "@/"
+
+
+def init_flask_maintenance_mapping(flask_app):
+    flask_app.add_url_rule('/<path:path>', view_func=MaintenancePage.as_view('maintenancepage'))
 
 
 def init_flask_mapping(flask_app):

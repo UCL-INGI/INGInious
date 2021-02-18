@@ -20,7 +20,3 @@ urls = (
     r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/admin/([^/]+)/search_user/(.+)', 'inginious.frontend.pages.course_admin.search_user.CourseAdminSearchUserPage'
 )
-
-urls_maintenance = (
-    '/.*', 'inginious.frontend.pages.maintenance.MaintenancePage'
-)

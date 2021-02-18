@@ -45,10 +45,9 @@ from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 from inginious.frontend.app_dispatcher import AppDispatcher
 
 from inginious.frontend.webpy.mapping import urls as webpy_mapping
-from inginious.frontend.webpy.mapping import urls_maintenance
 from inginious.frontend.webpy.mongo_sessions import MongoStore
 
-from inginious.frontend.flask.mapping import init_flask_mapping
+from inginious.frontend.flask.mapping import init_flask_mapping, init_flask_maintenance_mapping
 from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
 from inginious.frontend.flask.mail import mail
 
@@ -165,7 +164,6 @@ def get_app(config):
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
     flask_app = flask.Flask(__name__)
-    init_flask_mapping(flask_app)
 
     flask_app.config.from_mapping(**config)
     flask_app.session_interface = MongoDBSessionInterface(
@@ -210,8 +208,8 @@ def get_app(config):
         template_helper.add_to_template_globals("get_homepath", get_homepath_func)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
-        webpy_app.template_helper = template_helper
-        webpy_app.init_mapping(urls_maintenance)
+        flask_app.template_helper = template_helper
+        init_flask_maintenance_mapping(flask_app)
         return appli, webpy_app.stop
 
     default_allowed_file_extensions = config['allowed_file_extensions']
@@ -350,6 +348,7 @@ def get_app(config):
 
     # Init the mapping of the app
     webpy_app.init_mapping(webpy_mapping)
+    init_flask_mapping(flask_app)
 
     # Loads plugins
     plugin_manager.load(client, webpy_app, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
