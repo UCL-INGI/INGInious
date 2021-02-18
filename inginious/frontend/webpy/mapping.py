@@ -31,11 +31,6 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'inginious.frontend.pages.api.submissions.APISubmissions',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
         'inginious.frontend.pages.api.submissions.APISubmissionSingle',
-    r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.pages.lti.LTILaunchPage',
-    r'/lti/bind', 'inginious.frontend.pages.lti.LTIBindPage',
-    r'/lti/task', 'inginious.frontend.pages.lti.LTITaskPage',
-    r'/lti/login', 'inginious.frontend.pages.lti.LTILoginPage',
-    r'/lti/asset/(.*)', 'inginious.frontend.pages.lti.LTIAssetPage',
     r'/marketplace', 'inginious.frontend.pages.marketplace.Marketplace',
     r'/marketplace/([^/]+)', 'inginious.frontend.pages.marketplace_course.MarketplaceCourse'
 )

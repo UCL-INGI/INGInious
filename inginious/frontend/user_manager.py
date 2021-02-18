@@ -235,7 +235,7 @@ class UserManager:
         else:
             current_app.session_interface.open_session(current_app, request)
 
-        session_id = self._session.session_id
+        session_id = self._session["session_id"]
 
         self._session["lti"] = {
             "email": email,
