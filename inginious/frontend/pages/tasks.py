@@ -415,6 +415,8 @@ class TaskPageStaticDownload(INGIniousPage):
                 return redirect(file_or_url)
             else:
                 raise NotFound()
+        except TaskNotFoundException:
+            raise NotFound()
         except HTTPException as error_or_redirect:
             raise error_or_redirect
 
