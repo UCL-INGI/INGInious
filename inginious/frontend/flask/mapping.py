@@ -21,6 +21,7 @@ from inginious.frontend.pages.course_register import CourseRegisterPage
 from inginious.frontend.pages.course import CoursePage
 from inginious.frontend.pages.tasks import TaskPage, TaskPageStaticDownload
 from inginious.frontend.pages.lti import LTITaskPage, LTILaunchPage, LTIBindPage, LTIAssetPage, LTILoginPage
+from inginious.frontend.pages.group import GroupPage
 
 class CookielessConverter(BaseConverter):
     # Parse the cookieless sessionid at the beginning of the url
@@ -45,6 +46,7 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>', view_func=CoursePage.as_view('coursepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>', view_func=TaskPage.as_view('taskpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>/<path:path>', view_func=TaskPageStaticDownload.as_view('taskpagestaticdownload'))
+    flask_app.add_url_rule('/<cookieless:sessionid>group/<courseid>', view_func=GroupPage.as_view('grouppage'))
     flask_app.add_url_rule('/<cookieless:sessionid>auth/signin/<auth_id>', view_func=AuthenticationPage.as_view('authenticationpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>auth/callback/<auth_id>', view_func=CallbackPage.as_view('callbackpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>auth/share/<auth_id>', view_func=SharePage.as_view('sharepage'))

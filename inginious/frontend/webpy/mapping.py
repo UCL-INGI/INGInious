@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 urls = (
-    r'/group/([^/]+)', 'inginious.frontend.pages.group.GroupPage',
     r'/admin/([^/]+)', 'inginious.frontend.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/students', 'inginious.frontend.pages.course_admin.student_list.CourseStudentListPage',
