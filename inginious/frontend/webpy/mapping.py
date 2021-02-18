@@ -6,7 +6,6 @@
 urls = (
     r'/group/([^/]+)', 'inginious.frontend.pages.group.GroupPage',
     r'/queue', 'inginious.frontend.pages.queue.QueuePage',
-    r'/mycourses', 'inginious.frontend.pages.mycourses.MyCoursesPage',
     r'/admin/([^/]+)', 'inginious.frontend.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/students', 'inginious.frontend.pages.course_admin.student_list.CourseStudentListPage',
