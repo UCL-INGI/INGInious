@@ -5,13 +5,14 @@
 
 """ Course page """
 import sys
-import web
+from flask import request, redirect
+from werkzeug.exceptions import Forbidden
 
 from inginious.common.base import id_checker
 from inginious.common.exceptions import ImportCourseException
 from inginious.common.log import get_course_logger
 from inginious.frontend.marketplace_courses import get_all_marketplace_courses, get_marketplace_course
-from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.pages.utils_flask import INGIniousAuthPage
 
 if sys.platform == 'win32':
     import pbs
@@ -20,23 +21,23 @@ else:
     from sh import git  # pylint: disable=no-name-in-module
 
 
-class Marketplace(INGIniousAuthPage):
+class MarketplacePage(INGIniousAuthPage):
     """ Course marketplace """
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise self.app.forbidden(message=_("You don't have superadmin rights on this course."))
+            raise Forbidden(description=_("You don't have superadmin rights on this course."))
         return self.show_page()
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise self.app.forbidden(message=_("You're not allowed to do that"))
+            raise Forbidden(description=_("You're not allowed to do that"))
 
-        user_input = web.input()
+        user_input = request.form
         errors = []
         if "new_courseid" in user_input:
             new_courseid = user_input["new_courseid"]
@@ -48,7 +49,7 @@ class Marketplace(INGIniousAuthPage):
             except:
                 errors.append(_("User returned an invalid form."))
             if not errors:
-                raise web.redirect(self.app.get_homepath() + "/admin/{}".format(new_courseid))
+                return redirect(self.app.get_homepath() + "/admin/{}".format(new_courseid))
         return self.show_page(errors)
 
     def show_page(self, errors=None):
