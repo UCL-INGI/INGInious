@@ -23,6 +23,7 @@ from inginious.frontend.pages.tasks import TaskPage, TaskPageStaticDownload
 from inginious.frontend.pages.lti import LTITaskPage, LTILaunchPage, LTIBindPage, LTIAssetPage, LTILoginPage
 from inginious.frontend.pages.group import GroupPage
 from inginious.frontend.pages.marketplace import MarketplacePage
+from inginious.frontend.pages.marketplace_course import MarketplaceCoursePage
 
 class CookielessConverter(BaseConverter):
     # Parse the cookieless sessionid at the beginning of the url
@@ -45,6 +46,7 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>queue', view_func=QueuePage.as_view('queuepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>register/<courseid>', view_func=CourseRegisterPage.as_view('courseregisterpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>marketplace', view_func=MarketplacePage.as_view('marketplacepage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>marketplace/<courseid>', view_func=MarketplaceCoursePage.as_view('marketplacecoursepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>', view_func=CoursePage.as_view('coursepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>', view_func=TaskPage.as_view('taskpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>/<path:path>', view_func=TaskPageStaticDownload.as_view('taskpagestaticdownload'))

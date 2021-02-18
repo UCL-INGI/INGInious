@@ -94,5 +94,5 @@ def import_course(course, new_courseid, username, course_factory):
         course_factory.delete_course(new_courseid)
         raise ImportCourseException(_("An error occur while editing the course description"))
 
-    get_course_logger(new_courseid).info(_("Course %s cloned from the marketplace."), new_courseid)
+    get_course_logger(new_courseid).info("Course %s cloned from the marketplace.", new_courseid)
 

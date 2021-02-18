@@ -4,15 +4,16 @@
 # more information about the licensing of this file.
 
 """ Course page """
-import web
+from flask import request, redirect
+from werkzeug.exceptions import Forbidden
 
 from inginious.common.exceptions import ImportCourseException
 from inginious.frontend.marketplace_courses import get_marketplace_course
 from inginious.frontend.pages.marketplace import import_course
-from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.pages.utils_flask import INGIniousAuthPage
 
 
-class MarketplaceCourse(INGIniousAuthPage):
+class MarketplaceCoursePage(INGIniousAuthPage):
     """ Course marketplace """
 
     def get_course(self, courseid):
@@ -20,7 +21,7 @@ class MarketplaceCourse(INGIniousAuthPage):
         try:
             course = get_marketplace_course(courseid)
         except:
-            raise self.app.forbidden(message=_("Course unavailable."))
+            raise Forbidden(description=_("Course unavailable."))
 
         return course
 
@@ -28,7 +29,7 @@ class MarketplaceCourse(INGIniousAuthPage):
         """ GET request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise self.app.forbidden(message=_("You're not allowed to do that"))
+            raise Forbidden(description=_("You're not allowed to do that"))
 
         course = self.get_course(courseid)
         return self.show_page(course)
@@ -37,10 +38,10 @@ class MarketplaceCourse(INGIniousAuthPage):
         """ POST request """
         # Change to teacher privilege when created
         if not self.user_manager.user_is_superadmin():
-            raise self.app.forbidden(message=_("You're not allowed to do that"))
+            raise Forbidden(description=_("You're not allowed to do that"))
 
         course = self.get_course(courseid)
-        user_input = web.input()
+        user_input = request.form
         errors = []
         if "new_courseid" in user_input:
             new_courseid = user_input["new_courseid"]
@@ -49,7 +50,7 @@ class MarketplaceCourse(INGIniousAuthPage):
             except ImportCourseException as e:
                 errors.append(str(e))
             if not errors:
-                raise web.redirect(self.app.get_homepath() + "/admin/{}".format(new_courseid))
+                return redirect(self.app.get_homepath() + "/admin/{}".format(new_courseid))
         return self.show_page(course, errors)
 
     def show_page(self, course, errors=None):

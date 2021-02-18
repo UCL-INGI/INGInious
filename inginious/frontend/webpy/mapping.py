@@ -27,8 +27,7 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)', 'inginious.frontend.pages.api.tasks.APITasks',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'inginious.frontend.pages.api.submissions.APISubmissions',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
-        'inginious.frontend.pages.api.submissions.APISubmissionSingle',
-    r'/marketplace/([^/]+)', 'inginious.frontend.pages.marketplace_course.MarketplaceCourse'
+        'inginious.frontend.pages.api.submissions.APISubmissionSingle'
 )
 
 urls_maintenance = (
