@@ -7,7 +7,7 @@
 from collections import OrderedDict
 
 from flask import request, redirect
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class MyCoursesPage(INGIniousAuthPage):

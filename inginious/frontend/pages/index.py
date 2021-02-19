@@ -5,7 +5,7 @@
 
 """ Index page """
 from flask import redirect, url_for
-from inginious.frontend.pages.utils_flask import INGIniousStaticPage
+from inginious.frontend.pages.utils import INGIniousStaticPage
 
 
 class IndexPage(INGIniousStaticPage):

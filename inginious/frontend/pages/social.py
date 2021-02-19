@@ -8,7 +8,7 @@ from flask import redirect, request
 from werkzeug.exceptions import NotFound
 from pymongo import ReturnDocument
 
-from inginious.frontend.pages.utils_flask import INGIniousPage, INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
 
 class AuthenticationPage(INGIniousPage):

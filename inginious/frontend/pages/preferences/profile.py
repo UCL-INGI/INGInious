@@ -10,7 +10,7 @@ from flask import request
 from pymongo import ReturnDocument
 from werkzeug.exceptions import NotFound
 
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class ProfilePage(INGIniousAuthPage):

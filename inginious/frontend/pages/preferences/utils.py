@@ -6,7 +6,7 @@
 
 from flask import redirect
 
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 def get_menu(allow_deletion, current, renderer, plugin_manager, user_manager):

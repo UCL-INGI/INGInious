@@ -8,7 +8,7 @@
 from flask import request
 from datetime import datetime
 
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class QueuePage(INGIniousAuthPage):

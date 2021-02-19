@@ -7,7 +7,7 @@
 from flask import request, redirect
 from werkzeug.exceptions import NotFound
 
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 def handle_course_unavailable(app_homepath, template_helper, user_manager, course):

@@ -5,7 +5,7 @@
 
 """ Index page """
 from collections import OrderedDict
-from inginious.frontend.pages.utils_flask import INGIniousPage
+from inginious.frontend.pages.utils import INGIniousPage
 
 
 class CourseListPage(INGIniousPage):

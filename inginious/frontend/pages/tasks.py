@@ -20,7 +20,7 @@ from pymongo import ReturnDocument
 
 from inginious.common.exceptions import TaskNotFoundException, CourseNotFoundException
 from inginious.frontend.pages.course import handle_course_unavailable
-from inginious.frontend.pages.utils_flask import INGIniousPage, INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
 
 class BaseTaskPage(object):

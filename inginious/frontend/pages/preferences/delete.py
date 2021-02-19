@@ -7,7 +7,7 @@
 from flask import request, redirect
 from werkzeug.exceptions import Forbidden
 
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class DeletePage(INGIniousAuthPage):

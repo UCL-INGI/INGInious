@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 
 from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
 
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class CourseRegisterPage(INGIniousAuthPage):

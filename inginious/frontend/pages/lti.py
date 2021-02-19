@@ -6,7 +6,7 @@
 from flask import request, redirect, session
 from werkzeug.exceptions import Forbidden, NotFound, MethodNotAllowed
 from inginious.frontend.lti_request_validator import LTIValidator
-from inginious.frontend.pages.utils_flask import INGIniousPage, INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 from inginious.frontend.flask.mongo_sessions import WebPyLikeSerializer
 from itsdangerous import want_bytes
 

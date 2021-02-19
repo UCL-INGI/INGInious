@@ -10,7 +10,7 @@ from werkzeug.exceptions import Forbidden
 from inginious.common.exceptions import ImportCourseException
 from inginious.frontend.marketplace_courses import get_marketplace_course
 from inginious.frontend.pages.marketplace import import_course
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class MarketplaceCoursePage(INGIniousAuthPage):

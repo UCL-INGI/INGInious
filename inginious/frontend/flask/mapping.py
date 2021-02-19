@@ -6,7 +6,7 @@
 from werkzeug.routing import BaseConverter
 
 from inginious.frontend.pages.maintenance import MaintenancePage
-from inginious.frontend.pages.utils_flask import INGIniousStaticPage
+from inginious.frontend.pages.utils import INGIniousStaticPage
 from inginious.frontend.pages.index import IndexPage
 from inginious.frontend.pages.queue import QueuePage
 from inginious.frontend.pages.courselist import CourseListPage
@@ -15,7 +15,7 @@ from inginious.frontend.pages.preferences.bindings import BindingsPage
 from inginious.frontend.pages.preferences.delete import DeletePage
 from inginious.frontend.pages.preferences.profile import ProfilePage
 from inginious.frontend.pages.preferences.utils import PrefRedirectPage
-from inginious.frontend.pages.utils_flask import SignInPage, LogOutPage
+from inginious.frontend.pages.utils import SignInPage, LogOutPage
 from inginious.frontend.pages.register import RegistrationPage
 from inginious.frontend.pages.social import AuthenticationPage, CallbackPage, SharePage
 from inginious.frontend.pages.course_register import CourseRegisterPage

@@ -12,7 +12,7 @@ import re
 from flask import request, current_app
 from flask_mail import Message
 from werkzeug.exceptions import Forbidden
-from inginious.frontend.pages.utils_flask import INGIniousPage
+from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.flask.mail import mail
 
 

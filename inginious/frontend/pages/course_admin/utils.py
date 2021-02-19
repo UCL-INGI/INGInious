@@ -16,7 +16,7 @@ from werkzeug.exceptions import Forbidden
 from bson.objectid import ObjectId
 
 from inginious.common.base import id_checker
-from inginious.frontend.pages.utils_flask import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class INGIniousAdminPage(INGIniousAuthPage):

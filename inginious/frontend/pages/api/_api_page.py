@@ -9,7 +9,7 @@ import json
 from flask import Response, request
 
 import inginious.common.custom_yaml as yaml
-from inginious.frontend.pages.utils_flask import INGIniousPage
+from inginious.frontend.pages.utils import INGIniousPage
 
 
 class APIPage(INGIniousPage):
