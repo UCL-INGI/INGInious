@@ -44,7 +44,6 @@ from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
 from inginious.frontend.app_dispatcher import AppDispatcher
 
-from inginious.frontend.webpy.mapping import urls as webpy_mapping
 from inginious.frontend.webpy.mongo_sessions import MongoStore
 
 from inginious.frontend.flask.mapping import init_flask_mapping, init_flask_maintenance_mapping
@@ -347,7 +346,7 @@ def get_app(config):
         theapp.webdav_host = config.get("webdav_host", None)
 
     # Init the mapping of the app
-    webpy_app.init_mapping(webpy_mapping)
+    webpy_app.init_mapping(())
     init_flask_mapping(flask_app)
 
     # Loads plugins
