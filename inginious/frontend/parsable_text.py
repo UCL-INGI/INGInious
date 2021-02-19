@@ -20,14 +20,16 @@ from docutils.writers import html4css1
 
 from inginious.frontend.accessible_time import parse_date
 import web
+import flask
 
 
 def _get_inginious_translation():
-    try:
-        # If we are on a webpage, or even anywhere in the app, this should be defined
+    # If we are on a webpage, or even anywhere in the app, this should be defined
+    if flask.has_app_context():
+        return flask.current_app.l10n_manager.get_translation_obj()
+    elif web.ctx.keys():
         return web.ctx.app_stack[0].get_translation_obj()
-    except:
-        # If this is not the case, then, no translation for you!
+    else:
         return gettext.NullTranslations()
 
 
@@ -152,7 +154,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
                 attributes["target"] = "_blank"
             # Rewrite paths if we are in LTI mode
             # TODO: this should be an argument passed through all the functions
-            if 'path' in web.ctx and re.match(r"^(/@[a-f0-9A-F_]*@)", web.ctx.path):
+            if re.match(r"^(/@[a-f0-9A-F_]*@)", web.ctx.path if web.ctx.keys() else (flask.request.path if flask.has_app_context() else "")):
                 if tagname == 'a' and 'href' in attributes:
                     attributes['href'] = self.rewrite_lti_url(attributes['href'])
                 elif tagname == 'img' and 'src' in attributes:
