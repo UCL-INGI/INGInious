@@ -4,9 +4,10 @@
 # more information about the licensing of this file.
 import json
 import re
-import web
 
+from flask import Response
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+
 
 class CourseAdminSearchUserPage(INGIniousAdminPage):
     """ Return users based on their username or realname """
@@ -18,8 +19,7 @@ class CourseAdminSearchUserPage(INGIniousAdminPage):
 
         request = re.escape(request) # escape for safety. Maybe this is not needed...
         users = list(self.database.users.find({"$or": [{"username": {"$regex": ".*"+request+".*"}}, {"realname": {"$regex": ".*"+request+".*"}}]}, {"username": 1, "realname": 1}).limit(10))
-        web.header('Content-Type', 'text/json; charset=utf-8')
-        return json.dumps([[
+        return Response(content_type='text/json; charset=utf-8',response=json.dumps([[
             {'username': entry['username'], 'realname': entry['realname']}
             for entry in users
-        ]])
+        ]]))
