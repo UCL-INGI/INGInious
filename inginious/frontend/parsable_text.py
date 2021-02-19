@@ -27,7 +27,7 @@ def _get_inginious_translation():
     # If we are on a webpage, or even anywhere in the app, this should be defined
     if flask.has_app_context():
         return flask.current_app.l10n_manager.get_translation_obj()
-    elif web.ctx.keys():
+    elif 'app_stack' in web.ctx:
         return web.ctx.app_stack[0].get_translation_obj()
     else:
         return gettext.NullTranslations()
@@ -154,7 +154,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
                 attributes["target"] = "_blank"
             # Rewrite paths if we are in LTI mode
             # TODO: this should be an argument passed through all the functions
-            if re.match(r"^(/@[a-f0-9A-F_]*@)", web.ctx.path if web.ctx.keys() else (flask.request.path if flask.has_app_context() else "")):
+            if re.match(r"^(/@[a-f0-9A-F_]*@)", web.ctx.path if 'path' in web.ctx else (flask.request.path if flask.has_app_context() else "")):
                 if tagname == 'a' and 'href' in attributes:
                     attributes['href'] = self.rewrite_lti_url(attributes['href'])
                 elif tagname == 'img' and 'src' in attributes:
