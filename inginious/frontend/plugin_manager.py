@@ -75,7 +75,7 @@ class PluginManager(object):
             module = importlib.import_module(entry["plugin_module"])
             module.init(self, course_factory, client, entry)
 
-    def add_page(self, pattern, classname_or_viewfunc, is_flask=False):
+    def add_page(self, pattern, classname_or_viewfunc, is_flask=True):
         """ Add a new page to the web application. Only available after that the Plugin Manager is loaded """
         if not self._loaded:
             raise PluginManagerNotLoadedException()

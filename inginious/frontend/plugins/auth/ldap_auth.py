@@ -176,5 +176,5 @@ def init(plugin_manager, _, _2, conf):
         conf["port"] = None
 
     the_method = LdapAuthMethod(conf.get("id"), conf.get('name', 'LDAP'), conf.get("imlink", ""), conf)
-    plugin_manager.add_page('/<cookieless:sessionid>auth/page/<id>', LDAPAuthenticationPage.as_view('ldapauthenticationpage'), is_flask=True)
+    plugin_manager.add_page('/<cookieless:sessionid>auth/page/<id>', LDAPAuthenticationPage.as_view('ldapauthenticationpage'))
     plugin_manager.register_auth_method(the_method)

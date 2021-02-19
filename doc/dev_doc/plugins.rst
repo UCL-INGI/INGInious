@@ -14,7 +14,10 @@ The following code adds a new page displaying ``This is a simple demo plugin`` o
 
 .. code-block:: python
 
-    class DemoPage(object):
+    from inginious.frontend.pages.utils import INGIniousPage
+
+
+    class DemoPage(INGIniousPage):
         """ A simple demo page showing how to add a new page """
 
         def GET(self):
@@ -24,7 +27,7 @@ The following code adds a new page displaying ``This is a simple demo plugin`` o
 
     def init(plugin_manager, course_factory, client, plugin_config):
         """ Init the plugin """
-        plugin_manager.add_page("/plugindemo", DemoPage)
+        plugin_manager.add_page("/<cookieless:sessionid>plugindemo", DemoPage.as_view('demopage'))
 
 
 The plugin is initialized by the plugin manager, which is the frontend-extended hook manager, by calling method ``init``.
