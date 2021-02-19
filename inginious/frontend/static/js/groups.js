@@ -36,7 +36,7 @@ function groups_prepare_submit()
             type:"hidden",
             name:"groups",
             value: JSON.stringify(groups)
-    }).appendTo($("form"));
+    }).appendTo($("#groups_form"));
 
 }
 
