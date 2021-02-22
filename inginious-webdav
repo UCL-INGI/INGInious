@@ -8,7 +8,8 @@ import os
 import sys
 import argparse
 import logging
-import web
+
+from werkzeug.serving import run_simple
 
 from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.common.base import load_json_or_yaml
@@ -69,9 +70,6 @@ if __name__ == "__main__":
     application = CustomLogMiddleware(application, logging.getLogger("inginious.webdav.requests"))
 
     # Launch the app
-    server = web.httpserver.WSGIServer((host, int(port)), application)
-    try:
-        server.start()
-    except KeyboardInterrupt:
-        server.stop()
+    if __name__ == "__main__":
+        run_simple(host, port, application, use_debugger=config.get("web_debug", False), threaded=True)
 

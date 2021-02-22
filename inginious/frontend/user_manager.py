@@ -8,8 +8,8 @@ import logging
 import hashlib
 from typing import Dict, Optional
 
-import web
-from flask import current_app, request
+from flask import current_app, request, session as flask_session
+from werkzeug.exceptions import NotFound
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
@@ -88,14 +88,13 @@ UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", 
 
 
 class UserManager:
-    def __init__(self, session_func, database, superadmins):
+    def __init__(self, database, superadmins):
         """
-        :type session_func: function returning the session dict
         :type database: pymongo.database.Database
         :type superadmins: list(str)
         :param superadmins: list of the super-administrators' usernames
         """
-        self._session_func = session_func
+        self._session = flask_session
         self._database = database
         self._superadmins = superadmins
         self._auth_methods = OrderedDict()
@@ -104,10 +103,6 @@ class UserManager:
     ##############################################
     #           User session management          #
     ##############################################
-
-    @property
-    def _session(self):
-        return self._session_func()
 
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """
@@ -228,12 +223,9 @@ class UserManager:
                            outcome_result_id, tool_name, tool_desc, tool_url, context_title, context_label):
         """ Creates an LTI cookieless session. Returns the new session id"""
 
-        self._destroy_session()  # don't forget to destroy the current session (cleans the threaded dict from web.py)
+        self._destroy_session()  # don't forget to destroy the current session
 
-        if web.ctx.keys():
-            self._session.load('')  # creates a new cookieless session
-        else:
-            current_app.session_interface.open_session(current_app, request)
+        current_app.session_interface.open_session(current_app, request)
 
         session_id = self._session["session_id"]
 
@@ -317,7 +309,7 @@ class UserManager:
         self._database.users.update_one({"email": email},
                                         {"$set": {"realname": realname, "username": username, "language": language}},
                                         upsert=True)
-        ip = web.ctx.ip if web.ctx.keys() else request.remote_addr
+        ip = request.remote_addr
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, ip)
         self._set_session(username, realname, email, language, tos_accepted)
         return True
@@ -327,7 +319,7 @@ class UserManager:
         Disconnects the user currently logged-in
         """
         if self.session_logged_in():
-            ip = web.ctx.ip if web.ctx.keys() else request.remote_addr
+            ip = request.remote_addr
             self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(),
                               self.session_email(), ip)
         self._destroy_session()
@@ -397,7 +389,7 @@ class UserManager:
 
         auth_method = self.get_auth_method(auth_id)
         if not auth_method:
-            raise web.notfound(message=_("Auth method not found."))
+            raise NotFound(description=_("Auth method not found."))
 
         # Look for already bound auth method username
         user_profile = self._database.users.find_one({"bindings." + auth_id: username})

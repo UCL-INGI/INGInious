@@ -243,7 +243,7 @@ def get_app(config):
 
     course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager)
 
-    user_manager = UserManager(session_func, database, config.get('superadmins', []))
+    user_manager = UserManager(database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
