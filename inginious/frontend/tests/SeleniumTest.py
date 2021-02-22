@@ -4,7 +4,7 @@ import os
 import threading
 import unittest
 
-import web
+from werkzeug.serving import make_server
 from inginious.frontend.app import get_app
 from nose.plugins.skip import SkipTest
 from pymongo import MongoClient
@@ -37,7 +37,7 @@ def _start_frontend(config, host, port, ssh_port):
     func = SharedDataMiddleware(func, [
         ('/static/', os.path.join(inginious_root_path, 'frontend', 'static'))
     ])
-    server = web.httpserver.WSGIServer((host, port), func)
+    server = make_server(host, port, func)
 
     class FrontendThread(threading.Thread):
         def __init__(self):
