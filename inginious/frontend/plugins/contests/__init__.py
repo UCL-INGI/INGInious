@@ -232,8 +232,8 @@ def init(plugin_manager, course_factory, client, config):  # pylint: disable=unu
             }
     """
 
-    plugin_manager.add_page('/<cookieless:sessionid>contest/<courseid>', ContestScoreboard.as_view('contestscoreboard'))
-    plugin_manager.add_page('/<cookieless:sessionid>admin/<courseid>/contest', ContestAdmin.as_view('contestadmin'))
+    plugin_manager.add_page('/contest/<courseid>', ContestScoreboard.as_view('contestscoreboard'))
+    plugin_manager.add_page('/admin/<courseid>/contest', ContestAdmin.as_view('contestadmin'))
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
     plugin_manager.add_hook('task_accessibility', task_accessibility)
     plugin_manager.add_hook('header_html', additional_headers)

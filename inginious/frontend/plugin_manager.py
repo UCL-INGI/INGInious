@@ -81,7 +81,7 @@ class PluginManager(object):
             raise PluginManagerNotLoadedException()
 
         if is_flask:
-            self._flask_app.add_url_rule(pattern, view_func=classname_or_viewfunc)
+            self._flask_app.add_url_rule("/<cookieless:sessionid>" + pattern[1:], view_func=classname_or_viewfunc)
         else:
             self._webpy_app.mapping.append((r"(/@[a-f0-9A-F_]*@)?" + pattern, classname_or_viewfunc))
 

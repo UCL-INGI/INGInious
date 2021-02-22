@@ -78,4 +78,4 @@ class LTIBestSubmissionPage(INGIniousAuthPage):
 
 def init(plugin_manager, *args, **kwargs):
     """ Init the plugin """
-    plugin_manager.add_page("/<cookieless:sessionid>lti/bestsubmission", LTIBestSubmissionPage.as_view('ltibestsubmissionpage'))
+    plugin_manager.add_page("/lti/bestsubmission", LTIBestSubmissionPage.as_view('ltibestsubmissionpage'))

@@ -225,7 +225,7 @@ def init(plugin_manager, _, _2, _3):
                   name: "Another scoreboard"
                   reverse: True #reverse the score (less is better)
     """
-    plugin_manager.add_page('/<cookieless:sessionid>scoreboard/<courseid>', ScoreBoardCourse.as_view('scoreboardcourse'))
-    plugin_manager.add_page('/<cookieless:sessionid>scoreboard/<courseid>/<scoreboardid>', ScoreBoard.as_view('scoreboard'))
+    plugin_manager.add_page('/scoreboard/<courseid>', ScoreBoardCourse.as_view('scoreboardcourse'))
+    plugin_manager.add_page('/scoreboard/<courseid>/<scoreboardid>', ScoreBoard.as_view('scoreboard'))
     plugin_manager.add_hook('course_menu', course_menu)
     plugin_manager.add_hook('task_menu', task_menu)

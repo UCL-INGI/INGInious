@@ -17,4 +17,4 @@ class DemoPage(INGIniousPage):
 
 def init(plugin_manager, _, _2, _3):
     """ Init the plugin """
-    plugin_manager.add_page("/<cookieless:sessionid>plugindemo", DemoPage.as_view('demopage'))
+    plugin_manager.add_page("/plugindemo", DemoPage.as_view('demopage'))

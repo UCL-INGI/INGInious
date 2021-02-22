@@ -123,4 +123,4 @@ def init(plugin_manager, course_factory, client, config):
                 response.response = [json.dumps({"status": "error", "status_message": "Unknown request type"})]
                 return response
 
-    plugin_manager.add_page("/<cookieless:sessionid>" + page_pattern[1:], ExternalGrader.as_view("externalgrader"))
+    plugin_manager.add_page(page_pattern, ExternalGrader.as_view("externalgrader"))
