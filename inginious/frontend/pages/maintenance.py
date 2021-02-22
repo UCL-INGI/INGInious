@@ -5,16 +5,17 @@
 
 """ Maintenance page """
 
-from inginious.frontend.pages.utils import INGIniousPage
+from flask.views import MethodView
+from flask import current_app
 
 
-class MaintenancePage(INGIniousPage):
+class MaintenancePage(MethodView):
     """ Maintenance page """
 
-    def GET(self):
+    def get(self, path):
         """ GET request """
-        return self.template_helper.render("maintenance.html")
+        return current_app.template_helper.render("maintenance.html")
 
-    def POST(self):
+    def post(self, path):
         """ POST request """
-        return self.template_helper.render("maintenance.html")
+        return current_app.template_helper.render("maintenance.html")

@@ -6,8 +6,7 @@
 """ Index page """
 from collections import OrderedDict
 
-import web
-
+from flask import request, redirect
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
@@ -21,7 +20,7 @@ class MyCoursesPage(INGIniousAuthPage):
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ Parse course registration or course creation and display the course list page """
 
-        user_input = web.input()
+        user_input = request.form
         success = None
 
         if "new_courseid" in user_input and self.user_manager.user_is_superadmin():

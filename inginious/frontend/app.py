@@ -44,12 +44,11 @@ from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 
 from inginious.frontend.app_dispatcher import AppDispatcher
 
-from inginious.frontend.webpy.mapping import urls as webpy_mapping
-from inginious.frontend.webpy.mapping import urls_maintenance
 from inginious.frontend.webpy.mongo_sessions import MongoStore
 
-from inginious.frontend.flask.mapping import init_flask_mapping
+from inginious.frontend.flask.mapping import init_flask_mapping, init_flask_maintenance_mapping
 from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
+from inginious.frontend.flask.mail import mail
 
 from werkzeug.exceptions import InternalServerError
 
@@ -98,6 +97,15 @@ def _put_configuration_defaults(config):
     config["SESSION_USE_SIGNER"] = True
     config["PERMANENT_SESSION_LIFETIME"] = config['session_parameters']["timeout"]
     config["SECRET_KEY"] = config['session_parameters']["secret_key"]
+
+    smtp_conf = config.get('smtp', None)
+    if smtp_conf is not None:
+        config["MAIL_SERVER"] = smtp_conf["host"]
+        config["MAIL_PORT"] = int(smtp_conf["port"])
+        config["MAIL_USE_TLS"]: bool(smtp_conf.get("starttls", False))
+        config["MAIL_USERNAME"] = smtp_conf.get("username", None)
+        config["MAIL_PASSWORD"] = smtp_conf.get("password", None)
+        config["MAIL_DEFAULT_SENDER"] = smtp_conf.get("sendername", "no-reply@ingnious.org")
 
     return config
 
@@ -155,7 +163,6 @@ def get_app(config):
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
     flask_app = flask.Flask(__name__)
-    init_flask_mapping(flask_app)
 
     flask_app.config.from_mapping(**config)
     flask_app.session_interface = MongoDBSessionInterface(
@@ -200,8 +207,8 @@ def get_app(config):
         template_helper.add_to_template_globals("get_homepath", get_homepath_func)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
-        webpy_app.template_helper = template_helper
-        webpy_app.init_mapping(urls_maintenance)
+        flask_app.template_helper = template_helper
+        init_flask_maintenance_mapping(flask_app)
         return appli, webpy_app.stop
 
     default_allowed_file_extensions = config['allowed_file_extensions']
@@ -253,6 +260,7 @@ def get_app(config):
     is_tos_defined = config.get("privacy_page", "") and config.get("terms_page", "")
 
     # Init web mail
+    mail.init_app(flask_app)
     smtp_conf = config.get('smtp', None)
     if smtp_conf is not None:
         web.config.smtp_server = smtp_conf["host"]
@@ -338,7 +346,8 @@ def get_app(config):
         theapp.webdav_host = config.get("webdav_host", None)
 
     # Init the mapping of the app
-    webpy_app.init_mapping(webpy_mapping)
+    webpy_app.init_mapping(())
+    init_flask_mapping(flask_app)
 
     # Loads plugins
     plugin_manager.load(client, webpy_app, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))

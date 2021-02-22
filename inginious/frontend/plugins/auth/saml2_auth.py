@@ -10,11 +10,12 @@ import html
 import json
 import logging
 
-import web
+from urllib.parse import urlparse
+from flask import request, Response
+from werkzeug.exceptions import abort, InternalServerError
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
-from inginious.frontend.webpy.cookieless_app import AvoidCreatingSession
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.user_manager import AuthMethod
 
@@ -52,10 +53,10 @@ class SAMLAuthMethod(AuthMethod):
 
     def callback(self, auth_storage):
         req = prepare_request(self._settings)
-        input_data = web.input()
+        input_data = request.form
 
         if "alreadyRedirected" not in input_data:
-            raise web.OK(AvoidCreatingSession("""
+            raise abort(Response(status=200, response="""
                 <!DOCTYPE html>
                 <html>
                     <head>
@@ -137,22 +138,22 @@ def prepare_request(settings):
 
     # Set the ACS url and binding method
     settings["sp"]["assertionConsumerService"] = {
-        "url": web.ctx.homedomain + web.ctx.homepath + "/auth/callback/" + settings["id"],
+        "url": request.url_root + "auth/callback/" + settings["id"],
         "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
     }
 
     # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
-    data = web.input()
+    url_data = urlparse(request.url)
     return {
-        'https': 'on' if web.ctx.protocol == 'https' else 'off',
-        'http_host': web.ctx.environ["SERVER_NAME"],
-        'server_port': web.ctx.environ["SERVER_PORT"],
-        'script_name': web.ctx.homepath,
-        'get_data': data.copy(),
-        'post_data': data.copy(),
+        'https': 'on' if request.scheme == 'https' else 'off',
+        'http_host': request.host,
+        'server_port': url_data.port,
+        'script_name': request.path,
+        'get_data': request.args.copy(),
+        'post_data': request.form.copy(),
         # Uncomment if using ADFS as IdP, https://github.com/onelogin/python-saml/pull/144
         # 'lowercase_urlencoding': True,
-        'query_string': web.ctx.query
+        'query_string': request.query_string
     }
 
 
@@ -164,14 +165,12 @@ class MetadataPage(INGIniousPage):
         errors = auth.get_settings().validate_metadata(metadata)
 
         if len(errors) == 0:
-            web.header('Content-Type', 'text/xml')
-            return metadata
+            return Response(response=metadata, status=200, mimetype="text/xml")
         else:
-            web.ctx.status = "500 Internal Server Error"
-            return ', '.join(errors)
+            raise InternalServerError(description=', '.join(errors))
 
 
 def init(plugin_manager, course_factory, client, conf):
-    plugin_manager.add_page(r'/auth/([^/]+)/metadata', MetadataPage)
+    plugin_manager.add_page('/auth/<id>/metadata', MetadataPage.as_view('metadatapage'))
     plugin_manager.register_auth_method(SAMLAuthMethod(conf.get("id"), conf.get('name', 'SAML'), conf.get('imlink', ''), conf))
 

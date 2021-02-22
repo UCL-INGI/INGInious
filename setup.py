@@ -32,7 +32,8 @@ install_requires = [
     "WsgiDAV >= 3.0.0",
     "Werkzeug >= 1.0.0",
     "itsdangerous >= 1.1.0",
-    "Flask >= 1.1.0"
+    "Flask >= 1.1.0",
+    "Flask-Mail >= 0.9.1"
 ]
 
 test_requires = [

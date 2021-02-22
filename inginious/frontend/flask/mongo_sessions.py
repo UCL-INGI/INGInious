@@ -53,11 +53,11 @@ class WebPyLikeSerializer:
         return pickle.loads(pickled)
 
     def loads(self, data):
-        return dict((k, self.decode(self, v) if isinstance(v, Binary) and v.subtype == USER_DEFINED_SUBTYPE else v)
+        return dict((k, self.decode(v) if isinstance(v, Binary) and v.subtype == USER_DEFINED_SUBTYPE else v)
                     for (k, v) in data.items())
 
     def dumps(self, sessiondict):
-        return dict((k, Binary(self.encode(self, v), USER_DEFINED_SUBTYPE) if self._needs_encode(v) else v)
+        return dict((k, Binary(self.encode(v), USER_DEFINED_SUBTYPE) if self._needs_encode(v) else v)
                     for (k, v) in sessiondict.items())
 
 

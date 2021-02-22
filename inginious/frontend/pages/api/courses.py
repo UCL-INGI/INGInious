@@ -13,7 +13,7 @@ class APICourses(APIAuthenticatedPage):
         Endpoint /api/v0/courses(/[a-zA-Z_\-\.0-9]+)?
     """
 
-    def API_GET(self, courseid=None):  # pylint: disable=arguments-differ
+    def API_GET(self, courseid):  # pylint: disable=arguments-differ
         """
             List courses available to the connected client. Returns a dict in the form
 

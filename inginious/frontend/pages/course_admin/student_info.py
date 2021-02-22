@@ -3,8 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-
-import web
+from flask import request
 from collections import OrderedDict
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
@@ -19,7 +18,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         return self.page(course, username)
 
     def POST_AUTH(self, courseid, username):
-        data = web.input()
+        data = request.form
         taskid = data["taskid"]
         course, __ = self.get_course_and_check_rights(courseid)
 
@@ -56,7 +55,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         for taskid in user_task_list:
             result[taskid]["visible"] = True
 
-        if "csv" in web.input():
+        if "csv" in request.args:
             return make_csv(result)
 
         return self.template_helper.render("course_admin/student_info.html", course=course,
