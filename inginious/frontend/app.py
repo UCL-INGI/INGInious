@@ -109,8 +109,8 @@ def get_homepath(ignore_session=False, force_cookieless=False):
     """
     session = flask.session
     request = flask.request
-    if not ignore_session and session.get("session_id") is not None and session.get("cookieless", False):
-        return request.url_root[:-1] + "/@" + session.get("session_id") + "@"
+    if not ignore_session and session.sid is not None and session.cookieless:
+        return request.url_root[:-1] + "/@" + session.sid + "@"
     elif not ignore_session and force_cookieless:
         return request.url_root[:-1] + "/@@"
     else:

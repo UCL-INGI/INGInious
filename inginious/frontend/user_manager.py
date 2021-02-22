@@ -161,11 +161,11 @@ class UserManager:
 
     def session_cookieless(self):
         """ Indicates if the current session is cookieless """
-        return self._session.get("cookieless", False)
+        return self._session.cookieless
 
     def session_id(self):
         """ Returns the current session id"""
-        return self._session.get("session_id", "")
+        return self._session.sid
 
     def session_auth_storage(self):
         """ Returns the oauth state for login """
@@ -227,7 +227,7 @@ class UserManager:
 
         current_app.session_interface.open_session(current_app, request)
 
-        session_id = self._session["session_id"]
+        session_id = self._session.sid
 
         self._session["lti"] = {
             "email": email,

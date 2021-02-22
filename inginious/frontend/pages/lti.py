@@ -7,7 +7,6 @@ from flask import request, redirect, session
 from werkzeug.exceptions import Forbidden, NotFound, MethodNotAllowed
 from inginious.frontend.lti_request_validator import LTIValidator
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
-from inginious.frontend.flask.mongo_sessions import WebPyLikeSerializer
 from itsdangerous import want_bytes
 
 from inginious.common import exceptions
@@ -60,7 +59,7 @@ class LTIBindPage(INGIniousAuthPage):
             cookieless_session = self.app.session_interface.serializer.loads(want_bytes(sess['data']))
         else:
             return KeyError()
-        return cookieless_session["session_id"], cookieless_session["lti"]
+        return sessionid, cookieless_session["lti"]
 
     def GET_AUTH(self):
         input_data = request.args
