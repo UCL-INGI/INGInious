@@ -668,7 +668,8 @@ The submission time, following the datetime format "%Y-%M-%D %H:%M:%S.%f", can b
 
         getinput @time
 
-With python or ipython, you can directly retrieve the submission time as a `datetime.datetime` object by using:
+
+With python or ipython, you can directly retrieve the submission time as a `datetime.datetime` object by using
 
 .. tabs::
 
@@ -680,7 +681,26 @@ With python or ipython, you can directly retrieve the submission time as a `date
 
         submission_time = input.get_submission_time()
 
-Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
+
+Random inputs may also be generated if you configured it so. You can access these random inputs using
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        lang = get_input("@random")
+
+    .. code-tab:: py
+
+        lang = input.get_input("@random")
+
+    .. code-tab:: bash
+
+        getinput @random
+
+Note that this returns the list of random values corresponding to the number of random inputs asked in the task configuration.
+
+Finally, note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
 
 parsetemplate
 `````````````

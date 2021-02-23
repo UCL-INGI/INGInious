@@ -70,30 +70,26 @@ Task edition
 ------------
 
 All tasks can be edited from the webapp. To access the task editor, just click
-on *Edit task* on the task page or from the main administration page.
+on *Tasks* from the main administration page. Then click on *Edit task* for the concerned task. 
+You can also add new tasks from this *Tasks* page by clicking *Add tasks* for a tasks section and entering a new task id.
 
-Task problems containing boxes are not graphically editable due to
-their high modularity. These kinds of problem editable on-line in YAML
-format.
 
-Adding/removing problems
+Adding/removing subproblems
 ````````````````````````
-Adding and removing problems are very easy in the task editor, go to the
-end of the page or click on the quick link "Add subproblem". You'll then
-be brought to a new form asking a problem-id (alphanumerical characters)
-and a problem type.
-
-To make a more complex question with boxes, choose "custom" problem and
-write the YAML problem description as described in the task file format.
+Adding and removing subproblems is very easy in the task editor. Go to the *Subproblems* tab and add a new 
+problem-id (alphanumerical characters) and a problem type. You can configure the problem context from this page, 
+even finalize the entire problem for mcq or match problems.
 
 When editing a multiple choice problem, you're asked if the student is
 shown a multiple-answers- or single-answer-problem and which of the
 possible choices is (are) good answer(s).
 
+Only more complex problems such as code implementation will require more configuration with a grading script in the task files.
+
 Task files
 ``````````
 
-Task files can be created, uploaded and modified from the task edition page.
+Task files can be created, uploaded and modified from the task edition page with the *Tasks files* tab.
 Only text-base files can be edited from the webapp. Binary files can however be uploaded.
 
 The behaviour of the *Move* action is Unix-like : it can be used for renaming files.
