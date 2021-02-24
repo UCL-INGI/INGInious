@@ -7,16 +7,17 @@
 import builtins
 import os
 import sys
-from binascii import hexlify
-
+import flask
 import pymongo
 
-import inginious.frontend.pages.course_admin.utils as course_admin_utils
-import flask
-
-from inginious.frontend.environment_types import register_base_env_types
-
 from gridfs import GridFS
+from binascii import hexlify
+from pymongo import MongoClient
+from werkzeug.exceptions import InternalServerError
+
+import inginious.frontend.pages.course_admin.utils as course_admin_utils
+import inginious.frontend.pages.preferences.utils as preferences_utils
+from inginious.frontend.environment_types import register_base_env_types
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.pages.utils import register_utils
 from inginious.frontend.plugin_manager import PluginManager
@@ -25,24 +26,17 @@ from inginious.frontend.submission_manager import update_pending_jobs
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.l10n_manager import L10nManager
-from pymongo import MongoClient
-
-import inginious.frontend.pages.preferences.utils as preferences_utils
-from inginious import get_root_path
+from inginious import get_root_path, __version__
 from inginious.frontend.course_factory import create_factories
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
-
 from inginious.frontend.task_problems import *
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
-
 from inginious.frontend.flask.mapping import init_flask_mapping, init_flask_maintenance_mapping
 from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
 from inginious.frontend.flask.mail import mail
-
-from werkzeug.exceptions import InternalServerError
 
 def _put_configuration_defaults(config):
     """
@@ -183,6 +177,7 @@ def get_app(config):
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", get_homepath)
+        template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
@@ -245,6 +240,7 @@ def get_app(config):
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
+    template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
     template_helper.add_to_template_globals("user_manager", user_manager)
