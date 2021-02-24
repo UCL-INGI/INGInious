@@ -62,9 +62,8 @@ class PluginManager(object):
                 kwargs = out
         return kwargs
 
-    def load(self, client, webpy_app, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config):
+    def load(self, client, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config):
         """ Loads the plugin manager. Must be done after the initialisation of the client """
-        self._webpy_app = webpy_app
         self._flask_app = flask_app
         self._task_factory = task_factory
         self._database = database
@@ -75,15 +74,12 @@ class PluginManager(object):
             module = importlib.import_module(entry["plugin_module"])
             module.init(self, course_factory, client, entry)
 
-    def add_page(self, pattern, classname_or_viewfunc, is_flask=True):
+    def add_page(self, pattern, classname_or_viewfunc):
         """ Add a new page to the web application. Only available after that the Plugin Manager is loaded """
         if not self._loaded:
             raise PluginManagerNotLoadedException()
 
-        if is_flask:
-            self._flask_app.add_url_rule("/<cookieless:sessionid>" + pattern[1:], view_func=classname_or_viewfunc)
-        else:
-            self._webpy_app.mapping.append((r"(/@[a-f0-9A-F_]*@)?" + pattern, classname_or_viewfunc))
+        self._flask_app.add_url_rule("/<cookieless:sessionid>" + pattern[1:], view_func=classname_or_viewfunc)
 
     def add_task_file_manager(self, task_file_manager):
         """ Add a task file manager. Only available after that the Plugin Manager is loaded """
