@@ -47,9 +47,9 @@ class INGIniousPage(MethodView):
 
     def _pre_check(self, sessionid):
         # Check for cookieless redirect
-        if not sessionid and session.get("cookieless", False):
+        if not sessionid and session.cookieless:
             query_string = "?" + request.query_string.decode("utf-8") if request.query_string else ""
-            request.view_args.update(sessionid=session.get("session_id"))
+            request.view_args.update(sessionid=session.sid)
             return redirect(url_for(request.endpoint, **request.view_args) + query_string)
 
         # Check for language

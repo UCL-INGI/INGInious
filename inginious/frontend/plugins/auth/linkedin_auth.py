@@ -16,7 +16,7 @@ from inginious.frontend.user_manager import AuthMethod
 
 authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization'
 token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
-scope = ["r_liteprofile", "r_basicprofile", "r_emailaddress"]
+scope = ["r_liteprofile", "r_emailaddress"]
 
 
 class LinkedInAuthMethod(AuthMethod):

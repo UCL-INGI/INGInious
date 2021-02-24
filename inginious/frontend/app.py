@@ -12,15 +12,12 @@ from binascii import hexlify
 import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
-import web
 import flask
 
 from inginious.frontend.environment_types import register_base_env_types
-from inginious.frontend.pages.internalerror import internalerror_generator
 
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
-from inginious.frontend.webpy.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.pages.utils import register_utils
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.submission_manager import WebAppSubmissionManager
@@ -29,7 +26,6 @@ from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.l10n_manager import L10nManager
 from pymongo import MongoClient
-from web.debugerror import debugerror, emailerrors
 
 import inginious.frontend.pages.preferences.utils as preferences_utils
 from inginious import get_root_path
@@ -41,10 +37,6 @@ from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 from inginious.frontend.task_problems import *
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
-
-from inginious.frontend.app_dispatcher import AppDispatcher
-
-from inginious.frontend.webpy.mongo_sessions import MongoStore
 
 from inginious.frontend.flask.mapping import init_flask_mapping, init_flask_maintenance_mapping
 from inginious.frontend.flask.mongo_sessions import MongoDBSessionInterface
@@ -110,23 +102,23 @@ def _put_configuration_defaults(config):
     return config
 
 
-def get_homepath(ctx_homepath, session_func, ignore_session=False, force_cookieless=False):
+def get_homepath(ignore_session=False, force_cookieless=False):
     """
     :param ignore_session: Ignore the cookieless session_id that should be put in the URL
     :param force_cookieless: Force the cookieless session; the link will include the session_creator if needed.
     """
-    session = session_func()
-    if not ignore_session and session.get("session_id") is not None and session.get("cookieless", False):
-        return ctx_homepath() + "/@" + session.get("session_id") + "@"
+    session = flask.session
+    request = flask.request
+    if not ignore_session and session.sid is not None and session.cookieless:
+        return request.url_root[:-1] + "/@" + session.sid + "@"
     elif not ignore_session and force_cookieless:
-        return ctx_homepath() + "/@@"
+        return request.url_root[:-1] + "/@@"
     else:
-        return ctx_homepath()
+        return request.url_root[:-1]
 
 
-def _close_app(app, mongo_client, client):
+def _close_app(mongo_client, client):
     """ Ensures that the app is properly closed """
-    app.stop()
     client.close()
     mongo_client.close()
 
@@ -137,12 +129,8 @@ def get_app(config):
     :return: A new app
     """
     # First, disable debug. It will be enabled in the configuration, later.
-    web.config.debug = False
 
     config = _put_configuration_defaults(config)
-
-    web.config.session_parameters.update(config['session_parameters'])
-
     mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
     database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
     gridfs = GridFS(database)
@@ -170,16 +158,6 @@ def get_app(config):
         "sessions", config.get('SESSION_USE_SIGNER', False), True  # config.get('SESSION_PERMANENT', True)
     )
 
-    webpy_app = CookieLessCompatibleApplication(MongoStore(database, 'sessions', web.config.session_parameters.timeout))
-    appli = AppDispatcher(webpy_app.wsgifunc(), flask_app.wsgi_app, lambda: webpy_app.mapping)
-
-    # TODO : These should be removed after flask migration
-    session_func = lambda: webpy_app.get_session() if web.ctx.keys() else flask.session
-    ctx_homepath = lambda: web.ctx.homepath if web.ctx.keys() else flask.request.url_root[:-1]
-    appli_func = lambda: webpy_app if web.ctx.keys() else flask_app
-    get_homepath_func = lambda ignore_session=False, force_cookieless=False: get_homepath(
-        ctx_homepath, session_func, ignore_session, force_cookieless)
-
     # Init gettext
     available_translations = {
         "fr": "Français",
@@ -194,7 +172,7 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
-    l10n_manager = L10nManager(session_func)
+    l10n_manager = L10nManager()
 
     l10n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
     for lang in available_translations.keys():
@@ -204,12 +182,12 @@ def get_app(config):
 
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
-        template_helper.add_to_template_globals("get_homepath", get_homepath_func)
+        template_helper.add_to_template_globals("get_homepath", get_homepath)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
         init_flask_maintenance_mapping(flask_app)
-        return appli, webpy_app.stop
+        return flask_app.wsgi_app, lambda: None
 
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
@@ -243,7 +221,7 @@ def get_app(config):
 
     course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager)
 
-    user_manager = UserManager(session_func, database, config.get('superadmins', []))
+    user_manager = UserManager(database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
@@ -261,20 +239,12 @@ def get_app(config):
 
     # Init web mail
     mail.init_app(flask_app)
-    smtp_conf = config.get('smtp', None)
-    if smtp_conf is not None:
-        web.config.smtp_server = smtp_conf["host"]
-        web.config.smtp_port = int(smtp_conf["port"])
-        web.config.smtp_starttls = bool(smtp_conf.get("starttls", False))
-        web.config.smtp_username = smtp_conf.get("username", "")
-        web.config.smtp_password = smtp_conf.get("password", "")
-        web.config.smtp_sendername = smtp_conf.get("sendername", "no-reply@ingnious.org")
 
     # Add some helpers for the templates
     template_helper.add_to_template_globals("_", _)
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
-    template_helper.add_to_template_globals("get_homepath", get_homepath_func)
+    template_helper.add_to_template_globals("get_homepath", get_homepath)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
     template_helper.add_to_template_globals("user_manager", user_manager)
@@ -293,13 +263,11 @@ def get_app(config):
     def flask_not_found(e):
         return template_helper.render("notfound.html", message=e.description), 404
     flask_app.register_error_handler(404, flask_not_found)
-    webpy_app.notfound = lambda message='Page not found': web.notfound(template_helper.render("notfound.html", message=message))
 
     # Forbidden page
     def flask_forbidden(e):
         return template_helper.render("forbidden.html", message=e.description), 403
     flask_app.register_error_handler(403, flask_forbidden)
-    webpy_app.forbidden = lambda message='Forbidden': web.forbidden(template_helper.render("forbidden.html", message=message))
 
     # Enable stacktrace display if needed
     web_debug = config.get('web_debug', False)
@@ -308,51 +276,44 @@ def get_app(config):
         return template_helper.render("internalerror.html", message=e.description), 500
     flask_app.register_error_handler(InternalServerError, flask_internalerror)
 
-    webpy_app.internalerror = internalerror_generator(template_helper.render)
     if web_debug is True:
-        web.config.debug = True
         flask_app.debug = True
-        webpy_app.internalerror = debugerror
     elif isinstance(web_debug, str):
-        web.config.debug = False
         flask_app.debug = False
-        webpy_app.internalerror = emailerrors(web_debug, webpy_app.internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
-    for theapp in [webpy_app, flask_app]:
-        theapp.get_homepath = get_homepath_func
-        theapp.plugin_manager = plugin_manager
-        theapp.course_factory = course_factory
-        theapp.task_factory = task_factory
-        theapp.submission_manager = submission_manager
-        theapp.user_manager = user_manager
-        theapp.l10n_manager = l10n_manager
-        theapp.template_helper = template_helper
-        theapp.database = database
-        theapp.gridfs = gridfs
-        theapp.client = client
-        theapp.default_allowed_file_extensions = default_allowed_file_extensions
-        theapp.default_max_file_size = default_max_file_size
-        theapp.backup_dir = config.get("backup_directory", './backup')
-        theapp.webterm_link = config.get("webterm", None)
-        theapp.lti_outcome_manager = lti_outcome_manager
-        theapp.allow_registration = config.get("allow_registration", True)
-        theapp.allow_deletion = config.get("allow_deletion", True)
-        theapp.available_languages = available_languages
-        theapp.welcome_page = config.get("welcome_page", None)
-        theapp.terms_page = config.get("terms_page", None)
-        theapp.privacy_page = config.get("privacy_page", None)
-        theapp.static_directory = config.get("static_directory", "./static")
-        theapp.webdav_host = config.get("webdav_host", None)
+    flask_app.get_homepath = get_homepath
+    flask_app.plugin_manager = plugin_manager
+    flask_app.course_factory = course_factory
+    flask_app.task_factory = task_factory
+    flask_app.submission_manager = submission_manager
+    flask_app.user_manager = user_manager
+    flask_app.l10n_manager = l10n_manager
+    flask_app.template_helper = template_helper
+    flask_app.database = database
+    flask_app.gridfs = gridfs
+    flask_app.client = client
+    flask_app.default_allowed_file_extensions = default_allowed_file_extensions
+    flask_app.default_max_file_size = default_max_file_size
+    flask_app.backup_dir = config.get("backup_directory", './backup')
+    flask_app.webterm_link = config.get("webterm", None)
+    flask_app.lti_outcome_manager = lti_outcome_manager
+    flask_app.allow_registration = config.get("allow_registration", True)
+    flask_app.allow_deletion = config.get("allow_deletion", True)
+    flask_app.available_languages = available_languages
+    flask_app.welcome_page = config.get("welcome_page", None)
+    flask_app.terms_page = config.get("terms_page", None)
+    flask_app.privacy_page = config.get("privacy_page", None)
+    flask_app.static_directory = config.get("static_directory", "./static")
+    flask_app.webdav_host = config.get("webdav_host", None)
 
     # Init the mapping of the app
-    webpy_app.init_mapping(())
     init_flask_mapping(flask_app)
 
     # Loads plugins
-    plugin_manager.load(client, webpy_app, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
+    plugin_manager.load(client, flask_app, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
 
     # Start the inginious.backend
     client.start()
 
-    return appli, lambda: _close_app(webpy_app, mongo_client, client)
+    return flask_app.wsgi_app, lambda: _close_app(mongo_client, client)

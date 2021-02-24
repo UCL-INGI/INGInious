@@ -7,7 +7,6 @@
 import os
 from functools import lru_cache
 
-import web
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import inginious
 import json
@@ -40,9 +39,6 @@ class TemplateHelper(object):
         self._layout_old = 'frontend/templates/layout_old'
         self._template_globals = {}
         self._ctx = {"javascript": {"footer": [], "header": []}, "css": []}
-
-        # include is only needed in webpy templates as jinja supports it by default
-        self.add_to_template_globals("include", self.get_custom_renderer(self._template_dir, layout=False))
 
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
@@ -82,39 +78,6 @@ class TemplateHelper(object):
         env.globals.update(self._template_globals)
 
         return env
-
-    def get_renderer(self, with_layout=True):
-        """ Get the default renderer. This function is deprecated, use render() (that uses Jinja) instead. """
-        if with_layout:
-            return self.get_custom_renderer(self._template_dir)
-        else:
-            return self.get_custom_renderer(self._template_dir, layout=False)
-
-    def get_custom_renderer(self, dir_path, layout=True):
-        """
-        Create a template renderer on templates in the directory specified, and returns it.
-
-        See the web.py documentation.
-        This function is deprecated, use render() (that uses Jinja) instead.
-
-        :param dir_path: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
-        :param layout: can either be True (use the base layout of the running app), False (use no layout at all), or the path to the layout to use.
-                       If this path is relative, it is taken from the INGInious package root.
-        """
-
-        # if dir_path/base is a absolute path, os.path.join(something, an_absolute_path) returns an_absolute_path.
-        root_path = inginious.get_root_path()
-
-        if isinstance(layout, str):
-            layout_path = os.path.join(root_path, layout)
-        elif layout is True:
-            layout_path = os.path.join(root_path, self._layout_old)
-        else:
-            layout_path = None
-
-        return web.template.render(os.path.join(root_path, dir_path),
-                                  globals=self._template_globals,
-                                  base=layout_path)
 
     def call(self, name, **kwargs):
         helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))
