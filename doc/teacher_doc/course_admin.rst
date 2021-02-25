@@ -72,19 +72,25 @@ Task edition
 All tasks can be edited from the webapp. To access the task editor, just click
 on *Tasks* from the main administration page. Then click on *Edit task* for the concerned task. 
 You can also add new tasks from this *Tasks* page by clicking *Add tasks* for a tasks section and entering a new task id.
+When editing a task, you can enter basic informations and parameters in the *Basic settings* tab.
 
+Based on the type of problem you want to put for the task, you can select one of the two available *grading environment* in the *Environment* tab:
 
-Adding/removing subproblems
+- Select **Multiple Choice Question solver** if you only want to add *mcq* or *match* problems.
+- Select **Docker container** if you want to add some more complex problems which requires to write a grading script to access the students inputs.
+
+Adding/removing problems
 ````````````````````````
-Adding and removing subproblems is very easy in the task editor. Go to the *Subproblems* tab and add a new 
-problem-id (alphanumerical characters) and a problem type. You can configure the problem context from this page, 
-even finalize the entire problem for mcq or match problems.
+Adding and removing problems in a task is very easy with the task editor. Go to the *Subproblems* tab and add a new 
+problem-id (alphanumerical characters) and a problem type. You can configure the problem context from this page.
 
+**mcq** and **match** problems can be entirely configured from this page with the option to set up answers.
 When editing a multiple choice problem, you're asked if the student is
 shown a multiple-answers- or single-answer-problem and which of the
 possible choices is (are) good answer(s).
 
-Only more complex problems such as code implementation will require more configuration with a grading script in the task files.
+Only more complex problems such as code implementation will require you to write a grading script which can be done directly within the *Tasks files* tab.
+If you are creating this kind of problems, remember to select *Docker container* as *grading environment* in the *Environment* tab.
 
 Task files
 ``````````
