@@ -7,8 +7,10 @@
 import os
 import gettext
 import builtins
+from setuptools_scm import get_version
 
-__version__ = "0.6.dev0"
+__version__ = get_version(fallback_version="0.7.dev0")
+
 MARKETPLACE_URL = "https://marketplace.inginious.org/marketplace.json"
 
 

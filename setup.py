@@ -5,11 +5,8 @@
 # more information about the licensing of this file.
 
 import sys
-
 import os
 from setuptools import setup, find_packages
-
-import inginious
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -32,7 +29,8 @@ install_requires = [
     "Werkzeug >= 1.0.0",
     "itsdangerous >= 1.1.0",
     "Flask >= 1.1.0",
-    "Flask-Mail >= 0.9.1"
+    "Flask-Mail >= 0.9.1",
+    "setuptools_scm >= 5.0.0"
 ]
 
 test_requires = [
@@ -62,9 +60,10 @@ else:
 # Setup
 setup(
     name="INGInious",
-    version=inginious.__version__,
+    use_scm_version=True,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
+    setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={
