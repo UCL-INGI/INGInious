@@ -493,7 +493,7 @@ class UserManager:
 
         for result in data:
             username = result["_id"]
-            visible_tasks = users_tasks_list[username]
+            visible_tasks = users_tasks_list[username] if username in users_tasks_list else []
             result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(visible_tasks))
             result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if
                                      dg["taskid"] in visible_tasks}
