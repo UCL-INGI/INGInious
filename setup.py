@@ -30,7 +30,7 @@ install_requires = [
     "itsdangerous >= 1.1.0",
     "Flask >= 1.1.0",
     "Flask-Mail >= 0.9.1",
-    "setuptools_scm >= 5.0.0"
+    "importlib_metadata >= 3.7.0"
 ]
 
 test_requires = [
