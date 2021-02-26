@@ -31,7 +31,7 @@ install_requires = [
     "Flask >= 1.1.0",
     "Flask-Mail >= 0.9.1",
     "importlib_metadata >= 3.7.0",
-    'dataclasses >= 0.8; python_version < "3.6.0"'
+    'dataclasses >= 0.8; python_version < "3.7.0"'
 ]
 
 test_requires = [
