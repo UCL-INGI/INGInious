@@ -125,7 +125,9 @@ class DockerAgent(Agent):
 
         if self._address_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
-            self._address_host = await self._docker.get_host_ip(next(iter(next(iter(self._containers.values())).values()))["id"])
+            any_envtype_containers = next(iter(self._containers.values()))
+            any_container = next(iter(any_envtype_containers.values()))
+            self._address_host = await self._docker.get_host_ip(any_container["id"])
         if self._address_host is None:
             self._logger.warning("Cannot find external host IP. Please indicate it in the configuration. "
                                  "Remote SSH debug has been deactivated.")
