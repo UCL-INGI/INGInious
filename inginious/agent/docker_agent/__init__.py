@@ -153,7 +153,7 @@ class DockerAgent(Agent):
 
     @property
     def environments(self):
-        return {t: [{**info, "name": envname} for envname, info in envs.items()] for t, envs in self._containers.items()}
+        return self._containers
 
     async def _watch_docker_events(self):
         """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """
@@ -492,8 +492,7 @@ class DockerAgent(Agent):
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
                                 self._logger.info("%s %s", info.container_id, str(msg))
-                                await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22],
-                                                             msg["ssh_user"], msg["ssh_key"])
+                                await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22], msg["ssh_user"], msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 result = msg["result"]

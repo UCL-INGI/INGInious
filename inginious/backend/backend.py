@@ -232,7 +232,7 @@ class Backend(object):
             await self._delete_agent(agent_addr)
 
         self._registered_agents[agent_addr] = AgentInfo(message.friendly_name,
-                                                        [(etype, env['name']) for etype, envs in
+                                                        [(etype, env) for etype, envs in
                                                          message.available_environments.items() for env in envs])
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
@@ -242,8 +242,7 @@ class Backend(object):
             if environment_type not in self._environments:
                 self._environments[environment_type] = {}
             env_dict = self._environments[environment_type]
-            for environment_info in environments:
-                name = environment_info["name"]
+            for name, environment_info in environments.items():
                 if name in env_dict:
                     # check if the id is the same
                     if env_dict[name].last_id == environment_info["id"]:

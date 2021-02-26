@@ -83,14 +83,13 @@ class Agent(object, metaclass=ABCMeta):
         """
         :return: a dict of available environments (containers most of the time) in the form
             {
-                "type": [
-                    {
-                        "name": "default",    #  for example, "default"
+                "type": {
+                    "name": {                 #  for example, "default"
                         "id": "env img id",   # "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
                         "created": 12345678,  # create date
                         "ports": [22, 434],   # list of ports needed
                     }
-                ]
+                }
             }
 
             If the environments are not environments, fills `created` with a fixed date (that will be shared by all agents of the same version),
@@ -162,7 +161,7 @@ class Agent(object, metaclass=ABCMeta):
         await ZMQUtils.send(self.__backend_socket, AgentJobStarted(message.job_id))
 
         try:
-            if message.environment_type not in self.environments or not any(message.environment == x['name'] for x in self.environments[message.environment_type]):
+            if message.environment_type not in self.environments or message.environment not in self.environments[message.environment_type]:
                 self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", message.course_id, message.task_id,
                                      message.environment_type, message.environment)
                 raise CannotCreateJobException('This environment is not available in this agent. Please contact your course administrator.')
