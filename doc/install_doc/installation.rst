@@ -18,6 +18,10 @@ INGInious needs:
 - Libtidy
 - LibZMQ
 
+.. DANGER::
+    This version relies on older web framework and won't work correctly with Python >= 3.7.
+    Consider installer a newer version for compatibility with the most recent Python interpreters.
+
 .. _Docker: https://www.docker.com
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
@@ -29,8 +33,8 @@ The previously mentioned dependencies can be installed, for Cent OS 7.0+ :
 ::
 
     # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-    # yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm
-    # yum install -y git mongodb mongodb-server gcc libtidy python35u python35u-pip python35u-devel zeromq-devel
+    # yum install -y epel-release
+    # yum install -y git mongodb mongodb-server gcc libtidy python36 python36-pip python36-devel zeromq-devel
 
 Or, for Fedora 24+:
 ::
@@ -401,7 +405,7 @@ You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`
 
     <VirtualHost *:80>
         ServerName my_inginious_domain
-        LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
+        LoadModule wsgi_module /usr/lib64/python3.6/site-packages/mod_wsgi/server/mod_wsgi-py36.cpython-36m-x86_64-linux-gnu.so
 
         WSGIScriptAlias / "/usr/bin/inginious-webapp"
         WSGIScriptReloading On
@@ -421,7 +425,7 @@ You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`
 
     <VirtualHost *:8080>
         ServerName my_inginious_domain
-        LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
+        LoadModule wsgi_module /usr/lib64/python3.6/site-packages/mod_wsgi/server/mod_wsgi-py36.cpython-36m-x86_64-linux-gnu.so
 
         WSGIScriptAlias / "/usr/bin/inginious-webdav"
         WSGIScriptReloading On
