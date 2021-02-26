@@ -3,7 +3,8 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-from flask import request, redirect, session
+import flask
+from flask import redirect
 from werkzeug.exceptions import Forbidden, NotFound, MethodNotAllowed
 from inginious.frontend.lti_request_validator import LTIValidator
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
@@ -62,7 +63,7 @@ class LTIBindPage(INGIniousAuthPage):
         return sessionid, cookieless_session["lti"]
 
     def GET_AUTH(self):
-        input_data = request.args
+        input_data = flask.request.args
         if "sessionid" not in input_data:
             return self.template_helper.render("lti_bind.html", success=False, sessionid="",
                                                data=None, error=_("Missing LTI session id"))
@@ -77,7 +78,7 @@ class LTIBindPage(INGIniousAuthPage):
                                            sessionid=cookieless_session_id, data=data, error="")
 
     def POST_AUTH(self):
-        input_data = request.args
+        input_data = flask.request.args
         if "sessionid" not in input_data:
             return self.template_helper.render("lti_bind.html",success=False, sessionid="",
                                                data= None, error=_("Missing LTI session id"))
@@ -178,7 +179,7 @@ class LTILaunchPage(INGIniousPage):
 
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
-        post_input = request.form
+        post_input = flask.request.form
         self.logger.debug('_parse_lti_data:' + str(post_input))
 
         try:

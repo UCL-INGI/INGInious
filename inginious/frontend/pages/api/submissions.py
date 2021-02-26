@@ -7,7 +7,7 @@
 
 import base64
 import gettext
-from flask import request
+import flask
 
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 
@@ -105,7 +105,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        with_input = "input" in request.args
+        with_input = "input" in flask.request.args
 
         return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input, submissionid)
 
@@ -142,7 +142,7 @@ class APISubmissions(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        with_input = "input" in request.args
+        with_input = "input" in flask.request.args
 
         return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input)
 
@@ -180,15 +180,15 @@ class APISubmissions(APIAuthenticatedPage):
         if not self.user_manager.task_can_user_submit(task, username, False):
             raise APIForbidden("You are not allowed to submit for this task")
 
-        user_input = request.form.copy()
+        user_input = flask.request.form.copy()
         for problem in task.get_problems():
             pid = problem.get_id()
             if problem.input_type() == list:
-                user_input[pid] = request.form.getlist(pid)
+                user_input[pid] = flask.request.form.getlist(pid)
             elif problem.input_type() == dict:
-                user_input[pid] = request.files.get(pid)
+                user_input[pid] = flask.request.files.get(pid)
             else:
-                user_input[pid] = request.form.get(pid)
+                user_input[pid] = flask.request.form.get(pid)
 
         user_input = task.adapt_input_for_backend(user_input)
 

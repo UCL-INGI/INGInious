@@ -5,7 +5,8 @@
 
 import logging
 
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import NotFound, Forbidden
 from bson.errors import InvalidId
 
@@ -39,7 +40,7 @@ class SubmissionPage(INGIniousAdminPage):
         course, task, submission = self.fetch_submission(submissionid)
         is_admin = self.user_manager.has_admin_rights_on_course(course)
 
-        webinput = request.form
+        webinput = flask.request.form
         if "replay" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission)
         elif "replay-copy" in webinput:  # Authorized for tutors

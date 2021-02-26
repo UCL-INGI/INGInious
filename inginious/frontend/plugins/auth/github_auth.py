@@ -7,8 +7,8 @@
 
 import json
 import os
+import flask
 
-from flask import request, redirect
 from requests_oauthlib import OAuth2Session
 
 from inginious.frontend.user_manager import AuthMethod
@@ -22,16 +22,16 @@ class GithubAuthMethod(AuthMethod):
     Github auth method
     """
     def get_auth_link(self, auth_storage, share=False):
-        github = OAuth2Session(self._client_id, scope=scope,  redirect_uri=request.url_root + self._callback_page)
+        github = OAuth2Session(self._client_id, scope=scope,  redirect_uri=flask.request.url_root + self._callback_page)
         authorization_url, state = github.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
         return authorization_url
 
     def callback(self, auth_storage):
-        github = OAuth2Session(self._client_id, state=auth_storage["oauth_state"],  redirect_uri=request.url_root + self._callback_page)
+        github = OAuth2Session(self._client_id, state=auth_storage["oauth_state"],  redirect_uri=flask.request.url_root + self._callback_page)
         try:
             github.fetch_token(token_url, client_secret=self._client_secret,
-                               authorization_response=request.url)
+                               authorization_response=flask.request.url)
             r = github.get('https://api.github.com/user')
             profile = json.loads(r.content.decode('utf-8'))
             r = github.get('https://api.github.com/user/emails')

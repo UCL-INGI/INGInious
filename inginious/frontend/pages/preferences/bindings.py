@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Auth bindings page """
-from flask import request, redirect
+import flask
+from flask import redirect
 
 from pymongo import ReturnDocument
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -31,7 +32,7 @@ class BindingsPage(INGIniousAuthPage):
         if not user_data:
             raise self.app.notfound(message=_("User doesn't exist."))
 
-        user_input = request.form
+        user_input = flask.request.form
         auth_methods = self.user_manager.get_auth_methods()
 
         if "auth_binding" in user_input:

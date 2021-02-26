@@ -7,7 +7,8 @@
 
 import json
 
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import NotFound
 from bson.objectid import ObjectId
 
@@ -64,9 +65,9 @@ class CourseEditAudience(INGIniousAdminPage):
         msg=''
         error = False
 
-        data = request.form.copy()
-        data["delete"] = request.form.getlist("delete")
-        data["tutors"] = request.form.getlist("tutors")
+        data = flask.request.form.copy()
+        data["delete"] = flask.request.form.getlist("delete")
+        data["tutors"] = flask.request.form.getlist("tutors")
 
         if len(data["delete"]):
 

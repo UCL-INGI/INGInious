@@ -7,8 +7,9 @@
 import json
 import os.path
 
-from flask import request, redirect, Response
-from werkzeug.exceptions import Forbidden, NotFound
+import flask
+from flask import redirect, Response
+from werkzeug.exceptions import  NotFound
 
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -24,7 +25,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        user_input = request.args
+        user_input = flask.request.args
         if user_input.get("action") == "download" and user_input.get('path') is not None:
             return self.action_download(courseid, taskid, user_input.get('path'))
         elif user_input.get("action") == "delete" and user_input.get('path') is not None:
@@ -45,8 +46,8 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        user_input = request.form.copy()
-        user_input["file"] = request.files.get("file")
+        user_input = flask.request.form.copy()
+        user_input["file"] = flask.request.files.get("file")
 
         if user_input.get("action") == "upload" and user_input.get('path') is not None and user_input.get('file') is not None:
             return self.action_upload(courseid, taskid, user_input.get('path'), user_input.get('file'))
@@ -264,8 +265,8 @@ class CourseTaskFileUpload(CourseTaskFiles):
 
         self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        user_input = request.form.copy()
-        user_input["file"] = request.files.get("file")
+        user_input = flask.request.form.copy()
+        user_input["file"] = flask.request.files.get("file")
         if user_input.get('file') is not None:
             file = user_input.get('file')
             name = user_input.get('name')

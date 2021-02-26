@@ -5,11 +5,12 @@
 
 """ Some utils for all the pages """
 import logging
+import os
 from typing import List, Dict
 
-import os
+import flask
 from gridfs import GridFS
-from flask import redirect, request, current_app, session, url_for
+from flask import redirect, url_for
 from flask.views import MethodView
 from werkzeug.exceptions import NotFound, NotAcceptable
 
@@ -43,20 +44,20 @@ class INGIniousPage(MethodView):
     @property
     def app(self):
         """ Returns the web application singleton """
-        return current_app
+        return flask.current_app
 
     def _pre_check(self, sessionid):
         # Check for cookieless redirect
-        if not sessionid and session.cookieless:
-            query_string = "?" + request.query_string.decode("utf-8") if request.query_string else ""
-            request.view_args.update(sessionid=session.sid)
-            return redirect(url_for(request.endpoint, **request.view_args) + query_string)
+        if not sessionid and flask.session.cookieless:
+            query_string = "?" + flask.request.query_string.decode("utf-8") if flask.request.query_string else ""
+            flask.request.view_args.update(sessionid=flask.session.sid)
+            return redirect(url_for(flask.request.endpoint, **flask.request.view_args) + query_string)
 
         # Check for language
-        if "lang" in request.args and request.args["lang"] in self.app.l10n_manager.translations.keys():
-            self.user_manager.set_session_language(request.args["lang"])
-        elif "language" not in session:
-            best_lang = request.accept_languages.best_match(self.app.l10n_manager.translations.keys(), default="en")
+        if "lang" in flask.request.args and flask.request.args["lang"] in self.app.l10n_manager.translations.keys():
+            self.user_manager.set_session_language(flask.request.args["lang"])
+        elif "language" not in flask.session:
+            best_lang = flask.request.accept_languages.best_match(self.app.l10n_manager.translations.keys(), default="en")
             self.user_manager.set_session_language(best_lang)
 
         return ""
@@ -192,10 +193,10 @@ class INGIniousAuthPage(INGIniousPage):
             return self.GET_AUTH(*args, **kwargs)
         else:
             error = ''
-            if "binderror" in request.args:
+            if "binderror" in flask.request.args:
                 error = _("An account using this email already exists and is not bound with this service. "
                           "For security reasons, please log in via another method and bind your account in your profile.")
-            if "callbackerror" in request.args:
+            if "callbackerror" in flask.request.args:
                 error = _("Couldn't fetch the required information from the service. Please check the provided "
                           "permissions (name, email) and contact your INGInious administrator if the error persists.")
             return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(), error=error)
@@ -215,7 +216,7 @@ class INGIniousAuthPage(INGIniousPage):
 
             return self.POST_AUTH(*args, **kwargs)
         else:
-            user_input = request.form
+            user_input = flask.request.form
             if "login" in user_input and "password" in user_input:
                 if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
                     return self.GET_AUTH(*args, **kwargs)

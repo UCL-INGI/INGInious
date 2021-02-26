@@ -9,9 +9,10 @@ import copy
 import html
 import json
 import logging
+import flask
 
 from urllib.parse import urlparse
-from flask import request, Response
+from flask import Response
 from werkzeug.exceptions import abort, InternalServerError
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
@@ -53,7 +54,7 @@ class SAMLAuthMethod(AuthMethod):
 
     def callback(self, auth_storage):
         req = prepare_request(self._settings)
-        input_data = request.form
+        input_data = flask.request.form
 
         if "alreadyRedirected" not in input_data:
             raise abort(Response(status=200, response="""
@@ -138,22 +139,22 @@ def prepare_request(settings):
 
     # Set the ACS url and binding method
     settings["sp"]["assertionConsumerService"] = {
-        "url": request.url_root + "auth/callback/" + settings["id"],
+        "url": flask.request.url_root + "auth/callback/" + settings["id"],
         "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
     }
 
     # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
-    url_data = urlparse(request.url)
+    url_data = urlparse(flask.request.url)
     return {
-        'https': 'on' if request.scheme == 'https' else 'off',
-        'http_host': request.host,
+        'https': 'on' if flask.request.scheme == 'https' else 'off',
+        'http_host': flask.request.host,
         'server_port': url_data.port,
-        'script_name': request.path,
-        'get_data': request.args.copy(),
-        'post_data': request.form.copy(),
+        'script_name': flask.request.path,
+        'get_data': flask.request.args.copy(),
+        'post_data': flask.request.form.copy(),
         # Uncomment if using ADFS as IdP, https://github.com/onelogin/python-saml/pull/144
         # 'lowercase_urlencoding': True,
-        'query_string': request.query_string
+        'query_string': flask.request.query_string
     }
 
 

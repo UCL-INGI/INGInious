@@ -6,8 +6,8 @@
 """ Allow the webapp to act as a simple POST grader """
 import json
 import re
-
-from flask import request, Response
+import flask
+from flask import Response
 
 from inginious.client.client_buffer import ClientBuffer
 from inginious.client.client_sync import ClientSync
@@ -69,7 +69,7 @@ def init(plugin_manager, course_factory, client, config):
             """ POST request """
             response = Response(content_type='application/json')
             response.headers['Access-Control-Allow-Origin'] = '*'
-            post_input = request.form
+            post_input = flask.request.form
 
             if "input" in post_input and "taskid" in post_input:
                 # New job

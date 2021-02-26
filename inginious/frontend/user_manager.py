@@ -6,9 +6,9 @@
 """ Manages users data and session """
 import logging
 import hashlib
+import flask
 from typing import Dict, Optional
 
-from flask import current_app, request, session as flask_session
 from werkzeug.exceptions import NotFound
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
@@ -94,7 +94,7 @@ class UserManager:
         :type superadmins: list(str)
         :param superadmins: list of the super-administrators' usernames
         """
-        self._session = flask_session
+        self._session = flask.session
         self._database = database
         self._superadmins = superadmins
         self._auth_methods = OrderedDict()
@@ -225,7 +225,7 @@ class UserManager:
 
         self._destroy_session()  # don't forget to destroy the current session
 
-        current_app.session_interface.open_session(current_app, request)
+        flask.current_app.session_interface.open_session(flask.current_app, flask.request)
 
         session_id = self._session.sid
 
@@ -309,7 +309,7 @@ class UserManager:
         self._database.users.update_one({"email": email},
                                         {"$set": {"realname": realname, "username": username, "language": language}},
                                         upsert=True)
-        ip = request.remote_addr
+        ip = flask.request.remote_addr
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, ip)
         self._set_session(username, realname, email, language, tos_accepted)
         return True
@@ -319,7 +319,7 @@ class UserManager:
         Disconnects the user currently logged-in
         """
         if self.session_logged_in():
-            ip = request.remote_addr
+            ip = flask.request.remote_addr
             self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(),
                               self.session_email(), ip)
         self._destroy_session()

@@ -14,7 +14,7 @@ import time
 import bson
 import pymongo
 
-from flask import request
+import flask
 from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo.collection import ReturnDocument
@@ -187,7 +187,7 @@ class WebAppSubmissionManager:
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
-            submission["user_ip"] = request.remote_addr
+            submission["user_ip"] = flask.request.remote_addr
             submissionid = self._database.submissions.insert(submission)
 
         # Clean the submission document in db
@@ -262,7 +262,7 @@ class WebAppSubmissionManager:
             "submitted_on": datetime.now(),
             "username": [username],
             "response_type": task.get_response_type(),
-            "user_ip": request.remote_addr
+            "user_ip": flask.request.remote_addr
         }
 
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
@@ -304,7 +304,7 @@ class WebAppSubmissionManager:
 
         self._logger.info("New submission from %s - %s - %s/%s - %s", self._user_manager.session_username(),
                           self._user_manager.session_email(), task.get_course_id(), task.get_id(),
-                          request.remote_addr)
+                          flask.request.remote_addr)
 
         return submissionid, to_remove
 
@@ -446,19 +446,19 @@ class WebAppSubmissionManager:
         cursor.sort([("submitted_on", -1)])
         return list(cursor)
 
-    def get_user_last_submissions(self, limit=5, request=None):
+    def get_user_last_submissions(self, limit=5, mongo_request=None):
         """ Get last submissions of a user """
-        if request is None:
-            request = {}
+        if mongo_request is None:
+            mongo_request = {}
 
-        request.update({"username": self._user_manager.session_username()})
+        mongo_request.update({"username": self._user_manager.session_username()})
 
         # Before, submissions were first sorted by submission date, then grouped
         # and then resorted by submission date before limiting. Actually, grouping
         # and pushing, keeping the max date, followed by result filtering is much more
         # efficient
         data = self._database.submissions.aggregate([
-            {"$match": request},
+            {"$match": mongo_request},
             {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"},
                         "submitted_on": {"$max": "$submitted_on"},
                         "submissions": {"$push": {

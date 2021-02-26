@@ -6,9 +6,10 @@
 """ LDAP plugin """
 
 import logging
-
 import ldap3
-from flask import request, redirect
+import flask
+
+from flask import redirect
 from ldap3.core.exceptions import LDAPException
 
 from inginious.frontend.pages.social import AuthenticationPage
@@ -66,7 +67,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
     def POST(self, id):
         # Get configuration
         settings = self.user_manager.get_auth_method(id).get_settings()
-        login_data = request.form
+        login_data = flask.request.form
         login = login_data["login"].strip().lower()
         password = login_data["password"]
 

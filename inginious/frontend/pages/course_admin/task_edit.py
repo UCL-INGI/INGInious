@@ -9,9 +9,10 @@ import logging
 import tempfile
 import bson
 
+import flask
 from collections import OrderedDict
 from zipfile import ZipFile
-from flask import request, redirect
+from flask import redirect
 from werkzeug.exceptions import NotFound
 
 from inginious.frontend.tasks import _migrate_from_v_0_6
@@ -100,8 +101,8 @@ class CourseEditTask(INGIniousAdminPage):
             raise NotFound(description=_("Invalid course/task id"))
 
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        data = request.form.copy()
-        data["task_file"] = request.files.get("task_file")
+        data = flask.request.form.copy()
+        data["task_file"] = flask.request.files.get("task_file")
 
         # Delete task ?
         if "delete" in data:

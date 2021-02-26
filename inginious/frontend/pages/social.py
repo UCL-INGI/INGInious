@@ -4,9 +4,9 @@
 # more information about the licensing of this file.
 
 """ Auth page """
-from flask import redirect, request
+import flask
+from flask import redirect
 from werkzeug.exceptions import NotFound
-from pymongo import ReturnDocument
 
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
@@ -18,7 +18,7 @@ class AuthenticationPage(INGIniousPage):
             raise self.app.notfound(message=_("Auth method doesn't exist"))
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
-        auth_storage["redir_url"] = request.referrer or '/'
+        auth_storage["redir_url"] = flask.request.referrer or '/'
         auth_storage["method"] = "signin"
         auth_link = auth_method.get_auth_link(auth_storage)
         return redirect(auth_link)
@@ -72,9 +72,9 @@ class SharePage(INGIniousAuthPage):
             raise NotFound(description=_("Auth method not found."))
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
-        auth_storage["redir_url"] = request.referrer or '/'
+        auth_storage["redir_url"] = flask.request.referrer or '/'
         auth_storage["method"] = "share"
-        auth_storage["submissionid"] = request.args.get("submissionid", "") or request.form.get("submissionid", "")
+        auth_storage["submissionid"] = flask.request.args.get("submissionid", "") or flask.request.form.get("submissionid", "")
         auth_link = auth_method.get_auth_link(auth_storage, True)
         return redirect(auth_link)
 

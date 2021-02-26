@@ -6,7 +6,7 @@
 """ Profile page """
 import hashlib
 import re
-from flask import request
+import flask
 from pymongo import ReturnDocument
 from werkzeug.exceptions import NotFound
 
@@ -126,7 +126,7 @@ class ProfilePage(INGIniousAuthPage):
 
         msg = ""
         error = False
-        data = request.form
+        data = flask.request.form
         if "save" in data:
             userdata, msg, error = self.save_profile(userdata, data)
 

@@ -5,8 +5,9 @@
 import json
 import logging
 import pymongo
+import flask
 from bson import ObjectId
-from flask import request, Response
+from flask import Response
 from werkzeug.exceptions import NotFound, Forbidden
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousSubmissionsAdminPage
@@ -21,11 +22,11 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         course, __ = self.get_course_and_check_rights(courseid)
         msgs = []
 
-        user_input = request.form.copy()
-        user_input["users"] = request.form.getlist("users")
-        user_input["audiences"] = request.form.getlist("audiences")
-        user_input["tasks"] = request.form.getlist("tasks")
-        user_input["org_tags"] = request.form.getlist("org_tasks")
+        user_input = flask.request.form.copy()
+        user_input["users"] = flask.request.form.getlist("users")
+        user_input["audiences"] = flask.request.form.getlist("audiences")
+        user_input["tasks"] = flask.request.form.getlist("tasks")
+        user_input["org_tags"] = flask.request.form.getlist("org_tasks")
 
         if "replay_submission" in user_input:
             # Replay a unique submission
@@ -86,11 +87,11 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
 
-        user_input = request.args.copy()
-        user_input["users"] = request.args.getlist("users")
-        user_input["audiences"] = request.args.getlist("audiences")
-        user_input["tasks"] = request.args.getlist("tasks")
-        user_input["org_tags"] = request.args.getlist("org_tasks")
+        user_input = flask.request.args.copy()
+        user_input["users"] = flask.request.args.getlist("users")
+        user_input["audiences"] = flask.request.args.getlist("audiences")
+        user_input["tasks"] = flask.request.args.getlist("tasks")
+        user_input["org_tags"] = flask.request.args.getlist("org_tasks")
 
         if "download_submission" in user_input:
             submission = self.database.submissions.find_one({"_id": ObjectId(user_input["download_submission"]),

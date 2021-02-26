@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Course page """
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import NotFound
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -41,7 +42,7 @@ class CoursePage(INGIniousAuthPage):
         """ POST request """
         course = self.get_course(courseid)
 
-        user_input = request.form
+        user_input = flask.request.form
         if "unregister" in user_input and course.allow_unregister():
             self.user_manager.course_unregister_user(course, self.user_manager.session_username())
             return redirect(self.app.get_homepath() + '/mycourses')
