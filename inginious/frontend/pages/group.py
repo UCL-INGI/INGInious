@@ -7,7 +7,7 @@
 
 import logging
 
-from flask import request, redirect
+import flask
 from werkzeug.exceptions import Forbidden
 from bson.objectid import ObjectId
 
@@ -27,7 +27,7 @@ class GroupPage(INGIniousAuthPage):
 
         error = False
         msg = ""
-        data = request.args
+        data = flask.request.args
         if self.user_manager.has_staff_rights_on_course(course):
             raise Forbidden(description=_("You can't access this page as a member of the staff."))
         elif not self.user_manager.course_is_open_to_user(course, lti=False):

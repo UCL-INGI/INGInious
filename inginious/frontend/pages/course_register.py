@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Course page """
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import NotFound
 
 from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
@@ -35,7 +36,7 @@ class CourseRegisterPage(INGIniousAuthPage):
 
     def POST_AUTH(self, courseid):
         course, username = self.basic_checks(courseid)
-        user_input = request.form
+        user_input = flask.request.form
         success = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
 
         if success:

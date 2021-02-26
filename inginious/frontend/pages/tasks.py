@@ -12,8 +12,9 @@ import urllib.parse
 import urllib.request
 import random
 import time
+import flask
 
-from flask import request, redirect, Response
+from flask import redirect, Response
 from werkzeug.exceptions import NotFound, HTTPException
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
@@ -84,7 +85,7 @@ class BaseTaskPage(object):
 
         is_staff = self.user_manager.has_staff_rights_on_course(course, username)
 
-        userinput = request.args
+        userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
@@ -169,7 +170,7 @@ class BaseTaskPage(object):
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
-        userinput = request.form
+        userinput = flask.request.form
         if "@action" in userinput and userinput["@action"] == "submit":
             # Verify rights
             if not self.user_manager.task_can_user_submit(task, username, isLTI):
@@ -184,15 +185,15 @@ class BaseTaskPage(object):
                     return json.dumps({"status": "error", "title": _("Error"), "text": _("Your task has been regenerated. This current task is outdated.")})
 
             # Reparse user input with array for multiple choices and files
-            userinput = request.form.copy()
+            userinput = flask.request.form.copy()
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if problem.input_type() == list:
-                    userinput[pid] = request.form.getlist(pid)
+                    userinput[pid] = flask.request.form.getlist(pid)
                 elif problem.input_type() == dict:
-                    userinput[pid] = request.files.get(pid)
+                    userinput[pid] = flask.request.files.get(pid)
                 else:
-                    userinput[pid] = request.form.get(pid)
+                    userinput[pid] = flask.request.form.get(pid)
 
             userinput = task.adapt_input_for_backend(userinput)
 

@@ -5,8 +5,7 @@
 import bson
 import json
 import logging
-
-from flask import request
+import flask
 from collections import OrderedDict
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -25,7 +24,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         errors = []
-        user_input = request.form
+        user_input = flask.request.form
 
         if "task_dispenser" in user_input:
             selected_task_dispenser = user_input.get("task_dispenser", "toc")

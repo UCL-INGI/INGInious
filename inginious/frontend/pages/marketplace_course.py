@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Course page """
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import Forbidden
 
 from inginious.common.exceptions import ImportCourseException
@@ -41,7 +42,7 @@ class MarketplaceCoursePage(INGIniousAuthPage):
             raise Forbidden(description=_("You're not allowed to do that"))
 
         course = self.get_course(courseid)
-        user_input = request.form
+        user_input = flask.request.form
         errors = []
         if "new_courseid" in user_input:
             new_courseid = user_input["new_courseid"]

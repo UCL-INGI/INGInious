@@ -5,7 +5,8 @@
 
 """ Course page """
 import sys
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import Forbidden
 
 from inginious.common.base import id_checker
@@ -37,7 +38,7 @@ class MarketplacePage(INGIniousAuthPage):
         if not self.user_manager.user_is_superadmin():
             raise Forbidden(description=_("You're not allowed to do that"))
 
-        user_input = request.form
+        user_input = flask.request.form
         errors = []
         if "new_courseid" in user_input:
             new_courseid = user_input["new_courseid"]

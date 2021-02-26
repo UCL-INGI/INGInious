@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Profile page """
-from flask import request, redirect
+import flask
+from flask import redirect
 from werkzeug.exceptions import Forbidden
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -58,7 +59,7 @@ class DeletePage(INGIniousAuthPage):
 
         msg = ""
         error = False
-        data = request.form
+        data = flask.request.form
         if "delete" in data:
             msg, error = self.delete_account(data)
             if not error:

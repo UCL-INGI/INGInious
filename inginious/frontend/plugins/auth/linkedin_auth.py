@@ -7,8 +7,8 @@
 
 import json
 import os
+import flask
 
-from flask import request, redirect
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 
@@ -24,17 +24,17 @@ class LinkedInAuthMethod(AuthMethod):
     LinkedIn auth method
     """
     def get_auth_link(self, auth_storage, share=False):
-        linkedin = OAuth2Session(self._client_id, scope=scope + (["w_share"] if share else []), redirect_uri=request.url_root + self._callback_page)
+        linkedin = OAuth2Session(self._client_id, scope=scope + (["w_share"] if share else []), redirect_uri=flask.request.url_root + self._callback_page)
         linkedin = linkedin_compliance_fix(linkedin)
         authorization_url, state = linkedin.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
         return authorization_url
 
     def callback(self, auth_storage):
-        linkedin = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=request.url_root + self._callback_page)
+        linkedin = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=flask.request.url_root + self._callback_page)
         try:
             linkedin.fetch_token(token_url, include_client_id=True, client_secret=self._client_secret,
-                                 authorization_response=request.url)
+                                 authorization_response=flask.request.url)
             r = linkedin.get('https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)')
             profile = json.loads(r.content.decode('utf-8'))
             r = linkedin.get('https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))')

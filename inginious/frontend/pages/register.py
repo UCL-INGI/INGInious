@@ -8,8 +8,8 @@
 import hashlib
 import random
 import re
+import flask
 
-from flask import request, current_app
 from flask_mail import Message
 from werkzeug.exceptions import Forbidden
 from inginious.frontend.pages.utils import INGIniousPage
@@ -27,7 +27,7 @@ class RegistrationPage(INGIniousPage):
         error = False
         reset = None
         msg = ""
-        data = request.args
+        data = flask.request.args
 
         if "activate" in data:
             msg, error = self.activate_user(data)
@@ -116,7 +116,7 @@ class RegistrationPage(INGIniousPage):
                     body = _("""Welcome on INGInious !
 
 To activate your account, please click on the following link :
-""") + request.url_root + "register?activate=" + activate_hash
+""") + flask.request.url_root + "register?activate=" + activate_hash
 
                     message = Message(recipients=[(data["realname"], data["email"])],
                                       subject=subject,
@@ -158,7 +158,7 @@ To activate your account, please click on the following link :
                     body = _("""Dear {realname},
 
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
-""").format(realname=user["realname"]) + request.url_root + "register?reset=" + reset_hash
+""").format(realname=user["realname"]) + flask.request.url_root + "register?reset=" + reset_hash
 
                     message = Message(recipients=[(user["realname"], data["recovery_email"])],
                                       subject=subject,
@@ -206,7 +206,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         reset = None
         msg = ""
         error = False
-        data = request.form
+        data = flask.request.form
         if "register" in data:
             msg, error = self.register_user(data)
         elif "lostpasswd" in data:

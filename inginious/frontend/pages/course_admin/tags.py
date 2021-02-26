@@ -3,7 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-from flask import request
+import flask
 
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -18,7 +18,7 @@ class CourseTagsPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         # Tags
-        tags = dict_from_prefix("tags", request.form)
+        tags = dict_from_prefix("tags", flask.request.form)
         if tags is None:
             tags = {}
 

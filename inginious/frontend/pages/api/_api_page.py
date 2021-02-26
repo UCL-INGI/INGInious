@@ -6,7 +6,8 @@
 """ Helper classes and methods for the REST API """
 
 import json
-from flask import Response, request
+import flask
+from flask import Response
 
 import inginious.common.custom_yaml as yaml
 from inginious.frontend.pages.utils import INGIniousPage
@@ -163,7 +164,7 @@ def _api_convert_output(status_code, return_value, response=None):
         response = Response()
         response.status_code = status_code
     """ Convert the output to what the client asks """
-    content_type = request.environ.get('CONTENT_TYPE', 'text/json')
+    content_type = flask.request.environ.get('CONTENT_TYPE', 'text/json')
 
     if "text/json" in content_type:
         response.content_type = 'text/json; charset=utf-8'

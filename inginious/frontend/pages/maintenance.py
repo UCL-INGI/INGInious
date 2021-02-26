@@ -5,8 +5,8 @@
 
 """ Maintenance page """
 
+import flask
 from flask.views import MethodView
-from flask import current_app
 
 
 class MaintenancePage(MethodView):
@@ -14,8 +14,8 @@ class MaintenancePage(MethodView):
 
     def get(self, path):
         """ GET request """
-        return current_app.template_helper.render("maintenance.html")
+        return flask.current_app.template_helper.render("maintenance.html")
 
     def post(self, path):
         """ POST request """
-        return current_app.template_helper.render("maintenance.html")
+        return flask.current_app.template_helper.render("maintenance.html")

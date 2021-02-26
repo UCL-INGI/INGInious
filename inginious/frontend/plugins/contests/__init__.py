@@ -10,8 +10,8 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 
 import pymongo
+import flask
 
-from flask import request
 from werkzeug.exceptions import NotFound
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -33,10 +33,10 @@ def task_accessibility(course, task, default): # pylint: disable=unused-argument
 
 def additional_headers():
     """ Additional HTML headers """
-    return '<link href="' + request.url_root \
+    return '<link href="' + flask.request.url_root \
            + '/static/plugins/contests/scoreboard.css" rel="stylesheet">' \
-             '<script src="' + request.url_root + '/static/plugins/contests/jquery.countdown.min.js"></script>' \
-             '<script src="' + request.url_root + '/static/plugins/contests/contests.js"></script>'
+             '<script src="' + flask.request.url_root + '/static/plugins/contests/jquery.countdown.min.js"></script>' \
+             '<script src="' + flask.request.url_root + '/static/plugins/contests/contests.js"></script>'
 
 
 def get_contest_data(course):
@@ -175,7 +175,7 @@ class ContestAdmin(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
 
-        new_data = request.form
+        new_data = flask.request.form
         errors = []
         try:
             contest_data['enabled'] = new_data.get('enabled', '0') == '1'

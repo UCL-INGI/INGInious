@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 import re
-from flask import request
+import flask
+
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -24,7 +25,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         errors = []
         course_content = {}
         try:
-            data = request.form
+            data = flask.request.form
             course_content = self.course_factory.get_course_descriptor_content(courseid)
             course_content['name'] = data['name']
             if course_content['name'] == "":
