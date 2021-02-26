@@ -76,7 +76,7 @@ When editing a task, you can enter basic informations and parameters in the *Bas
 
 Based on the type of problem you want to put for the task, you can select one of the two available *grading environment* in the *Environment* tab:
 
-- Select **Multiple Choice Question solver** if you only want to add *mcq* or *match* problems.
+- Select **Multiple Choice Question solver** if you only want to add *mcq* or *match* types of problems.
 - Select **Docker container** if you want to add some more complex problems which requires to write a grading script to access the students inputs.
 
 Adding/removing problems
@@ -84,13 +84,19 @@ Adding/removing problems
 Adding and removing problems in a task is very easy with the task editor. Go to the *Subproblems* tab and add a new 
 problem-id (alphanumerical characters) and a problem type. You can configure the problem context from this page.
 
-**mcq** and **match** problems can be entirely configured from this page with the option to set up answers.
+There are two ways to grade a problem:
+
+ - Using **check_answer** which is only implemented for *mcq* and *match* problems
+ - Using a specific **grading script** which is required for more complex problems
+
+**mcq** and **match** problems can be entirely configured from the *subproblem* page with the option to set up answers.
 When editing a multiple choice problem, you're asked if the student is
 shown a multiple-answers- or single-answer-problem and which of the
 possible choices is (are) good answer(s).
 
-Only more complex problems such as code implementation will require you to write a grading script which can be done directly within the *Tasks files* tab.
-If you are creating this kind of problems, remember to select *Docker container* as *grading environment* in the *Environment* tab.
+**check_answer** is only available for *mcq* and *match* problems. So if you are adding more complex problems such as asking students for code implementation, you will have to write your own grading script. If you are creating this kind of problems, remember to select *Docker container* as *grading environment* in the *Environment* tab.
+
+Note only a few types of problems are initially shipped with INGInious but many others are available via plugins. A list is available `here <https://github.com/UCL-INGI/INGInious-plugins>`_
 
 Task files
 ``````````
