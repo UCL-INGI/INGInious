@@ -68,7 +68,7 @@ class AbstractClient(object, metaclass=ABCMeta):
         :type launcher_name: str
         :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
-        :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
+        :param ssh_callback: a callback function that will be called with (host, port, user, password), the needed credentials to connect to the
                              remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
         :return: the new job id, or None if an error happened
@@ -215,7 +215,7 @@ class Client(BetterParanoidPirateClient):
         # Ensure ssh_callback is called at least once
         try:
             # NB: original ssh_callback was wrapped with _callable_once
-            await self._loop.run_in_executor(None, lambda: ssh_callback(None, None, None))
+            await self._loop.run_in_executor(None, lambda: ssh_callback(None, None, None, None))
         except:
             self._logger.exception("Error occurred while calling ssh_callback for job %s", job_id)
 
@@ -283,7 +283,7 @@ class Client(BetterParanoidPirateClient):
         :type launcher_name: str
         :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
-        :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
+        :param ssh_callback: a callback function that will be called with (host, port, user, password), the needed credentials to connect to the
                              remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
         :return: the new job id, or None if an error happened
@@ -296,7 +296,7 @@ class Client(BetterParanoidPirateClient):
             safe_callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None, "", "")
             return None
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
-        ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3: None)
+        ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3, _4: None)
 
         environment_type = task.get_environment_type()
         environment = task.get_environment_id()
@@ -304,7 +304,7 @@ class Client(BetterParanoidPirateClient):
         if environment_type not in self._available_environments or environment not in self._available_environments[environment_type]:
             self._logger.warning("Env %s/%s not available for task %s/%s", environment_type, environment, task.get_course_id(),
                                  task.get_id())
-            ssh_callback(None, None, None)  # ssh_callback must be called once
+            ssh_callback(None, None, None, None)  # ssh_callback must be called once
             safe_callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return None
 
