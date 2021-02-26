@@ -294,7 +294,7 @@ from ``inginious.common.tasks_problems.Problem`` and implementing the following 
      For instance, strings-encoded int values can be cast to int here.
 
 At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableProblem``
-and implementing th following abstract methods:
+and implementing the following abstract methods:
 
   - ``get_type_name(cls, language)`` returning a human-readable transleted string representing the problem type.
     ``language`` is the gettext 2-letter language code.
