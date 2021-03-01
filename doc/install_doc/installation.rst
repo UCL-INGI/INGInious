@@ -13,7 +13,7 @@ Dependencies setup
 INGInious needs:
 
 - Python_ (with pip) **3.5+**
-- Docker_ 1.12+
+- Docker_ **1.12+**
 - MongoDB_
 - Libtidy
 - LibZMQ

@@ -10,14 +10,23 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
 
 ::
 
-    inginious-agent-docker [-h] [--debug-host DEBUG_HOST]
+    inginious-agent-docker [-h] [--friendly-name FRIENDLY_NAME]
+                           [--debug-host DEBUG_HOST]
                            [--debug-ports DEBUG_PORTS] [--tmpdir TMPDIR]
-                           [--tasks TASKS] [--concurrency CONCURRENCY] [-v]
+                           [--concurrency CONCURRENCY] [-v] [--debugmode]
+                           [--disable-autorestart]
+                           [--runtime RUNTIME [RUNTIME ...]]
+                           [--tasks TASKS | --fs {local}] [--fs-help]
                            backend
+
 
 .. option:: -h, --help
 
    Display the help message.
+
+.. option:: --friendly-name
+
+   Friendly name to help identify agent.
 
 .. option:: --debug-host DEBUG_HOST
 
@@ -43,7 +52,27 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
 
 .. option:: -v, --verbose
 
-   Increase output verbosity: logging level to DEBUG.
+   Increases output verbosity: logging level to DEBUG.
+
+.. option:: --debugmode
+
+   Enables debug mode. For developers only.
+
+.. option:: --disable-autorestart
+
+   Disables the auto restart on agent failure.
+
+.. option:: --runtime
+
+   Add a runtime, such as crun, runc or kata. If no runtime is given, the available runtimes are detected automatically.
+
+   Expects at least 2 arguments: the name of the runtime (eg runc),
+   the name of the environment type (eg docker or kata). You can then add flags:
+
+   - 'root' indicates that the runtime starts containers as root
+   - 'shared' indicates that the containers on this runtime use the host kernel (i.e. they are not VMs)"
+
+   Common values are 'runc docker shared' and 'kata-runtime kata root'.
 
 .. option:: backend
 

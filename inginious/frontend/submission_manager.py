@@ -11,6 +11,7 @@ import os.path
 import tarfile
 import tempfile
 import time
+from typing import Dict, List
 import bson
 import pymongo
 
@@ -70,6 +71,7 @@ class WebAppSubmissionManager:
             "jobid": "",
             "ssh_host": "",
             "ssh_port": "",
+            "ssh_user": "",
             "ssh_password": ""
         }
 
@@ -160,7 +162,7 @@ class WebAppSubmissionManager:
             raise Exception("A user must be logged in to submit an object")
 
         # Don't enable ssh debug
-        ssh_callback = lambda host, port, password: self._handle_ssh_callback(submission["_id"], host, port, password)
+        ssh_callback = lambda host, port, user, password: self._handle_ssh_callback(submission["_id"], host, port, user, password)
 
         # Load input data and add username to dict
         inputdata = bson.BSON.decode(self._gridfs.get(submission["input"]).read())
@@ -218,7 +220,7 @@ class WebAppSubmissionManager:
                               submission["courseid"],
                               submission["taskid"], submission["_id"], self._user_manager.session_username())
 
-    def get_available_environments(self):
+    def get_available_environments(self) -> Dict[str, List[str]]:
         """:return a list of available environments """
         return self._client.get_available_environments()
 
@@ -289,7 +291,7 @@ class WebAppSubmissionManager:
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
-        ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
+        ssh_callback = lambda host, port, user, password: self._handle_ssh_callback(submissionid, host, port, user, password)
 
         jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
@@ -631,12 +633,13 @@ class WebAppSubmissionManager:
         tmpfile.seek(0)
         return tmpfile, error
 
-    def _handle_ssh_callback(self, submission_id, host, port, password):
+    def _handle_ssh_callback(self, submission_id, host, port, user, password):
         """ Handles the creation of a remote ssh server """
         if host is not None:  # ignore late calls (a bit hacky, but...)
             obj = {
                 "ssh_host": host,
                 "ssh_port": port,
+                "ssh_user": user,
                 "ssh_password": password
             }
             self._database.submissions.update_one({"_id": submission_id}, {"$set": obj})

@@ -363,10 +363,10 @@ function waitForSubmission(submissionid)
         jQuery.post(url, {"@action": "check", "submissionid": submissionid}, null, "json")
             .done(function(data)
             {
-                if("status" in data && data['status'] == "waiting")
+                if("status" in data && data['status'] === "waiting")
                 {
                     waitForSubmission(submissionid);
-                    if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
+                    if("ssh_host" in data && "ssh_port" in data && "ssh_user" in data && "ssh_password" in data)
                         displayRemoteDebug(submissionid, data);
                     else
                         displayTaskLoadingAlert(data, submissionid);
@@ -493,15 +493,16 @@ function displayRemoteDebug(submissionid, submission_wait_data)
 {
     var ssh_host = submission_wait_data["ssh_host"];
     var ssh_port = submission_wait_data["ssh_port"];
+    var ssh_user = submission_wait_data["ssh_user"];
     var ssh_password = submission_wait_data["ssh_password"];
 
-    var pre_content = "ssh worker@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
+    var pre_content = "ssh " + ssh_user + "@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
     var task_alert = $('#task_alert');
     var title = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
     var content = submission_wait_data["text"];
 
     //If not already set
-    if($('pre#commandssh', task_alert).text() != pre_content)
+    if($('pre#commandssh', task_alert).text() !== pre_content)
     {
         var remote_info = $("#ssh_template").clone();
 
@@ -513,7 +514,7 @@ function displayRemoteDebug(submissionid, submission_wait_data)
         if(webterm_link !== undefined)
         {
             var full_link = webterm_link + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
-            var iframe = $('<iframe>', {
+            $('<iframe>', {
                 src:         full_link,
                 id:          'iframessh',
                 frameborder: 0,

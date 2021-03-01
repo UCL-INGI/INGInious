@@ -752,6 +752,12 @@ followed by a *:filename* or *:value* suffix.
 run_student
 -----------
 
+.. DANGER::
+
+    *run_student* is not available in some environments, such as those running in OCI runtimes that do not share
+    a common kernel between containers. ``kata`` is an example of such runtime. When ``run_student`` is not available,
+    it will exit with error code 251.
+
 *run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading,
 making sure the untrusted code made by the student don't interact with yours.
 
@@ -783,9 +789,10 @@ More technically, please note that:
 
 - the *run_student* **command** (accesible in bash) proxies stdin, stdout, stderr, most signals and the return value
 - There are special return values:
-    - 252 means that the command was killed due to an out-of-memory
-    - 253 means that the command timed out
-    - 254 means that an error occurred while running the proxy
+    - 251: ``run_student`` is not available in this container/environment
+    - 252: the command was killed due to an out-of-memory
+    - 253: the command timed out
+    - 254: an error occurred while running the proxy
 
 In Python, two flavours of *run_student* are available: `run` and `run_simple`. The first is a low-level function,
 which allows you to modify most of the behavior of the behavior of the function. The second aims to solve the most used
@@ -824,3 +831,9 @@ The content of the folder will be automatically compressed and saved in the data
 in the INGInious web interface.
 
 This feature is useful for debug purposes, but also for analytics and for more complex plugins.
+
+Who is running the run file?
+----------------------------
+
+By default it is a user named ``worker`` (id 4242, gid 4242). Some docker runtime allow to run safely as root;
+in these runtimes, the script are thus started by ``root`` (id 0, gid 0).

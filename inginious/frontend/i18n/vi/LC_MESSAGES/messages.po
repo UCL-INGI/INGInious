@@ -73,6 +73,10 @@ msgstr "Đã quá muộn rồi"
 msgid "Docker container"
 msgstr "Docker container"
 
+#: inginious/frontend/environment_types/kata.py:11
+msgid "Kata container"
+msgstr ""
+
 #: inginious/frontend/environment_types/mcq.py:11
 msgid "Multiple Choice Question solver"
 msgstr "Bộ giải Câu hỏi đa lựa chọn"

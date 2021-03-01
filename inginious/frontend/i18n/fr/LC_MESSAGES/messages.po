@@ -85,6 +85,10 @@ msgstr "Méthode d'authenfication non trouvée."
 msgid "Docker container"
 msgstr "Conteneur Docker"
 
+#: inginious/frontend/environment_types/kata.py:11
+msgid "Kata container"
+msgstr ""
+
 #: inginious/frontend/environment_types/mcq.py:11
 msgid "Multiple Choice Question solver"
 msgstr "Solveur intégré Questions à Choix Multiples"

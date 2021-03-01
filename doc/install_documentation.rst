@@ -9,3 +9,4 @@ Installation, configuration and upgrade
     install_doc/config_reference
     install_doc/static_pages
     install_doc/troubleshooting
+    install_doc/other_oci_runtimes_support
