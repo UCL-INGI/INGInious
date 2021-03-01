@@ -11,7 +11,7 @@ To get started, a file named ``configuration.example.yaml`` is provided.
 
 .. literalinclude:: ../../configuration.example.yaml
     :language: yaml
-    :linenos
+    :linenos:
 
 The different entries are :
 

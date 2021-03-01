@@ -29,7 +29,7 @@ producer have reasonably synchronous clocks.
 Impossible to get the LTI frontend work
 ---------------------------------------
 
-You may find `http://ltiapps.net/test/tp.php`_ and `http://ltiapps.net/test/t.php`_ useful when debugging
+You may find the `saLTIre <https://saltire.lti.app/>` tool  useful when debugging
 producers and consumers.
 
 It is impossible to modify the course.yaml from the webdav interface
