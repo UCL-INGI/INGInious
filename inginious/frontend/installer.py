@@ -347,7 +347,7 @@ class Installer:
             if self._ask_boolean("Would you like to download them ?", True):
                 try:
                     filename, _ = urllib.request.urlretrieve(
-                        "https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball")
+                        "https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball/c9a74dfdc3b84ebd53a0456281c22c557ccdae6e")
                     with tarfile.open(filename, mode="r:gz") as thetarfile:
                         members = thetarfile.getmembers()
                         commonpath = os.path.commonpath([tarinfo.name for tarinfo in members])
