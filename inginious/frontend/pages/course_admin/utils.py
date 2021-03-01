@@ -27,7 +27,6 @@ class INGIniousAdminPage(INGIniousAuthPage):
     def get_course_and_check_rights(self, courseid, taskid=None, allow_all_staff=True):
         """ Returns the course with id ``courseid`` and the task with id ``taskid``, and verify the rights of the user.
             Raise app.forbidden() when there is no such course of if the users has not enough rights.
-
             :param courseid: the course on which to check rights
             :param taskid: If not None, returns also the task with id ``taskid``
             :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.

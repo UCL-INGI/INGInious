@@ -5,6 +5,14 @@
 
 import flask
 from flask import redirect
+import logging
+import oauthlib
+import sys
+oauthlib.set_debug(True)
+log = logging.getLogger('oauthlib')
+log.addHandler(logging.StreamHandler(sys.stdout))
+log.setLevel(logging.DEBUG)
+
 from werkzeug.exceptions import Forbidden, NotFound, MethodNotAllowed
 from inginious.frontend.lti_request_validator import LTIValidator
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
@@ -180,7 +188,7 @@ class LTILaunchPage(INGIniousPage):
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
         post_input = flask.request.form
-        self.logger.debug('_parse_lti_data:' + str(post_input))
+        self.logger.info('_parse_lti_data:' + str(post_input))
 
         try:
             course = self.course_factory.get_course(courseid)

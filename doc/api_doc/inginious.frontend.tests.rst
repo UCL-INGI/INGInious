@@ -9,17 +9,8 @@ inginious.frontend.tests package
 Submodules
 ----------
 
-
-inginious.frontend.tests.SeleniumTest module
----------------------------------------------------
-
-.. automodule:: inginious.frontend.tests.SeleniumTest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.frontend.tests.TestCourse module
-----------------------------------------
+---------------------------------------------
 
 .. automodule:: inginious.frontend.tests.TestCourse
     :members:
@@ -27,20 +18,13 @@ inginious.frontend.tests.TestCourse module
     :show-inheritance:
 
 inginious.frontend.tests.TestTask module
---------------------------------------
+--------------------------------------------
 
 .. automodule:: inginious.frontend.tests.TestTask
     :members:
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.tests.TestLogin module
-------------------------------------------------
-
-.. automodule:: inginious.frontend.tests.TestLogin
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 inginious.frontend.tests.TestParsableText module
 -------------------------------------------------------
@@ -51,7 +35,7 @@ inginious.frontend.tests.TestParsableText module
     :show-inheritance:
 
 inginious.frontend.tests.TestPluginManager module
----------------------------------------------
+----------------------------------------------------
 
 .. automodule:: inginious.frontend.tests.TestPluginManager
     :members:
