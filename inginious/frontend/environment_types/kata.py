@@ -1,7 +1,7 @@
-from inginious.frontend.environment_types.docker import DockerEnvType
+from inginious.frontend.environment_types.generic_docker_oci_runtime import GenericDockerOCIRuntime
 
 
-class KataEnvType(DockerEnvType):
+class KataEnvType(GenericDockerOCIRuntime):
     @property
     def id(self):
         return "kata"
