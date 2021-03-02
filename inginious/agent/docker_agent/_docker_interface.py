@@ -15,7 +15,7 @@ import logging
 
 from inginious.agent.docker_agent._docker_runtime import DockerRuntime
 
-DOCKER_AGENT_VERSION = 2
+DOCKER_AGENT_VERSION = 3
 
 
 class DockerInterface(object):  # pragma: no cover
