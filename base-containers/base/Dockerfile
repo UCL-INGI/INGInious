@@ -5,7 +5,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
 
-LABEL org.inginious.grading.agent_version=2
+LABEL org.inginious.grading.agent_version=3
 
 # Install python, needed for scripts used in INGInious + locale support
 RUN     yum clean metadata && \
