@@ -394,6 +394,13 @@ Set the environment variables used by the INGInious CLI scripts in the Apache se
 Please note that the service environment file ``/etc/sysconfig/httpd`` may differ from your distribution and wether it
 uses *systemd* or *init*.
 
+Append this in your INGInious configuration.yaml
+
+   ::
+   
+   local-config:
+       tmp_dir: /var/www/inginious/agent_tmp
+
 You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`` file and apply the following rules:
 ::
 
@@ -452,11 +459,19 @@ Set the environment variables used by the INGInious CLI scripts in the Apache se
     export INGINIOUS_WEBAPP_PORT="80"
 
 Add them also inside the file `/lib/systemd/system/apache2.service`, as follows:
+::
 
     Environment=INGINIOUS_WEBAPP_CONFIG="/var/www/inginious/configuration.yaml"
     Environment=INGINIOUS_WEBAPP_HOST="0.0.0.0"
     Environment=INGINIOUS_WEBAPP_PORT="80"
 
+
+Append this in your INGInious configuration.yaml
+
+   ::
+   
+   local-config:
+       tmp_dir: /var/www/inginious/agent_tmp
 
 
 Add virtual host entries in a `/etc/apache2/sites-available/inginious.conf` file with the following rules:
