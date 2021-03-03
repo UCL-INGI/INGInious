@@ -149,8 +149,8 @@ To configure the web app automatically, use the ``inginious-install`` CLI.
     $ inginious-install
 
 This will help you create the configuration file in the current directory. 
-When asked about the tasks folder, enter an absolute folder: /var/www/inginiuos/tasks .
-Similarly, when asked about the backup folder, enter an absolute folder: /var/www/inginiuos/backup .
+When asked about the tasks folder, enter an absolute folder: /var/www/inginious/tasks .
+Similarly, when asked about the backup folder, enter an absolute folder: /var/www/inginious/backup .
 
 For manual configuration and details, see
 :ref:`ConfigReference`. 
