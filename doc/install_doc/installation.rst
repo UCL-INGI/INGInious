@@ -116,7 +116,7 @@ This will automatically upgrade an existing version.
 .. note::
 
    You may want to enable the LDAP/SAML2 plugin or use FCGI/UWSGI instead of the web.py default webserver.
-   In this case, you have to install more packages: simply add ``[cgi]``, ``[uwgsi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
+   In this case, you have to install more packages: simply add ``[cgi]``, ``[uwsgi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
 
    ::
 
@@ -134,14 +134,27 @@ compatible. This includes Moodle, edX, among many others.
 
 .. _LTI: http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
 
+It is recommended to create a folder for INGInious and subfolders for tasks and backup, e.g.:
+::
+
+    $ mkdir -p /var/www/inginious
+    $ cd /var/www/inginious
+    $ mkdir tasks
+    $ mkdir backup
+
 To configure the web app automatically, use the ``inginious-install`` CLI.
 
 ::
 
     $ inginious-install
 
-This will help you create the configuration file in the current directory. For manual configuration and details, see
-:ref:`ConfigReference`.
+This will help you create the configuration file in the current directory. 
+When asked about the tasks folder, enter an absolute folder: /var/www/inginiuos/tasks .
+Similarly, when asked about the backup folder, enter an absolute folder: /var/www/inginiuos/backup .
+
+For manual configuration and details, see
+:ref:`ConfigReference`. 
+In particular, make sure to add smtp configuration into your `configuration.yaml` file, since INGInious must send email during new user registration.
 
 The detailed ``inginious-install`` reference can be found at :ref:`inginious-install`.
 
@@ -150,15 +163,16 @@ Running INGInious
 
 During the configuration step, you were asked to setup either a local or remote backend. In the former case, the frontend
 will automatically start a local backend and grading agents.
+Additionally, if you intend to have many simultaneous submissions, it is highly recommended to have a webserver, such as lighttpd or Apache -- see below.
 
-With local backend/agent
-````````````````````````
+With local backend/agent -- no webserver
+````````````````````````````````````````
 To run the frontend, please use the ``inginious-webapp`` CLI. This will open a small Python
 web server and display the url on which it is bind in the console. Some parameters (configuration file, host, port)
 can be specified. Details are available at :ref:`inginious-webapp`.
 
-With remote backend/agent
-`````````````````````````
+With remote backend/agent -- no webserver
+`````````````````````````````````````````
 To run INGInious with a remote backend (and agents), do as follows:
 
 #. On the backend host, launch the backend (see :ref:`inginious-backend`) :
@@ -182,57 +196,10 @@ To run INGInious with a remote backend (and agents), do as follows:
 
          inginious-webapp --config /path/to/configuration.yaml
 
-.. _webdav_setup:
-
-WebDAV setup
-------------
-
-An optional WebDAV server can be used with INGInious to allow course administrators to access
-their course filesystem. This is an additional app that needs to be launched on another port or hostname.
-Run the WebDAV server using :ref:`inginious-webdav`.
- ::
-
-    inginious-webdav --config /path/to/configuration.yaml --port 8000
-
-In your configuration file (see :ref:`ConfigReference`), set ``webdav_host`` to:
-  ::
-
-    <protocol>://<hostname>:<port>
-
-where ``protocol`` is either ``http`` or ``https``, ``hostname`` and ``port`` the hostname and port
-where the WebDAV app is running.
-
-.. _webterm_setup:
-
-Webterm setup
--------------
-
-An optional web terminal can be used with INGInious to load the remote SSH debug session. This rely on an external tool.
-
-To install this tool :
-::
-
-    $ git clone https://github.com/UCL-INGI/INGInious-xterm
-    $ cd INGInious-xterm && npm install
-
-You can then launch the tool by running:
-::
-
-    $ npm start bind_hostname bind_port debug_host:debug_ports
-
-This will launch the app on ``http://bind_hostname:bind_port``. The ``debug_host`` and ``debug_ports`` parameters are
-the debug paramaters on the local (see :ref:`ConfigReference`) or remote (see :ref:`inginious-agent-docker`) Docker agent.
-
-To make the INGInious frontend aware of that application, update your configuration file by setting the ``webterm``
-field to ``http://bind_hostname:bind_port`` (see :ref:`ConfigReference`).
-
-For more information on this tool, please see `INGInious-xterm <https://github.com/UCL-INGI/INGInious-xterm>`_. Please
-note that INGInious-xterm must be launched using SSL if the frontend is launched using SSL.
-
 .. _production:
 
-Webserver configuration
------------------------
+With local backend/agent and a webserver
+````````````````````````````````````````
 
 The following guides suggest to run the INGInious webapp on http port and WebDAV on port 8080 on the same host.
 You are free to adapt them to your use case (for instance, adding SSL support or using two hostnames).
@@ -386,11 +353,11 @@ Finally, start the server:
 
 .. _apache:
 
-Using Apache
-````````````
+Using Apache on CentOS 7.x
+``````````````````````````
 
 You may also want to use Apache. You should install `mod_wsgi`. WSGI interfaces are supported through the
-`inginious-webapp` script. This guide is made for CentOS 7.x.
+`inginious-webapp` script.
 
 Install the following packages (please note that the Python3.5+ version of *mod_wsgi* is required):
 ::
@@ -465,3 +432,167 @@ You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`
     </VirtualHost>
 
 Please note that the compiled *wsgi* module path may differ according to the exact Python version you are running.
+
+
+Using Apache on Ubuntu 18.04
+````````````````````````````
+
+Change the owner to the inginious folder and its contents to the Apache2 user:
+::
+
+    chown -R www-data:www-data /var/www/inginious
+
+Set the global server name: add the line `ServerName localhost` in `/etc/apache2/conf.d/httpd.conf`
+
+Set the environment variables used by the INGInious CLI scripts in the Apache service environment file, /etc/apache2/envvars :
+::
+
+    export INGINIOUS_WEBAPP_CONFIG="/var/www/inginious/configuration.yaml"
+    export INGINIOUS_WEBAPP_HOST="0.0.0.0"
+    export INGINIOUS_WEBAPP_PORT="80"
+
+Add them also inside the file `/lib/systemd/system/apache2.service`, as follows:
+
+    Environment=INGINIOUS_WEBAPP_CONFIG="/var/www/inginious/configuration.yaml"
+    Environment=INGINIOUS_WEBAPP_HOST="0.0.0.0"
+    Environment=INGINIOUS_WEBAPP_PORT="80"
+
+
+
+Add virtual host entries in a `/etc/apache2/sites-available/inginious.conf` file with the following rules:
+::
+
+    <VirtualHost *:80>
+        WSGIScriptAlias / "/usr/local/bin/inginious-webapp"
+        WSGIScriptReloading On
+
+        Alias /static /usr/local/lib/python3.6/dist-packages/inginious/frontend/static
+
+            <Directory "/usr/local/bin">
+                <Files "inginious-webapp">
+                    Require all granted
+                </Files>
+            </Directory>
+
+            <DirectoryMatch "/usr/local/lib/python3.6/dist-packages/inginious/frontend/static">
+                Require all granted
+            </DirectoryMatch>
+
+        ServerAdmin erelsgl@gmail.com
+        DocumentRoot /var/www/inginious
+    </VirtualHost>
+
+
+    <VirtualHost *:8080>
+            WSGIScriptAlias / "/usr/local/bin/inginious-webdav"
+            WSGIScriptReloading On
+
+            <Directory "/usr/local/bin">
+                <Files "inginious-webdav">
+                    Require all granted
+                </Files>
+            </Directory>
+    </VirtualHost>
+
+
+Please note that the static files path may differ according to the exact Python version you are running.
+
+
+Then, enable the new site and reload apache2:
+
+    a2enmod wsgi
+    a2dissite 000-default
+    a2ensite inginious
+    systemctl reload apache2
+
+Apache will automatically start the frontend.
+
+To check that the various parts of the system are correctly installed, you can use the following commands.
+
+1  Check that docker is active:
+
+    # systemctl status docker
+
+2  Check that mongo db is active:
+
+    # systemctl status mongodb
+
+3  Check that Apache 2 is active:
+
+    # systemctl status apache2
+
+All of them should be in status "active (running)".
+
+4  Check that wsgi is installed:
+
+    # source /etc/apache2/envvars
+    # apache2 -M 
+
+The last line should be "wsgi_module (shared)".
+
+    # apache2 -S 
+
+There should be two lines under `VirtualHost configuration:` referring to `inginious.conf`.
+
+5  Check access to a file in the `static` folder, e.g.:
+
+    # curl http://localhost/static/icons/wb.svg
+
+6  Check access to the `courselist` folder:
+
+    # curl http://localhost/courselist
+
+7  Finally, open the URL to your website in a browser, and login as superadmin; you should see the INGInious homepage.
+
+
+
+
+Optional apps
+=============
+
+.. _webdav_setup:
+
+WebDAV setup
+------------
+
+An optional WebDAV server can be used with INGInious to allow course administrators to access
+their course filesystem. This is an additional app that needs to be launched on another port or hostname.
+Run the WebDAV server using :ref:`inginious-webdav`.
+ ::
+
+    inginious-webdav --config /path/to/configuration.yaml --port 8000
+
+In your configuration file (see :ref:`ConfigReference`), set ``webdav_host`` to:
+  ::
+
+    <protocol>://<hostname>:<port>
+
+where ``protocol`` is either ``http`` or ``https``, ``hostname`` and ``port`` the hostname and port
+where the WebDAV app is running.
+
+.. _webterm_setup:
+
+Webterm setup
+-------------
+
+An optional web terminal can be used with INGInious to load the remote SSH debug session. This rely on an external tool.
+
+To install this tool :
+::
+
+    $ git clone https://github.com/UCL-INGI/INGInious-xterm
+    $ cd INGInious-xterm && npm install
+
+You can then launch the tool by running:
+::
+
+    $ npm start bind_hostname bind_port debug_host:debug_ports
+
+This will launch the app on ``http://bind_hostname:bind_port``. The ``debug_host`` and ``debug_ports`` parameters are
+the debug paramaters on the local (see :ref:`ConfigReference`) or remote (see :ref:`inginious-agent-docker`) Docker agent.
+
+To make the INGInious frontend aware of that application, update your configuration file by setting the ``webterm``
+field to ``http://bind_hostname:bind_port`` (see :ref:`ConfigReference`).
+
+For more information on this tool, please see `INGInious-xterm <https://github.com/UCL-INGI/INGInious-xterm>`_. Please
+note that INGInious-xterm must be launched using SSL if the frontend is launched using SSL.
