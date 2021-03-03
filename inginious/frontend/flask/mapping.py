@@ -49,7 +49,7 @@ from inginious.frontend.pages.course_admin.search_user import CourseAdminSearchU
 
 class CookielessConverter(BaseConverter):
     # Parse the cookieless sessionid at the beginning of the url
-    regex = r"((@)([a-f0-9A-F_]*)(@/))?"
+    regex = r"((@)(.+)(@/))?"
 
     def to_python(self, value):
         return value[1:-2]

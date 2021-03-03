@@ -14,6 +14,7 @@ from gridfs import GridFS
 from binascii import hexlify
 from pymongo import MongoClient
 from werkzeug.exceptions import InternalServerError
+from itsdangerous import want_bytes
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import inginious.frontend.pages.preferences.utils as preferences_utils
@@ -96,17 +97,18 @@ def _put_configuration_defaults(config):
     return config
 
 
-def get_homepath(ignore_session=False, force_cookieless=False):
+def get_homepath(ignore_session=False, force_cookieless=False, new_sessionid=None):
     """
     :param ignore_session: Ignore the cookieless session_id that should be put in the URL
     :param force_cookieless: Force the cookieless session; the link will include the session_creator if needed.
     """
     session = flask.session
     request = flask.request
-    if not ignore_session and session.sid is not None and session.cookieless:
-        return request.url_root[:-1] + "/@" + session.sid + "@"
-    elif not ignore_session and force_cookieless:
-        return request.url_root[:-1] + "/@@"
+    session_interface = flask.current_app.session_interface
+    sessionid = session_interface.get_signer(flask.current_app).sign(want_bytes(session.sid or new_sessionid)).decode('utf-8')
+
+    if (not ignore_session and sessionid is not None and session.cookieless) or force_cookieless:
+        return request.url_root[:-1] + "/@" + sessionid + "@"
     else:
         return request.url_root[:-1]
 
@@ -149,7 +151,7 @@ def get_app(config):
     flask_app.config.from_mapping(**config)
     flask_app.session_interface = MongoDBSessionInterface(
         mongo_client, config.get('mongo_opt', {}).get('database', 'INGInious'),
-        "sessions", config.get('SESSION_USE_SIGNER', False), True  # config.get('SESSION_PERMANENT', True)
+        "sessions", True  # config.get('SESSION_PERMANENT', True)
     )
 
     # Init gettext

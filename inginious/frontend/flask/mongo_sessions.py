@@ -47,18 +47,16 @@ class MongoDBSessionInterface(SessionInterface):
     serializer = pickle
     session_class = MongoDBSession
 
-    def __init__(self, client, db, collection, use_signer=False,
-                 permanent=True):
+    def __init__(self, client, db, collection, permanent=True):
         self.client = client
         self.store = client[db][collection]
         self.store.ensure_index('expiration')
-        self.use_signer = use_signer
         self.permanent = permanent
 
     def _generate_sid(self):
         return str(ObjectId())
 
-    def _get_signer(self, app):
+    def get_signer(self, app):
         if not app.secret_key:
             return None
         return Signer(app.secret_key, salt='flask-session',
@@ -66,7 +64,7 @@ class MongoDBSessionInterface(SessionInterface):
 
     def open_session(self, app, request):
         # Check for cookieless session in the path
-        path_session = re.match(r"(/@)([a-f0-9A-F_]*)(@)", request.path)
+        path_session = re.match(r"(/@)(.+)(@)", request.path)
         if path_session:  # Cookieless session
             cookieless = True
             sid = path_session.group(2)
@@ -77,16 +75,16 @@ class MongoDBSessionInterface(SessionInterface):
         if not sid:
             sid = self._generate_sid()
             return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
-        if not path_session and self.use_signer:
-            signer = self._get_signer(app)
-            if signer is None:
-                return None
-            try:
-                sid_as_bytes = signer.unsign(sid)
-                sid = sid_as_bytes.decode()
-            except BadSignature:
-                sid = self._generate_sid()
-                return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
+
+        signer = self.get_signer(app)
+        if signer is None:
+            return None
+        try:
+            sid_as_bytes = signer.unsign(sid)
+            sid = sid_as_bytes.decode()
+        except BadSignature:
+            sid = self._generate_sid()
+            return self.session_class(sid=sid, permanent=self.permanent, cookieless=cookieless)
 
         store_id = sid
         document = self.store.find_one({'_id': store_id})
@@ -123,10 +121,9 @@ class MongoDBSessionInterface(SessionInterface):
                           {'data': val,
                            'expiration': expires,
                            'cookieless': cookieless}, True)
-        if self.use_signer:
-            session_id = self._get_signer(app).sign(want_bytes(session.sid))
-        else:
-            session_id = session.sid
+
+        session_id = self.get_signer(app).sign(want_bytes(session.sid))
+
         if not cookieless:
             response.set_cookie(app.session_cookie_name, session_id,
                                 expires=expires, httponly=httponly,
