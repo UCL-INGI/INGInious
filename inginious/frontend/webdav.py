@@ -15,7 +15,6 @@ from wsgidav.fs_dav_provider import FolderResource, FileResource
 from inginious.frontend.course_factory import create_factories
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.user_manager import UserManager
-from inginious.frontend.session_mongodb import MongoStore
 
 def get_dc(course_factory, user_manager, filesystem):
 
@@ -209,7 +208,7 @@ def get_app(config):
 
     fs_provider = LocalFSProvider(config["tasks_directory"])
     course_factory, task_factory = create_factories(fs_provider, {}, {}, None)
-    user_manager = UserManager(MongoStore(database, 'sessions'), database, config.get('superadmins', []))
+    user_manager = UserManager(database, config.get('superadmins', []))
 
     config = dict(wsgidav_app.DEFAULT_CONFIG)
     config["provider_mapping"] = {"/": INGIniousFilesystemProvider(course_factory, task_factory)}

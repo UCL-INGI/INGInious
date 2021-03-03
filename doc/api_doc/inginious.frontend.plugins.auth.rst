@@ -9,18 +9,10 @@ inginious.frontend.plugins.auth package
 Submodules
 ----------
 
-inginious.frontend.plugins.auth.db_auth module
------------------------------------------------------
-
-.. automodule:: inginious.frontend.plugins.auth.db_auth
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.frontend.plugins.auth.demo_auth module
+inginious.frontend.plugins.auth.saml2_auth module
 -------------------------------------------------------
 
-.. automodule:: inginious.frontend.plugins.auth.demo_auth
+.. automodule:: inginious.frontend.plugins.auth.saml2_auth
     :members:
     :undoc-members:
     :show-inheritance:

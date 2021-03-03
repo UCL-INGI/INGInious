@@ -7,8 +7,8 @@
 
 import json
 import os
+import flask
 
-import web
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 
@@ -24,17 +24,17 @@ class FacebookAuthMethod(AuthMethod):
     Facebook auth method
     """
     def get_auth_link(self, auth_storage, share=False):
-        facebook = OAuth2Session(self._client_id, scope=scope + (["publish_actions"] if share else []), redirect_uri=web.ctx.home + self._callback_page)
+        facebook = OAuth2Session(self._client_id, scope=scope + (["publish_actions"] if share else []), redirect_uri=flask.request.url_root + self._callback_page)
         facebook = facebook_compliance_fix(facebook)
         authorization_url, state = facebook.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
         return authorization_url
 
     def callback(self, auth_storage):
-        facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=web.ctx.home + self._callback_page)
+        facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=flask.request.url_root + self._callback_page)
         try:
             facebook.fetch_token(token_url, client_secret=self._client_secret,
-                                 authorization_response=web.ctx.home + web.ctx.fullpath)
+                                 authorization_response=flask.request.url)
             r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
             profile = json.loads(r.content.decode('utf-8'))
             auth_storage["oauth_state"] = facebook.state
@@ -43,7 +43,7 @@ class FacebookAuthMethod(AuthMethod):
             return None
 
     def share(self, auth_storage, course, task, submission, language):
-        facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=web.ctx.home + self._callback_page)
+        facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=flask.request.url_root + self._callback_page)
         if facebook:
             r = facebook.post("https://graph.facebook.com/me/objects/website",
                               {
@@ -57,7 +57,7 @@ class FacebookAuthMethod(AuthMethod):
                                           task=task.get_name(language),
                                           score=submission["grade"]
                                       ),
-                                      "og:url": web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id(),
+                                      "og:url": flask.request.url_root + "course/" + course.get_id() + "/" + task.get_id(),
                                       "og:image": "http://www.inginious.org/assets/img/header.png"})
                               })
             result = json.loads(r.content.decode('utf-8'))
@@ -74,7 +74,7 @@ class FacebookAuthMethod(AuthMethod):
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
-        self._callback_page = '/auth/callback/' + self._id
+        self._callback_page = 'auth/callback/' + self._id
 
     def get_name(self):
         return self._name

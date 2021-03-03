@@ -6,9 +6,10 @@
 """ LDAP plugin """
 
 import logging
-
 import ldap3
-import web
+import flask
+
+from flask import redirect
 from ldap3.core.exceptions import LDAPException
 
 from inginious.frontend.pages.social import AuthenticationPage
@@ -66,7 +67,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
     def POST(self, id):
         # Get configuration
         settings = self.user_manager.get_auth_method(id).get_settings()
-        login_data = web.input()
+        login_data = flask.request.form
         login = login_data["login"].strip().lower()
         password = login_data["password"]
 
@@ -96,8 +97,8 @@ class LDAPAuthenticationPage(AuthenticationPage):
         attr_cn = settings.get("cn", "cn")
         attr_mail = settings.get("mail", "mail")
         try:
-            request = settings["request"].format(login)
-            conn.search(settings["base_dn"], request, attributes=[attr_cn, attr_mail])
+            ldap_request = settings["request"].format(login)
+            conn.search(settings["base_dn"], ldap_request, attributes=[attr_cn, attr_mail])
             user_data = conn.response[0]
         except (LDAPException, IndexError) as ex:
             logger.exception("Can't get user data : " + str(ex))
@@ -128,10 +129,10 @@ class LDAPAuthenticationPage(AuthenticationPage):
                 conn.unbind()
 
             if not self.user_manager.bind_user(id, (username, realname, email, {})):
-                raise web.seeother("/signin?binderror")
+                return redirect("/signin?binderror")
             
             auth_storage = self.user_manager.session_auth_storage().setdefault(id, {})
-            raise web.seeother(auth_storage.get("redir_url", "/"))
+            return redirect(auth_storage.get("redir_url", "/"))
         else:
             logger.debug('Auth Failed')
             conn.unbind()
@@ -176,5 +177,5 @@ def init(plugin_manager, _, _2, conf):
         conf["port"] = None
 
     the_method = LdapAuthMethod(conf.get("id"), conf.get('name', 'LDAP'), conf.get("imlink", ""), conf)
-    plugin_manager.add_page(r'/auth/page/([^/]+)', LDAPAuthenticationPage)
+    plugin_manager.add_page('/auth/page/<id>', LDAPAuthenticationPage.as_view('ldapauthenticationpage'))
     plugin_manager.register_auth_method(the_method)

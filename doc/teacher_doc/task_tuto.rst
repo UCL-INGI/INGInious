@@ -5,8 +5,9 @@ In this document we will describe how to create a simple task, that checks that 
 
 .. note::
 
-    Demonstration tasks are made available for download `here <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
-    can also be downloaded and installed automatically via the :ref:`inginious-install` script.
+    Demonstration tasks are made available for download on the `INGInious-demo-tasks repository <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
+    can also be downloaded and installed automatically via the :ref:`inginious-install` script. You can also download courses examples on the marketplace page which allows to easily import courses files. The list of these open source courses is also available on the `INGInious-courses repository <https://github.com/UCL-INGI/INGInious-courses>`_
+	
 
 Creating the task description
 -----------------------------
@@ -84,6 +85,7 @@ in the webapp in the *Task files* tab of the *Edit task* page.
    a *bash* script, that parses the template and verifies its content.
 
    .. code-block:: python
+
         # This line parses the template and put the result in studentcode.py
         parse_template("template.py", "student/studentcode.py")
 

@@ -11,8 +11,8 @@ import io
 from collections import OrderedDict
 from datetime import datetime
 
-import pymongo
-import web
+from flask import redirect, Response
+from werkzeug.exceptions import Forbidden
 from bson.objectid import ObjectId
 
 from inginious.common.base import id_checker
@@ -27,7 +27,6 @@ class INGIniousAdminPage(INGIniousAuthPage):
     def get_course_and_check_rights(self, courseid, taskid=None, allow_all_staff=True):
         """ Returns the course with id ``courseid`` and the task with id ``taskid``, and verify the rights of the user.
             Raise app.forbidden() when there is no such course of if the users has not enough rights.
-
             :param courseid: the course on which to check rights
             :param taskid: If not None, returns also the task with id ``taskid``
             :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
@@ -38,17 +37,17 @@ class INGIniousAdminPage(INGIniousAuthPage):
             course = self.course_factory.get_course(courseid)
             if allow_all_staff:
                 if not self.user_manager.has_staff_rights_on_course(course):
-                    raise self.app.forbidden(message=_("You don't have staff rights on this course."))
+                    raise Forbidden(description=_("You don't have staff rights on this course."))
             else:
                 if not self.user_manager.has_admin_rights_on_course(course):
-                    raise self.app.forbidden(message=_("You don't have admin rights on this course."))
+                    raise Forbidden(description=_("You don't have admin rights on this course."))
 
             if taskid is None:
                 return course, None
             else:
                 return course, course.get_task(taskid)
         except:
-            raise self.app.forbidden(message=_("This course is unreachable"))
+            raise Forbidden(description=_("This course is unreachable"))
 
 
 class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
@@ -143,7 +142,7 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
         """ Prevent MongoDB injections by verifying arrays sent to it """
         for i in list_of_ids:
             if not id_checker(i):
-                raise self.app.forbidden(message=_("List not valid."))
+                raise Forbidden(description=_("List not valid."))
 
     def get_submissions_filter(self, course,
                                only_tasks=None, only_tasks_with_categories=None,
@@ -333,9 +332,9 @@ def make_csv(data):
     for row in output:
         csv_writer.writerow(row)
     csv_string.seek(0)
-    web.header('Content-Type', 'text/csv; charset=utf-8')
-    web.header('Content-disposition', 'attachment; filename=export.csv')
-    return csv_string.read()
+    response = Response(response=csv_string.read(), content_type='text/csv; charset=utf-8')
+    response.headers['Content-disposition'] = 'attachment; filename=export.csv'
+    return response
 
 
 def get_menu(course, current, renderer, plugin_manager, user_manager):
@@ -363,16 +362,16 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                     entries=default_entries + additional_entries, current=current)
 
 
-class CourseRedirect(INGIniousAdminPage):
+class CourseRedirectPage(INGIniousAdminPage):
     """ Redirect admins to /settings and tutors to /task """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
         if self.user_manager.session_username() in course.get_tutors():
-            raise web.seeother(self.app.get_homepath() + '/admin/{}/tasks'.format(courseid))
+            return redirect(self.app.get_homepath() + '/admin/{}/tasks'.format(courseid))
         else:
-            raise web.seeother(self.app.get_homepath() + '/admin/{}/settings'.format(courseid))
+            return redirect(self.app.get_homepath() + '/admin/{}/settings'.format(courseid))
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """

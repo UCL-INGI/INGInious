@@ -12,33 +12,23 @@ Subpackages
 .. toctree::
 
     inginious.frontend.plugins.auth
-    inginious.frontend.plugins.contests
     inginious.frontend.plugins.scoreboard
-    inginious.frontend.plugins.task_file_readers
 
 Submodules
 ----------
 
-inginious.frontend.plugins.client_test module
-----------------------------------------------------
-
-.. automodule:: inginious.frontend.plugins.client_test
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.frontend.plugins.demo_page module
+inginious.frontend.plugins.demo module
 --------------------------------------------------
 
-.. automodule:: inginious.frontend.plugins.demo_page
+.. automodule:: inginious.frontend.plugins.demo
     :members:
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.plugins.edx module
---------------------------------------------
+inginious.frontend.plugins.contests module
+--------------------------------------------------
 
-.. automodule:: inginious.frontend.plugins.edx
+.. automodule:: inginious.frontend.plugins.contests
     :members:
     :undoc-members:
     :show-inheritance:

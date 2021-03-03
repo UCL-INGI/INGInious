@@ -12,8 +12,10 @@ import urllib.parse
 import urllib.request
 import random
 import time
+import flask
 
-import web
+from flask import redirect, Response
+from werkzeug.exceptions import NotFound, HTTPException
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 
@@ -41,7 +43,7 @@ class BaseTaskPage(object):
         try:
             course = self.course_factory.get_course(courseid)
         except CourseNotFoundException as ex:
-            raise web.notfound(str(ex))
+            raise NotFound(description=str(ex))
         return course.get_accessibility().is_open() and course.allow_preview()
 
     def GET(self, courseid, taskid, is_LTI):
@@ -52,7 +54,7 @@ class BaseTaskPage(object):
         try:
             course = self.course_factory.get_course(courseid)
         except CourseNotFoundException as ex:
-            raise web.notfound(str(ex))
+            raise NotFound(description=str(ex))
 
         if is_LTI and not self.user_manager.course_is_user_registered(course):
             self.user_manager.course_register_user(course, force=True)
@@ -67,7 +69,7 @@ class BaseTaskPage(object):
             if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
                 return self.template_helper.render("task_unavailable.html")
         except TaskNotFoundException:
-            raise web.notfound()
+            raise NotFound()
 
         user_task_list = course.get_task_dispenser().get_user_task_list([username])[username]
         if taskid not in user_task_list:
@@ -83,7 +85,7 @@ class BaseTaskPage(object):
 
         is_staff = self.user_manager.has_staff_rights_on_course(course, username)
 
-        userinput = web.input()
+        userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
@@ -91,18 +93,16 @@ class BaseTaskPage(object):
                 raise self.cp.app.notfound(message=_("Submission doesn't exist."))
             sinput = self.submission_manager.get_input_from_submission(submission, True)
             if userinput["questionid"] not in sinput:
-                raise web.notfound()
+                raise NotFound()
 
             if isinstance(sinput[userinput["questionid"]], dict):
                 # File uploaded previously
                 mimetypes.init()
                 mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
-                web.header('Content-Type', mime_type[0])
-                return sinput[userinput["questionid"]]['value']
+                return Response(response=sinput[userinput["questionid"]]['value'], content_type=mime_type[0])
             else:
                 # Other file, download it as text
-                web.header('Content-Type', 'text/plain')
-                return sinput[userinput["questionid"]]
+                return Response(response=sinput[userinput["questionid"]], content_type='text/plain')
         else:
             # Generate random inputs and save it into db
             random.seed(str(username if username is not None else "") + taskid + courseid + str(
@@ -170,7 +170,7 @@ class BaseTaskPage(object):
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
-        userinput = web.input()
+        userinput = flask.request.form
         if "@action" in userinput and userinput["@action"] == "submit":
             # Verify rights
             if not self.user_manager.task_can_user_submit(task, username, isLTI):
@@ -184,17 +184,26 @@ class BaseTaskPage(object):
                 if s not in userinput or float(userinput[s]) != random_input[i]:
                     return json.dumps({"status": "error", "title": _("Error"), "text": _("Your task has been regenerated. This current task is outdated.")})
 
-            # Reparse user input with array for multiple choices
-            init_var = {
-                problem.get_id(): problem.input_type()()
-                for problem in task.get_problems() if problem.input_type() in [dict, list]
-            }
-            userinput = task.adapt_input_for_backend(web.input(**init_var))
+            # Reparse user input with array for multiple choices and files
+            userinput = flask.request.form.copy()
+            for problem in task.get_problems():
+                pid = problem.get_id()
+                if problem.input_type() == list:
+                    userinput[pid] = flask.request.form.getlist(pid)
+                elif problem.input_type() == dict:
+                    userinput[pid] = flask.request.files.get(pid)
+                else:
+                    userinput[pid] = flask.request.form.get(pid)
+
+            userinput = task.adapt_input_for_backend(userinput)
 
             if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
-                web.header('Content-Type', 'application/json')
-                return json.dumps({"status": "error",  "title": _("Error"), "text": _("Please answer to all the questions and verify the extensions of the files "
-                                                              "you want to upload. Your responses were not tested.")})
+                return Response(content_type='application/json',
+                                response=json.dumps({
+                                    "status": "error",  "title": _("Error"),
+                                    "text": _("Please answer to all the questions and verify the extensions of the files "
+                                              "you want to upload. Your responses were not tested.")
+                                }))
             del userinput['@action']
 
             # Get debug info if the current user is an admin
@@ -207,19 +216,22 @@ class BaseTaskPage(object):
             # Start the submission
             try:
                 submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
-                web.header('Content-Type', 'application/json')
-                return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
+                return Response(content_type='application/json', response=json.dumps({
+                    "status": "ok", "submissionid": str(submissionid), "remove": oldsubids,
+                    "text": _("<b>Your submission has been sent...</b>")
+                }))
             except Exception as ex:
-                web.header('Content-Type', 'application/json')
-                return json.dumps({"status": "error", "title": _("Error"), "text": str(ex)})
+                return Response(content_type='application/json', response=json.dumps({
+                    "status": "error", "title": _("Error"), "text": str(ex)
+                }))
 
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
             result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
             if result is None:
-                web.header('Content-Type', 'application/json')
-                return json.dumps({'status': "error",  "title": _("Error"), "text": _("Internal error")})
+                return Response(content_type='application/json', response=json.dumps({
+                    'status': "error",  "title": _("Error"), "text": _("Internal error")
+                }))
             elif self.submission_manager.is_done(result, user_check=not is_staff):
-                web.header('Content-Type', 'application/json')
                 result = self.submission_manager.get_input_from_submission(result)
                 result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
 
@@ -233,29 +245,34 @@ class BaseTaskPage(object):
                 default_submissionid = user_task.get('submissionid', None)
                 if default_submissionid is None:
                     # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
-                    return json.dumps({'status': "error",  "title": _("Error"), "text": _("Internal error")})
+                    return Response(content_type='application/json', response=json.dumps({
+                        'status': "error",  "title": _("Error"), "text": _("Internal error")
+                    }))
 
-                return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags())
+                return Response(content_type='application/json', response=self.submission_to_json(
+                    task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags()
+                ))
             else:
-                web.header('Content-Type', 'application/json')
-                return self.submission_to_json(task, result, is_admin, False, tags=course.get_tags())
+                return Response(content_type='application/json', response=self.submission_to_json(
+                    task, result, is_admin, False, tags=course.get_tags()
+                ))
 
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             submission = self.submission_manager.get_input_from_submission(submission)
             submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
             if not submission:
-                raise self.cp.app.notfound(message=_("Submission doesn't exist."))
-            web.header('Content-Type', 'application/json')
+                raise NotFound(description=_("Submission doesn't exist."))
 
-            return self.submission_to_json(task, submission, is_admin, True, tags=course.get_tags())
+            return Response(content_type='application/json', response=self.submission_to_json(
+                task, submission, is_admin, True, tags=course.get_tags()
+            ))
 
         elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
             self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
-            web.header('Content-Type', 'application/json')
-            return json.dumps({'status': 'done'})
+            return Response(content_type='application/json', response=json.dumps({'status': 'done'}))
         else:
-            raise web.notfound()
+            raise NotFound()
 
     def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags=None):
         """ Converts a submission to json (keeps only needed fields) """
@@ -264,9 +281,14 @@ class BaseTaskPage(object):
             tags = []
 
         if "ssh_host" in data:
-            return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
-                               'ssh_host': data["ssh_host"], 'ssh_port': data["ssh_port"],
-                               'ssh_password': data["ssh_password"]})
+            return json.dumps({
+                'status': "waiting",
+                'text': "<b>SSH server active</b>",
+                'ssh_host': data["ssh_host"],
+                'ssh_port': data["ssh_port"],
+                'ssh_user': data["ssh_user"],
+                'ssh_password': data["ssh_password"]
+            })
 
         # Here we are waiting. Let's send some useful information.
         waiting_data = self.submission_manager.get_job_queue_info(data["jobid"]) if "jobid" in data else None
@@ -394,19 +416,15 @@ class TaskPageStaticDownload(INGIniousPage):
             (method, mimetype_or_none, file_or_url) = public_folder.distribute(path_norm, False)
 
             if method == "local":
-                web.header('Content-Type', mimetype_or_none)
-                return file_or_url
+                return Response(response=file_or_url, content_type=mimetype_or_none)
             elif method == "url":
-                raise web.redirect(file_or_url)
+                return redirect(file_or_url)
             else:
-                raise web.notfound()
-        except web.HTTPError as error_or_redirect:
+                raise NotFound()
+        except TaskNotFoundException:
+            raise NotFound()
+        except HTTPException as error_or_redirect:
             raise error_or_redirect
-        except:
-            if web.config.debug:
-                raise
-            else:
-                raise web.notfound()
 
 
 class TaskPage(INGIniousAuthPage):

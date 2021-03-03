@@ -3,15 +3,12 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
+import flask
 
-import json
-import re
-import web
-from bson.objectid import ObjectId
-from collections import OrderedDict
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.common.base import dict_from_prefix
+
 
 class CourseTagsPage(INGIniousAdminPage):
     """ Replay operation management """
@@ -21,7 +18,7 @@ class CourseTagsPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         # Tags
-        tags = dict_from_prefix("tags", web.input())
+        tags = dict_from_prefix("tags", flask.request.form)
         if tags is None:
             tags = {}
 

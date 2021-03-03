@@ -1,56 +1,10 @@
-.. _course:
+.. _course.yaml:
 
-Creating a new course
-=====================
+Course description files
+------------------------
 
-Courses are defined by subdirectories found in the *tasks directory*, which has been specified in the configuration.
-See :ref:`ConfigReference`. These subdirectories are composed of a ``course.yaml`` file describing the course parameters
-and other subdirectories corresponding to tasks (See :ref:`task`).
-
-Here is an example of the content of a *tasks folder*::
-
-    tasks/
-        course_id_1/
-            course.yaml
-            task_id_1/
-                task.yaml
-                run
-                ...
-            ...
-        ...
-
-Ideally, you should only give permissions to a course folder to the course administrator if needed. The webapp task
-editor should not require you to give this access. If needed, several methods exist. See :ref:`inginious-synchronize`
-for Git repository synchronization.
-
-Tutorial
---------
-
-Creating courses is reserved to the super-administrators (See :ref:`ConfigReference`). Course administrators are then
-able to configure the course by themselves.
-
-.. note::
-
-    Demonstration tasks are made available for download `here <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
-    can also be downloaded and installed automatically via the :ref:`inginious-install` script.
-
-Using the webapp
-````````````````
-
-#. As a super-administrator, go to the bottom of the course list and enter a new course id, for instance ``demo``,
-   and click on *Create new course*. A newly created hidden  course named *demo* appears on the list.
-#. Click on that course, and then on *Course administration* to change the course parameters, add course
-   administrators and tasks.
-
-Please note that, if you give access to the course directory to course administrators, you still have to do some
-manual work for this to be effective.
-
-Manually
-````````
-
-The course description is a YAML file containing all the course parameters used by INGInious.
-Here is a simple course description. Put this file with the name ``course.yaml`` in a newly created ``demo`` folder in
-your tasks directory.
+The course description is a YAML file named ``course.yaml`` containing all the course parameters used by INGInious.
+Here is a simple course description.
 
 .. code-block:: yaml
 
@@ -58,13 +12,8 @@ your tasks directory.
     admins:
     - demouser
 
-This elementary course description file will make a new publicly visible course with id ``demo`` appear as
+This elementary course description file will make a new publicly visible course appear as
 *[DEMO] Demonstration course* on the course list.
-
-.. _course.yaml:
-
-Course description files
-------------------------
 
 Inside the task folder, courses are identified by subdirectories name by their course id and containing a ``course.yaml``
 file. For instance, this file, for a course with id ``courseid1``, should be placed in a ``courseid1`` subdirectory.

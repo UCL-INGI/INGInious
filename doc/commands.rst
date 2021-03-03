@@ -27,6 +27,7 @@ Utilities
 .. toctree::
     :maxdepth: 2
 
+    commands_doc/inginious-autotest
     commands_doc/inginious-synchronize
     commands_doc/inginious-container-update
     commands_doc/inginious-database-update

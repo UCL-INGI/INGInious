@@ -5,13 +5,16 @@
 
 """ Some utils for all the pages """
 import logging
+import os
 from typing import List, Dict
 
-import web
-import os
+import flask
 from gridfs import GridFS
-from inginious.client.client import Client
+from flask import redirect, url_for
+from flask.views import MethodView
+from werkzeug.exceptions import NotFound, NotAcceptable
 
+from inginious.client.client import Client
 from inginious.common import custom_yaml
 from inginious.frontend.environment_types import get_all_env_types
 from inginious.frontend.environment_types.env_type import FrontendEnvType
@@ -27,7 +30,7 @@ from inginious.frontend.task_factory import TaskFactory
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
 
-class INGIniousPage(object):
+class INGIniousPage(MethodView):
     """
     A base for all the pages of the INGInious webapp.
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
@@ -41,7 +44,31 @@ class INGIniousPage(object):
     @property
     def app(self):
         """ Returns the web application singleton """
-        return web.ctx.app_stack[0]
+        return flask.current_app
+
+    def _pre_check(self, sessionid):
+        # Check for cookieless redirect
+        if not sessionid and flask.session.cookieless:
+            query_string = "?" + flask.request.query_string.decode("utf-8") if flask.request.query_string else ""
+            flask.request.view_args.update(sessionid=flask.session.sid)
+            return redirect(url_for(flask.request.endpoint, **flask.request.view_args) + query_string)
+
+        # Check for language
+        if "lang" in flask.request.args and flask.request.args["lang"] in self.app.l10n_manager.translations.keys():
+            self.user_manager.set_session_language(flask.request.args["lang"])
+        elif "language" not in flask.session:
+            best_lang = flask.request.accept_languages.best_match(self.app.l10n_manager.translations.keys(), default="en")
+            self.user_manager.set_session_language(best_lang)
+
+        return ""
+
+    def get(self, sessionid, *args, **kwargs):
+        pre_check = self._pre_check(sessionid)
+        return pre_check if pre_check else self.GET(*args, **kwargs)
+
+    def post(self, sessionid, *args, **kwargs):
+        pre_check = self._pre_check(sessionid)
+        return pre_check if pre_check else self.POST(*args, **kwargs)
 
     @property
     def plugin_manager(self) -> PluginManager:
@@ -104,7 +131,7 @@ class INGIniousPage(object):
         return self.app.backup_dir
 
     @property
-    def environments(self) -> Dict[str, str]:  # pylint: disable=invalid-sequence-index
+    def environments(self) -> Dict[str, List[str]]:  # pylint: disable=invalid-sequence-index
         """ Available environments """
         return self.app.submission_manager.get_available_environments()
 
@@ -140,10 +167,10 @@ class INGIniousAuthPage(INGIniousPage):
     """
 
     def POST_AUTH(self, *args, **kwargs):  # pylint: disable=unused-argument
-        raise web.notacceptable()
+        raise NotAcceptable()
 
     def GET_AUTH(self, *args, **kwargs):  # pylint: disable=unused-argument
-        raise web.notacceptable()
+        raise NotAcceptable()
 
     def GET(self, *args, **kwargs):
         """
@@ -155,7 +182,7 @@ class INGIniousAuthPage(INGIniousPage):
                                                              self.app.privacy_page is not None and
                                                              not self.user_manager.session_tos_signed()))\
                     and not self.__class__.__name__ == "ProfilePage":
-                raise web.seeother("/preferences/profile")
+                return redirect("/preferences/profile")
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
                 self.user_manager.disconnect_user()
@@ -166,10 +193,10 @@ class INGIniousAuthPage(INGIniousPage):
             return self.GET_AUTH(*args, **kwargs)
         else:
             error = ''
-            if "binderror" in web.input():
+            if "binderror" in flask.request.args:
                 error = _("An account using this email already exists and is not bound with this service. "
                           "For security reasons, please log in via another method and bind your account in your profile.")
-            if "callbackerror" in web.input():
+            if "callbackerror" in flask.request.args:
                 error = _("Couldn't fetch the required information from the service. Please check the provided "
                           "permissions (name, email) and contact your INGInious administrator if the error persists.")
             return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(), error=error)
@@ -181,7 +208,7 @@ class INGIniousAuthPage(INGIniousPage):
         """
         if self.user_manager.session_logged_in():
             if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
-                raise web.seeother("/preferences/profile")
+                return redirect("/preferences/profile")
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
                 self.user_manager.disconnect_user()
@@ -189,7 +216,7 @@ class INGIniousAuthPage(INGIniousPage):
 
             return self.POST_AUTH(*args, **kwargs)
         else:
-            user_input = web.input()
+            user_input = flask.request.form
             if "login" in user_input and "password" in user_input:
                 if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
                     return self.GET_AUTH(*args, **kwargs)
@@ -210,10 +237,10 @@ class INGIniousAuthPage(INGIniousPage):
 
 class SignInPage(INGIniousAuthPage):
     def GET_AUTH(self, *args, **kwargs):
-        raise web.seeother("/mycourses")
+        return redirect("/mycourses")
 
     def POST_AUTH(self, *args, **kwargs):
-        raise web.seeother("/mycourses")
+        return redirect("/mycourses")
 
     def GET(self):
         return INGIniousAuthPage.GET(self)
@@ -222,21 +249,21 @@ class SignInPage(INGIniousAuthPage):
 class LogOutPage(INGIniousAuthPage):
     def GET_AUTH(self, *args, **kwargs):
         self.user_manager.disconnect_user()
-        raise web.seeother("/courselist")
+        return redirect("/courselist")
 
     def POST_AUTH(self, *args, **kwargs):
         self.user_manager.disconnect_user()
-        raise web.seeother("/courselist")
+        return redirect("/courselist")
 
 
 class INGIniousStaticPage(INGIniousPage):
     cache = {}
 
-    def GET(self, page):
-        return self.show_page(page)
+    def GET(self, pageid):
+        return self.show_page(pageid)
 
-    def POST(self, page):
-        return self.show_page(page)
+    def POST(self, pageid):
+        return self.show_page(pageid)
 
     def show_page(self, page):
         static_directory = self.app.static_directory
@@ -254,7 +281,7 @@ class INGIniousStaticPage(INGIniousPage):
                 mtime = os.stat(filepath).st_mtime
 
         if not filename:
-            raise self.app.notfound(message=_("File doesn't exist."))
+            raise NotFound(description=_("File doesn't exist."))
 
         # Check and update cache
         if INGIniousStaticPage.cache.get(filename, (0, None))[0] < mtime:

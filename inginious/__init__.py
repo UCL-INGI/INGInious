@@ -8,7 +8,16 @@ import os
 import gettext
 import builtins
 
-__version__ = "0.6.dev0"
+try:
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:
+    from importlib_metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version(__name__)
+except PackageNotFoundError:
+    __version__ = "0.7.dev0"
+
 MARKETPLACE_URL = "https://marketplace.inginious.org/marketplace.json"
 
 

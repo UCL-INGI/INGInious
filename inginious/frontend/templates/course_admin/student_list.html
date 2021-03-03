@@ -250,8 +250,7 @@
                     </div>
                 </div>
 
-                <form method="post" enctype="multipart/form-data" class="form-horizontal">
-                    <input type="hidden" id="audiences" name="audiences" value="false" />
+                <form method="post" id="groups_form" class="form-horizontal">
                     <div id="groups" class='list-group'>
                         <div class="card border-warning mb-3 group">
                             <div class="card-header bg-warning text-white clearfix" role="tab">
@@ -275,7 +274,7 @@
                         </div>
 
                         {% for group in (groups + [None]) %}
-                            {% set index = loop.index %}
+                            {% set index = loop.index - 1 %}
                                 {% if group is none: %}
                                     <div id="{{index+1}}" style="display:none;" class="card mb-3 group-card">
                                         <div class="card-header clearfix" role="tab">
@@ -340,7 +339,7 @@
                                 </div>
 
                                 {% if group %}
-                                    <ul class="list-group list-group-flush" id="audiences_{{index+1}}">
+                                    <ul class="list-group list-group-flush" id="group_{{index+1}}">
                                     {% for audience_id in (group["audiences"] + [None]) %}
                                             {% set audience = audience_list.get(audience_id, None) %}
                                             {% if audience is none %}
@@ -356,7 +355,7 @@
                                     {% endfor %}
                                     </ul>
                                 {% else %}
-                                    <ul class="list-group list-group-flush" id="audiences_{{index+1}}">
+                                    <ul class="list-group list-group-flush" id="group_{{index+1}}">
                                         <li class="list-group-item" style="display:none;">
                                             <span></span>
                                             <div class="pull-right"><a href="#" onclick="javascript:group_audience_remove($(this).rparent(2).attr('id'), {{ index+1 }})"><i class="fa fa-trash-o fa-lg"></i></a></div>

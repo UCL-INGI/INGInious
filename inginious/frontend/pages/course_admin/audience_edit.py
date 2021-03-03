@@ -7,11 +7,11 @@
 
 import json
 
-import web
+import flask
+from flask import redirect
+from werkzeug.exceptions import NotFound
 from bson.objectid import ObjectId
-from pymongo import ReturnDocument
 
-from inginious.common import custom_yaml
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
@@ -46,7 +46,7 @@ class CourseEditAudience(INGIniousAdminPage):
     def display_page(self, course, audienceid, msg='', error=False):
         audience = self.database.audiences.find_one({"_id": ObjectId(audienceid), "courseid": course.get_id()})
         if not audience:
-            raise self.app.notfound(message=_("This audience doesn't exist."))
+            raise NotFound(description=_("This audience doesn't exist."))
 
         student_list, tutor_list, other_students, users_info = self.get_user_lists(course, audienceid)
         return self.template_helper.render("course_admin/audience_edit.html", course=course, student_list=student_list,
@@ -62,10 +62,13 @@ class CourseEditAudience(INGIniousAdminPage):
     def POST_AUTH(self, courseid, audienceid=''):  # pylint: disable=arguments-differ
         """ Edit a audience """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
-
         msg=''
         error = False
-        data = web.input(delete=[], tutors=[], audiencefile={})
+
+        data = flask.request.form.copy()
+        data["delete"] = flask.request.form.getlist("delete")
+        data["tutors"] = flask.request.form.getlist("tutors")
+
         if len(data["delete"]):
 
             for classid in data["delete"]:
@@ -85,7 +88,7 @@ class CourseEditAudience(INGIniousAdminPage):
                     msg = _("Audience updated.")
 
             if audienceid and audienceid in data["delete"]:
-                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
+                return redirect(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
         else:
             audiences_dict = json.loads(data["audiences"])
             student_list = self.user_manager.get_course_registered_users(course, False)

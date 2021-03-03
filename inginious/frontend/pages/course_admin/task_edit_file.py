@@ -7,7 +7,9 @@
 import json
 import os.path
 
-import web
+import flask
+from flask import redirect, Response
+from werkzeug.exceptions import  NotFound
 
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -19,36 +21,38 @@ class CourseTaskFiles(INGIniousAdminPage):
     def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid):
-            raise Exception("Invalid task id")
+            raise NotFound(description=_("Invalid task id"))
 
         self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        request = web.input()
-        if request.get("action") == "download" and request.get('path') is not None:
-            return self.action_download(courseid, taskid, request.get('path'))
-        elif request.get("action") == "delete" and request.get('path') is not None:
-            return self.action_delete(courseid, taskid, request.get('path'))
-        elif request.get("action") == "rename" and request.get('path') is not None and request.get('new_path') is not None:
-            return self.action_rename(courseid, taskid, request.get('path'), request.get('new_path'))
-        elif request.get("action") == "create" and request.get('path') is not None:
-            return self.action_create(courseid, taskid, request.get('path'))
-        elif request.get("action") == "edit" and request.get('path') is not None:
-            return self.action_edit(courseid, taskid, request.get('path'))
+        user_input = flask.request.args
+        if user_input.get("action") == "download" and user_input.get('path') is not None:
+            return self.action_download(courseid, taskid, user_input.get('path'))
+        elif user_input.get("action") == "delete" and user_input.get('path') is not None:
+            return self.action_delete(courseid, taskid, user_input.get('path'))
+        elif user_input.get("action") == "rename" and user_input.get('path') is not None and user_input.get('new_path') is not None:
+            return self.action_rename(courseid, taskid, user_input.get('path'), user_input.get('new_path'))
+        elif user_input.get("action") == "create" and user_input.get('path') is not None:
+            return self.action_create(courseid, taskid, user_input.get('path'))
+        elif user_input.get("action") == "edit" and user_input.get('path') is not None:
+            return self.action_edit(courseid, taskid, user_input.get('path'))
         else:
             return self.show_tab_file(courseid, taskid)
 
     def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Upload or modify a file """
         if not id_checker(taskid):
-            raise Exception("Invalid task id")
+            raise NotFound(description=_("Invalid task id"))
 
         self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        request = web.input(file={})
-        if request.get("action") == "upload" and request.get('path') is not None and request.get('file') is not None:
-            return self.action_upload(courseid, taskid, request.get('path'), request.get('file'))
-        elif request.get("action") == "edit_save" and request.get('path') is not None and request.get('content') is not None:
-            return self.action_edit_save(courseid, taskid, request.get('path'), request.get('content'))
+        user_input = flask.request.form.copy()
+        user_input["file"] = flask.request.files.get("file")
+
+        if user_input.get("action") == "upload" and user_input.get('path') is not None and user_input.get('file') is not None:
+            return self.action_upload(courseid, taskid, user_input.get('path'), user_input.get('file'))
+        elif user_input.get("action") == "edit_save" and user_input.get('path') is not None and user_input.get('content') is not None:
+            return self.action_edit_save(courseid, taskid, user_input.get('path'), user_input.get('content'))
         else:
             return self.show_tab_file(courseid, taskid)
 
@@ -165,7 +169,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         try:
-            task_fs.put(wanted_path, fileobj.file.read())
+            task_fs.put(wanted_path, fileobj.read())
         except:
             return self.show_tab_file(courseid, taskid, _("An error occurred while writing the file"))
         return self.show_tab_file(courseid, taskid)
@@ -240,31 +244,32 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None:
-            raise web.notfound(message=_("This path doesn't exist."))
+            raise NotFound(description=_("This path doesn't exist."))
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         (method, mimetype_or_none, file_or_url) = task_fs.distribute(wanted_path)
 
         if method == "local":
-            web.header('Content-Type', mimetype_or_none)
-            return file_or_url
+            return Response(response=file_or_url, content_type=mimetype_or_none)
         elif method == "url":
-            raise web.redirect(file_or_url)
+            return redirect(file_or_url)
         else:
-            raise web.notfound()
+            raise NotFound()
+
 
 class CourseTaskFileUpload(CourseTaskFiles):
 
     def POST_AUTH(self, courseid, taskid):
         if not id_checker(taskid):
-            raise Exception("Invalid task id")
+            raise NotFound(description=_("Invalid task id"))
 
         self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        request = web.input(file={})
-        if request.get('file') is not None:
-            file = request.get('file')
-            name = request.get('name')
+        user_input = flask.request.form.copy()
+        user_input["file"] = flask.request.files.get("file")
+        if user_input.get('file') is not None:
+            file = user_input.get('file')
+            name = user_input.get('name')
             filename = "/"+name
             wanted_path = self.verify_path(courseid, taskid, filename, True)
             self.action_upload(courseid, taskid, wanted_path, file)

@@ -7,7 +7,6 @@
 import os
 from functools import lru_cache
 
-import web
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import inginious
 import json
@@ -15,11 +14,6 @@ import json
 
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code. """
-
-    # _WEB_CTX_KEY is the name of the key in web.ctx that stores entries made available to the whole
-    # current thread. It allows to store javascript/css "addons" that will be displayed later when the
-    # templates are rendered
-    _WEB_CTX_KEY = "inginious_tpl_helper"
 
     def __init__(self, plugin_manager, user_manager, use_minified=True):
         """
@@ -44,9 +38,7 @@ class TemplateHelper(object):
         self._user_manager = user_manager # can be None!
         self._layout_old = 'frontend/templates/layout_old'
         self._template_globals = {}
-
-        # include is only needed in webpy templates as jinja supports it by default
-        self.add_to_template_globals("include", self.get_custom_renderer(self._template_dir, layout=False))
+        self._ctx = {"javascript": {"footer": [], "header": []}, "css": []}
 
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
@@ -86,39 +78,6 @@ class TemplateHelper(object):
         env.globals.update(self._template_globals)
 
         return env
-
-    def get_renderer(self, with_layout=True):
-        """ Get the default renderer. This function is deprecated, use render() (that uses Jinja) instead. """
-        if with_layout:
-            return self.get_custom_renderer(self._template_dir)
-        else:
-            return self.get_custom_renderer(self._template_dir, layout=False)
-
-    def get_custom_renderer(self, dir_path, layout=True):
-        """
-        Create a template renderer on templates in the directory specified, and returns it.
-
-        See the web.py documentation.
-        This function is deprecated, use render() (that uses Jinja) instead.
-
-        :param dir_path: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
-        :param layout: can either be True (use the base layout of the running app), False (use no layout at all), or the path to the layout to use.
-                       If this path is relative, it is taken from the INGInious package root.
-        """
-
-        # if dir_path/base is a absolute path, os.path.join(something, an_absolute_path) returns an_absolute_path.
-        root_path = inginious.get_root_path()
-
-        if isinstance(layout, str):
-            layout_path = os.path.join(root_path, layout)
-        elif layout is True:
-            layout_path = os.path.join(root_path, self._layout_old)
-        else:
-            layout_path = None
-
-        return web.template.render(os.path.join(root_path, dir_path),
-                                  globals=self._template_globals,
-                                  base=layout_path)
 
     def call(self, name, **kwargs):
         helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))
@@ -164,11 +123,7 @@ class TemplateHelper(object):
 
     def _get_ctx(self):
         """ Get web.ctx object for the Template helper """
-        if self._WEB_CTX_KEY not in web.ctx:
-            web.ctx[self._WEB_CTX_KEY] = {
-                "javascript": {"footer": [], "header": []},
-                "css": []}
-        return web.ctx.get(self._WEB_CTX_KEY)
+        return self._ctx
 
     def _generic_hook(self, name, **kwargs):
         """ A generic hook that links the TemplateHelper with PluginManager """

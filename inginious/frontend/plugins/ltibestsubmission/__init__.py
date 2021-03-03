@@ -1,11 +1,7 @@
-import web
 from bson import ObjectId, json_util
 
-from inginious.frontend.tasks import Task
-from inginious.common.babel import get_strings
-from inginious.frontend.task_problems import DisplayableMultipleChoiceProblem
-from inginious.common.tasks_problems import MultipleChoiceProblem, CodeProblem, \
-    MatchProblem, FileProblem
+from werkzeug.exceptions import NotFound
+from inginious.common.tasks_problems import MultipleChoiceProblem, CodeProblem, MatchProblem, FileProblem
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
@@ -16,7 +12,7 @@ class LTIBestSubmissionPage(INGIniousAuthPage):
     def GET_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise web.notfound()
+            raise NotFound()
 
         courseid, taskid = data["task"]
 
@@ -77,9 +73,9 @@ class LTIBestSubmissionPage(INGIniousAuthPage):
                                 "task_context": context})
 
     def POST_AUTH(self):
-        raise web.notfound()
+        raise NotFound()
 
 
 def init(plugin_manager, *args, **kwargs):
     """ Init the plugin """
-    plugin_manager.add_page("/lti/bestsubmission", LTIBestSubmissionPage)
+    plugin_manager.add_page("/lti/bestsubmission", LTIBestSubmissionPage.as_view('ltibestsubmissionpage'))

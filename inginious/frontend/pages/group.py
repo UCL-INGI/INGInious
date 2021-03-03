@@ -7,7 +7,8 @@
 
 import logging
 
-import web
+import flask
+from werkzeug.exceptions import Forbidden
 from bson.objectid import ObjectId
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -26,9 +27,9 @@ class GroupPage(INGIniousAuthPage):
 
         error = False
         msg = ""
-        data = web.input()
+        data = flask.request.args
         if self.user_manager.has_staff_rights_on_course(course):
-            raise self.app.forbidden(message=_("You can't access this page as a member of the staff."))
+            raise Forbidden(description=_("You can't access this page as a member of the staff."))
         elif not self.user_manager.course_is_open_to_user(course, lti=False):
             return self.template_helper.render("course_unavailable.html")
         elif "register_group" in data:

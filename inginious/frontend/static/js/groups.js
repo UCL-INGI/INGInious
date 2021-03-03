@@ -36,7 +36,7 @@ function groups_prepare_submit()
             type:"hidden",
             name:"groups",
             value: JSON.stringify(groups)
-    }).appendTo($("form"));
+    }).appendTo($("#groups_form"));
 
 }
 
@@ -48,7 +48,7 @@ function group_add()
     // Clone and change id for deletion
     var clone = new_group_li.clone();
     clone.find("#audience_list_" + parseInt(clone.attr("id"))).attr("id", "#audience_list_" + (parseInt(clone.attr("id")) + 1));
-    clone.find("#audiences_" + parseInt(clone.attr("id"))).attr("id", "#audiences_" + (parseInt(clone.attr("id")) + 1));
+    clone.find("#group_" + parseInt(clone.attr("id"))).attr("id", "#group_" + (parseInt(clone.attr("id")) + 1));
     clone.attr("id", parseInt(clone.attr("id")) + 1);
     clone.find("#group_number").text(clone.attr("id"));
 
@@ -57,14 +57,12 @@ function group_add()
     new_group_li.addClass("group");
     new_group_li.after(clone);
 
-    if(!JSON.parse($("#audiences").val())) {
-        jQuery('<input/>', {
-            type:'hidden',
-            name: '_id',
-            id: '_id',
-            value: 'None'
-        }).appendTo(new_group_li);
-    }
+    jQuery('<input/>', {
+        type:'hidden',
+        name: '_id',
+        id: '_id',
+        value: 'None'
+    }).appendTo(new_group_li);
 
     // Regroup sortable lists
     $$("ul.students").each(function(){
@@ -82,17 +80,16 @@ function group_delete(id)
     });
 
     // add the group id in delete field
-    if(!JSON.parse($("#audiences").val())) {
-        // if group_id is not none, inform to delete
-        // do not remove last group id
-        if($("#" + id).find("#_id").val() != 'None') {
-            jQuery('<input/>', {
-                type: 'hidden',
-                name: 'delete',
-                value: $("#" + id).find("#_id").val()
-            }).appendTo($('form'));
-        }
+    // if group_id is not none, inform to delete
+    // do not remove last group id
+    if($("#group_" + id).find("#_id").val() != 'None') {
+        jQuery('<input/>', {
+            type: 'hidden',
+            name: 'delete',
+            value: $("#" + id).find("#_id").val()
+        }).appendTo($('form'));
     }
+
 
     // Remove item...
     $("#" + id).remove();
@@ -125,7 +122,7 @@ function group_audience_add(audienceid, description, id) {
     if(audienceid==null)
         return;
 
-    var new_audience_div = $("#audiences_" + id + " li").last();
+    var new_audience_div = $("#group_" + id + " li").last();
     var clone = new_audience_div.clone();
 
     new_audience_div.attr("id", audienceid);

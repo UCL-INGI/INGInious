@@ -7,7 +7,8 @@
 
 import json
 import os
-import web
+import flask
+
 from requests_oauthlib import OAuth1Session
 
 from inginious.frontend.user_manager import AuthMethod
@@ -25,7 +26,7 @@ class TwitterAuthMethod(AuthMethod):
         client_id = self._share_client_id if share else self._client_id
         client_secret = self._clients[client_id]
         twitter = OAuth1Session(client_id, client_secret=client_secret,
-                                callback_uri=web.ctx.home + self._callback_page)
+                                callback_uri=flask.request.url_root + self._callback_page)
         twitter.fetch_request_token(request_token_url)
         authorization_url = twitter.authorization_url(authorization_base_url)
         auth_storage["oauth_client_id"] = client_id
@@ -35,9 +36,9 @@ class TwitterAuthMethod(AuthMethod):
         client_id = auth_storage.get("oauth_client_id", self._client_id)
         client_secret = self._clients[client_id]
         twitter = OAuth1Session(client_id, client_secret=client_secret,
-                                callback_uri=web.ctx.home + self._callback_page)
+                                callback_uri=flask.request.url_root + self._callback_page)
         try:
-            twitter.parse_authorization_response(web.ctx.home + web.ctx.fullpath)
+            twitter.parse_authorization_response(flask.request.url)
             twitter.fetch_access_token(access_token_url)
             r = twitter.get('https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true')
             profile = json.loads(r.content.decode('utf-8'))
@@ -55,7 +56,7 @@ class TwitterAuthMethod(AuthMethod):
                     course=course.get_name(language),
                     task=task.get_name(language),
                     score=submission["grade"]
-                ) + " " + web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id() + " #inginious" + ((" via @" + self._twitter_user) if self._twitter_user else "")
+                ) + " " + flask.request.url_root + "course/" + course.get_id() + "/" + task.get_id() + " #inginious" + ((" via @" + self._twitter_user) if self._twitter_user else "")
                  }
             )
             result = json.loads(r.content.decode('utf-8'))
@@ -75,7 +76,7 @@ class TwitterAuthMethod(AuthMethod):
         self._share_client_id = share_client_id
         self._share_client_secret = share_client_secret
         self._clients = {self._client_id: self._client_secret, self._share_client_id: self._share_client_secret}
-        self._callback_page = '/auth/callback/' + self._id
+        self._callback_page = 'auth/callback/' + self._id
         self._twitter_user = twitter_user
 
     def get_name(self):

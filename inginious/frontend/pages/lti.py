@@ -1,8 +1,14 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
 
-import web
+import flask
+from flask import redirect
+from werkzeug.exceptions import Forbidden, NotFound, MethodNotAllowed
 from inginious.frontend.lti_request_validator import LTIValidator
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
+from itsdangerous import want_bytes
 
 from inginious.common import exceptions
 from inginious.frontend.lti_tool_provider import LTIWebPyToolProvider
@@ -16,7 +22,7 @@ class LTITaskPage(INGIniousAuthPage):
     def GET_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.forbidden(message=_("No LTI data available."))
+            raise Forbidden(description=_("No LTI data available."))
         (courseid, taskid) = data['task']
 
         return BaseTaskPage(self).GET(courseid, taskid, True)
@@ -24,7 +30,7 @@ class LTITaskPage(INGIniousAuthPage):
     def POST_AUTH(self):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.forbidden(message=_("No LTI data available."))
+            raise Forbidden(description=_("No LTI data available."))
         (courseid, taskid) = data['task']
 
         return BaseTaskPage(self).POST(courseid, taskid, True)
@@ -37,9 +43,9 @@ class LTIAssetPage(INGIniousAuthPage):
     def GET_AUTH(self, asset_url):
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.forbidden(_("No LTI data available."))
+            raise Forbidden(description=_("No LTI data available."))
         (courseid, _) = data['task']
-        raise web.redirect(self.app.get_homepath() + "/course/{courseid}/{asset_url}".format(courseid=courseid, asset_url=asset_url))
+        return redirect(self.app.get_homepath() + "/course/{courseid}/{asset_url}".format(courseid=courseid, asset_url=asset_url))
 
 
 class LTIBindPage(INGIniousAuthPage):
@@ -47,34 +53,38 @@ class LTIBindPage(INGIniousAuthPage):
         return False
 
     def fetch_lti_data(self, sessionid):
-        cookieless_session = self.app.get_session().store[sessionid]
-        data = cookieless_session["lti"]
-
-        return cookieless_session, data
+        # TODO : Flask session interface does not allow to open a specific session
+        # It could be worth putting these information outside of the session dict
+        sess = self.database.sessions.find_one({"_id": sessionid})
+        if sess:
+            cookieless_session = self.app.session_interface.serializer.loads(want_bytes(sess['data']))
+        else:
+            return KeyError()
+        return sessionid, cookieless_session["lti"]
 
     def GET_AUTH(self):
-        input_data = web.input()
+        input_data = flask.request.args
         if "sessionid" not in input_data:
             return self.template_helper.render("lti_bind.html", success=False, sessionid="",
                                                data=None, error=_("Missing LTI session id"))
 
         try:
-            cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
+            cookieless_session_id, data = self.fetch_lti_data(input_data["sessionid"])
         except KeyError:
             return self.template_helper.render("lti_bind.html", success=False, sessionid="",
                                                data=None, error=_("Invalid LTI session id"))
 
         return self.template_helper.render("lti_bind.html", success=False,
-                                           sessionid=cookieless_session["session_id"], data=data, error="")
+                                           sessionid=cookieless_session_id, data=data, error="")
 
     def POST_AUTH(self):
-        input_data = web.input()
+        input_data = flask.request.args
         if "sessionid" not in input_data:
             return self.template_helper.render("lti_bind.html",success=False, sessionid="",
                                                data= None, error=_("Missing LTI session id"))
 
         try:
-            cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
+            cookieless_session_id, data = self.fetch_lti_data(input_data["sessionid"])
         except KeyError:
             return self.template_helper.render("lti_bind.html", success=False, sessionid="",
                                                data=None, error=_("Invalid LTI session id"))
@@ -105,12 +115,12 @@ class LTIBindPage(INGIniousAuthPage):
                                  data["consumer_key"],
                                  user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"], ""))
                 return self.template_helper.render("lti_bind.html", success=False,
-                                                   sessionid=cookieless_session["session_id"],
+                                                   sessionid=cookieless_session_id,
                                                    data=data,
                                                    error=_("Your account is already bound with this context."))
 
         return self.template_helper.render("lti_bind.html", success=True,
-                                           sessionid=cookieless_session["session_id"], data=data, error="")
+                                           sessionid=cookieless_session_id, data=data, error="")
 
 
 class LTILoginPage(INGIniousPage):
@@ -124,7 +134,7 @@ class LTILoginPage(INGIniousPage):
         """
         data = self.user_manager.session_lti_info()
         if data is None:
-            raise self.app.forbidden(message=_("No LTI data available."))
+            raise Forbidden(description=_("No LTI data available."))
 
         try:
             course = self.course_factory.get_course(data["task"][0])
@@ -140,7 +150,7 @@ class LTILoginPage(INGIniousPage):
                                            user_profile["language"], user_profile.get("tos_accepted", False))
 
         if self.user_manager.session_logged_in():
-            raise web.seeother(self.app.get_homepath() + "/lti/task")
+            return redirect(self.app.get_homepath() + "/lti/task")
 
         return self.template_helper.render("lti_login.html")
 
@@ -157,23 +167,25 @@ class LTILaunchPage(INGIniousPage):
     Page called by the TC to start an LTI session on a given task
     """
 
+    def GET(self, courseid, taskid):
+        raise MethodNotAllowed()
+
     def POST(self, courseid, taskid):
         (sessionid, loggedin) = self._parse_lti_data(courseid, taskid)
-
         if loggedin:
-            raise web.seeother(self.app.get_homepath() + "/lti/task")
+            return redirect(self.app.get_homepath() + "/@{}@/lti/task".format(sessionid))
         else:
-            raise web.seeother(self.app.get_homepath() + "/lti/login")
+            return redirect(self.app.get_homepath() + "/@{}@/lti/login".format(sessionid))
 
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
-        post_input = web.webapi.rawinput("POST")
+        post_input = flask.request.form
         self.logger.debug('_parse_lti_data:' + str(post_input))
 
         try:
             course = self.course_factory.get_course(courseid)
         except exceptions.CourseNotFoundException as ex:
-            raise self.app.notfound(message=_(str(ex)))
+            raise NotFound(description=_(str(ex)))
 
         try:
             test = LTIWebPyToolProvider.from_webpy_request()
@@ -182,7 +194,7 @@ class LTILaunchPage(INGIniousPage):
         except Exception:
             self.logger.exception("...")
             self.logger.info("Error while validating LTI request for %s", str(post_input))
-            raise self.app.forbidden(message=_("Error while validating LTI request"))
+            raise Forbidden(description=_("Error while validating LTI request"))
 
         if verified:
             self.logger.debug('parse_lit_data for %s', str(post_input))
@@ -197,7 +209,7 @@ class LTILaunchPage(INGIniousPage):
             if course.lti_send_back_grade():
                 if lis_outcome_service_url is None or outcome_result_id is None:
                     self.logger.info('Error: lis_outcome_service_url is None but lti_send_back_grade is True')
-                    raise self.app.forbidden(message=_("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
+                    raise Forbidden(description=_("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
                                         "lis_outcome_result_id in the LTI basic-launch-request. Please contact your administrator."))
             else:
                 lis_outcome_service_url = None
@@ -217,7 +229,7 @@ class LTILaunchPage(INGIniousPage):
             return session_id, loggedin
         else:
             self.logger.info("Couldn't validate LTI request")
-            raise self.app.forbidden(message=_("Couldn't validate LTI request"))
+            raise Forbidden(description=_("Couldn't validate LTI request"))
 
     def _find_realname(self, post_input):
         """ Returns the most appropriate name to identify the user """

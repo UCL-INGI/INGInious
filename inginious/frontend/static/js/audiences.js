@@ -26,7 +26,7 @@ function audiences_prepare_submit()
             type:"hidden",
             name:"audiences",
             value: JSON.stringify(audiences)
-    }).appendTo($("form"));
+    }).appendTo($("#audience_form"));
 }
 
 function audiences_tutor_add(username, complete_name, id) {

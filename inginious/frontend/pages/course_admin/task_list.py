@@ -2,15 +2,14 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+import bson
 import json
 import logging
+import flask
 from collections import OrderedDict
 
-import bson
-import web
-
-
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+
 
 class CourseTaskListPage(INGIniousAdminPage):
     """ List informations about all tasks """
@@ -25,7 +24,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         errors = []
-        user_input = web.input()
+        user_input = flask.request.form
 
         if "task_dispenser" in user_input:
             selected_task_dispenser = user_input.get("task_dispenser", "toc")

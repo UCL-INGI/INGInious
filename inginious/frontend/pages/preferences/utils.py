@@ -4,18 +4,18 @@
 # more information about the licensing of this file.
 
 
-import web
+from flask import redirect
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-def get_menu(app, current, renderer, plugin_manager, user_manager):
+def get_menu(allow_deletion, current, renderer, plugin_manager, user_manager):
     default_entries = []
 
     default_entries += [("profile", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("My profile")),
                         ("bindings", "<i class='fa fa-id-card-o fa-fw'></i>&nbsp; " + _("Authentication bindings"))]
 
-    if app.allow_deletion:
+    if allow_deletion:
         default_entries += [("delete", "<i class='fa fa-user-times fa-fw'></i>&nbsp; " + _("Delete my account"))]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the preferences.
@@ -24,13 +24,13 @@ def get_menu(app, current, renderer, plugin_manager, user_manager):
     return renderer("preferences/menu.html", entries=default_entries + additional_entries, current=current)
 
 
-class RedirectPage(INGIniousAuthPage):
+class PrefRedirectPage(INGIniousAuthPage):
     """ Redirect preferences to /profile """
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
 
-        raise web.seeother('/preferences/profile')
+        return redirect('/preferences/profile')
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """

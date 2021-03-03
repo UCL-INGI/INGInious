@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Index page """
-import web
+from flask import redirect, url_for
 from inginious.frontend.pages.utils import INGIniousStaticPage
 
 
@@ -14,11 +14,11 @@ class IndexPage(INGIniousStaticPage):
     def GET(self):  # pylint: disable=arguments-differ
         """ Display main course list page """
         if not self.app.welcome_page:
-            raise web.seeother("/courselist")
+            return redirect("/courselist")
         return self.show_page(self.app.welcome_page)
 
     def POST(self):  # pylint: disable=arguments-differ
         """ Display main course list page """
         if not self.app.welcome_page:
-            raise web.seeother("/courselist")
+            return redirect("/courselist")
         return self.show_page(self.app.welcome_page)

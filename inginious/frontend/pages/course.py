@@ -4,9 +4,12 @@
 # more information about the licensing of this file.
 
 """ Course page """
-import web
+import flask
+from flask import redirect
+from werkzeug.exceptions import NotFound
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
+
 
 def handle_course_unavailable(app_homepath, template_helper, user_manager, course):
     """ Displays the course_unavailable page or the course registration page """
@@ -15,7 +18,7 @@ def handle_course_unavailable(app_homepath, template_helper, user_manager, cours
         username = user_manager.session_username()
         user_info = user_manager.get_user_info(username)
         if course.is_registration_possible(user_info):
-            raise web.seeother(app_homepath + "/register/" + course.get_id())
+            return redirect(app_homepath + "/register/" + course.get_id())
     return template_helper.render("course_unavailable.html", reason=reason)
 
 
@@ -31,7 +34,7 @@ class CoursePage(INGIniousAuthPage):
         try:
             course = self.course_factory.get_course(courseid)
         except:
-            raise self.app.notfound(message=_("Course not found."))
+            raise NotFound(description=_("Course not found."))
 
         return course
 
@@ -39,10 +42,10 @@ class CoursePage(INGIniousAuthPage):
         """ POST request """
         course = self.get_course(courseid)
 
-        user_input = web.input()
+        user_input = flask.request.form
         if "unregister" in user_input and course.allow_unregister():
             self.user_manager.course_unregister_user(course, self.user_manager.session_username())
-            raise web.seeother(self.app.get_homepath() + '/mycourses')
+            return redirect(self.app.get_homepath() + '/mycourses')
 
         return self.show_page(course)
 

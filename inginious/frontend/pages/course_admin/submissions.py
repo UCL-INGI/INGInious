@@ -2,11 +2,13 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-import web
 import json
 import logging
 import pymongo
+import flask
 from bson import ObjectId
+from flask import Response
+from werkzeug.exceptions import NotFound, Forbidden
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousSubmissionsAdminPage
 
@@ -20,22 +22,20 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         course, __ = self.get_course_and_check_rights(courseid)
         msgs = []
 
-        user_input = web.input(
-            users=[],
-            audiences=[],
-            tasks=[],
-            org_tags=[]
-        )
+        user_input = flask.request.form.copy()
+        user_input["users"] = flask.request.form.getlist("users")
+        user_input["audiences"] = flask.request.form.getlist("audiences")
+        user_input["tasks"] = flask.request.form.getlist("tasks")
+        user_input["org_tags"] = flask.request.form.getlist("org_tasks")
 
         if "replay_submission" in user_input:
             # Replay a unique submission
             submission = self.database.submissions.find_one({"_id": ObjectId(user_input["replay_submission"])})
             if submission is None:
-                raise web.notfound(message=_("This submission doesn't exist."))
+                raise NotFound(description=_("This submission doesn't exist."))
 
-            web.header('Content-Type', 'application/json')
             self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission)
-            return json.dumps({"status": "waiting"})
+            return Response(response=json.dumps({"status": "waiting"}), content_type='application/json')
 
         elif "csv" in user_input or "download" in user_input or "replay" in user_input:
             best_only = "eval_dl" in user_input and "download" in user_input
@@ -55,17 +55,16 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
                     sub_folders = list(download_type.split('/')) + ["submissiondateid"]
                 archive, error = self.submission_manager.get_submission_archive(course, data, sub_folders, simplify="simplify" in user_input)
                 if not error:
-                    # self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
-                    web.header('Content-Type', 'application/x-gzip', unique=True)
-                    web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-                    return archive
+                    response = Response(response=archive, content_type='application/x-gzip')
+                    response.headers['Content-Disposition'] = 'attachment; filename="submissions.tgz"'
+                    return response
                 else:
                     msgs.append(_("The following submission could not be prepared for download: {}").format(error))
                     return self.page(course, params, msgs=msgs)
 
             elif "replay" in user_input:
                 if not self.user_manager.has_admin_rights_on_course(course):
-                    raise web.forbidden(_("You don't have admin rights on this course."))
+                    raise Forbidden(description=_("You don't have admin rights on this course."))
 
                 tasks = course.get_tasks()
                 for submission in data:
@@ -87,27 +86,27 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
-        user_input = web.input(
-            users=[],
-            audiences=[],
-            tasks=[],
-            org_tags=[]
-        )
+
+        user_input = flask.request.args.copy()
+        user_input["users"] = flask.request.args.getlist("users")
+        user_input["audiences"] = flask.request.args.getlist("audiences")
+        user_input["tasks"] = flask.request.args.getlist("tasks")
+        user_input["org_tags"] = flask.request.args.getlist("org_tasks")
 
         if "download_submission" in user_input:
             submission = self.database.submissions.find_one({"_id": ObjectId(user_input["download_submission"]),
                                                              "courseid": course.get_id(),
                                                              "status": {"$in": ["done", "error"]}})
             if submission is None:
-                raise web.notfound(message=_("The submission doesn't exist."))
+                raise NotFound(description=_("The submission doesn't exist."))
 
             self._logger.info("Downloading submission %s - %s - %s - %s", submission['_id'], submission['courseid'],
                               submission['taskid'], submission['username'])
             archive, error = self.submission_manager.get_submission_archive(course, [submission], [])
             if not error:
-                web.header('Content-Type', 'application/x-gzip', unique=True)
-                web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-                return archive
+                response = Response(response=archive, content_type='application/x-gzip')
+                response.headers['Content-Disposition'] = 'attachment; filename="submissions.tgz"'
+                return response
 
         params = self.get_input_params(user_input, course)
         return self.page(course, params)

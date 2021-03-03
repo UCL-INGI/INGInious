@@ -8,10 +8,12 @@
 import hashlib
 import random
 import re
+import flask
 
-import web
-
+from flask_mail import Message
+from werkzeug.exceptions import Forbidden
 from inginious.frontend.pages.utils import INGIniousPage
+from inginious.frontend.flask.mail import mail
 
 
 class RegistrationPage(INGIniousPage):
@@ -20,12 +22,12 @@ class RegistrationPage(INGIniousPage):
     def GET(self):
         """ Handles GET request """
         if self.user_manager.session_logged_in() or not self.app.allow_registration:
-            raise self.app.forbidden(message=_("You're not allow to register."))
+            raise Forbidden(description=_("You're not allow to register."))
 
         error = False
         reset = None
         msg = ""
-        data = web.input()
+        data = flask.request.args
 
         if "activate" in data:
             msg, error = self.activate_user(data)
@@ -40,12 +42,12 @@ class RegistrationPage(INGIniousPage):
         error = False
         reset = None
         msg = ""
-        user = self.database.users.find_one({"reset": data["reset"]})
+        user = self.database.users.find_one({"reset": data.get("reset_hash", "")})
         if user is None:
             error = True
             msg = "Invalid reset hash."
         else:
-            reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
+            reset = {"hash": data["reset_hash"], "username": user["username"], "realname": user["realname"]}
 
         return msg, error, reset
 
@@ -110,12 +112,16 @@ class RegistrationPage(INGIniousPage):
                                             "tos_accepted": True
                                             })
                 try:
-                    web.sendmail(web.config.smtp_sendername, data["email"], _("Welcome on INGInious"),
-                                 _("""Welcome on INGInious !
+                    subject = _("Welcome on INGInious")
+                    body = _("""Welcome on INGInious !
 
 To activate your account, please click on the following link :
-""")
-                                 + web.ctx.home + "/register?activate=" + activate_hash)
+""") + flask.request.url_root + "register?activate=" + activate_hash
+
+                    message = Message(recipients=[(data["realname"], data["email"])],
+                                      subject=subject,
+                                      body=body)
+                    mail.send(message)
                     msg = _("You are succesfully registered. An email has been sent to you for activation.")
                 except:
                     error = True
@@ -147,11 +153,18 @@ To activate your account, please click on the following link :
                 msg = _("This email address was not found in database.")
             else:
                 try:
-                    web.sendmail(web.config.smtp_sendername, data["recovery_email"], _("INGInious password recovery"),
-                                 _("""Dear {realname},
+                    subject = _("INGInious password recovery")
+
+                    body = _("""Dear {realname},
 
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
-""").format(realname=user["realname"]) + web.ctx.home + "/register?reset=" + reset_hash)
+""").format(realname=user["realname"]) + flask.request.url_root + "register?reset=" + reset_hash
+
+                    message = Message(recipients=[(user["realname"], data["recovery_email"])],
+                                      subject=subject,
+                                      body=body)
+                    mail.send(message)
+
                     msg = _("An email has been sent to you to reset your password.")
                 except:
                     error = True
@@ -188,12 +201,12 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
     def POST(self):
         """ Handles POST request """
         if self.user_manager.session_logged_in() or not self.app.allow_registration:
-            raise self.app.forbidden(message=_("You're not allow to register."))
+            raise Forbidden(description=_("You're not allow to register."))
 
         reset = None
         msg = ""
         error = False
-        data = web.input()
+        data = flask.request.form
         if "register" in data:
             msg, error = self.register_user(data)
         elif "lostpasswd" in data:

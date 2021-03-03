@@ -8,7 +8,8 @@
 import json
 import os
 
-import web
+import flask
+from flask import redirect
 from requests_oauthlib import OAuth2Session
 
 from inginious.frontend.user_manager import AuthMethod
@@ -27,18 +28,18 @@ class GoogleAuthMethod(AuthMethod):
     """
 
     def get_auth_link(self, auth_storage, share=False):
-        google = OAuth2Session(self._client_id, scope=scope, redirect_uri=web.ctx.home + self._callback_page)
+        google = OAuth2Session(self._client_id, scope=scope, redirect_uri=flask.request.url_root + self._callback_page)
         authorization_url, state = google.authorization_url(authorization_base_url, hd=self._domain)
         auth_storage["oauth_state"] = state
         return authorization_url
 
     def callback(self, auth_storage):
         google = OAuth2Session(self._client_id, state=auth_storage["oauth_state"],
-            redirect_uri=web.ctx.home + self._callback_page, scope=scope)
+            redirect_uri=flask.request.url_root + self._callback_page, scope=scope)
 
         try:
             google.fetch_token(token_url, client_secret=self._client_secret,
-                authorization_response=web.ctx.home + web.ctx.fullpath)
+                authorization_response=flask.request.url)
 
             response = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
             profile = json.loads(response.content.decode('utf-8'))
@@ -47,7 +48,7 @@ class GoogleAuthMethod(AuthMethod):
             return None
 
     def share(self, auth_storage, course, task, submission, language):
-        raise web.seeother("https://plus.google.com/share?url=" + web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id())
+        return redirect("https://plus.google.com/share?url=" + flask.request.url_root + "/course/" + course.get_id() + "/" + task.get_id())
 
     def allow_share(self):
         return True
@@ -60,7 +61,7 @@ class GoogleAuthMethod(AuthMethod):
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
-        self._callback_page = '/auth/callback/' + self._id
+        self._callback_page = 'auth/callback/' + self._id
         self._domain = domain
 
     def get_name(self):

@@ -7,7 +7,7 @@
 
 import base64
 import gettext
-import web
+import flask
 
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 
@@ -105,9 +105,9 @@ class APISubmissionSingle(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        with_input = "input" in web.input()
+        with_input = "input" in flask.request.args
 
-        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app._translations, courseid, taskid, with_input, submissionid)
+        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -142,9 +142,9 @@ class APISubmissions(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        with_input = "input" in web.input()
+        with_input = "input" in flask.request.args
 
-        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app._translations, courseid, taskid, with_input)
+        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input)
 
     def API_POST(self, courseid, taskid):  # pylint: disable=arguments-differ
         """
@@ -180,11 +180,17 @@ class APISubmissions(APIAuthenticatedPage):
         if not self.user_manager.task_can_user_submit(task, username, False):
             raise APIForbidden("You are not allowed to submit for this task")
 
-        init_var = {
-            problem.get_id(): problem.input_type()()
-            for problem in task.get_problems() if problem.input_type() in [dict, list]
-        }
-        user_input = task.adapt_input_for_backend(web.input(**init_var))
+        user_input = flask.request.form.copy()
+        for problem in task.get_problems():
+            pid = problem.get_id()
+            if problem.input_type() == list:
+                user_input[pid] = flask.request.form.getlist(pid)
+            elif problem.input_type() == dict:
+                user_input[pid] = flask.request.files.get(pid)
+            else:
+                user_input[pid] = flask.request.form.get(pid)
+
+        user_input = task.adapt_input_for_backend(user_input)
 
         if not task.input_is_consistent(user_input, self.default_allowed_file_extensions, self.default_max_file_size):
             raise APIInvalidArguments()

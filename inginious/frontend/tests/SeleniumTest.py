@@ -4,7 +4,7 @@ import os
 import threading
 import unittest
 
-import web
+from werkzeug.serving import make_server
 from inginious.frontend.app import get_app
 from nose.plugins.skip import SkipTest
 from pymongo import MongoClient
@@ -17,7 +17,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from inginious.frontend.static_middleware import StaticMiddleware
+from werkzeug.middleware.shared_data import SharedDataMiddleware
 
 TEST_ENV = os.environ.get("TEST_ENV", None)
 CUSTOM_SELENIUM_EXECUTOR = os.environ.get("CUSTOM_SELENIUM_EXECUTOR", None)
@@ -34,10 +34,10 @@ def _start_frontend(config, host, port, ssh_port):
     func, close_app_func = get_app(config)
 
     inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-    func = StaticMiddleware(func, [
+    func = SharedDataMiddleware(func, [
         ('/static/', os.path.join(inginious_root_path, 'frontend', 'static'))
     ])
-    server = web.httpserver.WSGIServer((host, port), func)
+    server = make_server(host, port, func)
 
     class FrontendThread(threading.Thread):
         def __init__(self):

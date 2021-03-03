@@ -3,10 +3,11 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import web
-import gettext
 import logging
 
+import flask
+from flask import redirect
+from werkzeug.exceptions import NotFound, Forbidden
 from bson.errors import InvalidId
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
@@ -20,10 +21,10 @@ class SubmissionPage(INGIniousAdminPage):
         try:
             submission = self.submission_manager.get_submission(submissionid, False)
             if not submission:
-                raise self.app.notfound(message=_("This submission doesn't exist."))
+                raise NotFound(description=_("This submission doesn't exist."))
         except InvalidId as ex:
             self._logger.info("Invalid ObjectId : %s", submissionid)
-            raise web.forbidden(_("Invalid ObjectId."))
+            raise Forbidden(description=_("Invalid ObjectId."))
 
         courseid = submission["courseid"]
         taskid = submission["taskid"]
@@ -39,15 +40,15 @@ class SubmissionPage(INGIniousAdminPage):
         course, task, submission = self.fetch_submission(submissionid)
         is_admin = self.user_manager.has_admin_rights_on_course(course)
 
-        webinput = web.input()
+        webinput = flask.request.form
         if "replay" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission)
         elif "replay-copy" in webinput:  # Authorized for tutors
             self.submission_manager.replay_job(task, submission, True)
-            web.seeother(self.app.get_homepath() + "/course/" + course.get_id() + "/" + task.get_id())
+            return redirect(self.app.get_homepath() + "/course/" + course.get_id() + "/" + task.get_id())
         elif "replay-debug" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission, True, "ssh")
-            web.seeother(self.app.get_homepath() + "/course/" + course.get_id() + "/" + task.get_id())
+            return redirect(self.app.get_homepath() + "/course/" + course.get_id() + "/" + task.get_id())
 
         return self.page(course, task, submission)
 
@@ -57,7 +58,7 @@ class SubmissionPage(INGIniousAdminPage):
         submission = self.submission_manager.get_feedback_from_submission(
             submission,
             show_everything=True,
-            translation=self.app.get_translation_obj()
+            translation=self.app.l10n_manager.get_translation_obj()
         )
 
         to_display = {

@@ -6,8 +6,8 @@
 """ Helper classes and methods for the REST API """
 
 import json
-
-import web
+import flask
+from flask import Response
 
 import inginious.common.custom_yaml as yaml
 from inginious.frontend.pages.utils import INGIniousPage
@@ -51,8 +51,7 @@ class APIPage(INGIniousPage):
         except APIError as error:
             return error.send()
 
-        web.ctx.status = _convert_http_status(status_code)
-        return _api_convert_output(return_value)
+        return _api_convert_output(status_code, return_value)
 
     def _guess_available_methods(self):
         """ Guess the method implemented by the subclass"""
@@ -121,10 +120,9 @@ class APIError(Exception):
         self.status_code = status_code
         self.return_value = return_value
 
-    def send(self):
+    def send(self, response=None):
         """ Send the API Exception to the client """
-        web.ctx.status = _convert_http_status(self.status_code)
-        return _api_convert_output(self.return_value)
+        return _api_convert_output(self.status_code, self.return_value, response)
 
 
 class APIInvalidMethod(APIError):
@@ -135,8 +133,9 @@ class APIInvalidMethod(APIError):
         self.methods = methods
 
     def send(self):
-        web.header('Allow', ",".join(self.methods))
-        return APIError.send(self)
+        response = Response()
+        response.headers['Allow'] = ",".join(self.methods)
+        return APIError.send(self, response)
 
 
 class APIInvalidArguments(APIError):
@@ -160,56 +159,29 @@ class APINotFound(APIError):
         APIError.__init__(self, 404, {"error": message})
 
 
-def _api_convert_output(return_value):
+def _api_convert_output(status_code, return_value, response=None):
+    if not response:
+        response = Response()
+        response.status_code = status_code
     """ Convert the output to what the client asks """
-    content_type = web.ctx.environ.get('CONTENT_TYPE', 'text/json')
+    content_type = flask.request.environ.get('CONTENT_TYPE', 'text/json')
 
     if "text/json" in content_type:
-        web.header('Content-Type', 'text/json; charset=utf-8')
-        return json.dumps(return_value)
+        response.content_type = 'text/json; charset=utf-8'
+        response.response = [json.dumps(return_value)]
+        return response
     if "text/html" in content_type:
-        web.header('Content-Type', 'text/html; charset=utf-8')
+        response.content_type = 'text/html; charset=utf-8'
         dump = yaml.dump(return_value)
-        return "<pre>" + web.websafe(dump) + "</pre>"
+        response.response = ["<pre>" + dump + "</pre>"]
+        return response
     if "text/yaml" in content_type or \
                     "text/x-yaml" in content_type or \
                     "application/yaml" in content_type or \
                     "application/x-yaml" in content_type:
-        web.header('Content-Type', 'text/yaml; charset=utf-8')
-        dump = yaml.dump(return_value)
-        return dump
-    web.header('Content-Type', 'text/json; charset=utf-8')
-    return json.dumps(return_value)
-
-
-def _convert_http_status(status):
-    """ Convert Status id to real Status needed by HTTP """
-    return {
-        200: "200 OK",
-        201: "201 Created",
-        202: "202 Accepted",
-        203: "203 Non-Authoritative Information",
-        204: "204 No Content",
-        205: "205 Reset Content",
-        206: "206 Partial Content",
-        300: "300 Multiple Choices",
-        301: "301 Moved Permanently",
-        302: "302 Found",
-        303: "303 See Other",
-        304: "304 Not Modified",
-        305: "305 Use Proxy",
-        307: "307 Temporary Redirect",
-        400: "400 Bad Request",
-        401: "401 Unauthorized",
-        403: "403 Forbidden",
-        404: "404 Not Found",
-        405: "405 Method Not Allowed",
-        406: "406 Not Acceptable",
-        408: "408 Request Timeout",
-        409: "409 Conflict",
-        410: "410 Gone",
-        412: "412 Precondition Failed",
-        413: "413 Request Entity Too Large",
-        500: "500 Internal Server Error",
-        501: "501 Not Implemented"
-    }.get(status)
+        response.content_type = 'text/yaml; charset=utf-8'
+        response.response = [yaml.dump(return_value)]
+        return response
+    response.content_type = 'text/json; charset=utf-8'
+    response.response = [json.dumps(return_value)]
+    return response

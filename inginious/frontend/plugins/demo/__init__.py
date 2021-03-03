@@ -4,14 +4,17 @@
 # more information about the licensing of this file.
 
 """ A demo plugin that adds a page """
+from inginious.frontend.pages.utils import INGIniousPage
 
-class DemoPage(object):
+
+class DemoPage(INGIniousPage):
     """ A simple demo page showing how to add a new page """
 
     def GET(self):
         """ GET request """
         return "This is a simple demo plugin"
 
+
 def init(plugin_manager, _, _2, _3):
     """ Init the plugin """
-    plugin_manager.add_page("/plugindemo", DemoPage)
+    plugin_manager.add_page("/plugindemo", DemoPage.as_view('demopage'))

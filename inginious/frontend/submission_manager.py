@@ -11,11 +11,12 @@ import os.path
 import tarfile
 import tempfile
 import time
-from datetime import datetime
-
+from typing import Dict, List
 import bson
 import pymongo
-import web
+
+import flask
+from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo.collection import ReturnDocument
 
@@ -70,6 +71,7 @@ class WebAppSubmissionManager:
             "jobid": "",
             "ssh_host": "",
             "ssh_port": "",
+            "ssh_user": "",
             "ssh_password": ""
         }
 
@@ -160,7 +162,7 @@ class WebAppSubmissionManager:
             raise Exception("A user must be logged in to submit an object")
 
         # Don't enable ssh debug
-        ssh_callback = lambda host, port, password: self._handle_ssh_callback(submission["_id"], host, port, password)
+        ssh_callback = lambda host, port, user, password: self._handle_ssh_callback(submission["_id"], host, port, user, password)
 
         # Load input data and add username to dict
         inputdata = bson.BSON.decode(self._gridfs.get(submission["input"]).read())
@@ -187,7 +189,7 @@ class WebAppSubmissionManager:
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
-            submission["user_ip"] = web.ctx.ip
+            submission["user_ip"] = flask.request.remote_addr
             submissionid = self._database.submissions.insert(submission)
 
         # Clean the submission document in db
@@ -218,7 +220,7 @@ class WebAppSubmissionManager:
                               submission["courseid"],
                               submission["taskid"], submission["_id"], self._user_manager.session_username())
 
-    def get_available_environments(self):
+    def get_available_environments(self) -> Dict[str, List[str]]:
         """:return a list of available environments """
         return self._client.get_available_environments()
 
@@ -262,7 +264,7 @@ class WebAppSubmissionManager:
             "submitted_on": datetime.now(),
             "username": [username],
             "response_type": task.get_response_type(),
-            "user_ip": web.ctx.ip
+            "user_ip": flask.request.remote_addr
         }
 
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
@@ -289,7 +291,7 @@ class WebAppSubmissionManager:
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
-        ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
+        ssh_callback = lambda host, port, user, password: self._handle_ssh_callback(submissionid, host, port, user, password)
 
         jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
@@ -304,7 +306,7 @@ class WebAppSubmissionManager:
 
         self._logger.info("New submission from %s - %s - %s/%s - %s", self._user_manager.session_username(),
                           self._user_manager.session_email(), task.get_course_id(), task.get_id(),
-                          web.ctx['ip'])
+                          flask.request.remote_addr)
 
         return submissionid, to_remove
 
@@ -446,19 +448,19 @@ class WebAppSubmissionManager:
         cursor.sort([("submitted_on", -1)])
         return list(cursor)
 
-    def get_user_last_submissions(self, limit=5, request=None):
+    def get_user_last_submissions(self, limit=5, mongo_request=None):
         """ Get last submissions of a user """
-        if request is None:
-            request = {}
+        if mongo_request is None:
+            mongo_request = {}
 
-        request.update({"username": self._user_manager.session_username()})
+        mongo_request.update({"username": self._user_manager.session_username()})
 
         # Before, submissions were first sorted by submission date, then grouped
         # and then resorted by submission date before limiting. Actually, grouping
         # and pushing, keeping the max date, followed by result filtering is much more
         # efficient
         data = self._database.submissions.aggregate([
-            {"$match": request},
+            {"$match": mongo_request},
             {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"},
                         "submitted_on": {"$max": "$submitted_on"},
                         "submissions": {"$push": {
@@ -631,12 +633,13 @@ class WebAppSubmissionManager:
         tmpfile.seek(0)
         return tmpfile, error
 
-    def _handle_ssh_callback(self, submission_id, host, port, password):
+    def _handle_ssh_callback(self, submission_id, host, port, user, password):
         """ Handles the creation of a remote ssh server """
         if host is not None:  # ignore late calls (a bit hacky, but...)
             obj = {
                 "ssh_host": host,
                 "ssh_port": port,
+                "ssh_user": user,
                 "ssh_password": password
             }
             self._database.submissions.update_one({"_id": submission_id}, {"$set": obj})

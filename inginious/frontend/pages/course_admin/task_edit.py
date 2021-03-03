@@ -7,10 +7,13 @@
 import json
 import logging
 import tempfile
+import bson
+
+import flask
 from collections import OrderedDict
 from zipfile import ZipFile
-import bson
-import web
+from flask import redirect
+from werkzeug.exceptions import NotFound
 
 from inginious.frontend.tasks import _migrate_from_v_0_6
 from inginious.frontend.accessible_time import AccessibleTime
@@ -29,14 +32,14 @@ class CourseEditTask(INGIniousAdminPage):
     def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid):
-            raise Exception("Invalid task id")
+            raise NotFound(description=_("Invalid task id"))
 
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         try:
             task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
         except TaskNotFoundException:
-            raise web.notfound()
+            raise NotFound()
 
         # Ensure retrocompatibility
         task_data = _migrate_from_v_0_6(task_data)
@@ -95,10 +98,11 @@ class CourseEditTask(INGIniousAdminPage):
     def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid) or not id_checker(courseid):
-            raise Exception("Invalid course/task id")
+            raise NotFound(description=_("Invalid course/task id"))
 
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        data = web.input(task_file={})
+        data = flask.request.form.copy()
+        data["task_file"] = flask.request.files.get("task_file")
 
         # Delete task ?
         if "delete" in data:
@@ -108,12 +112,12 @@ class CourseEditTask(INGIniousAdminPage):
             self.task_factory.delete_task(courseid, taskid)
             if data.get("wipe", False):
                 self.wipe_task(courseid, taskid)
-            raise web.seeother(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
+            return  redirect(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
 
         # Else, parse content
         try:
             try:
-                task_zip = data.get("task_file").file
+                task_zip = data.get("task_file").read()
             except:
                 task_zip = None
             del data["task_file"]

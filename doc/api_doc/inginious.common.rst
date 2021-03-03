@@ -73,14 +73,6 @@ inginious.common.messages module
     :undoc-members:
     :show-inheritance:
 
-inginious.common.tasks_code_boxes module
-----------------------------------------
-
-.. automodule:: inginious.common.tasks_code_boxes
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.tasks_problems module
 --------------------------------------
 

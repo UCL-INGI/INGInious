@@ -4,7 +4,10 @@
 # more information about the licensing of this file.
 
 """ Course page """
-import web
+import flask
+from flask import redirect
+from werkzeug.exceptions import NotFound
+
 from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -17,13 +20,13 @@ class CourseRegisterPage(INGIniousAuthPage):
         try:
             course = self.course_factory.get_course(courseid)
         except (InvalidNameException, CourseNotFoundException, CourseUnreadableException) as e:
-            raise self.app.notfound(message=_("This course doesn't exist."))
+            raise NotFound(description=_("This course doesn't exist."))
 
         username = self.user_manager.session_username()
         user_info = self.user_manager.get_user_info(username)
 
         if self.user_manager.course_is_user_registered(course, username) or not course.is_registration_possible(user_info):
-            raise web.seeother(self.app.get_homepath() + "/course/" + course.get_id())
+            return redirect(self.app.get_homepath() + "/course/" + course.get_id())
 
         return course, username
 
@@ -33,10 +36,10 @@ class CourseRegisterPage(INGIniousAuthPage):
 
     def POST_AUTH(self, courseid):
         course, username = self.basic_checks(courseid)
-        user_input = web.input()
+        user_input = flask.request.form
         success = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
 
         if success:
-            raise web.seeother(self.app.get_homepath() + "/course/" + course.get_id())
+            return redirect(self.app.get_homepath() + "/course/" + course.get_id())
         else:
             return self.template_helper.render("course_register.html", course=course, error=True)

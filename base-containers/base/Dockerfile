@@ -5,13 +5,13 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
 
-LABEL org.inginious.grading.agent_version=2
+LABEL org.inginious.grading.agent_version=3
 
 # Install python, needed for scripts used in INGInious + locale support
 RUN     yum clean metadata && \
         yum -y install epel-release && \
         yum -y upgrade && \
-        yum -y install python python36-pip python36 python36-devel zip unzip tar sed openssh-server openssl bind-utils iproute file && \
+        yum -y install python python36-pip python36 python36-devel zip unzip tar sed openssh-server openssl bind-utils iproute file jq && \
         pip3.6 install msgpack pyzmq jinja2 PyYAML timeout-decorator ipython mypy && \
         sed -i "s/override_install_langs=en_US.utf8/#override_install_langs=en_US.utf8/g" /etc/yum.conf && \
         yum -y reinstall glibc-common && \

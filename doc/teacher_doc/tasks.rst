@@ -1,17 +1,19 @@
 .. _task:
 
-Creating a new task
-===================
+Tasks
+=====
 
 .. toctree::
    :maxdepth: 2
 
    task_tuto
-   run_file
    task_file
+   run_file
+   inginious_container_api
    share_files
    common
    random
    system_files
    testing
    best_practices
+   translating

@@ -3,12 +3,13 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 import json
-from collections import OrderedDict
-
-import web
 import yaml
+
+import flask
+from collections import OrderedDict
 from bson import ObjectId
 from pymongo import ReturnDocument
+from flask import Response
 
 from inginious.common import custom_yaml
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
@@ -21,33 +22,34 @@ class CourseStudentListPage(INGIniousAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
 
-        if "download_audiences" in web.input():
-            web.header('Content-Type', 'text/x-yaml', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="audiences.yaml"', unique=True)
+        if "download_audiences" in flask.request.args:
             audiences = [{"description": audience["description"],
                            "students": audience["students"],
                            "tutors": audience["tutors"]} for audience in
                           self.user_manager.get_course_audiences(course)]
+            response = Response(response=yaml.dump(audiences), content_type='text/x-yaml')
+            response.headers['Content-Disposition'] = 'attachment; filename="audiences.yaml"'
+            return response
 
-            return yaml.dump(audiences)
-
-        if "download_groups" in web.input():
-            web.header('Content-Type', 'text/x-yaml', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="groups.yaml"', unique=True)
+        if "download_groups" in flask.request.args:
             groups = [{"description": group["description"],
                            "students": group["students"],
                            "size": group["size"],
                             "audiences": [str(c) for c in group["audiences"]]} for group in
                           self.user_manager.get_course_groups(course)]
+            response = Response(response=yaml.dump(groups), content_type='text/x-yaml')
+            response.headers['Content-Disposition'] = 'attachment; filename="groups.yaml"'
+            return response
 
-            return yaml.dump(groups)
-
-        return self.page(course, active_tab="tab_audiences" if "audiences" in web.input() else "tab_students")
+        return self.page(course, active_tab="tab_audiences" if "audiences" in flask.request.args else "tab_students")
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, __ = self.get_course_and_check_rights(courseid, None, True)
-        data = web.input(delete=[], groupfile={}, audiencefile={})
+        data = flask.request.form.copy()
+        data["delete"] = flask.request.form.getlist("delete")
+        data["groupfile"] = flask.request.files.get("groupfile")
+        data["audiencefile"] = flask.request.files.get("audiencefile")
         error = {}
         msg = {}
         active_tab = "tab_students"
@@ -78,9 +80,9 @@ class CourseStudentListPage(INGIniousAdminPage):
         groups = self.user_manager.get_course_groups(course)
         student_list, audience_list, other_students, users_info = self.get_user_lists(course)
 
-        if "csv_audiences" in web.input():
+        if "csv_audiences" in flask.request.args:
             return make_csv(audiences)
-        if "csv_student" in web.input():
+        if "csv_student" in flask.request.args:
             return make_csv(user_data)
 
         return self.template_helper.render("course_admin/student_list.html",course=course,
@@ -194,7 +196,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                 errored_students = []
                 if "upload_audiences" in data:
                     self.database.audiences.delete_many({"courseid": course.get_id()})
-                    audiences = custom_yaml.load(data["audiencefile"].file)
+                    audiences = custom_yaml.load(data["audiencefile"].read())
                 else:
                     audiences = json.loads(data["audiences"])
 
@@ -258,7 +260,7 @@ class CourseStudentListPage(INGIniousAdminPage):
             try:
                 if "upload_groups" in data:
                     self.database.groups.delete_many({"courseid": course.get_id()})
-                    groups = custom_yaml.load(data["groupfile"].file)
+                    groups = custom_yaml.load(data["groupfile"].read())
                 else:
                     groups = json.loads(data["groups"])
 

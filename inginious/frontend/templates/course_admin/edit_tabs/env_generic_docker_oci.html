@@ -1,0 +1,50 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="form-group row">
+    <label for="{{env_id}}-limit-time" class="col-sm-4 control-label">{{ _("Timeout limit (in seconds)") }}</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" id="{{env_id}}-limit-time" name="envparams[{{env_id}}][limits][time]" placeholder="30" value="{{env_params.get('limits',{}).get('time',30)}}"/>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="{{env_id}}-limit-hard-time" class="col-sm-4 control-label">{{ _("Hard timeout limit (in seconds) <small>Default to 3*timeout</small>") | safe }}</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" id="{{env_id}}-limit-hard-time" name="envparams[{{env_id}}][limits][hard_time]"
+               placeholder="" value="{{env_params.get('limits',{}).get('hard_time','')}}"/>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="{{env_id}}-limit-memory" class="col-sm-4 control-label">{{ _("Memory limit (in megabytes)") }}</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" id="{{env_id}}-limit-memory" name="envparams[{{env_id}}][limits][memory]" placeholder="30" value="{{env_params.get('limits',{}).get('memory',100)}}"/>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="{{env_id}}-network-grading" class="col-sm-4 control-label">{{ _("Allow internet access inside the grading container?") }}</label>
+
+    <div class="col-sm-8">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="{{env_id}}-network-grading" name="envparams[{{env_id}}][network_grading]"
+                   {{'checked="checked"' if env_params.get('network_grading',False) }} />&nbsp;
+        </label></div>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="{{env_id}}-run-cmd" class="col-sm-4 control-label">{{ _("Custom command to be run in container <small>(instead of running the run script)</small>") | safe}}</label>
+
+    <div class="col-sm-8">
+        <input type="text" class="form-control" id="{{env_id}}-run-cmd" name="envparams[{{env_id}}][run_cmd]" placeholder="{{ _('Optional') }}" value="{{env_params.get('run_cmd','')}}"/>
+    </div>
+</div>
+{% if content_is_html %}
+    <div class="form-group row">
+        <label for="{{env_id}}-responseIsHTML" class="col-sm-4 control-label">{{ _("Are the task's responses written in HTML instead of restructuredText?") }}</label>
+        <div class="col-sm-8">
+            <div class="checkbox"><label>
+                <input type="checkbox" id="{{env_id}}-responseIsHTML" name="envparams[{{env_id}}][responseIsHTML]"
+                    {{ 'checked="checked"' if env_params.get('responseIsHTML',False) }} />&nbsp;
+            </label></div>
+        </div>
+    </div>
+{% endif %}

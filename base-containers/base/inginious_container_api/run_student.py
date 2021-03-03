@@ -37,10 +37,14 @@ def run_student(cmd, container=None,
                                     to the remote process. See the run_student script command for an example, or
                                     the hack_signals function below.
     :return: the return value of the calling process. There are special values:
+        - 251 means that run_student is not available in this container/environment
         - 252 means that the command was killed due to an out-of-memory
         - 253 means that the command timed out
         - 254 means that an error occurred while running the proxy
     """
+    if not os.path.exists("/.__input/__shared_kernel"):  # disable run_student when the kernel is not shared (TODO fix me)
+        return 251
+
     if working_dir is None:
         working_dir = os.getcwd()
     if stdin is None:

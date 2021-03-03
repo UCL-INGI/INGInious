@@ -4,7 +4,9 @@
 # more information about the licensing of this file.
 
 """ Profile page """
-import web
+import flask
+from flask import redirect
+from werkzeug.exceptions import Forbidden
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
@@ -36,7 +38,6 @@ class DeletePage(INGIniousAuthPage):
                     self.user_manager.course_unregister_user(course, username)
 
             self.user_manager.disconnect_user()
-            raise web.seeother("/index")
 
         return msg, error
 
@@ -45,7 +46,7 @@ class DeletePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
         if not userdata or not self.app.allow_deletion:
-            raise self.app.forbidden(message=_("User unavailable or deletion is forbidden."))
+            raise Forbidden(description=_("User unavailable or deletion is forbidden."))
 
         return self.template_helper.render("preferences/delete.html", msg="", error=False)
 
@@ -54,12 +55,14 @@ class DeletePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
         if not userdata or not self.app.allow_deletion:
-            raise self.app.forbidden(message=_("User unavailable or deletion forbidden."))
+            raise Forbidden(description=_("User unavailable or deletion forbidden."))
 
         msg = ""
         error = False
-        data = web.input()
+        data = flask.request.form
         if "delete" in data:
             msg, error = self.delete_account(data)
+            if not error:
+                return redirect("/index")
 
         return self.template_helper.render("preferences/delete.html", msg=msg, error=error)

@@ -5,7 +5,7 @@
 
 """ Authentication """
 
-import web
+import flask
 
 from inginious.frontend.pages.api._api_page import APIPage, APIInvalidArguments
 
@@ -37,7 +37,7 @@ class APIAuthentication(APIPage):
             Response: a dict in the form {"status": "success"} (200 OK) or {"status": "error"} (403 Forbidden)
         """
 
-        user_input = web.input()
+        user_input = flask.request.form
         if "login" not in user_input or "password" not in user_input:
             raise APIInvalidArguments()
 

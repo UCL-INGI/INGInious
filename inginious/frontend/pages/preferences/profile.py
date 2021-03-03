@@ -6,8 +6,9 @@
 """ Profile page """
 import hashlib
 import re
-import web
+import flask
 from pymongo import ReturnDocument
+from werkzeug.exceptions import NotFound
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
@@ -110,7 +111,7 @@ class ProfilePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
 
         if not userdata:
-            raise self.app.notfound(message=_("User unavailable."))
+            raise NotFound(description=_("User unavailable."))
 
         return self.template_helper.render("preferences/profile.html", terms_page=self.app.terms_page,
                                            privacy_page=self.app.privacy_page, msg="", error=False)
@@ -120,12 +121,12 @@ class ProfilePage(INGIniousAuthPage):
         userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
 
         if not userdata:
-            raise self.app.notfound(message=_("User unavailable."))
+            raise NotFound(description=_("User unavailable."))
 
 
         msg = ""
         error = False
-        data = web.input()
+        data = flask.request.form
         if "save" in data:
             userdata, msg, error = self.save_profile(userdata, data)
 

@@ -6,8 +6,8 @@
 """ Allow the webapp to act as a simple POST grader """
 import json
 import re
-
-import web
+import flask
+from flask import Response
 
 from inginious.client.client_buffer import ClientBuffer
 from inginious.client.client_sync import ClientSync
@@ -67,50 +67,60 @@ def init(plugin_manager, course_factory, client, config):
 
         def POST(self):
             """ POST request """
-            web.header('Access-Control-Allow-Origin', '*')
-            web.header('Content-Type', 'application/json')
-            post_input = web.input()
+            response = Response(content_type='application/json')
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            post_input = flask.request.form
 
             if "input" in post_input and "taskid" in post_input:
                 # New job
                 try:
-                    task_input = json.loads(post_input.input)
+                    task_input = json.loads(post_input["input"])
                 except:
-                    return json.dumps({"status": "error", "status_message": "Cannot decode input"})
+                    response.response = [json.dumps({"status": "error", "status_message": "Cannot decode input"})]
+                    return response
 
                 try:
-                    task = course.get_task(post_input.taskid)
+                    task = course.get_task(post_input["taskid"])
                 except:
-                    return json.dumps({"status": "error", "status_message": "Cannot open task"})
+                    response.response = [json.dumps({"status": "error", "status_message": "Cannot open task"})]
+                    return response
 
                 if not task.input_is_consistent(task_input, self.default_allowed_file_extensions, self.default_max_file_size):
-                    return json.dumps({"status": "error", "status_message": "Input is not consistent with the task"})
+                    response.response = [json.dumps({"status": "error", "status_message": "Input is not consistent with the task"})]
+                    return response
 
                 if post_input.get("async") is None:
                     # New sync job
                     try:
-                        result, grade, problems, tests, custom, state, archive, stdout, stderr = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
+                        result, grade, problems, tests, custom, state, archive, stdout, stderr = client_sync.new_job(0, task, task_input, "Plugin - Simple Grader")
                         job_return = {"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "state": state, "archive": archive, "stdout": stdout, "stderr": stderr}
                     except:
-                        return json.dumps({"status": "error", "status_message": "An internal error occurred"})
+                        response.response = [json.dumps({"status": "error", "status_message": "An internal error occurred"})]
+                        return response
 
-                    return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
+                    response.response = [json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))]
+                    return response
                 else:
                     # New async job
                     jobid = client_buffer.new_job(task, task_input, "Plugin - Simple Grader")
-                    return json.dumps({"status": "done", "jobid": str(jobid)})
+                    response.response = [json.dumps({"status": "done", "jobid": str(jobid)})]
+                    return response
             elif "jobid" in post_input:
                 # Get status of async job
                 if client_buffer.is_waiting(post_input["jobid"]):
-                    return json.dumps({"status": "waiting"})
+                    response.response = [json.dumps({"status": "waiting"})]
+                    return response
                 elif client_buffer.is_done(post_input["jobid"]):
                     result, grade, problems, tests, custom, state, archive, stdout, stderr = client_buffer.get_result(post_input["jobid"])
                     job_return = {"result": result, "grade": grade, "problems": problems, "tests": tests,
                                   "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}
-                    return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
+                    response.response = [json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))]
+                    return response
                 else:
-                    return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(post_input["jobid"])})
+                    response.response = [json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(post_input["jobid"])})]
+                    return response
             else:
-                return json.dumps({"status": "error", "status_message": "Unknown request type"})
+                response.response = [json.dumps({"status": "error", "status_message": "Unknown request type"})]
+                return response
 
-    plugin_manager.add_page(page_pattern, ExternalGrader)
+    plugin_manager.add_page(page_pattern, ExternalGrader.as_view("externalgrader"))

@@ -3,8 +3,6 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-
-
 import datetime
 import glob
 import hashlib
@@ -12,10 +10,11 @@ import logging
 import os
 import random
 import zipfile
-
 import bson.json_util
-import web
+import flask
 
+from flask import redirect, Response
+from werkzeug.exceptions import NotFound
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
@@ -47,7 +46,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            students = self.database.courses.find_one({"_id": courseid}).get("students", [])
+            course_obj = self.database.courses.find_one({"_id": courseid})
+            students = course_obj.get("students", []) if course_obj else []
             zipf.writestr("students.json", bson.json_util.dumps(students), zipfile.ZIP_DEFLATED)
 
             audiences = self.database.audiences.find({"courseid": courseid})
@@ -135,18 +135,17 @@ class CourseDangerZonePage(INGIniousAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        data = web.input()
+        data = flask.request.args
 
         if "download" in data:
             filepath = os.path.join(self.backup_dir, courseid, data["download"] + '.zip')
 
             if not os.path.exists(os.path.dirname(filepath)):
-                raise self.app.notfound(message=_("This file doesn't exist."))
+                raise NotFound(description=_("This file doesn't exist."))
 
-            web.header('Content-Type', 'application/zip', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="' + data["download"] + '.zip' + '"', unique=True)
-
-            return open(filepath, 'rb')
+            response = Response(response=open(filepath, 'rb'), content_type='application/zip')
+            response.headers['Content-Disposition'] = 'attachment; filename="{}.zip"'.format(data["download"])
+            return response
 
         else:
             return self.page(course)
@@ -158,7 +157,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
         msg = ""
         error = False
 
-        data = web.input()
+        data = flask.request.form
         if not data.get("token", "") == self.user_manager.session_token():
             msg = _("Operation aborted due to invalid token.")
             error = True
@@ -192,7 +191,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
             else:
                 try:
                     self.delete_course(courseid)
-                    web.seeother(self.app.get_homepath() + '/index')
+                    return redirect(self.app.get_homepath() + '/index')
                 except Exception as ex:
                     msg = _("An error occurred while deleting the course data: {}").format(repr(ex))
                     error = True

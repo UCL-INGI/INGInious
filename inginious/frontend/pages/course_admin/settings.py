@@ -4,14 +4,13 @@
 # more information about the licensing of this file.
 
 import re
-
-import web
+import flask
 
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
-class CourseSettings(INGIniousAdminPage):
+class CourseSettingsPage(INGIniousAdminPage):
     """ Couse settings """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
@@ -26,7 +25,7 @@ class CourseSettings(INGIniousAdminPage):
         errors = []
         course_content = {}
         try:
-            data = web.input()
+            data = flask.request.form
             course_content = self.course_factory.get_course_descriptor_content(courseid)
             course_content['name'] = data['name']
             if course_content['name'] == "":

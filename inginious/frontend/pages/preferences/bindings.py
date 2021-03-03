@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Auth bindings page """
-import web
+import flask
+from flask import redirect
 
 from pymongo import ReturnDocument
 from inginious.frontend.pages.utils import INGIniousAuthPage
@@ -31,7 +32,7 @@ class BindingsPage(INGIniousAuthPage):
         if not user_data:
             raise self.app.notfound(message=_("User doesn't exist."))
 
-        user_input = web.input()
+        user_input = flask.request.form
         auth_methods = self.user_manager.get_auth_methods()
 
         if "auth_binding" in user_input:
@@ -41,7 +42,7 @@ class BindingsPage(INGIniousAuthPage):
                 error = True
                 msg = _("Incorrect authentication binding.")
             elif auth_binding not in user_data.get("bindings", {}):
-                raise web.seeother("/auth/signin/" + auth_binding)
+                return redirect("/auth/signin/" + auth_binding)
         elif "revoke_auth_binding" in user_input:
             auth_id = user_input["revoke_auth_binding"]
 

@@ -14,7 +14,10 @@ The following code adds a new page displaying ``This is a simple demo plugin`` o
 
 .. code-block:: python
 
-    class DemoPage(object):
+    from inginious.frontend.pages.utils import INGIniousPage
+
+
+    class DemoPage(INGIniousPage):
         """ A simple demo page showing how to add a new page """
 
         def GET(self):
@@ -24,7 +27,7 @@ The following code adds a new page displaying ``This is a simple demo plugin`` o
 
     def init(plugin_manager, course_factory, client, plugin_config):
         """ Init the plugin """
-        plugin_manager.add_page("/plugindemo", DemoPage)
+        plugin_manager.add_page("/<cookieless:sessionid>plugindemo", DemoPage.as_view('demopage'))
 
 
 The plugin is initialized by the plugin manager, which is the frontend-extended hook manager, by calling method ``init``.
@@ -291,7 +294,7 @@ from ``inginious.common.tasks_problems.Problem`` and implementing the following 
      For instance, strings-encoded int values can be cast to int here.
 
 At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableProblem``
-and implementing th following abstract methods:
+and implementing the following abstract methods:
 
   - ``get_type_name(cls, language)`` returning a human-readable transleted string representing the problem type.
     ``language`` is the gettext 2-letter language code.

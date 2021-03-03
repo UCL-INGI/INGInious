@@ -5,11 +5,8 @@
 # more information about the licensing of this file.
 
 import sys
-
 import os
 from setuptools import setup, find_packages
-
-import inginious
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -18,7 +15,6 @@ install_requires = [
     "docutils>=0.14",
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
-    "web.py==0.40",
     "Jinja2 >= 2.10",
     "lti>=0.9.0",
     "oauth2>=1.9.0.post1",
@@ -29,7 +25,13 @@ install_requires = [
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
     "zipstream >= 1.1.4",
-    "WsgiDAV >= 3.0.0"
+    "WsgiDAV >= 3.0.0",
+    "Werkzeug >= 1.0.0",
+    "itsdangerous >= 1.1.0",
+    "Flask >= 1.1.0",
+    "Flask-Mail >= 0.9.1",
+    "importlib_metadata >= 3.7.0",
+    'dataclasses >= 0.8; python_version < "3.7.0"'
 ]
 
 test_requires = [
@@ -59,9 +61,10 @@ else:
 # Setup
 setup(
     name="INGInious",
-    version=inginious.__version__,
+    use_scm_version=True,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
+    setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={
