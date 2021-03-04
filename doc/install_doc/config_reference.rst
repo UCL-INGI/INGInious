@@ -82,7 +82,9 @@ The different entries are :
     before using INGInious. (see :ref:`StaticPages`)
 
 ``smtp``
-    Mails can be sent by plugins.
+    Mails are sent if users are allowed to register with a password. Please note that personal mailbox
+    services such as Gmail or Outlook may deactivate SMTP password authentication by default. It is
+    however strongly discouraged to use personal email accounts for production.
 
     ``sendername``
         Email sender name, e.g. : ``INGInious <no-reply@inginious.org>``
@@ -101,6 +103,9 @@ The different entries are :
 
     ``starttls``
         Set to ``true`` if TLS is needed.
+
+    ``usessl``
+        Set to ``true`` if SSL is needed.
 
 ``static_directory``
     Path to the directory where YAML-defined static pages are located.

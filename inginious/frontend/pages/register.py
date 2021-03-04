@@ -9,7 +9,9 @@ import hashlib
 import random
 import re
 import flask
+import logging
 
+from smtplib import SMTPException
 from flask_mail import Message
 from werkzeug.exceptions import Forbidden
 from inginious.frontend.pages.utils import INGIniousPage
@@ -18,6 +20,8 @@ from inginious.frontend.flask.mail import mail
 
 class RegistrationPage(INGIniousPage):
     """ Registration page for DB authentication """
+
+    _logger = logging.getLogger("inginious.register")
 
     def GET(self):
         """ Handles GET request """
@@ -123,10 +127,11 @@ To activate your account, please click on the following link :
                                       body=body)
                     mail.send(message)
                     msg = _("You are succesfully registered. An email has been sent to you for activation.")
-                except:
+                except Exception as ex:
                     error = True
                     msg = _(
                         "Something went wrong while sending you activation email. Please contact the administrator.")
+                    self._logger.error("Couldn't send email : {}".format(str(ex)))
 
         return msg, error
 
@@ -166,9 +171,10 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
                     mail.send(message)
 
                     msg = _("An email has been sent to you to reset your password.")
-                except:
+                except Exception as ex:
                     error = True
                     msg = _("Something went wrong while sending you reset email. Please contact the administrator.")
+                    self._logger.error("Couldn't send email : {}".format(str(ex)))
 
         return msg, error
 

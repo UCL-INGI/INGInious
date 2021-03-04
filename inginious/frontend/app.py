@@ -79,6 +79,7 @@ def _put_configuration_defaults(config):
             config['session_parameters'][k] = v
 
     # flask migration
+    config["DEBUG"] = config.get("web_debug", False)
     config["SESSION_COOKIE_NAME"] = "inginious_session_id"
     config["SESSION_USE_SIGNER"] = True
     config["PERMANENT_SESSION_LIFETIME"] = config['session_parameters']["timeout"]
@@ -88,7 +89,8 @@ def _put_configuration_defaults(config):
     if smtp_conf is not None:
         config["MAIL_SERVER"] = smtp_conf["host"]
         config["MAIL_PORT"] = int(smtp_conf["port"])
-        config["MAIL_USE_TLS"]: bool(smtp_conf.get("starttls", False))
+        config["MAIL_USE_TLS"] = bool(smtp_conf.get("starttls", False))
+        config["MAIL_USE_SSL"] = bool(smtp_conf.get("usessl", False))
         config["MAIL_USERNAME"] = smtp_conf.get("username", None)
         config["MAIL_PASSWORD"] = smtp_conf.get("password", None)
         config["MAIL_DEFAULT_SENDER"] = smtp_conf.get("sendername", "no-reply@ingnious.org")
