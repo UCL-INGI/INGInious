@@ -128,9 +128,10 @@ To activate your account, please click on the following link :
                     mail.send(message)
                     msg = _("You are succesfully registered. An email has been sent to you for activation.")
                 except Exception as ex:
+                    # Remove newly inserted user (do not add after to prevent email sending in case of failure)
+                    self.database.users.remove({"username": data["username"]})
                     error = True
-                    msg = _(
-                        "Something went wrong while sending you activation email. Please contact the administrator.")
+                    msg = _("Something went wrong while sending you activation email. Please contact the administrator.")
                     self._logger.error("Couldn't send email : {}".format(str(ex)))
 
         return msg, error
