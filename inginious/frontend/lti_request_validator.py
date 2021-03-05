@@ -10,6 +10,18 @@ class LTIValidator(RequestValidator):  # pylint: disable=abstract-method
     nonce_length = (20, 64)
     realms = [""]
 
+    @property
+    def dummy_client(self):
+        return ""  # Not used: validation works for all
+
+    @property
+    def dummy_request_token(self):
+        return ""  # Not used: validation works for all
+
+    @property
+    def dummy_access_token(self):
+        return ""  # Not used: validation works for all
+
     def __init__(self, collection, keys, nonce_validity=datetime.timedelta(minutes=10), debug=False):
         """
         :param collection: Pymongo collection. The collection must have a unique index on ("timestamp","nonce") and a TTL expiration on ("expiration")

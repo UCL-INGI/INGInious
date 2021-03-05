@@ -191,10 +191,10 @@ class LTILaunchPage(INGIniousPage):
             test = LTIWebPyToolProvider.from_webpy_request()
             validator = LTIValidator(self.database.nonce, course.lti_keys())
             verified = test.is_valid_request(validator)
-        except Exception:
-            self.logger.exception("...")
-            self.logger.info("Error while validating LTI request for %s", str(post_input))
-            raise Forbidden(description=_("Error while validating LTI request"))
+        except Exception as ex:
+            self.logger.error("Error while parsing the LTI request : {}".format(str(post_input)))
+            self.logger.error("The exception caught was :  {}".format(str(ex)))
+            raise Forbidden(description=_("Error while parsing the LTI request"))
 
         if verified:
             self.logger.debug('parse_lit_data for %s', str(post_input))
