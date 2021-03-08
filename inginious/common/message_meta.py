@@ -40,7 +40,7 @@ class MessageMeta(type):
         :param bmessage: bytestring given by a .dump() call on a message
         :return: the original message
         """
-        message_dict = msgpack.loads(bmessage, use_list=False)
+        message_dict = msgpack.loads(bmessage, use_list=False, strict_map_key=False)
 
         try:
             obj = MessageMeta._registered_messages[message_dict["type"]].__new__(MessageMeta._registered_messages[message_dict["type"]])

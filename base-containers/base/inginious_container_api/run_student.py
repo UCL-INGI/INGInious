@@ -83,7 +83,7 @@ def run_student(cmd, container=None,
                                    "socket_id": socket_id}, use_bin_type=True))
 
         # Check if the container was correctly started
-        message = msgpack.loads(zmq_socket.recv(), use_list=False)
+        message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
         assert message["type"] == "run_student_started"
 
         # Send a dummy message to ask for retval
@@ -109,7 +109,7 @@ def run_student(cmd, container=None,
             signal_handler_callback(receive_signal)
 
         # Wait for everything to end
-        message = msgpack.loads(zmq_socket.recv(), use_list=False)
+        message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
 
         # Unlink unneeded files
         try:

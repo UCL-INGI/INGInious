@@ -180,7 +180,7 @@ class INGIniousMainRunner:
                 # New message from process in the container
                 if self.intern in socks:
                     addr, empty, msg_enc = await self.intern.recv_multipart()
-                    msg = msgpack.loads(msg_enc, use_list=False)
+                    msg = msgpack.loads(msg_enc, use_list=False, strict_map_key=False)
                     close = await self.handle_intern_message(addr, msg)
                     if close:
                         return
