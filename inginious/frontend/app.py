@@ -9,6 +9,7 @@ import os
 import sys
 import flask
 import pymongo
+import oauthlib
 
 from gridfs import GridFS
 from binascii import hexlify
@@ -267,17 +268,14 @@ def get_app(config):
         return template_helper.render("forbidden.html", message=e.description), 403
     flask_app.register_error_handler(403, flask_forbidden)
 
-    # Enable stacktrace display if needed
+    # Enable debug mode if needed
     web_debug = config.get('web_debug', False)
+    flask_app.debug = web_debug
+    oauthlib.set_debug(web_debug)
 
     def flask_internalerror(e):
         return template_helper.render("internalerror.html", message=e.description), 500
     flask_app.register_error_handler(InternalServerError, flask_internalerror)
-
-    if web_debug is True:
-        flask_app.debug = True
-    elif isinstance(web_debug, str):
-        flask_app.debug = False
 
     # Insert the needed singletons into the application, to allow pages to call them
     flask_app.get_homepath = get_homepath

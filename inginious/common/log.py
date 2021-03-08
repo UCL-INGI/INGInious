@@ -12,14 +12,22 @@ def init_logging(log_level=logging.DEBUG):
     :param log_level: An integer representing the log level or a string representing one
     """
     logging.root.handlers = []  # remove possible side-effects from other libs
-    logger = logging.getLogger("inginious")
-    logger.setLevel(log_level)
+
+    # Log format
     ch = logging.StreamHandler()
     ch.setLevel(log_level)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
-    logger.addHandler(ch)
 
+    # Base INGInious logger
+    inginious_log = logging.getLogger("inginious")
+    inginious_log.setLevel(log_level)
+    inginious_log.addHandler(ch)
+
+    # Allow oauthlib debug if needed to debug LTI
+    oauthlib_log = logging.getLogger("oauthlib")
+    oauthlib_log.setLevel(log_level)
+    oauthlib_log.addHandler(ch)
 
 def get_course_logger(coursename):
     """
