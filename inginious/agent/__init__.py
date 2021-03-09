@@ -12,9 +12,8 @@ from typing import Dict, Any, Optional
 
 import zmq
 
-from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import AgentHello, BackendJobId, SPResult, AgentJobDone, BackendNewJob, BackendKillJob, \
-    AgentJobStarted, AgentJobSSHDebug, Ping, Pong
+    AgentJobStarted, AgentJobSSHDebug, Ping, Pong, ZMQUtils
 
 """
 Various utils to implements new kind of agents easily.

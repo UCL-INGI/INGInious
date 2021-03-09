@@ -9,8 +9,7 @@ import logging
 import zmq
 
 from inginious.common.asyncio_utils import create_safe_task
-from inginious.common.message_meta import ZMQUtils
-from inginious.common.messages import Pong, Ping, Unknown
+from inginious.common.messages import Pong, Ping, Unknown, ZMQUtils
 
 
 class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
@@ -34,10 +33,10 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
 
         self._msgs_registered = {}
         self._msgs_registered_inv = {}
-        self._handlers_registered = {Pong.__msgtype__: self._handle_pong, Unknown.__msgtype__: self._handle_unknown}  # pylint: disable=no-member
+        self._handlers_registered = {Pong: self._handle_pong, Unknown: self._handle_unknown}  # pylint: disable=no-member
         self._transactions = {}
 
-        self._restartable_tasks = [] # a list of asyncio task that should be closed each time the client restarts
+        self._restartable_tasks = []  # a list of asyncio task that should be closed each time the client restarts
 
         self._ping_count = 0
 
@@ -47,7 +46,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         :param recv_msg:
         :param coroutine_recv:
         """
-        self._handlers_registered[recv_msg.__msgtype__] = coroutine_recv
+        self._handlers_registered[recv_msg] = coroutine_recv
 
     def _register_transaction(self, send_msg, recv_msg, coroutine_recv, coroutine_abrt, get_key=None, inter_msg=None):
         """
@@ -72,14 +71,13 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
 
         # format is (other_msg, get_key, recv_handler, abrt_handler,responsible_for)
         # where responsible_for is the list of classes whose transaction will be killed when this message is received.
-        self._msgs_registered[send_msg.__msgtype__] = ([recv_msg.__msgtype__] + [x.__msgtype__ for x, _ in inter_msg], get_key, None, None, [])
-        self._msgs_registered[recv_msg.__msgtype__] = (
-        [], get_key, coroutine_recv, coroutine_abrt, [recv_msg.__msgtype__] + [x.__msgtype__ for x, _ in inter_msg])
+        self._msgs_registered[send_msg] = ([recv_msg] + [x for x, _ in inter_msg], get_key, None, None, [])
+        self._msgs_registered[recv_msg] = ([], get_key, coroutine_recv, coroutine_abrt, [recv_msg] + [x for x, _ in inter_msg])
 
-        self._transactions[recv_msg.__msgtype__] = {}
+        self._transactions[recv_msg] = {}
         for msg_class, handler in inter_msg:
-            self._msgs_registered[msg_class.__msgtype__] = ([], get_key, handler, None, [])
-            self._transactions[msg_class.__msgtype__] = {}
+            self._msgs_registered[msg_class] = ([], get_key, handler, None, [])
+            self._transactions[msg_class] = {}
 
     async def _create_transaction(self, msg, *args, **kwargs):
         """
@@ -88,7 +86,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         :param args: args to be sent to the coroutines given to `register_transaction`
         :param kwargs: kwargs to be sent to the coroutines given to `register_transaction`
         """
-        recv_msgs, get_key, _1, _2, _3 = self._msgs_registered[msg.__msgtype__]
+        recv_msgs, get_key, _1, _2, _3 = self._msgs_registered[msg.__class__]
         key = get_key(msg)
 
         if key in self._transactions[recv_msgs[0]]:
@@ -212,7 +210,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
             try:
                 message = await ZMQUtils.recv(self._socket)
                 self._ping_count = 0  # restart ping count
-                msg_class = message.__msgtype__
+                msg_class = message.__class__
                 if msg_class in self._handlers_registered:
                     # If a handler is registered, give the message to it
                     create_safe_task(self._loop, self._logger, self._handlers_registered[msg_class](message))
