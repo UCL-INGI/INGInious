@@ -107,11 +107,11 @@ def get_homepath(ignore_session=False, force_cookieless=False):
     session = flask.session
     request = flask.request
     if not ignore_session and session.sid is not None and session.cookieless:
-        return request.url_root[:-1] + "/@" + session.sid + "@"
+        return request.url_root[:-1].replace("http://","//") + "/@" + session.sid + "@"
     elif not ignore_session and force_cookieless:
-        return request.url_root[:-1] + "/@@"
+        return request.url_root[:-1].replace("http://","//") + "/@@"
     else:
-        return request.url_root[:-1]
+        return request.url_root[:-1].replace("http://","//")
 
 
 def _close_app(mongo_client, client):
