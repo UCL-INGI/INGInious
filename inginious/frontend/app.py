@@ -110,11 +110,10 @@ def get_homepath(ignore_session=False, force_cookieless=False):
 
 
     if not ignore_session and session.sid is not None and session.cookieless:
-        return request.url_root[:-1] + "/@" + session.sid + "@"
+        return request.url_root[:-1].replace("http://","//") + "/@" + session.sid + "@"
     elif not ignore_session and force_cookieless:
-        return request.url_root[:-1] + "/@@"
+        return request.url_root[:-1].replace("http://","//") + "/@@"
     else:
-        print("TEST", request.url_root[:-1].replace("http://","//"))
         return request.url_root[:-1].replace("http://","//")
 
 
