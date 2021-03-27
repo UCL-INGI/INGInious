@@ -20,5 +20,6 @@ shell.run_cell("from inginious_container_api.feedback import *", store_history=F
 shell.run_cell("from inginious_container_api.lang import *", store_history=False)
 shell.run_cell("from inginious_container_api.rst import *", store_history=False)
 shell.run_cell("from inginious_container_api.run_student import *", store_history=False)
+shell.run_cell("__file__ = \"" + sys.argv[0] + "\"", store_history=False)
 
 shell.safe_execfile_ipy(sys.argv[0])
