@@ -14,6 +14,7 @@ import signal
 import sys
 
 from werkzeug.serving import run_simple
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Apache wsgi module only set env vars when a request is done
 os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
@@ -69,6 +70,15 @@ if 'SERVER_SOFTWARE' in os.environ:  # cgi
 if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
     import flup.server.fcgi as flups
     flups.WSGIServer(application, multiplexed=True, bindAddress=None, debug=False).run()
+
+# Fix Reverse Proxy
+reverse_proxy_config = config.get('reverse-proxy-config',{})
+reverse_proxy_enable = reverse_proxy_config.get('enable',False)
+x_for = reverse_proxy_config.get('x-for',1)
+x_host = reverse_proxy_config.get('x-host',1)
+
+if reverse_proxy_enable :
+    application =  ProxyFix(application,x_for=x_for,x_host=x_host)
 
 # Launch the integrated websever if app launched in cmd line
 if __name__ == "__main__":

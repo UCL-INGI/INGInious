@@ -161,6 +161,19 @@ The different entries are :
     ``ignore_change_ip`` indicates whether users that change IP should be disconnected or not. This may prevent cookie
     stealing partly.
 
+    ``reverse-proxy-config``
+        A dictionary for reverse proxy configuration.
+
+        ``enable``
+          ``false`` if INGInious is not running benind a reverse proxy, ``true`` otherwise. Its default value is ``false``
+        
+        ``x_for``
+            Number of values to trust for X-Forwarded-For. Its default value is 1
+        
+        ``x_host``
+            Number of values to trust for X-Forwarded-Host. Its default value is 1
+
+
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 
