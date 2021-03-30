@@ -70,6 +70,15 @@ if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # ligh
     import flup.server.fcgi as flups
     flups.WSGIServer(application, multiplexed=True, bindAddress=None, debug=False).run()
 
+# Fix Reverse Proxy
+reverse_proxy_config = config.get('reverse-proxy-config',{})
+reverse_proxy_enable = reverse_proxy_config.get('enable',False)
+x_for = reverse_proxy_config.get('x-for',1)
+x_host = reverse_proxy_config.get('x-host',1)
+
+if reverse_proxy_enable :
+    application =  ProxyFix(application,x_for=x_for,x_host=x_host)
+
 # Launch the integrated websever if app launched in cmd line
 if __name__ == "__main__":
     # Close the client when interrupting the app
