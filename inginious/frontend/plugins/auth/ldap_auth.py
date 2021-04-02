@@ -11,6 +11,7 @@ import flask
 
 from flask import redirect
 from ldap3.core.exceptions import LDAPException
+from ldap3.utils.conv import escape_filter_chars
 
 from inginious.frontend.pages.social import AuthenticationPage
 from inginious.frontend.user_manager import AuthMethod
@@ -97,7 +98,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
         attr_cn = settings.get("cn", "cn")
         attr_mail = settings.get("mail", "mail")
         try:
-            ldap_request = settings["request"].format(login)
+            ldap_request = settings["request"].format(escape_filter_chars(login))
             conn.search(settings["base_dn"], ldap_request, attributes=[attr_cn, attr_mail])
             user_data = conn.response[0]
         except (LDAPException, IndexError) as ex:
