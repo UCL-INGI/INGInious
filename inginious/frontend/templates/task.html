@@ -303,6 +303,7 @@
                     {% if previous_taskid %}
                         <a class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}/{{previous_taskid}}" title="{{ _('Previous task') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-left"></i></a>
                     {% endif %}
+                    <a class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}" title="{{ _('task list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-up"></i></a>
                     {% if next_taskid %}
                         <a class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}/{{next_taskid}}" title="{{ _('Next task') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-right"></i></a>
                     {% endif %}
