@@ -8,8 +8,6 @@ import sys
 import os
 from setuptools import setup, find_packages
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
 install_requires = [
     "docker>=2.5.0",
     "docutils>=0.14",
@@ -31,7 +29,8 @@ install_requires = [
     "Flask >= 1.1.0",
     "Flask-Mail >= 0.9.1",
     "importlib_metadata >= 3.7.0",
-    'dataclasses >= 0.8; python_version < "3.7.0"'
+    'dataclasses >= 0.8; python_version < "3.7.0"',
+    "pytidylib>=0.2.4"
 ]
 
 test_requires = [
@@ -41,17 +40,11 @@ test_requires = [
 ]
 
 doc_requires = [
-    "sphinx-tabs == 1.1.13",
-    "ipython >= 7.6.1"
+    "sphinx==3.5.4",
+    "sphinx_rtd_theme==0.5.2",
+    "sphinx-tabs==2.1.0",
+    "ipython==7.6.1"
 ]
-
-# Platform specific dependencies
-if not on_rtd:
-    doc_requires += ["sphinx-rtd-theme>=0.1.8"]
-    install_requires += ["pytidylib>=0.2.4"]
-
-if on_rtd:
-    install_requires += test_requires + doc_requires
 
 if sys.platform == 'win32':
     install_requires += ["pbs>=0.110"]
@@ -73,7 +66,7 @@ setup(
         "saml2": ["python3-saml"],
         "uwsgi": ["uwsgi"],
         "test": test_requires,
-        "doc": doc_requires
+        "doc": test_requires + doc_requires
     },
 
     scripts=[
