@@ -369,6 +369,19 @@ A new configuration page named *Contest* appears on the administration page. To 
 *Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
 accessibility dates.
 
+
+Upcoming tasks plugin
+`````````````````````
+
+This plugin allows for students to easily visualize their upcoming tasks based on deadlines.
+The new page is available directly from the left main menu.
+
+To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.plugins.upcoming_tasks
+
 Simple grader plugin
 ````````````````````
 

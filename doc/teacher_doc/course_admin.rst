@@ -76,7 +76,7 @@ When editing a task, you can enter basic informations and parameters in the *Bas
 
 Based on the type of problem you want to put for the task, you can select one of the two available *grading environment* in the *Environment* tab:
 
-- Select **Multiple Choice Question solver** if you only want to add *mcq* or *match* types of problems.
+- Select **Multiple Choice Question solver** if you only want to add *mcq* or *match* types of problems. Note, the *math* problem type from the problems-math plugin also uses this grading environment.
 - Select **Docker container** if you want to add some more complex problems which requires to write a grading script to access the students inputs.
 
 Adding/removing problems
