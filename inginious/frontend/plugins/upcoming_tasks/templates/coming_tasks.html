@@ -1,0 +1,111 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+{% block title %}{{ _("Urgent tasks") }}{% endblock %}
+
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list"></i> {{ _("Upcoming Tasks") }}
+                <span class="sr-only">{{ _("(current)") }}</span></a>
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block column %}
+    <h3> {{ _("Upcoming tasks") }}</h3>
+    <div class="alert alert-warning" role="alert">
+        {{ _("This page lists the coming tasks ordered on deadlines for courses you are registered in.") }}
+    </div>
+    <div class="list-group mb-3">
+        <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/courselist">
+            <i class="fa fa-fw fa-th-list"></i>
+            {{ _("Course list") }}
+        </a>
+    </div>
+
+    <h3>{{ _("Last tried exercises") }}</h3>
+    <div class="list-group">
+        {% if submissions %}
+            {% for submission in submissions %}
+                <a class="list-group-item list-group-item-action
+                    {% if submission['status'] == 'done' and submission['result'] == 'success' %}
+                        list-group-item-success
+                    {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
+                        list-group-item-info
+                    {% elif submission['status'] == 'waiting' %}
+                        list-group-item-warning
+                    {% else %}
+                        list-group-item-danger
+                    {% endif %}"
+                    href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                    <b>{{ submission["task"].get_course().get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
+                </a>
+            {% endfor %}
+        {% else %}
+            <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>
+        {% endif %}
+    </div>
+    {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
+{% endblock %}
+
+
+{% block content %}
+<h2>{{ _("My Upcoming Tasks") }}
+<div class="pull-right">
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-warning" data-toggle="modal" data-target="#timeModal">
+                <i class="fa fa-exchange"></i> {{_("Switch time planner")}}
+            </button>
+        </div>
+    </div>
+</h2>
+
+<div class="modal fade" id="timeModal" tabindex="-1" role="dialog" aria-labelledby="timeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="timeModalLabel">{{_("Modify time planner")}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ _("This allows to display only the tasks whose deadline is in a certain temporal proximity.") }}</p>
+                    <label>{{ _("Number of days:") }}</label>
+                    <select class="form-control" id="new_time_planner" name="time_planner">
+                        {% for timeid in time_planner %}
+                            <option value="{{timeid}}">{{ timeid}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{_("Cancel")}}</button>
+                    <button type="submit" class="btn btn-warning">{{_("Save changes")}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="list-group">
+    {%if open_courses %}
+        {% set username = user_manager.session_username() %}
+        {% for courseid, course in open_courses.items() %}
+                <div class="row">
+                    <div class="col-xs-12 col-md-8">
+                        {{ course.get_name(user_manager.session_language()) }}
+                        {% with course=course, tasks_data=tasks_data[courseid] %}
+                            {% include "upcoming.html" %}
+                        {% endwith %}
+                    </div>
+                </div>
+        {% endfor %}
+    {% else %}
+        <a href="#register" class="list-group-item list-group-item-action disabled">{{ _("You have no upcoming tasks") }}</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{# Recursively print a list of sections and their content #}
+
+{% set level = level|default(3, true) %}
+{% with tasks=sorting_method(course, tasks_data.keys()) %}
+	{% include "upcoming_task_list.html" %}
+{% endwith %}

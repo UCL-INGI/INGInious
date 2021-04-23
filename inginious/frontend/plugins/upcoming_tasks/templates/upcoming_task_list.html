@@ -1,0 +1,51 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% set registered = user_manager.course_is_user_registered(course) %}
+
+<div id="course" class="section tasks_list card mb-4">
+
+    <div class="content list-group list-group-flush tasks-list">
+        {% for task in tasks %}
+            {% set taskid = task.get_id() %}
+            {% if taskid in tasks_data %}
+                {% set succeeded = tasks_data[taskid]["succeeded"] %}
+                {% set completion = tasks_data[taskid]["grade"] %}
+                <a href="{{ get_homepath() }}/course/{{course.get_id()}}/{{taskid}}" class="list-group-item list-group-item-action
+                    {% if not task.get_accessible_time().is_open() %} disabled {% endif %}">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-7 pl-1">
+                            <i style="color: {% if succeeded %}#468847{% else %}transparent{% endif %};" class="fa fa-check"></i>
+                            {{ task.get_name(user_manager.session_language()) }}
+                            {% if not task.get_accessible_time().is_open() %}
+                                - <b> {{ _("deadline reached") }} </b>
+                            {% endif %}
+                            </div>
+                        <div class="col-xs-12 col-md-5">
+                            {{ "DEADLINE: "}}
+                            <b> {{ task.get_deadline() }} </b>
+                        </div>
+                        <div class="col-xs-12 col-md-5">
+                            {% if registered %}
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" aria-valuenow="{{ completion | int }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ completion | int }}%">
+                                        {% if completion.is_integer() %}{{ completion | int }}{% else %}{{ completion }}{% endif %} %
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+					
+                    <div id="tags_of_task" style="display:none;">
+                        {% for category in task.get_categories() %}
+                            {% set tag = tag_list[category] %}
+                            {% if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course) %}
+                                <div id="tag" data-tag-name="{{tag.get_id()}}"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
