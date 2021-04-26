@@ -399,6 +399,10 @@ function dispenser_wipe_task(taskid) {
 }
 
 function dispenser_add_task(taskid) {
+    if(!taskid.match(/^[a-zA-Z0-9_\-]+$/)){
+        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
+        return;
+    }
     dispenser_new_tasks.push(taskid);
 }
 

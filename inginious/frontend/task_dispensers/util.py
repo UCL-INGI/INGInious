@@ -3,6 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 from collections import namedtuple
+from inginious.common.base import id_checker
 
 SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type', 'default'])
 
@@ -20,7 +21,7 @@ class SectionsList(object):
         for section in sorted(structure,key=lambda k: k['rank']):
             if "sections_list" in section:
                 self._sections.append(NonTerminalSection(section))
-            elif "tasks_list" in section:
+            elif "tasks_list" in section and all(id_checker(id) for id in list(section.get("tasks_list"))):
                 self._sections.append(TerminalSection(section))
             else:
                 raise InvalidTocException(_("One section don't contain a sections list nor a tasks list"))
@@ -50,6 +51,8 @@ class SectionsList(object):
         :param sectionid: the section id of the section
         :return: True is the task has been added false otherwise
         """
+        if not id_checker(taskid):
+            return False
         for i, section in enumerate(self._sections):
             if section.get_id() == sectionid and section.is_empty() and not section.is_terminal():
                 self._sections[i] = TerminalSection({"id": section.get_id(), "title": section.get_title(),  "tasks_list": {taskid: 0}})
@@ -137,6 +140,8 @@ class NonTerminalSection(Section):
         :param sectionid: the section id of the section
         :return: True is the task has been added false otherwise
         """
+        if not id_checker(taskid):
+            return False
         return self._sections_list.add_task(taskid, sectionid)
 
     def remove_task(self, taskid):
@@ -180,6 +185,8 @@ class TerminalSection(Section):
         :param sectionid: the section id of the section
         :return: True is the task has been added false otherwise
         """
+        if not id_checker(taskid):
+            return False
         if self._id == sectionid and taskid not in self._task_list:
             self._task_list.append(taskid)
             return True
