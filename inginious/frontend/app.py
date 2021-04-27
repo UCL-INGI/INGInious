@@ -27,7 +27,7 @@ from inginious.frontend.submission_manager import update_pending_jobs
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.l10n_manager import L10nManager
-from inginious import get_root_path, __version__
+from inginious import get_root_path, __version__, DB_VERSION
 from inginious.frontend.course_factory import create_factories
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
@@ -146,6 +146,9 @@ def get_app(config):
         database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
         database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
+        database.db_version.insert({"db_version": DB_VERSION})
+    elif db_version.get("db_version", 0) != DB_VERSION:
+        raise Exception("Please update the database before running INGInious")
 
     flask_app = flask.Flask(__name__)
 

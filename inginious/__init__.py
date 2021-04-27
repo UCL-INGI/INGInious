@@ -19,7 +19,7 @@ except PackageNotFoundError:
     __version__ = "0.7.dev0"
 
 MARKETPLACE_URL = "https://marketplace.inginious.org/marketplace.json"
-
+DB_VERSION = 15
 
 builtins.__dict__['_'] = gettext.gettext
 
