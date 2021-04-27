@@ -102,6 +102,11 @@ function dispenser_util_click_modal_task(task) {
 }
 
 function dispenser_util_add_tasks_to_section(button) {
+    task_id= $("#new_task_id").val();
+    if(!task_id.match(/^[a-zA-Z0-9_\-]+$/)){
+        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
+        return;
+    }
     var selected_tasks = [];
     var existing_task = $(button).attr("id") == "add_existing_tasks";
     if(existing_task) {
@@ -110,7 +115,7 @@ function dispenser_util_add_tasks_to_section(button) {
         });
     }
     else {
-        selected_tasks.push($("#new_task_id").val());
+        selected_tasks.push(task_id);
     }
 
     const section = $("#" + $(button).attr('data-target'));
@@ -394,6 +399,10 @@ function dispenser_wipe_task(taskid) {
 }
 
 function dispenser_add_task(taskid) {
+    if(!taskid.match(/^[a-zA-Z0-9_\-]+$/)){
+        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
+        return;
+    }
     dispenser_new_tasks.push(taskid);
 }
 

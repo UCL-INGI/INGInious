@@ -39,7 +39,7 @@ class CourseTaskListPage(INGIniousAdminPage):
                 task_dispenser = course.get_task_dispenser()
                 data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
                 if data:
-                    self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser',task_dispenser.get_id())
+                    self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser', task_dispenser.get_id())
                     self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', data)
                 else:
                     errors.append(_("Invalid course structure: ") + msg)
@@ -51,7 +51,7 @@ class CourseTaskListPage(INGIniousAdminPage):
                     self.task_factory.create_task(course, taskid, {
                         "name": taskid, "accessible": False, "problems": {}, "environment_type": "mcq"})
                 except Exception as ex:
-                    errors.append(_("Couldn't delete task {} : ").format(taskid) + str(ex))
+                    errors.append(_("Couldn't create task {} : ").format(taskid) + str(ex))
             for taskid in json.loads(user_input.get("deleted_tasks", "[]")):
                 try:
                     self.task_factory.delete_task(courseid, taskid)
@@ -111,3 +111,4 @@ class CourseTaskListPage(INGIniousAdminPage):
         return self.template_helper.render("course_admin/task_list.html", course=course,
                                            task_dispensers=task_dispensers, tasks=tasks_data, errors=errors,
                                            validated=validated, webdav_host=self.webdav_host)
+

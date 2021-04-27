@@ -3,6 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 from collections import namedtuple
+from inginious.common.base import id_checker
 
 SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type', 'default'])
 
@@ -156,6 +157,8 @@ class NonTerminalSection(Section):
 class TerminalSection(Section):
     def __init__(self, structure):
         Section.__init__(self, structure)
+        if not all(id_checker(id) for id in structure["tasks_list"]):
+            raise InvalidTocException(_("One task id contains non alphanumerical characters"))
         self._task_list = [task for task, _ in sorted(structure["tasks_list"].items(), key=lambda x: x[1])]
 
     def is_terminal(self):
@@ -180,6 +183,8 @@ class TerminalSection(Section):
         :param sectionid: the section id of the section
         :return: True is the task has been added false otherwise
         """
+        if not id_checker(taskid):
+            return False
         if self._id == sectionid and taskid not in self._task_list:
             self._task_list.append(taskid)
             return True
