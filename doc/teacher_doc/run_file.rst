@@ -714,14 +714,14 @@ none is given, the template will be replaced.
 
     .. code-tab:: ipython3
 
-        thecode = parse_template("student.c") # Parse the `student.c` template file
-        thecode = parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+        parse_template("student.c") # Parse the `student.c` template file
+        parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
 
     .. code-tab:: py
 
         from inginious_container_api import input
-        thecode = input.parse_template("student.c") # Parse the `student.c` template file
-        thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+        input.parse_template("student.c") # Parse the `student.c` template file
+        input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
 
     .. code-tab:: bash
 
