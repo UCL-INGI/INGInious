@@ -121,7 +121,7 @@
     {% set key = loop.index %}
     <div class="card mb-3 problem">
         <div class="card-header">
-            Question {{key+1}}: {{problem["name"]}}
+            Question {{key}}: {{problem["name"]}}
             <a href="{{get_homepath()}}/course/{{course.get_id()}}/{{task.get_id()}}?submissionid={{submission['_id']}}&questionid={{problem['id']}}" class="pull-right" title="_('Download as file') }}"
                data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-download"></i>
