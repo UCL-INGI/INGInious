@@ -81,9 +81,8 @@ Replace `fr_FR` by the language your are translating to. This will create a file
 Translating strings
 -------------------
 
-In this file, simply change the `msgstr` entries with the translation of the immediately above `msgid`. For example, to translate the previous exemple
- in french
-(fr_FR):
+In this file, simply change the `msgstr` entries with the translation of the immediately above `msgid`. For example, to
+translate the previous example in French (fr_FR):
 
 ::
 

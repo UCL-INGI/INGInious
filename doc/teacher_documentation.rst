@@ -6,7 +6,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   teacher_doc/what_is_inginious
    teacher_doc/courses
    teacher_doc/tasks
    teacher_doc/create_container

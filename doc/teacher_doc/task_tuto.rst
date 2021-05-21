@@ -61,7 +61,7 @@ Most of the fields are self-explanatory. Some remarks:
   those you downloaded during installation or those you created by creating a grading container.
   Please see :doc:`create_container`.
 
-More documentation is available here: :doc:`create_task`.
+More documentation is available here: :doc:`task_file`.
 
 Creating the run file
 ---------------------
@@ -76,6 +76,7 @@ in the webapp in the *Task files* tab of the *Edit task* page.
            @    @question1@@
 
            func()
+
    The syntax is very simple: put a first ``@`` on the line where you want to put the code of the student.
    Then indent the line and write a second ``@``. Now write the problem id of the problem you want to take the input
    from (``question1``) then write another ``@``, write a possible suffix (not used here), and then finish the line
@@ -115,4 +116,4 @@ in the webapp in the *Task files* tab of the *Edit task* page.
       $ chmod +x helloworld/run
 
 
-More documentation is available here: :ref:`run_file`.
+More documentation is available here: :doc:`task_file`.

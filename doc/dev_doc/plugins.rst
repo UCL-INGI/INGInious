@@ -34,10 +34,10 @@ The plugin is initialized by the plugin manager, which is the frontend-extended 
 This method takes four arguments:
 
 - ``plugin_manager`` which is the plugin manager singleton object. The detailed API is available at
-  :ref:`inginious.frontend.common.plugin_manager`.
+  :ref:`inginious.frontend.plugin_manager`.
 
 - ``course_factory`` which is the course factory singleton object, giving you abstraction to the tasks folder. The detailed
-  API is available at :ref:`inginious.common.course_factory`.
+  API is available at :ref:`inginious.frontend.course_factory`.
 
 - ``client`` which is the INGInious client singleton object, giving you access to the backend features, as launching
   a new job. The detailed API is available at :ref:`inginious.client.client`.
@@ -69,7 +69,7 @@ List of hooks
 
 You may be interested to generate some actions useful for your plugins before or after some INGInious events. You
 would therefore need to add a hook method. This can be done using the ``add_hook`` method of package
-:ref:`inginious.frontend.common.plugin_manager`. For instance, the following plugin :
+:ref:`inginious.frontend.plugin_manager`. For instance, the following plugin :
 
 .. code-block:: python
 
@@ -85,7 +85,7 @@ would therefore need to add a hook method. This can be done using the ``add_hook
 will log each submission id that has been returning from the backend.
 
 Each hook available in INGInious is described here, starting with its name and parameters. Please refer to the complete
-:ref:`inginious.frontend.common` package documentation for more information on the data returned by those hooks.
+:ref:`inginious.frontend` package documentation for more information on the data returned by those hooks.
 
 ``css``
     Returns : List of path to CSS files.
@@ -101,7 +101,7 @@ Each hook available in INGInious is described here, starting with its name and p
     where link is the relative link from the index of the course administration.
     You can also return None.
 ``main_menu`` (``template_helper``)
-    ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
+    ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
 
     Returns : HTML or None.
 
@@ -110,7 +110,7 @@ Each hook available in INGInious is described here, starting with its name and p
 ``course_menu`` (``course``, ``template_helper``)
     ``course`` : :ref:`inginious.frontend.courses.Course`
 
-    ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
+    ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
 
     Returns : HTML or None.
 
@@ -121,14 +121,14 @@ Each hook available in INGInious is described here, starting with its name and p
 
     ``task`` : :ref:`inginious.frontend.tasks.Task`
 
-    ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
+    ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
 
     Returns: HTML or None.
 
     Allows to add HTML to the menu displayed on the course page. ``course`` is the course object related to the page. ``task``
     is the task object related to the page. ``template_helper`` is an object of type TemplateHelper, that can be useful to render templates.
 ``welcome_text`` (``template_helper``)
-    ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
+    ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
 
     Returns : HTML or None.
 
@@ -173,7 +173,7 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Overrides the task limits
 ``task_context`` (``course``, ``taskid``, ``default``)
-    Returns: inginious.frontend.common.parsable_text.ParsableText
+    Returns: inginious.frontend.parsable_text.ParsableText
 
     ``course`` : inginious.frontend.courses.Course
 
@@ -229,6 +229,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Javascript returned by this hook will be executed by the distant web browser when the submission is loaded.
     This hook is called each time a submission is displayed. Pay attention to output correct javascript, as it may
     break the webpage.
+
 ``task_editor_tab`` (``course``, ``taskid``, ``task_data``, ``template_helper``)
     
     ``course`` : inginious.frontend.courses.Course
@@ -241,6 +242,7 @@ Each hook available in INGInious is described here, starting with its name and p
     
     ``course`` is the course object related to task, ``task_data`` is the task descriptor content and ``template_helper`` is an
     object of type TemplateHelper, that can be useful to render templates such as tab content.
+
 ``task_editor_submit`` (``course``, ``taskid``, ``task_data``, ``task_fs``)
     
     ``course`` : inginious.frontend.courses.Course

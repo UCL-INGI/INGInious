@@ -126,7 +126,7 @@ The different entries are :
 
 ``webterm``
     Link to the INGInious xterm app with the following syntax: ``http[s]://host:port``.
-    If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
+    If set, it allows to use in-browser task debug via ssh. (See :ref:`webterm_setup` for
     more information)
 
 ``webdav_host``

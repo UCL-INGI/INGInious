@@ -1,9 +1,10 @@
-INGInious Architectures
-=======================
+INGInious Architecture
+======================
 
+.. _frontend:
 
-Frontend Architecture
----------------------
+Frontend
+--------
 
 Frontend architecture is mainly based on web.py framework. 
 Basically the python code is in the root folder. A ``template`` folder groups HTML templates used by the framework and a ``static`` folder contains CSS and JS files.
@@ -27,9 +28,10 @@ Besides, a ``task_dispensers`` package has been add to ensure the distribution o
 
 Finally, a ``tests`` package gather all the tests write to ensure the good behaviour of the frontend.
 
+.. _backend:
 
-Backend Architecture
---------------------
+Backend queue
+-------------
 
 Backend package architecture is quite simple to understand are there are two important files. 
 
@@ -37,9 +39,10 @@ First one is ``topic_priority_queue.py`` that defines a queue data structure bas
 
 The other one is ``backend.py`` which define the all backend logic base on message passing. Backend uses the topic priority queue to handle requests.
 
+.. _agent:
 
-Agent Architecture
-------------------
+Agent
+-----
 
 Agent package is split into python subpackages : Docker and MCQ.
 

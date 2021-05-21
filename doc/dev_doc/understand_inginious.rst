@@ -3,20 +3,20 @@ Understand INGInious
 
 INGInious is made from several different packages:
 
-- The :doc:`common` which contains basic blocks, like *tasks* and
-  *courses*. Derivates from this blocks are created by the frontend and other modules.
-  The :doc:`common` does not need the :doc:`backend` nor the :doc:`frontend`;
-- The :doc:`agent`, that runs jobs. It interacts directly with Docker to start new containers, and sends the grades back to the backend.
-  A specific part of the :doc:`backend` is in charge of starting the agents automatically; you most of time won't need to it manually.
+- The common which contains basic blocks, like *tasks*.
+  Derivates from this blocks are created by the frontend and other modules.
+  The common package does not need the :ref:`backend` nor the :ref:`frontend`;
+- The :ref:`agent`, that runs jobs. It interacts directly with Docker to start new containers, and sends the grades back to the backend.
+  A specific part of the :ref:`backend` is in charge of starting the agents automatically; you most of time won't need to it manually.
   The agent needs to be run *on* the Docker host, as it interacts with other containers with Unix sockets, and must also interact with CGroups
   to allow a very fine management of timeouts and memory limits.
-- The :doc:`backend`, which is in charge of handling grading requests, giving the work to distant agents;
+- The :ref:`backend`, which is in charge of handling grading requests, giving the work to distant agents;
   the backend is made to be simple and frontend-agnostic; you can 'easily' replace the frontend by something else.
   The backend only store information about *running* tasks. This point is important when considering replication and horizontal scalability (see
   later)
-- The :doc:`frontend` which is a web interface for the backend. It provides a simple yet powerful interface for students and teachers.
+- The :ref:`frontend` which is a web interface for the backend. It provides a simple yet powerful interface for students and teachers.
   It is made to be "stateless": all its state is stored in DB, allowing to replicate the frontend horizontally.
-- The :doc:`client` which is an abstract layout for other clients than the frontend. It provides classes and methods that handle jobs.
+- The client which is an abstract layout for other clients than the frontend. It provides classes and methods that handle jobs.
   This simplify the connection between INGInious and external frontends.
 
 Basic architecture of INGInious

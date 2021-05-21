@@ -1,3 +1,5 @@
+.. _inginious-database-update:
+
 inginious-database-update
 =========================
 

@@ -1,4 +1,4 @@
-.. _inginious-webapp:
+.. _inginious-webdav:
 
 inginious-webdav
 ================

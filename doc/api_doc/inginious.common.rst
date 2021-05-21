@@ -57,14 +57,6 @@ inginious.common.log module
     :undoc-members:
     :show-inheritance:
 
-inginious.common.message_meta module
-------------------------------------
-
-.. automodule:: inginious.common.message_meta
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.messages module
 --------------------------------
 

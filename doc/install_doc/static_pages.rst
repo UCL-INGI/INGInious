@@ -17,7 +17,7 @@ For instance, the page ``welcome.yaml``, containing the following:
       content: Welcome on INGInious !
 
 will the served at ``http(s)://host[:port]/pages/welcome``. If ``welcome.fr.yaml`` is specified
-and the user has set his/her language to French, ``welcome.fr.yaml``will be used instead.
+and the user has set his/her language to French, ``welcome.fr.yaml`` will be used instead.
 
 Welcome page
 ------------

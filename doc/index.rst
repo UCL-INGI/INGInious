@@ -4,11 +4,11 @@ INGInious' documentation
 .. toctree::
     :maxdepth: 2
 
-    install_documentation
-    commands
+    what_is_inginious
+    admin_documentation
     teacher_documentation
     developer_documentation
-
+    api_doc/inginious
 
 Indices and tables
 ==================

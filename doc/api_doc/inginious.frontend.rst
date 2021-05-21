@@ -1,3 +1,5 @@
+.. _inginious.frontend:
+
 inginious.frontend package
 ==========================
 

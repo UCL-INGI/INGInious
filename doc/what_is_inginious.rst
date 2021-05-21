@@ -42,7 +42,7 @@ This separation in two step of the grading is mandatory to ensure a complete sec
 the grading process, making impossible for the student to interact "badly" with the *run script*.
 
 These containers are created/described by very simple files called Dockerfile. They allow to create containers for anything that runs on Linux.
-For details about to create new containers and add new languages to INGInious, see :doc:`create_container`.
+For details about to create new containers and add new languages to INGInious, see :doc:`teacher_doc/create_container`.
 
 Architecture
 ````````````
@@ -61,7 +61,7 @@ This frontend also provides statistics and management tools for the teachers.
 
 Most of these functionalities can be extended through plugins.
 
-For a more advanced view of the architecture of INGInious, see :doc:`../dev_doc/understand_inginious`.
+For a more advanced view of the architecture of INGInious, see :doc:`dev_doc/understand_inginious`.
 
 .. _container:
 .. _containers:
@@ -77,7 +77,7 @@ As there are no hypervisor, the processes launched in the container are in fact 
 run by the host operating system, which allows applications to be amazingly fast.
 
 Docker allows teachers to build new containers easily, to add new dependencies to the tests
-applied on the student's code (see :doc:`create_container`)
+applied on the student's code (see :doc:`teacher_doc/create_container`)
 
 .. _isolation:
 

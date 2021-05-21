@@ -312,19 +312,20 @@ In your lighttpd configuration  ``/etc/lighttpd/lighttpd.conf`` change these lin
    server.document-root = server_root + "/INGInious"
 
 Also append this at the end of ``/etc/lighttpd/lighttpd.conf``:
-::
-   
+
+  ::
+
    include "/etc/lighttpd/vhosts.d/inginious.conf"
 
 .. note::
 
    Make sure that INGInious static directory path is executable by Ligttpd by giving the right permission with ``chmod``
-   
-   In some cases docker won't be able to run INGInious containers due to invalid temp directory just
+
+In some cases docker won't be able to run INGInious containers due to invalid temp directory just
 make sure you append this in your INGInious configuration.yaml
 
-   ::
-   
+  ::
+
    local-config:
        tmp_dir: /var/www/INGInious/agent_tmp
 
@@ -396,13 +397,14 @@ uses *systemd* or *init*.
 
 Append this in your INGInious configuration.yaml
 
-   ::
-   
+  ::
+
    local-config:
        tmp_dir: /var/www/inginious/agent_tmp
 
 You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`` file and apply the following rules:
-::
+
+  ::
 
     <VirtualHost *:80>
         ServerName my_inginious_domain
@@ -468,14 +470,14 @@ Add them also inside the file `/lib/systemd/system/apache2.service`, as follows:
 
 Append this in your INGInious configuration.yaml
 
-   ::
-   
+  ::
+
    local-config:
        tmp_dir: /var/www/inginious/agent_tmp
 
-
 Add virtual host entries in a `/etc/apache2/sites-available/inginious.conf` file with the following rules:
-::
+
+  ::
 
     <VirtualHost *:80>
         WSGIScriptAlias / "/usr/local/bin/inginious-webapp"
@@ -509,11 +511,11 @@ Add virtual host entries in a `/etc/apache2/sites-available/inginious.conf` file
             </Directory>
     </VirtualHost>
 
-
 Please note that the static files path may differ according to the exact Python version you are running.
 
-
 Then, enable the new site and reload apache2:
+
+  ::
 
     a2enmod wsgi
     a2dissite 000-default
@@ -559,9 +561,6 @@ There should be two lines under `VirtualHost configuration:` referring to `ingin
 
 7  Finally, open the URL to your website in a browser, and login as superadmin; you should see the INGInious homepage.
 
-
-
-
 Optional apps
 =============
 
@@ -573,7 +572,8 @@ WebDAV setup
 An optional WebDAV server can be used with INGInious to allow course administrators to access
 their course filesystem. This is an additional app that needs to be launched on another port or hostname.
 Run the WebDAV server using :ref:`inginious-webdav`.
- ::
+
+  ::
 
     inginious-webdav --config /path/to/configuration.yaml --port 8000
 

@@ -1,5 +1,8 @@
+Code documentation
+==================
+
 inginious package
-=================
+-----------------
 
 .. automodule:: inginious
     :members:
