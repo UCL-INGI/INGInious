@@ -49,13 +49,13 @@ Architecture
 
 INGInious comes with three distinct parts, the backend (and its agent) and a frontend.
 
-The backend (see :doc:`../dev_doc/backend`) receives the code of the students and sends it to its agent (see :doc:`../dev_doc/agent`), which is then
+The backend (see :ref:`backend`) receives the code of the students and sends it to its agent (see :ref:`agent`), which is then
 responsible to send it to a Docker container_, and interact with the request made by the container.
 
 That container then makes some verifications on the submission and returns one of the following four possible status : *success*, *crash*, *timeout*,
 or *failed*.
 
-INGInious also provides a frontend (see :doc:`../dev_doc/frontend`).
+INGInious also provides a frontend (see :ref:`frontend`).
 Made with MongoDB as database, the frontend is in fact an extension of the backend and allows students to work directly on a website.
 This frontend also provides statistics and management tools for the teachers.
 
