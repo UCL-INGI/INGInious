@@ -646,12 +646,14 @@ class WebAppSubmissionManager:
 
     def get_job_queue_snapshot(self):
         """ Get a snapshot of the remote backend job queue. May be a cached version.
-            May not contain recent jobs. May return None if no snapshot is available
+        May not contain recent jobs. May return None if no snapshot is available
 
-        Return a tuple of two lists (None, None):
-        jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_time)
-            where
+        :return: a tuple of two lists (None, None):
+
+        - ``jobs_running`` : a list of tuples in the form
+          (job_id, is_current_client_job, info, launcher, started_at, max_time)
+          where
+
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
             - agent_name is the agent name
@@ -659,23 +661,26 @@ class WebAppSubmissionManager:
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
             - max_time the maximum time that can be used, or -1 if no timeout is set
-        jobs_waiting: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, max_time)
-            where
+
+        - ``jobs_waiting`` : a list of tuples in the form
+          (job_id, is_current_client_job, info, launcher, max_time)
+          where
+
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
             - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - max_time the maximum time that can be used, or -1 if no timeout is set
+
         """
         return self._client.get_job_queue_snapshot()
 
     def get_job_queue_info(self, jobid):
-        """
-        :param jobid: the JOB id (not the submission id!). You should retrieve it before calling this function by calling get_submission(...)[
-        "job_id"].
-        :return: If the submission is in the queue, then returns a tuple (nb tasks before running (or -1 if running), approx wait time in seconds)
-                 Else, returns None
+        """Get job queue info
+        :param jobid: the JOB id (not the submission id!). You should retrieve it before calling this function by
+        calling ``get_submission(...)["job_id"]``.
+        :return: If the submission is in the queue, then returns a tuple (nb tasks before running (or ``-1`` if running), approx wait time in seconds)
+        Else, returns None
         """
         return self._client.get_job_queue_info(jobid)
 

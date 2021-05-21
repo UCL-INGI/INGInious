@@ -42,7 +42,7 @@ class CourseFactory(object):
     def get_course(self, courseid):
         """
         :param courseid: the course id of the course
-        :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
+        :raise: InvalidNameException, CourseNotFoundException, CourseUnreadableException
         :return: an object representing the course, of the type given in the constructor
         """
         if not id_checker(courseid):
@@ -71,7 +71,7 @@ class CourseFactory(object):
     def get_course_descriptor_content(self, courseid):
         """
         :param courseid: the course id of the course
-        :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
+        :raise: InvalidNameException, CourseNotFoundException, CourseUnreadableException
         :return: the content of the dict that describes the course
         """
         path = self._get_course_descriptor_path(courseid)
@@ -107,7 +107,7 @@ class CourseFactory(object):
 
     def get_course_fs(self, courseid):
         """
-        :param courseid: 
+        :param courseid: the course id of the course
         :return: a FileSystemProvider pointing to the directory of the course 
         """
         if not id_checker(courseid):
@@ -144,10 +144,10 @@ class CourseFactory(object):
 
     def create_course(self, courseid, init_content):
         """
+        Create a new course folder and set initial descriptor content, folder can already exist
         :param courseid: the course id of the course
         :param init_content: initial descriptor content
-        :raise InvalidNameException or CourseAlreadyExistsException
-        Create a new course folder and set initial descriptor content, folder can already exist
+        :raise: InvalidNameException or CourseAlreadyExistsException
         """
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)
@@ -164,9 +164,9 @@ class CourseFactory(object):
 
     def delete_course(self, courseid):
         """
-        :param courseid: the course id of the course
-        :raise InvalidNameException or CourseNotFoundException
         Erase the content of the course folder
+        :param courseid: the course id of the course
+        :raise: InvalidNameException or CourseNotFoundException
         """
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)

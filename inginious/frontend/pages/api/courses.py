@@ -10,7 +10,11 @@ from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotF
 
 class APICourses(APIAuthenticatedPage):
     r"""
-        Endpoint /api/v0/courses(/[a-zA-Z_\-\.0-9]+)?
+        Endpoint
+          ::
+
+            /api/v0/courses(/[a-zA-Z_\-\.0-9]+)?
+
     """
 
     def API_GET(self, courseid):  # pylint: disable=arguments-differ

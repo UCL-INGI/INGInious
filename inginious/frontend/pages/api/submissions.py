@@ -75,7 +75,11 @@ def _get_submissions(course_factory, submission_manager, user_manager, translati
 
 class APISubmissionSingle(APIAuthenticatedPage):
     r"""
-        Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions/[a-zA-Z_\-\.0-9]+
+        Endpoint
+          ::
+
+            /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions/[a-zA-Z_\-\.0-9]+
+
     """
 
     def API_GET(self, courseid, taskid, submissionid):  # pylint: disable=arguments-differ
@@ -112,7 +116,11 @@ class APISubmissionSingle(APIAuthenticatedPage):
 
 class APISubmissions(APIAuthenticatedPage):
     r"""
-        Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions
+        Endpoint
+          ::
+
+            /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions
+
     """
 
     def API_GET(self, courseid, taskid):  # pylint: disable=arguments-differ

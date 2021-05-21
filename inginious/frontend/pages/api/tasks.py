@@ -11,7 +11,11 @@ from inginious.frontend.parsable_text import ParsableText
 
 class APITasks(APIAuthenticatedPage):
     r"""
-        Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks(/[a-zA-Z_\-\.0-9]+)?
+        Endpoint
+          ::
+
+            /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks(/[a-zA-Z_\-\.0-9]+)?
+
     """
 
     def _check_for_parsable_text(self, val):

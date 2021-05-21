@@ -96,8 +96,8 @@ def set_state(state):
 def set_tag(tag, value):
     """ 
     Set the tag 'tag' to the value True or False. 
-    :param value: should be a boolean 
-    :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
+    :param value: should be a boolean
+    :param tag: should be the id of the tag. Can not starts with ``*auto-tag-``
     """ 
     if not tag.startswith("*auto-tag-"):
         rdict = _load_feedback()

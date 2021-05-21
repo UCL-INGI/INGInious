@@ -36,7 +36,7 @@ class TaskFactory(object):
         """
         :param course: a Course object
         :param taskid: the task id of the task
-        :raise InvalidNameException, TaskNotFoundException, TaskUnreadableException
+        :raise: InvalidNameException, TaskNotFoundException, TaskUnreadableException
         :return: an object representing the task, of the type given in the constructor
         """
         if not id_checker(taskid):
@@ -50,7 +50,7 @@ class TaskFactory(object):
         """
         :param courseid: the course id of the course
         :param taskid: the task id of the task
-        :raise InvalidNameException, TaskNotFoundException, TaskUnreadableException
+        :raise: InvalidNameException, TaskNotFoundException, TaskUnreadableException
         :return: the content of the task descriptor, as a dict
         """
         if not id_checker(courseid):
@@ -67,11 +67,11 @@ class TaskFactory(object):
 
     def get_task_descriptor_extension(self, courseid, taskid):
         """
-            :param courseid: the course id of the course
-            :param taskid: the task id of the task
-            :raise InvalidNameException, TaskNotFoundException
-            :return: the current extension of the task descriptor
-            """
+        :param courseid: the course id of the course
+        :param taskid: the task id of the task
+        :raise: InvalidNameException, TaskNotFoundException
+        :return: the current extension of the task descriptor
+        """
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)
         if not id_checker(taskid):
@@ -83,7 +83,7 @@ class TaskFactory(object):
         """
         :param courseid: the course id of the course
         :param taskid: the task id of the task
-        :raise InvalidNameException
+        :raise: InvalidNameException
         :return: A FileSystemProvider to the folder containing the task files
         """
         if not id_checker(courseid):
@@ -261,12 +261,11 @@ class TaskFactory(object):
             del self._cache[(courseid, tid)]
 
     def create_task(self, course, taskid, init_content):
-        """
+        """ Create a new course folder and set initial descriptor content, folder can already exist
         :param course: a Course object
         :param taskid: the task id of the task
         :param init_content: initial descriptor content
-        :raise InvalidNameException or TaskAlreadyExistsException
-        Create a new course folder and set initial descriptor content, folder can already exist
+        :raise: InvalidNameException or TaskAlreadyExistsException
         """
         if not id_checker(taskid):
             raise InvalidNameException("Task with invalid name: " + taskid)
@@ -282,11 +281,10 @@ class TaskFactory(object):
         get_course_logger(course.get_id()).info("Task %s created in the factory.", taskid)
 
     def delete_task(self, courseid, taskid):
-        """
+        """ Erase the content of the task folder
         :param courseid: the course id of the course
         :param taskid: the task id of the task
-        :raise InvalidNameException or CourseNotFoundException
-        Erase the content of the task folder
+        :raise: InvalidNameException or CourseNotFoundException
         """
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)

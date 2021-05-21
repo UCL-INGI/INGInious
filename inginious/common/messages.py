@@ -108,10 +108,12 @@ class BackendJobSSHDebug:
 @dataclass(frozen=True)
 class BackendGetQueue:
     """
-    Send the status of the job queue to the client
-    :attr jobs_running: a list of tuples in the form
-        (job_id, is_current_client_job, info, launcher, started_at, max_tuime)
-        where
+    Send the status of the job queue to the client. Attributes:
+
+    - ``jobs_running`` : a list of tuples in the form
+      (job_id, is_current_client_job, info, launcher, started_at, max_tuime)
+      where:
+
         - job_id is a job id. It may be from another client.
         - is_current_client_job is a boolean indicating if the client that asked the request has started the job
         - agent_name is the agent name
@@ -119,14 +121,17 @@ class BackendGetQueue:
         - launcher is the name of the launcher, which may be anything
         - started_at the time (in seconds since UNIX epoch) at which the job started
         - max_time the maximum time that can be used, or -1 if no timeout is set
-    :attr jobs_waiting: a list of tuples in the form
-        (job_id, is_current_client_job, info, launcher, max_time)
-        where
+
+    - ``jobs_waiting`` : a list of tuples in the form
+      (job_id, is_current_client_job, info, launcher, max_time)
+      where:
+
         - job_id is a job id. It may be from another client.
         - is_current_client_job is a boolean indicating if the client that asked the request has started the job
         - info is "courseid/taskid"
         - launcher is the name of the launcher, which may be anything
         - max_time the maximum time that can be used, or -1 if no timeout is set
+
     """
     jobs_running: List[Tuple[ClientJobId, bool, str, str, str, int, int]]
     jobs_waiting: List[Tuple[ClientJobId, bool, str, str, int]]

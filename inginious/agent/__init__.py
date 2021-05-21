@@ -81,15 +81,18 @@ class Agent(object, metaclass=ABCMeta):
     def environments(self):
         """
         :return: a dict of available environments (containers most of the time) in the form
-            {
-                "type": {
-                    "name": {                 #  for example, "default"
-                        "id": "env img id",   # "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                        "created": 12345678,  # create date
-                        "ports": [22, 434],   # list of ports needed
+
+            ::
+
+                {
+                    "type": {
+                        "name": {                 #  for example, "default"
+                            "id": "env img id",   # "sha256:715...dd3"
+                            "created": 12345678,  # create date
+                            "ports": [22, 434],   # list of ports needed
+                        }
                     }
                 }
-            }
 
             If the environments are not environments, fills `created` with a fixed date (that will be shared by all agents of the same version),
             that could be 0. `id` can be anything, but should also be the same for the same versions of environments.
@@ -189,6 +192,7 @@ class Agent(object, metaclass=ABCMeta):
     async def send_ssh_job_info(self, job_id: BackendJobId, host: str, port: int, username: str, key: str):
         """
         Send info about the SSH debug connection to the backend/client. Must be called *at most once* for each job.
+
         :exception JobNotRunningException: is raised when the job is not running anymore (send_job_result already called)
         :exception TooManyCallsException: is raised when this function has been called more than once
         """
@@ -204,6 +208,7 @@ class Agent(object, metaclass=ABCMeta):
                               stdout: Optional[str] = None, stderr: Optional[str] = None):
         """
         Send the result of a job back to the backend. Must be called *once and only once* for each job
+
         :exception JobNotRunningException: is raised when send_job_result is called more than once for a given job_id
         """
         if job_id not in self.__running_job:
@@ -230,6 +235,7 @@ class Agent(object, metaclass=ABCMeta):
         Starts a new job. Most of the time, this function should not call send_job_result directly (as job are intended to be asynchronous). When
         there is a problem starting the job, raise CannotCreateJobException.
         If the job ends immediately, you are free to call send_job_result.
+
         :param message: message containing all the data needed to start the job
         :return: nothing. If any problems occurs, this method should raise a CannotCreateJobException,
                  which will result in the cancellation of the job.

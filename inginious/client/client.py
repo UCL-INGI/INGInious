@@ -86,27 +86,32 @@ class AbstractClient(object, metaclass=ABCMeta):
     @abstractmethod
     def get_job_queue_snapshot(self):
         """ Get a snapshot of the remote backend job queue. May be a cached version.
-            May not contain recent jobs. May return None if no snapshot is available
+        May not contain recent jobs. May return None if no snapshot is available.
 
-        Return a tuple of two lists (or None, None):
-        jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, started_at, max_time)
-            where
-            - job_id is a job id. It may be from another client.
-            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - agent_name is the agent name
-            - info is "courseid/taskid"
-            - launcher is the name of the launcher, which may be anything
-            - started_at the time (in seconds since UNIX epoch) at which the job started
-            - max_time the maximum time that can be used, or -1 if no timeout is set
-        jobs_waiting: a list of tuples in the form
-            (job_id, is_current_client_job, info, launcher, max_time)
-            where
-            - job_id is a job id. It may be from another client.
-            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - info is "courseid/taskid"
-            - launcher is the name of the launcher, which may be anything
-            - max_time the maximum time that can be used, or -1 if no timeout is set
+        :return: a tuple of two lists (or None, None):
+
+            - ``jobs_running`` : a list of tuples in the form
+              (job_id, is_current_client_job, info, launcher, started_at, max_time)
+              where
+
+                - job_id is a job id. It may be from another client.
+                - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+                - agent_name is the agent name
+                - info is "courseid/taskid"
+                - launcher is the name of the launcher, which may be anything
+                - started_at the time (in seconds since UNIX epoch) at which the job started
+                - max_time the maximum time that can be used, or -1 if no timeout is set
+
+            - ``jobs_waiting`` : a list of tuples in the form
+              (job_id, is_current_client_job, info, launcher, max_time)
+              where
+
+                    - job_id is a job id. It may be from another client.
+                    - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+                    - info is "courseid/taskid"
+                    - launcher is the name of the launcher, which may be anything
+                    - max_time the maximum time that can be used, or -1 if no timeout is set
+
         """
         pass
 
@@ -271,20 +276,20 @@ class Client(BetterParanoidPirateClient):
         :param inputdata: input from the student
         :type inputdata: Storage or dict
         :param callback: a function that will be called asynchronously in the client's process, with the results.
-            it's signature must be (result, grade, problems, tests, custom, archive), where:
-            result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded');
-            grade is a number between 0 and 100 indicating the grade of the users;
-            problems is a dict of tuple, in the form {'problemid': result};
-            test is a dict of tests made in the environment
-            custom is a dict containing random things set in the environment
-            archive is either None or a bytes containing a tgz archive of files from the job
+        Is signature must be (result, grade, problems, tests, custom, archive), where:
+        result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded');
+        grade is a number between 0 and 100 indicating the grade of the users;
+        problems is a dict of tuple, in the form {'problemid': result};
+        test is a dict of tests made in the environment
+        custom is a dict containing random things set in the environment
+        archive is either None or a bytes containing a tgz archive of files from the job
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
         :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
         :param ssh_callback: a callback function that will be called with (host, port, user, password), the needed credentials to connect to the
-                             remote ssh server. May be called with host, port, password being None, meaning no session was open.
+        remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
         :return: the new job id, or None if an error happened
         """

@@ -38,14 +38,15 @@ class MCQAgent(Agent):
         return {"mcq": {"mcq": {"id": "mcq", "created": 0}}}
 
     def check_answer(self, problems, task_input, language):
-        """
-            Verify the answers in task_input. Returns six values
-            1st: True the input is **currently** valid. (may become invalid after running the code), False else
-            2nd: True if the input needs to be run in the VM, False else
-            3rd: Main message, as a list (that can be join with \n or <br/> for example)
-            4th: Problem specific message, as a dictionnary (tuple of result/text)
-            5th: Number of subproblems that (already) contain errors. <= Number of subproblems
-            6th: Number of errors in MCQ problems. Not linked to the number of subproblems
+        """ Verify the answers in task_input. Returns six values:
+
+        1. True the input is **currently** valid. (may become invalid after running the code), False else
+        2. True if the input needs to be run in the VM, False else
+        3. Main message, as a list (that can be join with ``\\n`` or ``<br/>`` for example)
+        4. Problem specific message, as a dictionnary (tuple of result/text)
+        5. Number of subproblems that (already) contain errors. <= Number of subproblems
+        6. Number of errors in MCQ problems. Not linked to the number of subproblems
+
         """
         valid = True
         need_launch = False

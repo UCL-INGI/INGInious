@@ -57,7 +57,7 @@ async def _restart_on_cancel(logger, agent):
 
 def create_arch(configuration, tasks_fs, context, course_factory):
     """ Helper that can start a simple complete INGInious arch locally if needed, or a client to a remote backend.
-        Intended to be used on command line, makes uses of exit() and the logger inginious.frontend.
+    Intended to be used on command line, makes uses of exit() and the logger inginious.frontend.
     :param configuration: configuration dict
     :param tasks_fs: FileSystemProvider to the courses/tasks folders
     :param context: a ZMQ context
