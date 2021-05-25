@@ -56,7 +56,7 @@ class TemplateHelper(object):
 
     def render(self, path, template_folder="", **tpl_kwargs):
         """
-        Parse the Jinja template named "path" and render it with args *tpl_args and **tpl_kwargs
+        Parse the Jinja template named "path" and render it with args ``*tpl_args`` and ``**tpl_kwargs``
         :param path: Path of the template, relative to the base folder
         :param template_folder: add the specified folder to the templates PATH.
         :param tpl_kwargs: named args sent to the template

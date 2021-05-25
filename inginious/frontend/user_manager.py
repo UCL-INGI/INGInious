@@ -139,20 +139,23 @@ class UserManager:
         return self._session["token"]
 
     def session_lti_info(self):
-        """ If the current session is an LTI one, returns a dict in the form 
-            {
-                "email": email,
-                "username": username
-                "realname": realname,
-                "roles": roles,
-                "task": (course_id, task_id),
-                "outcome_service_url": outcome_service_url,
-                "outcome_result_id": outcome_result_id,
-                "consumer_key": consumer_key
-            }
+        """ If the current session is an LTI one, returns a dict in the form
+            ::
+
+                {
+                    "email": email,
+                    "username": username
+                    "realname": realname,
+                    "roles": roles,
+                    "task": (course_id, task_id),
+                    "outcome_service_url": outcome_service_url,
+                    "outcome_result_id": outcome_result_id,
+                    "consumer_key": consumer_key
+                }
+
             where all these data where provided by the LTI consumer, and MAY NOT be equivalent to the data
             contained in database for the currently connected user.
-            
+
             If the current session is not an LTI one, returns None.
         """
         if "lti" in self._session:
@@ -299,8 +302,8 @@ class UserManager:
                                                               user["language"], user.get("tos_accepted", False)) else None
 
     def connect_user(self, username, realname, email, language, tos_accepted):
-        """
-        Opens a session for the user
+        """ Opens a session for the user
+
         :param username: Username
         :param realname: User real name
         :param email: User email
@@ -610,7 +613,9 @@ class UserManager:
 
     def task_is_visible_by_user(self, task, username=None, lti=None):
         """ Returns true if the task is visible and can be accessed by the user
+
         :param lti: indicates if the user is currently in a LTI session or not.
+
             - None to ignore the check
             - True to indicate the user is in a LTI session
             - False to indicate the user is not in a LTI session
@@ -723,8 +728,8 @@ class UserManager:
         return self._database.groups.find_one({"courseid": course.get_id(), "students": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
-        """
-        Register a user to the course
+        """ Register a user to the course
+
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
         :param password: Password for the course. Needed if course.is_password_needed_for_registration() and force != True
@@ -785,22 +790,26 @@ class UserManager:
         self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
     def course_is_open_to_user(self, course, username=None, lti=None, return_reason=False):
-        """
-        Checks if a user is can access a course
+        """ Checks if a user is can access a course
+
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
         :param lti: indicates if the user is currently in a LTI session or not.
+
             - None to ignore the check
             - True to indicate the user is in a LTI session
             - False to indicate the user is not in a LTI session
             - "auto" to enable the check and take the information from the current session
-        :param return_reason: instead of False, returns a string indicating for which reason the course is not open
-        to the user. Reasons may be:
+
+        :param return_reason: instead of False, returns a string indicating for which reason the course is not
+            open to the user. Reasons may be :
+
             - "closed" if the course is not open
             - "unregistered_not_previewable" user is not registered and course is not previewable
             - "lti_only" the current session is not a LTI session and this course requires at LTI session
             - "lti_not_registered" this LTI course can be accessed outside an LTI session only if the user register
               first via the LTI interface
+
         :return: True if the user can access the course, False (or the reason if return_reason is True) otherwise
         """
         if username is None:
@@ -832,8 +841,8 @@ class UserManager:
         return True
 
     def course_is_user_registered(self, course, username=None):
-        """
-        Checks if a user is registered
+        """ Checks if a user is registered
+
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
         :return: True if the user is registered, False else

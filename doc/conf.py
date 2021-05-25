@@ -22,19 +22,7 @@ sys.path.insert(1, os.path.abspath('../base-containers/base/'))
 import inginious
 import sphinx_rtd_theme
 
-import sys
-from mock import Mock as MagicMock
-
-
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
-
-MOCK_MODULES = ['cgutils', 'simpleldap', 'tidylib']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
-
+autodoc_mock_imports = ['cgutils', 'ldap3', 'tidylib', 'onelogin']
 
 # -- General configuration ------------------------------------------------
 
@@ -65,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'INGInious'
-copyright = '2014-2019, the INGInious authors'
+copyright = '2014-2021, Université catholique de Louvain'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
