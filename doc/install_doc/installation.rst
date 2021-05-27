@@ -4,16 +4,20 @@ Installation and deployment
 Supported platforms
 -------------------
 
-INGInious is intended to run on Linux (kernel 3.10+), but can also be run on Windows and macOS thanks to
-the Docker toolbox.
+INGInious is intended to run on Linux (kernel 3.10+), but can also be run on macOS thanks to the Docker toolbox.
+
+.. NOTE::
+
+    While Docker is supported on Windows 10, INGInious does not provide support for Windows yet. If you are willing to
+    contribute this, feel free to contact us on Github.
 
 Dependencies setup
 ------------------
 
 INGInious needs:
 
-- Python_ (with pip) **3.5+**
-- Docker_ **1.12+**
+- Python_ 3
+- Docker_
 - MongoDB_
 - Libtidy
 - LibZMQ
@@ -22,27 +26,48 @@ INGInious needs:
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
-RHEL/Cent OS 7.0+, Fedora 24+
+RHEL/Cent OS 7+, Fedora 32+
 `````````````````````````````
-
-The previously mentioned dependencies can be installed, for Cent OS 7.0+ :
-::
-
-    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-    # yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm
-    # yum install -y git mongodb mongodb-server gcc libtidy python3 python3-devel python3-pip zeromq-devel 
-
-Or, for Fedora 24+:
-::
-
-    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-    # dnf install -y git mongodb mongodb-server gcc libtidy python3 python3-pip python3-devel zeromq-devel
-
-You may also add ``openldap-devel`` if you want to use the LDAP auth plugin and
-``xmlsec1-openssl-devel libtool-ltdl-devel`` for the SAML2 auth plugin.
 
 .. DANGER::
     Due to compatibility issues, it is recommended to disable SELinux on the target machine.
+
+The previously mentioned dependencies can be installed, for Cent OS 7+ :
+
+.. code-block:: bash
+
+    # yum install -y epel-release
+    # yum install -y git gcc libtidy python3 python3-devel python3-pip zeromq-devel yum-utils
+    # yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    # yum install -y docker-ce docker-ce-cli
+    # cat <<EOF > /etc/yum.repos.d/mongodb-org-4.4.repo
+    [mongodb-org-4.4]
+    name=MongoDB Repository
+    baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.4/x86_64/
+    gpgcheck=1
+    enabled=1
+    gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+    EOF
+    # yum install -y mongodb-org mongodb-org-server
+
+Or, for Fedora 32+:
+
+.. code-block:: bash
+
+    # yum install -y git gcc libtidy python3 python3-devel python3-pip zeromq-devel dnf-plugins-core
+    # dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    # dnf install -y docker-ce docker-ce-cli
+    # cat <<EOF > /etc/yum.repos.d/mongodb-org-4.4.repo
+    [mongodb-org-4.4]
+    name=MongoDB Repository
+    baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
+    gpgcheck=1
+    enabled=1
+    gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+    EOF
+    # yum install -y mongodb-org mongodb-org-server
+
+You may also add ``xmlsec1-openssl-devel libtool-ltdl-devel`` for the SAML2 auth plugin.
 
 You can now start and enable the ``mongod`` and ``docker`` services:
 ::
@@ -52,17 +77,21 @@ You can now start and enable the ``mongod`` and ``docker`` services:
     # systemctl start docker
     # systemctl enable docker
     
-Ubuntu 16.04+
+Ubuntu 18.04+
 `````````````
 
-The previously mentioned dependencies can be installed, for Ubuntu 16.04+:
-::
+The previously mentioned dependencies can be installed, for Ubuntu 18.04+:
 
-    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-    # apt-get install git mongodb gcc tidy python3 python3-pip python3-dev libzmq3-dev
+.. code-block:: bash
 
-You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin and
-``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin
+    # apt-get update
+    # apt-get install git gcc tidy python3 python3-pip python3-dev libzmq3-dev mongodb apt-transport-https curl gnupg lsb-release
+    # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    # echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    # apt-get update
+    # apt-get install docker-ce docker-ce-cli
+
+You may also add ``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin
 
 You can now start and enable the ``mongod`` and ``docker`` services:
 ::
@@ -72,8 +101,13 @@ You can now start and enable the ``mongod`` and ``docker`` services:
     # systemctl start docker
     # systemctl enable docker
 
-OS X 10.9+
-``````````
+macOS
+`````
+
+.. WARNING::
+
+    While Docker supports both x86 and ARM containers on Apple silicon, compatibility hasn't been tested yet.
+    Feel free to contribute.
 
 We use brew_ to install some packages. Packages are certainly available too via macPorts.
 
@@ -86,19 +120,7 @@ We use brew_ to install some packages. Packages are certainly available too via 
 
 Follow the instruction of brew to enable mongodb.
 
-The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/>`_.
-
-Windows
-```````
-
-.. DANGER::
-    INGInious rely on Docker to run containers. While Docker is supported on Windows 10 (version 1607), INGInious does not
-    provide support for Windows containers yet.
-
-The recommended way to run INGInious under Windows is by using a Linux virtual machine, for much more simplicity. One can
-also only run the Docker agent under a Linux virtual machine and run the backend and selected frontend under Windows.
-
-In the later case, you'll need to install Python 3.5+, MongoDB, LibTidy and LibZMQ.
+The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/install/>`_.
 
 .. _Installpip:
 
