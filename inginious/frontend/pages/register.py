@@ -46,12 +46,12 @@ class RegistrationPage(INGIniousPage):
         error = False
         reset = None
         msg = ""
-        user = self.database.users.find_one({"reset": data.get("reset_hash", "")})
+        user = self.database.users.find_one({"reset": data.get("reset", "")})
         if user is None:
             error = True
             msg = "Invalid reset hash."
         else:
-            reset = {"hash": data["reset_hash"], "username": user["username"], "realname": user["realname"]}
+            reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
 
         return msg, error, reset
 
@@ -194,7 +194,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
 
         if not error:
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
-            user = self.database.users.find_one_and_update({"reset": data["reset_hash"]},
+            user = self.database.users.find_one_and_update({"reset": data["reset"]},
                                                            {"$set": {"password": passwd_hash},
                                                             "$unset": {"reset": True, "activate": True}})
             if user is None:
