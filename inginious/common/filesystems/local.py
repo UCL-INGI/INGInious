@@ -149,20 +149,18 @@ class LocalFSProvider(FileSystemProvider):
         self._checkpath(filepath)
         path = os.path.abspath(os.path.join(self.prefix, filepath))
         if not os.path.exists(path):
-            return ("invalid", None, None)
+            return "invalid", None, None
         if os.path.isdir(path):
             if not allow_folders:
-                return ("invalid", None, None)
+                return "invalid", None, None
             zipf = zipstream.ZipFile()
             for root, _, files in os.walk(path):
                 for filename in files:
                     file_path = os.path.join(root, filename)
                     arcpath = os.path.relpath(file_path, path)
                     zipf.write(file_path, arcpath)
-            return ("local", "application/zip", zipf.__iter__()) #the __iter__ is only present to fix a bug in web.py for py3; it only recognizes
-                                                                 #iterable that possess a __next__. ZipFile.__iter__ returns an iterable in the web.py
-                                                                 #sense
+            return "local", "application/zip", zipf
         elif os.path.isfile(path):
             mimetypes.init()
             mime_type = mimetypes.guess_type(path)
-            return ("local", mime_type[0], open(path, 'rb'))
+            return "local", mime_type[0] or "application/octet-stream", open(path, 'rb')
