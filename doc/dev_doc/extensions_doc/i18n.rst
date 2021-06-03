@@ -1,5 +1,5 @@
-Updating i18n
-=============
+Localization
+============
 
 Extracting new messages
 -----------------------

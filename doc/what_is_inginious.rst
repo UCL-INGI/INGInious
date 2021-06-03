@@ -61,7 +61,7 @@ This frontend also provides statistics and management tools for the teachers.
 
 Most of these functionalities can be extended through plugins.
 
-For a more advanced view of the architecture of INGInious, see :doc:`dev_doc/understand_inginious`.
+For a more advanced view of the architecture of INGInious, see :doc:`dev_doc/internals_doc/understand_inginious`.
 
 .. _container:
 .. _containers:

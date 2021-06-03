@@ -11,3 +11,6 @@ Contents:
    teacher_doc/create_container
    teacher_doc/lti
    teacher_doc/rst
+
+Marketplace
+-----------

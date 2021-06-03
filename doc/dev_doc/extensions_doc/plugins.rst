@@ -1,5 +1,5 @@
-Creating plugins
-================
+Plugins
+=======
 
 INGInious provides a simple plugin system that allow to register some hooks to extend existing features, create new
 frontend pages and features, and add new authentication methods.

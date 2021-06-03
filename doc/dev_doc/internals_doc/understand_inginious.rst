@@ -23,7 +23,7 @@ Basic architecture of INGInious
 -------------------------------
 The following schema shows the basic architecture of INGInious:
 
-.. image:: /dev_doc/inginious_arch.png
+.. image:: /dev_doc/internals_doc/inginious_arch.png
     :align: center
 
 Scalability of Docker hosts
@@ -31,7 +31,7 @@ Scalability of Docker hosts
 In order to share the work between multiple servers, INGInious can use multiple agents, as shown in the following schema.
 The completely horizontal scalability is (nearly) without additional configuration, and can be made fully automatic with a bit of work.
 
-.. image:: /dev_doc/inginious_arch_docker.png
+.. image:: /dev_doc/internals_doc/inginious_arch_docker.png
     :align: center
 
 Scalability of the INGInious frontend
@@ -41,7 +41,7 @@ we can use the replication feature of MongoDB to scale horizontally the frontend
 The (final) schema below shows the most advanced way of configuring INGInious,
 with multiple frontends replicated and multiple Docker hosts.
 
-.. image:: /dev_doc/inginious_arch_full.png
+.. image:: /dev_doc/internals_doc/inginious_arch_full.png
     :align: center
 
 Grading containers and student containers
