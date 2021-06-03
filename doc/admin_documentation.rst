@@ -7,12 +7,12 @@ Installation, configuration and upgrade
 .. toctree::
     :maxdepth: 2
 
-    install_doc/installation
-    install_doc/updating
-    install_doc/config_reference
-    install_doc/static_pages
-    install_doc/troubleshooting
-    install_doc/other_oci_runtimes_support
+    admin_doc/install_doc/installation
+    admin_doc/install_doc/updating
+    admin_doc/install_doc/config_reference
+    admin_doc/install_doc/static_pages
+    admin_doc/install_doc/troubleshooting
+    admin_doc/install_doc/other_oci_runtimes_support
 
 Commands reference
 ------------------
@@ -23,9 +23,9 @@ Frontend commands
 .. toctree::
     :maxdepth: 2
 
-    commands_doc/inginious-install
-    commands_doc/inginious-webapp
-    commands_doc/inginious-webdav
+    admin_doc/commands_doc/inginious-install
+    admin_doc/commands_doc/inginious-webapp
+    admin_doc/commands_doc/inginious-webdav
 
 Backend commands
 ````````````````
@@ -33,9 +33,9 @@ Backend commands
 .. toctree::
     :maxdepth: 2
 
-    commands_doc/inginious-agent-docker
-    commands_doc/inginious-agent-mcq
-    commands_doc/inginious-backend
+    admin_doc/commands_doc/inginious-agent-docker
+    admin_doc/commands_doc/inginious-agent-mcq
+    admin_doc/commands_doc/inginious-backend
 
 Utilities
 `````````
@@ -43,7 +43,7 @@ Utilities
 .. toctree::
     :maxdepth: 2
 
-    commands_doc/inginious-autotest
-    commands_doc/inginious-synchronize
-    commands_doc/inginious-container-update
-    commands_doc/inginious-database-update
+    admin_doc/commands_doc/inginious-autotest
+    admin_doc/commands_doc/inginious-synchronize
+    admin_doc/commands_doc/inginious-container-update
+    admin_doc/commands_doc/inginious-database-update

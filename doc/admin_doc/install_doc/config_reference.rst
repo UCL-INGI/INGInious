@@ -9,7 +9,7 @@ Configuration reference
 Configuring INGInious is done via a file named ``configuration.yaml``.
 To get started, a file named ``configuration.example.yaml`` is provided.
 
-.. literalinclude:: ../../configuration.example.yaml
+.. literalinclude:: ../../../configuration.example.yaml
     :language: yaml
     :linenos:
 
