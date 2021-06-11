@@ -6,9 +6,10 @@
 import argparse
 import sys
 
-from inginious_container_api import run_student
+from inginious_container_api import ssh_student
 
-parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Runs a command in a secure environment.\n\
+parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Gives to the student a ssh access to a safe environment.\n\
+If a command was specified, runs it in the student container before starting the ssh server. \n\
 This command will proxy stdin, stdout, stderr, most signals and the return value. \n\n\
 There are special return values: \n\
 * 252 means that the command was killed due to an out-of-memory \n\
@@ -22,11 +23,12 @@ parser.add_argument('--memory', help="Maximum memory for the container, in Mo. T
 parser.add_argument('--share-network', help="Share the network stack of the grading container with the student container. This is not the case by "
                                             "default. If the container container has network access, this will also be the case for the student!",
                     action='store_true', dest='share_network')
-parser.add_argument('cmd', help="Command to be run on the remote container", nargs=argparse.REMAINDER)
+parser.add_argument('--run-as-root', help="Tries to give root access to the student if possible.", action='store_true')
+parser.add_argument('cmd', help="Command to be run on the remote container before opening ssh connection", default=None, nargs=argparse.REMAINDER)
+
 args = parser.parse_args()
 
-exit(run_student.run_student(cmd=' '.join(args.cmd), container=args.container, time_limit=args.time,
+exit(ssh_student.ssh_student(cmd=' '.join(args.cmd), container=args.container, time_limit=args.time,
                              hard_time_limit=args.hard_time, memory_limit=args.memory,
                              share_network=args.share_network,
-                             stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                             signal_handler_callback=run_student._hack_signals))
+                             run_as_root=args.run_as_root))

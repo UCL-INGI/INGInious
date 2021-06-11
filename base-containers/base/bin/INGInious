@@ -10,19 +10,14 @@ import sys
 import shutil
 import os
 import os.path
-import stat
-import resource
-import subprocess
 
 import inginious_container_api.feedback
 from inginious_container_api.run_types import run_types
-import time
-import tempfile
+from inginious_container_api.utils import start_ssh_server, ssh_wait, execute_process
 import tarfile
 import base64
 import msgpack
 import asyncio
-
 import struct
 import zmq
 import zmq.asyncio
@@ -63,42 +58,6 @@ class INGIniousMainRunner:
             for f in files:
                 os.chmod(os.path.join(root, f), 0o777)
                 os.chown(os.path.join(root, f), 4242, 4242)
-
-    def set_limits(self):
-        if not self.run_as_root:
-            self._logger.info("Running as worker/4242")
-            os.setgid(4242)
-            os.setuid(4242)
-        else:
-            self._logger.info("Running as root")
-        os.environ["HOME"] = "/task"
-        resource.setrlimit(resource.RLIMIT_NPROC, (1000, 1000))
-
-    def set_executable(self, filename):
-        st = os.stat(filename)
-        os.chmod(filename, st.st_mode | stat.S_IEXEC)
-
-    def execute_process(self, args, stdin_string="", internal_command=False):
-        if not isinstance(args, list):
-            args = [args]
-
-        self._logger.debug("Running %s", str(args))
-
-        stdin = tempfile.TemporaryFile()
-        stdin.write(stdin_string.encode('utf-8'))
-        stdin.seek(0)
-
-        stdout = tempfile.TemporaryFile()
-        stderr = tempfile.TemporaryFile()
-        if internal_command:
-            p = subprocess.Popen(args, stdin=stdin, stdout=stdout, stderr=stderr)
-        else:
-            self.set_executable(args[0])
-            p = subprocess.Popen(args, preexec_fn=self.set_limits, stdin=stdin, stdout=stdout, stderr=stderr)
-        p.wait()
-        stdout.seek(0)
-        stderr.seek(0)
-        return stdout.read(), stderr.read()
 
     def b64tararchive(self):
         with tarfile.open('/tmp/archive.tgz', "w:gz") as tar:
@@ -204,7 +163,7 @@ class INGIniousMainRunner:
                 if message["socket_id"] in self.running_student_container:
                     addr = self.running_student_container[message["socket_id"]]
                     await self.intern.send_multipart(
-                        [addr, b'', msgpack.dumps({"type": "run_student_started"}, use_bin_type=True)])
+                        [addr, b'', msgpack.dumps({"type": "run_student_started", "container_id": message["container_id"]}, use_bin_type=True)])
             if message["type"] == "run_student_retval":
                 if message["socket_id"] in self.running_student_container:
                     addr = self.running_student_container[message["socket_id"]]
@@ -218,9 +177,14 @@ class INGIniousMainRunner:
     async def handle_intern_message(self, addr, message):
         self._logger.info("received intern message %s", message)
         try:
-            if message["type"] == "ssh_key":
+            if message["type"] == "ssh_debug":
                 # copy the dict manually to ensure the corectness of the message
-                await self.write_stdout({"type": "ssh_key", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"]})
+                await self.write_stdout({"type": "ssh_debug", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"]})
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
+                return False
+            if message["type"] == "ssh_student":
+                # copy the dict manually to ensure the corectness of the message
+                await self.write_stdout({"type": "ssh_student", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"], "container_id": message["container_id"]})
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return False
             if message["type"] == "run_student" and self.shared_kernel:  # disable run_student on non-shared kernels (TODO fix me)
@@ -231,7 +195,8 @@ class INGIniousMainRunner:
                                          "hard_time_limit": message["hard_time_limit"],
                                          "memory_limit": message["memory_limit"],
                                          "share_network": message["share_network"],
-                                         "socket_id": message["socket_id"]})
+                                         "socket_id": message["socket_id"],
+                                         "ssh": message["ssh"]})
                 return False
             if message["type"] == "run_student_ask_retval":
                 # ignore, just a dummy message
@@ -378,7 +343,8 @@ class INGIniousMainRunner:
             if run_final_cmd is not None:
                 os.chdir("/task")
                 try:
-                    stdout, stderr = self.execute_process(run_final_cmd)
+                    user = "root" if self.run_as_root else "worker"
+                    stdout, stderr = execute_process(run_final_cmd, user=user)
                 except:
                     inginious_container_api.feedback.set_global_result('crash')
                     inginious_container_api.feedback.set_global_feedback(
@@ -386,59 +352,19 @@ class INGIniousMainRunner:
             else:
                 inginious_container_api.feedback.set_global_result('crash')
                 inginious_container_api.feedback.set_global_feedback("'/task/run' could not be found")
-        else:  # start the ssh server
-            # generate a password for the ssh user
-            password, _ = self.execute_process(["/usr/bin/openssl", "rand", "-base64", "10"], internal_command=True)
-            password = password.decode('utf8').strip()
-
-            ssh_user = "root" if self.run_as_root else "worker"
-            self.execute_process(["/usr/bin/bash", "-c", "echo '{}:{}' | chpasswd".format(ssh_user, password)],
-                                 internal_command=True)
-
-            # generate the host keys
-            self.execute_process(["/usr/bin/ssh-keygen", "-A"], internal_command=True)
-
-            # remove /run/nologin if it exists
-            if os.path.exists("/run/nologin"):
-                os.unlink("/run/nologin")
-
+        else:
             # Start the ssh server
-            self.execute_process(["/usr/sbin/sshd", "-p", "22",
-                                  "-o", "PermitRootLogin={}".format("yes" if self.run_as_root else "no"),
-                                  "-o", "PasswordAuthentication=yes", "-o", "StrictModes=no", "-o",
-                                  "AllowUsers={}".format(ssh_user)], internal_command=True)
-
+            ssh_user, password = start_ssh_server("root" if self.run_as_root else "worker")
+            # Send ssh information
             self._loop.call_soon_threadsafe(asyncio.ensure_future, self.send_intern_message({
-                "type": "ssh_key",
+                "type": "ssh_debug",
                 "ssh_user": ssh_user,
-                "ssh_key": password
-            }))
-
-            # Wait until someone connects to the server
-            connected_workers = 0
-            attempts = 0
-            while connected_workers == 0 and attempts < 120:
-                time.sleep(1)
-                stdout, stderr = self.execute_process(["/bin/bash", "-c",
-                                                       "ps -f -C sshd | grep '{}@pts' | wc -l".format(ssh_user)],
-                                                      internal_command=True)
-                connected_workers = int(stdout)
-                attempts += 1
-
-            # If someone is connected, wait until no one remains
-            if connected_workers != 0:
-                attempts = 0
-                while connected_workers != 0 and attempts < 60 * 30:
-                    time.sleep(1)
-                    stdout, stderr = self.execute_process(["/bin/bash", "-c",
-                                                           "ps -f -C sshd | grep '{}@pts' | wc -l".format(ssh_user)],
-                                                          internal_command=True)
-                    connected_workers = int(stdout)
-                    attempts += 1
-            else:
+                "ssh_key": password}))
+            # Wait for user to connect and leave (user can stay connected max 30 min)
+            status = ssh_wait(ssh_user, 30*60)
+            if status == 253:
                 inginious_container_api.feedback.set_global_result('crash')
                 inginious_container_api.feedback.set_global_feedback('[SSH Debug] Nobody connected to the SSH server.')
-
             stdout, stderr = b"", b""
 
         # Produce feedback

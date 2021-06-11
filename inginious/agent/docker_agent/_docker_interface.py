@@ -146,7 +146,7 @@ class DockerInterface(object):  # pragma: no cover
 
     def create_container_student(self, runtime: str, image: str, mem_limit, student_path,
                                  socket_path, systemfiles_path, course_common_student_path,
-                                 share_network_of_container: str=None):
+                                 share_network_of_container: str=None, ports=None):
         """
         Creates a student container
         :param runtime: name of the docker runtime to use
@@ -158,12 +158,23 @@ class DockerInterface(object):  # pragma: no cover
         :param course_common_student_path:
         :param share_network_of_container: (deprecated) if a container id is given, the new container will share its
                                            network stack.
+        :param ports: dictionary in the form {docker_port: external_port}
         :return: the container id
         """
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
         course_common_student_path = os.path.abspath(course_common_student_path)
+        if ports is None:
+            ports = {}
+
+        if len(ports) > 0:
+            net_mode = "bridge"  # TODO: better to use "bridge" or "container:" + grading_container_id ?
+        elif not share_network_of_container:
+            net_mode = "none"
+        else:
+            net_mode = 'container:' + share_network_of_container
+
         response = self._docker.containers.create(
             image,
             stdin_open=True,
@@ -172,7 +183,8 @@ class DockerInterface(object):  # pragma: no cover
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
             oom_kill_disable=True,
-            network_mode=('none' if not share_network_of_container else ('container:' + share_network_of_container)),
+            network_mode=net_mode,
+            ports=ports,
             volumes={
                 student_path: {'bind': '/task/student'},
                 socket_path: {'bind': '/__parent.sock'},

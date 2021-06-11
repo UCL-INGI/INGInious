@@ -76,11 +76,11 @@ class SectionsList(object):
 
 class Section(object):
     def __init__(self, structure):
-        if "id" in structure:
+        if "id" in structure and structure["id"] != "":
             self._id = structure["id"]
         else:
             raise InvalidTocException(_("No id for one section"))
-        if "title" in structure:
+        if "title" in structure and structure["title"] != "":
             self._title = structure["title"]
         else:
             raise InvalidTocException(_("No title for one section"))
