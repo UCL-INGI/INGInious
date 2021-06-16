@@ -461,6 +461,8 @@ function studio_init_template_multiple_choice(well, pid, problem)
         $('#multiple-' + pid, well).attr('checked', true);
     if("centralize" in problem && problem["centralize"])
         $('#centralize-' + pid, well).attr('checked', true);
+    if("unshuffle" in problem && problem["unshuffle"])
+        $('#unshuffle-' + pid, well).attr('checked', true);
 
     var success_message = "";
     var error_message = "";
