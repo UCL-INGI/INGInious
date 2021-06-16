@@ -11,6 +11,7 @@ import asyncio
 import zmq.asyncio
 import msgpack
 import zmq
+import struct
 
 from inginious_container_api.utils import User
 
@@ -121,13 +122,9 @@ def run_student(cmd, container=None,
             signal_handler_callback(receive_signal)
 
         if ssh:  # The student_container will send id and password for ssh connection, transfer it to the agent
-            unpacker = msgpack.Unpacker()  # Receive bytes one by one to catch the exact correct message size
-            ssh_id = None
-            while ssh_id is None:
-                s = connection.recv(1)
-                unpacker.feed(s)
-                for obj in unpacker:
-                    ssh_id = obj
+            s = connection.recv(4)  # First 4 bytes are for the size
+            message_length = struct.unpack('I', bytes(s))[0]
+            ssh_id = msgpack.loads(connection.recv(message_length))
             if ssh_id["type"] == "ssh_student":
                 ssh_user = User(ssh_id["ssh_user"]).name  # 0 for root, 1 for worker
                 msg = {"type": "ssh_student", "ssh_user": ssh_user, "ssh_key": ssh_id["password"], "container_id": student_container_id}
