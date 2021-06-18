@@ -582,10 +582,10 @@ class DockerAgent(Agent):
                                 # send the data to the frontend (and client) to reach student_container
                                 if info.enable_network:
                                     info_student = None
-                                    if len(self._student_containers_running) > 0:
+                                    if len(self._student_containers_running) > 0 and msg["container_id"] in info.student_containers:
                                         info_student = self._student_containers_running[msg["container_id"]]
                                     else:
-                                        self._logger.exception("Exception: no student_container running.")
+                                        self._logger.exception("Exception: no linked student_container running.")
                                     self._logger.info("%s %s", info_student.container_id, str(msg))
                                     await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22], msg["ssh_user"], msg["ssh_key"])
                                 else:

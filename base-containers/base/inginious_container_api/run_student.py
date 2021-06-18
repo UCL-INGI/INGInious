@@ -13,7 +13,6 @@ import msgpack
 import zmq
 import struct
 
-from inginious_container_api.utils import User
 
 def run_student(cmd, container=None,
         time_limit=0, hard_time_limit=0,
@@ -42,7 +41,9 @@ def run_student(cmd, container=None,
                                     to the remote process. See the run_student script command for an example, or
                                     the hack_signals function below.
     :param ssh: If set to True, it starts an ssh server for the student instead of running the command as usual.
-    :param run_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root)
+    :param run_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root).
+                        Default is False. This is a Beta feature and should not be used yet.
+    :remark Calling run_student on a grading container running as root with Kata is not a possible feature yet.
     :return: the return value of the calling process. There are special values:
         - 251 means that run_student is not available in this container/environment
         - 252 means that the command was killed due to an out-of-memory
@@ -100,7 +101,7 @@ def run_student(cmd, container=None,
         assert message["type"] == "run_student_started"
         student_container_id = message["container_id"]
 
-        # Send a dummy message to ask for retval (this should not be removed without caution)
+        # The socket only works in a ping-pong style so we need to send a dummy message
         zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, use_bin_type=True))
 
         # Serve one and only one connection
@@ -126,8 +127,7 @@ def run_student(cmd, container=None,
             message_length = struct.unpack('I', bytes(s))[0]
             ssh_id = msgpack.loads(connection.recv(message_length))
             if ssh_id["type"] == "ssh_student":
-                ssh_user = User(ssh_id["ssh_user"]).name  # 0 for root, 1 for worker
-                msg = {"type": "ssh_student", "ssh_user": ssh_user, "ssh_key": ssh_id["password"], "container_id": student_container_id}
+                msg = {"type": "ssh_student", "ssh_user": ssh_id["ssh_user"], "ssh_key": ssh_id["password"], "container_id": student_container_id}
                 send_socket = zmq.asyncio.Context().socket(zmq.REQ)
                 send_socket.connect("ipc:///sockets/main.sock")
                 loop = asyncio.get_event_loop()

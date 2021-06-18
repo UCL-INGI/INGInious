@@ -8,11 +8,7 @@ import subprocess
 import resource
 import stat
 import time
-from enum import Enum
 
-class User(Enum):
-    root = 0
-    worker = 1
 
 def set_limits_user(user):
     if user == "worker":

@@ -11,7 +11,7 @@ import threading
 import msgpack
 import array
 import struct
-from inginious_container_api.utils import set_limits_user, start_ssh_server, ssh_wait, User
+from inginious_container_api.utils import set_limits_user, start_ssh_server, ssh_wait
 
 
 
@@ -80,7 +80,7 @@ print("Popen")
 print(fds)
 
 set_limits = lambda: set_limits_user(user)  # To know if the command should be executed as root or worker
-if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to ron an empty command
+if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to run an empty command
     start_cmd["command"] = "echo 'info: student container started with no command set' "
 
 # Run the command
@@ -97,8 +97,7 @@ if start_cmd["ssh"]:
     # Start ssh server
     ssh_user, password = start_ssh_server(user)
     # Send ssh information
-    ssh_user_bin = User[ssh_user].value  # 0 for root, 1 for worker
-    message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user_bin, "password": password})  # constant size
+    message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user, "password": password})  # constant size
     message_size = struct.pack('I', len(message))
     client.send(message_size)
     client.send(message)
