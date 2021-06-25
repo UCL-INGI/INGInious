@@ -443,11 +443,7 @@ class DockerAgent(Agent):
             environment = self._containers[environment_type][environment_name]["id"]
             runtime = self._containers[environment_type][environment_name]["runtime"]
 
-            if ssh:
-                ports_needed = [22]
-            else:
-                ports_needed = []
-
+            ports_needed = [22] if ssh else []
             ports = {}
             for p in ports_needed:
                 if len(self._external_ports) == 0:

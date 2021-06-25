@@ -21,8 +21,8 @@ def run_student(cmd, container=None,
         signal_handler_callback=None, ssh=False, run_as_root=False):
     """
     Run a command inside a student container
-    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server.
 
+    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server.
     :param container: container to use. Must be present in the current agent. By default it is None, meaning the current
                       container type will be used.
     :param time_limit: time limit in seconds. By default it is 0, which means that it will be the same as the current
@@ -40,7 +40,7 @@ def run_student(cmd, container=None,
                                     this function can itself be called with a signal value that will immediately be sent
                                     to the remote process. See the run_student script command for an example, or
                                     the hack_signals function below.
-    :param ssh: If set to True, it starts an ssh server for the student instead of running the command as usual.
+    :param ssh: If set to True, it starts an ssh server for the student after the command finished.
     :param run_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root).
                         Default is False. This is a Beta feature and should not be used yet.
     :remark Calling run_student on a grading container running as root with Kata is not a possible feature yet.
@@ -54,7 +54,7 @@ def run_student(cmd, container=None,
         print("run_student is not available with Kata yet")
         return 251
 
-    if os.path.exists("/.__input/__shared_kernel") and run_as_root:  # Allowing root access to student is forbidden for now (TODO fiw me)
+    elif run_as_root:  # Allowing root access to student is forbidden for now (TODO fiw me)
         print("run_student as root is not available yet")
         return 251
 
@@ -131,7 +131,7 @@ def run_student(cmd, container=None,
                 send_socket = zmq.asyncio.Context().socket(zmq.REQ)
                 send_socket.connect("ipc:///sockets/main.sock")
                 loop = asyncio.get_event_loop()
-                task = loop.create_task(send_intern_message(send_socket, msg))
+                task = loop.create_task(_send_intern_message(send_socket, msg))
                 loop.run_until_complete(task)
                 loop.close()
 
@@ -218,6 +218,6 @@ def _hack_signals(receive_signal):
             except:
                 pass
 
-async def send_intern_message(send_socket, msg):
+async def _send_intern_message(send_socket, msg):
     send_socket.send(msgpack.dumps(msg, use_bin_type=True))
     send_socket.recv()
