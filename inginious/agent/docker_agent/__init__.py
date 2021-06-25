@@ -511,7 +511,7 @@ class DockerAgent(Agent):
         """
         msg = msgpack.dumps(message, use_bin_type=True)
         self._logger.debug("Sending %i bytes to container", len(msg))
-        write_stream.write(struct.pack('I', len(msg)))
+        write_stream.write(struct.pack('!I', len(msg)))
         write_stream.write(msg)
         await write_stream.drain()
 
@@ -550,9 +550,9 @@ class DockerAgent(Agent):
                         self._logger.debug("Received stderr from containers:\n%s", content)
 
                     # 4 first bytes are the length of the message. If we have a complete message...
-                    while len(buffer) > 4 and len(buffer) >= 4+struct.unpack('I',buffer[0:4])[0]:
-                        msg_encoded = buffer[4:4 + struct.unpack('I', buffer[0:4])[0]]  # ... get it
-                        buffer = buffer[4 + struct.unpack('I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
+                    while len(buffer) > 4 and len(buffer) >= 4+struct.unpack('!I',buffer[0:4])[0]:
+                        msg_encoded = buffer[4:4 + struct.unpack('!I', buffer[0:4])[0]]  # ... get it
+                        buffer = buffer[4 + struct.unpack('!I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
                         try:
                             msg = msgpack.unpackb(msg_encoded, use_list=False)
                             self._logger.debug("Received msg %s from container %s", msg["type"], info.container_id)

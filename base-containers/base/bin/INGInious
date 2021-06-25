@@ -96,7 +96,7 @@ class INGIniousMainRunner:
                     buf += await reader.read(4 - len(buf))
                 if reader.at_eof():
                     continue
-                length = struct.unpack('I', bytes(buf))[0]
+                length = struct.unpack('!I', bytes(buf))[0]
                 buf = bytearray()
                 while len(buf) != length and not reader.at_eof():
                     buf += await reader.read(length - len(buf))
@@ -150,7 +150,7 @@ class INGIniousMainRunner:
 
     async def write_stdout(self, o):
         msg = msgpack.dumps(o, use_bin_type=True)
-        self.stdout.write(struct.pack('I', len(msg)))
+        self.stdout.write(struct.pack('!I', len(msg)))
         self.stdout.write(msg)
         await self.stdout.drain()
 

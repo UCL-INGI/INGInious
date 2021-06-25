@@ -98,7 +98,7 @@ if start_cmd["ssh"]:
     ssh_user, password = start_ssh_server(user)
     # Send ssh information
     message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user, "password": password})  # constant size
-    message_size = struct.pack('I', len(message))
+    message_size = struct.pack('!I', len(message))
     client.send(message_size)
     client.send(message)
     # Wait for user to connect and leave

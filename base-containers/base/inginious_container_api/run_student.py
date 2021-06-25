@@ -124,7 +124,7 @@ def run_student(cmd, container=None,
 
         if ssh:  # The student_container will send id and password for ssh connection, transfer it to the agent
             s = connection.recv(4)  # First 4 bytes are for the size
-            message_length = struct.unpack('I', bytes(s))[0]
+            message_length = struct.unpack('!I', bytes(s))[0]
             ssh_id = msgpack.loads(connection.recv(message_length))
             if ssh_id["type"] == "ssh_student":
                 msg = {"type": "ssh_student", "ssh_user": ssh_id["ssh_user"], "ssh_key": ssh_id["password"], "container_id": student_container_id}
