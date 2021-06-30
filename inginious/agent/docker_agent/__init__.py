@@ -566,7 +566,11 @@ class DockerAgent(Agent):
                                 socket_id = msg["socket_id"]
                                 ssh = msg["ssh"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                                self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
+                                if ssh and not info.enable_network:
+                                    self._logger.error("Exception: ssh for student requires internet access in the task %s",info.job_id)
+                                    self._create_safe_task(self.handle_job_closing(info.container_id, -1, manual_feedback="ssh for student requires internet access in the task configuration !"))
+                                else:
+                                    self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network,
                                                                                      write_stream, ssh))
                             elif msg["type"] == "ssh_debug":
@@ -576,18 +580,14 @@ class DockerAgent(Agent):
 
                             elif msg["type"] == "ssh_student":
                                 # send the data to the frontend (and client) to reach student_container
-                                if info.enable_network:
-                                    info_student = None
-                                    if len(self._student_containers_running) > 0 and msg["container_id"] in info.student_containers:
-                                        info_student = self._student_containers_running[msg["container_id"]]
-                                    else:
-                                        self._logger.exception("Exception: no linked student_container running.")
-                                    self._logger.info("%s %s", info_student.container_id, str(msg))
-                                    await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22], msg["ssh_user"], msg["ssh_key"])
+                                info_student = None
+                                if len(self._student_containers_running) > 0 and msg["container_id"] in info.student_containers:
+                                    info_student = self._student_containers_running[msg["container_id"]]
                                 else:
-                                    await self.send_job_result(info.job_id, "ssh for student requires internet access in the task configuration !")
-                                    self._logger.exception("Exception: ssh for student requires internet access in the task configuration !.")
-                                    await self.kill_job(BackendKillJob(job_id=info.job_id))  # Just to be 100% sure the job is killed
+                                    self._logger.exception("Exception: no linked student_container running.")
+                                    self._create_safe_task(self.handle_job_closing(info.container_id, -1, manual_feedback="Trying to connect with ssh to a non-children student container !"))
+                                self._logger.info("%s %s", info_student.container_id, str(msg))
+                                await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22], msg["ssh_user"], msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 result = msg["result"]
@@ -662,7 +662,7 @@ class DockerAgent(Agent):
         except:
             self._logger.exception("Exception in handle_student_job_closing")
 
-    async def handle_job_closing(self, container_id, retval):
+    async def handle_job_closing(self, container_id, retval, manual_feedback=None):
         """
         Handle a closing student container. Do some cleaning, verify memory limits, timeouts, ... and returns data to the backend
         """
@@ -676,7 +676,6 @@ class DockerAgent(Agent):
             except:
                 self._logger.warning("Container %s that has finished(p1) was not launched by this agent", str(container_id), exc_info=True)
                 return
-
             # Close sub containers
             for student_container_id_loop in info.student_containers:
                 # little hack to ensure the value of student_container_id_loop is copied into the closure
@@ -778,7 +777,10 @@ class DockerAgent(Agent):
                 pass  # todo: run a docker container to force removal
 
             # Return!
-            await self.send_job_result(info.job_id, result, error_msg, grade, problems, tests, custom, state, archive, stdout, stderr)
+            if retval == -1 and manual_feedback is not None:
+                await self.send_job_result(info.job_id, result, manual_feedback, grade, problems, tests, custom, state,archive, stdout, stderr)
+            else:
+                await self.send_job_result(info.job_id, result, error_msg, grade, problems, tests, custom, state, archive, stdout, stderr)
 
             # Do not forget to remove data from internal state
             del self._container_for_job[info.job_id]
