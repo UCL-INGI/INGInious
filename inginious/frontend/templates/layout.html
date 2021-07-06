@@ -176,6 +176,9 @@
                         {{ _("INGInious is distributed under AGPL license") }}
                     </a>
                 {% endif %}
+                {% if is_tos_defined %}
+                    - <a href="/pages/{{ privacy_page }}">{{ _("Privacy Policy") }}</a>
+                {% endif %}
             </div>
         </div>
     </div>
