@@ -59,6 +59,7 @@ class CookielessConverter(BaseConverter):
 
 
 def init_flask_maintenance_mapping(flask_app):
+    flask_app.add_url_rule('/', view_func=MaintenancePage.as_view('maintenancepage.alias'))
     flask_app.add_url_rule('/<path:path>', view_func=MaintenancePage.as_view('maintenancepage'))
 
 
