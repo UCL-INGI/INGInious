@@ -14,8 +14,6 @@ import struct
 from inginious_container_api.utils import set_limits_user, start_ssh_server, ssh_wait
 
 
-
-
 def handle_signals(subprocess, socket):
     """ Handles signals given by run_student on the socket """
     while True:
@@ -64,6 +62,10 @@ while start_cmd is None:
 print("Unpacked start cmd")
 user = start_cmd["user"]  # Know if you are worker (on docker) or root (on Kata)
 
+if user=="root" and os.path.exists("/.__input/__shared_kernel"):
+    print("You can not run as root on docker")
+    exit(251)
+
 # Add some elements to /etc/hosts and /etc/resolv.conf if needed
 system_files = {"hosts": ("/etc/hosts", True), "resolv.conf": ("/etc/resolv.conf", False)}
 for name, (spath, append) in system_files.items():
@@ -103,6 +105,7 @@ if start_cmd["ssh"]:
     client.send(message)
     # Wait for user to connect and leave
     retval = ssh_wait(ssh_user)
+
     print("Exiting")
     exit(retval)
 else:

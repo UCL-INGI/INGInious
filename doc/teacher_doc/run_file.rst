@@ -838,7 +838,7 @@ ssh_student
 
 
 *ssh_student* allows the *run file* to start a sub-containers and to give ssh access to it. It is very similar to *run_student* allowing a command to be specified and run before starting the ssh server.
-This makes you able to secure the grading while giving the student the chance to interact and enter commands within his own container.
+This makes you able to secure the grading while giving the student the chance to interact and enter commands within his own container. All the ssh session is recorded into the ``.ssh_logs`` file resulting in the ``student`` subdirectory after the ssh session closed.
 
 When the student exits the ssh connection, his specific container is killed and only the changes made to the ``student`` subdirectory will remain in the main (grading) container.
 

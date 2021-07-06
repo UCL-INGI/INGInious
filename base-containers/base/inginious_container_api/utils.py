@@ -62,9 +62,12 @@ def start_ssh_server(ssh_user):
     execute_process(["/usr/sbin/sshd",
                     "-p", "22",
                     "-o", "PermitRootLogin={}".format(permit_root_login),
-                    "-o", "PasswordAuthentication=yes", "-o", "StrictModes=no", "-o",
-                    "AllowUsers={}".format(ssh_user)], internal_command=True, user=ssh_user)
+                    "-o", "PasswordAuthentication=yes", "-o", "StrictModes=no",
+                    "-o", "ForceCommand=echo LOGIN: Good luck !; script -q .ssh_logs; cp .ssh_logs student/.ssh_logs; echo LOGOUT: Good bye!",
+                    "-o", "AllowUsers={}".format(ssh_user)], internal_command=True, user=ssh_user)
     return ssh_user, password
+    #When logging in, student is in a special interactive shell where everything is logged into a file.
+    #When he exits this special shell, the log file is copied into the student directory and the ssh connection closes
 
 
 def ssh_wait(ssh_user, timeout=None):

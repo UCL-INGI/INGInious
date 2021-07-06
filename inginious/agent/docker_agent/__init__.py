@@ -448,6 +448,8 @@ class DockerAgent(Agent):
             for p in ports_needed:
                 if len(self._external_ports) == 0:
                     self._logger.warning("User asked for a port but no one are available")
+                    for port_to_free in ports:
+                        self._external_ports.add(ports[port_to_free])
                     raise CannotCreateJobException('No ports are available right now. Please retry later.')
                 ports[p] = self._external_ports.pop()
 
