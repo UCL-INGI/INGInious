@@ -12,10 +12,10 @@ from flask.views import MethodView
 class MaintenancePage(MethodView):
     """ Maintenance page """
 
-    def get(self, path):
+    def get(self, path=None):
         """ GET request """
         return flask.current_app.template_helper.render("maintenance.html")
 
-    def post(self, path):
+    def post(self, path=None):
         """ POST request """
         return flask.current_app.template_helper.render("maintenance.html")
