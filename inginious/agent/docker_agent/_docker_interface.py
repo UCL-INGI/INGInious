@@ -165,6 +165,7 @@ class DockerInterface(object):  # pragma: no cover
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
         course_common_student_path = os.path.abspath(course_common_student_path)
+
         if ports is None:
             ports = {}
 
@@ -178,7 +179,7 @@ class DockerInterface(object):  # pragma: no cover
         response = self._docker.containers.create(
             image,
             stdin_open=True,
-            command="_run_student_intern",
+            command="_run_student_intern "+runtime,  # the script takes the runtime as argument
             mem_limit=str(mem_limit) + "M",
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
@@ -193,6 +194,7 @@ class DockerInterface(object):  # pragma: no cover
             },
             runtime=runtime
         )
+
         return response.id
 
     def start_container(self, container_id):

@@ -11,6 +11,7 @@ import threading
 import msgpack
 import array
 import struct
+import sys
 from inginious_container_api.utils import set_limits_user, start_ssh_server, ssh_wait
 
 
@@ -33,6 +34,17 @@ def recv_fds(sock, msglen, maxfds):
             # Append data, ignoring any truncated integers at the end.
             fds.fromstring(cmsg_data[:len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
     return msg, list(fds)
+
+
+# Check the runtime
+runtime = sys.argv[1]
+if runtime == "kata-runtime":
+    shared_kernel = False
+else:
+    shared_kernel = True
+    os.mkdir("/.__input")
+    shared_kernel_file = open("/.__input/__shared_kernel", "w")
+    shared_kernel_file.close()
 
 
 # Connect to the socket
@@ -62,9 +74,10 @@ while start_cmd is None:
 print("Unpacked start cmd")
 user = start_cmd["user"]  # Know if you are worker (on docker) or root (on Kata)
 
-if user=="root" and os.path.exists("/.__input/__shared_kernel"):
-    print("You can not run as root on docker")
+if user == "root" and shared_kernel:
+    print("You can not run as root on docker runtime")
     exit(251)
+
 
 # Add some elements to /etc/hosts and /etc/resolv.conf if needed
 system_files = {"hosts": ("/etc/hosts", True), "resolv.conf": ("/etc/resolv.conf", False)}
