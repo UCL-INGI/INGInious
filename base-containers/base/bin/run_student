@@ -23,6 +23,8 @@ parser.add_argument('--share-network', help="Share the network stack of the grad
                                             "default. If the container container has network access, this will also be the case for the student!",
                     action='store_true', dest='share_network')
 parser.add_argument('--run-as-root', help="Tries to run the command in the student container with root access. This feature is in beta and should not be used yet", action='store_true')
+parser.add_argument('--closure-script', help="Specify, using string format, the commands to run when the student leaves the ssh connection, just before killing the student container. Example: \"python3 closure_script.py\"", type=str, default="")
+
 parser.add_argument('cmd', help="Command to be run on the remote container", nargs=argparse.REMAINDER)
 args = parser.parse_args()
 
@@ -30,4 +32,4 @@ exit(run_student.run_student(cmd=' '.join(args.cmd), container=args.container, t
                              hard_time_limit=args.hard_time, memory_limit=args.memory,
                              share_network=args.share_network,
                              stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                             signal_handler_callback=run_student._hack_signals, run_as_root=args.run_as_root))
+                             signal_handler_callback=run_student._hack_signals, run_as_root=args.run_as_root, closure_script=args.closure_script))

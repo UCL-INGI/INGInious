@@ -18,7 +18,7 @@ def run_student(cmd, container=None,
         time_limit=0, hard_time_limit=0,
         memory_limit=0, share_network=False,
         working_dir=None, stdin=None, stdout=None, stderr=None,
-        signal_handler_callback=None, ssh=False, run_as_root=False):
+        signal_handler_callback=None, ssh=False, run_as_root=False, closure_script=""):
     """
     Run a command inside a student container
 
@@ -43,6 +43,8 @@ def run_student(cmd, container=None,
     :param ssh: If set to True, it starts an ssh server for the student after the command finished.
     :param run_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root).
                         Default is False. This is a Beta feature and should not be used yet.
+    :param closure_script:  command to be ran (as a string, with parameters) in the student container before closing it.
+                            This parameter is mainly useful when ssh is set to True.
     :remark Calling run_student on a grading container running as root with Kata is not a possible feature yet.
     :return: the return value of the calling process. There are special values:
         - 251 means that run_student is not available in this container/environment
@@ -57,6 +59,7 @@ def run_student(cmd, container=None,
     elif run_as_root:  # Allowing root access to student is forbidden for now (TODO fiw me)
         print("run_student as root is not available yet")
         return 251
+
 
     if working_dir is None:
         working_dir = os.getcwd()
@@ -113,7 +116,7 @@ def run_student(cmd, container=None,
 
         # send the fds and the command/workdir
         connection.sendmsg([b'S'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [stdin, stdout, stderr]))])
-        connection.send(msgpack.dumps({"command": cmd, "working_dir": working_dir, "ssh": ssh, "user": user}))
+        connection.send(msgpack.dumps({"command": cmd, "closure_script": closure_script, "working_dir": working_dir, "ssh": ssh, "user": user}))
 
         # Allow to send signals
         if signal_handler_callback is not None:
