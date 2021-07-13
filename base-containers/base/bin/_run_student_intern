@@ -119,11 +119,12 @@ if start_cmd["ssh"]:
     # Wait for user to connect and leave
     retval = ssh_wait(ssh_user)
 
-if start_cmd["closure_script"] != "":
-    # Run the closure_script if there is one
-    p2 = subprocess.Popen(shlex.split(start_cmd["closure_script"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1],
+if start_cmd["teardown_script"] != "":
+    # Run the teardown_script if there is one
+    p2 = subprocess.Popen(shlex.split(start_cmd["teardown_script"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1],
                          stderr=fds[2])
-    p2.wait() #Waot for closure_script to finish before exiting the container
+    teardown_retval = p2.wait() #Waot for teardown_script to finish before exiting the container
+    print(teardown_retval)  # For debugging purpose
 
 print("Exiting")
 exit(retval)
