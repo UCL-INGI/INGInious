@@ -211,6 +211,7 @@ class Agent(object, metaclass=ABCMeta):
 
         :exception JobNotRunningException: is raised when send_job_result is called more than once for a given job_id
         """
+
         if job_id not in self.__running_job:
             raise JobNotRunningException()
         del self.__running_job[job_id]

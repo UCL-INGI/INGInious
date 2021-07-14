@@ -7,19 +7,22 @@ import os
 import signal
 import socket
 import tempfile
-
+import asyncio
+import zmq.asyncio
 import msgpack
 import zmq
+import struct
+
 
 def run_student(cmd, container=None,
         time_limit=0, hard_time_limit=0,
         memory_limit=0, share_network=False,
         working_dir=None, stdin=None, stdout=None, stderr=None,
-        signal_handler_callback=None):
+        signal_handler_callback=None, ssh=False, run_as_root=False, teardown_script=""):
     """
     Run a command inside a student container
-    :param cmd: command to be ran (as a string, with parameters)
 
+    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server.
     :param container: container to use. Must be present in the current agent. By default it is None, meaning the current
                       container type will be used.
     :param time_limit: time limit in seconds. By default it is 0, which means that it will be the same as the current
@@ -37,6 +40,12 @@ def run_student(cmd, container=None,
                                     this function can itself be called with a signal value that will immediately be sent
                                     to the remote process. See the run_student script command for an example, or
                                     the hack_signals function below.
+    :param ssh: If set to True, it starts an ssh server for the student after the command finished.
+    :param run_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root).
+                        Default is False. This is a Beta feature and should not be used yet.
+    :param teardown_script:  command to be ran (as a string, with parameters) in the student container before closing it.
+                            This parameter is mainly useful when ssh is set to True.
+    :remark Calling run_student on a grading container running as root with Kata is not a possible feature yet.
     :return: the return value of the calling process. There are special values:
         - 251 means that run_student is not available in this container/environment
         - 252 means that the command was killed due to an out-of-memory
@@ -44,7 +53,13 @@ def run_student(cmd, container=None,
         - 254 means that an error occurred while running the proxy
     """
     if not os.path.exists("/.__input/__shared_kernel"):  # disable run_student when the kernel is not shared (TODO fix me)
+        print("run_student is not available with Kata yet")
         return 251
+
+    elif run_as_root:  # Allowing root access to student is forbidden for now (TODO fiw me)
+        print("run_student as root is not available yet")
+        return 251
+
 
     if working_dir is None:
         working_dir = os.getcwd()
@@ -54,6 +69,7 @@ def run_student(cmd, container=None,
         stdout = open(os.devnull, 'rb').fileno()
     if stderr is None:
         stderr = open(os.devnull, 'rb').fileno()
+    user = "root" if run_as_root else "worker"
 
     try:
         # creates a placeholder for the socket
@@ -81,13 +97,14 @@ def run_student(cmd, container=None,
         zmq_socket.send(msgpack.dumps({"type": "run_student", "environment": container,
                                    "time_limit": time_limit, "hard_time_limit": hard_time_limit,
                                    "memory_limit": memory_limit, "share_network": share_network,
-                                   "socket_id": socket_id}, use_bin_type=True))
+                                   "socket_id": socket_id, "ssh": ssh}, use_bin_type=True))
 
         # Check if the container was correctly started
         message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
         assert message["type"] == "run_student_started"
+        student_container_id = message["container_id"]
 
-        # Send a dummy message to ask for retval
+        # The socket only works in a ping-pong style so we need to send a dummy message
         zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, use_bin_type=True))
 
         # Serve one and only one connection
@@ -99,17 +116,30 @@ def run_student(cmd, container=None,
 
         # send the fds and the command/workdir
         connection.sendmsg([b'S'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [stdin, stdout, stderr]))])
-        connection.send(msgpack.dumps({"command": cmd, "working_dir": working_dir}))
+        connection.send(msgpack.dumps({"command": cmd, "teardown_script": teardown_script, "working_dir": working_dir, "ssh": ssh, "user": user}))
 
         # Allow to send signals
         if signal_handler_callback is not None:
             def receive_signal(signum_s):
                 signum_data = str(signum_s).zfill(3).encode("utf8")
                 connection.send(signum_data)
-
             signal_handler_callback(receive_signal)
 
+        if ssh:  # The student_container will send id and password for ssh connection, transfer it to the agent
+            s = connection.recv(4)  # First 4 bytes are for the size
+            message_length = struct.unpack('!I', bytes(s))[0]
+            ssh_id = msgpack.loads(connection.recv(message_length))
+            if ssh_id["type"] == "ssh_student":
+                msg = {"type": "ssh_student", "ssh_user": ssh_id["ssh_user"], "ssh_key": ssh_id["password"], "container_id": student_container_id}
+                send_socket = zmq.asyncio.Context().socket(zmq.REQ)
+                send_socket.connect("ipc:///sockets/main.sock")
+                loop = asyncio.get_event_loop()
+                task = loop.create_task(_send_intern_message(send_socket, msg))
+                loop.run_until_complete(task)
+                loop.close()
+
         # Wait for everything to end
+        # message = message from agent telling the student_container finished
         message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
 
         # Unlink unneeded files
@@ -190,3 +220,7 @@ def _hack_signals(receive_signal):
                 signal.signal(signum, lambda x, _: receive_signal)
             except:
                 pass
+
+async def _send_intern_message(send_socket, msg):
+    send_socket.send(msgpack.dumps(msg, use_bin_type=True))
+    send_socket.recv()

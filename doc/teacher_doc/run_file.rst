@@ -823,6 +823,85 @@ the examples below, please check the API directly for more information.
         # and stores the output in the variable `output`, as an array of lines.
         output=`run_student --time 60 student/script.sh`
 
+
+
+.. _ssh_student:
+
+ssh_student
+-----------
+
+.. DANGER::
+
+    *ssh_student*, as for *run_student* is not available in some environments, such as those running in OCI runtimes that do not share
+    a common kernel between containers. ``kata`` is an example of such runtime. When ``ssh_student`` is not available,
+    it will exit with error code 251.
+
+
+*ssh_student* allows the *run file* to start a sub-containers and to give ssh access to it. It is very similar to *run_student* allowing a command to be specified and run before starting the ssh server.
+This makes you able to secure the grading while giving the student the chance to interact and enter commands within his own container. All the ssh session is recorded into the ``.ssh_logs`` file resulting in the ``student`` subdirectory after the ssh session closed.
+
+When the student exits the ssh connection, his specific container is killed and only the changes made to the ``student`` subdirectory will remain in the main (grading) container.
+
+*ssh_student* is nearly as configurable as *run_student* is; you can change the container image (environment), set new timeouts, new memory
+limits, ... Notice it requires to allow internet connection in the environment configuration tab.
+
+Here is the list of the main parameters:
+
+- container (--container in the ssh_student command)
+        Name of the container to use. The default is the same as the current container.
+- time limit (--time)
+        Timeout (in CPU time) for the container, in seconds. The default is the same as the current container.
+- hard time limit (--hard-time)
+        Hard timeout for the container (in real time), in seconds.
+        The default is three times the value indicated for the time limit.
+        We recommand here to put a very large time limit since the student will require some time to connect (copy-paste the command) and to solve the exercice in live via the ssh connection.
+        Example would be 900 (15 min) or 1800 (30 min). In any case, when the student exits the connection, the container will be killed regardless of its remaining hard time limit.
+- memory limit (--memory)
+        Maximum memory for the container, in Megabytes. The default is the same as the current container.
+
+Beyond these optionals args, *ssh_student* also takes an additional (optional) argument:
+the **command** to be run in the new container before starting the ssh server.
+
+More technically about this optional argument, please note that:
+
+- The **command** will be run and finished before starting the ssh server, allowing the teacher to do some setup on the container before giving ssh access to it.
+- The **command** can take the form of a setup script which may start new subprocess.
+- In the case of a setup script, only its main body will be executed and finished before starting the ssh server. If you want subprocess to continue running in background while the student has ssh access, these subprocess must be launched in a non-blocking way (such as using `subprocess.Popen <https://docs.python.org/fr/3/library/subprocess.html#subprocess.Popen>`_ inside a python setup script).
+- In the case of a setup script, it may potentially be usefull to end it by an instruction to remove its own file to avoid the student to read it (such as *remove(argv[0])* in the case of a python setup script).
+
+
+Here are the different return values:
+    -   0: the student correctly connected and leaved the ssh connection
+    - 251: ``ssh_student`` is not available in this container/environment
+    - 252: the container was killed due to an out-of-memory
+    - 253: the container timedout or no student connected within 2 minutes
+    - 254: an error occurred while running the proxy
+
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # runs student/setup.sh in another safe container, then gives ssh access to that container
+        # with a timeout of 30 minutes for the student to resolve the exercise and exit the connection.
+        retval = ssh_student("student/setup.sh", hard_time_limit=1800)
+
+    .. code-tab:: py
+
+        from inginious_container_api import ssh_student
+
+        # runs student/setup.sh in another safe container, then gives ssh access to that container
+        # with a timeout of 30 minutes for the student to resolve the exercise and exit the connection.
+        retval = ssh_student.ssh_student("student/script.sh", hard_time_limit=1800)
+
+    .. code-tab:: bash
+
+        # runs student/setup.sh in another safe container, then gives ssh access to that container
+        # with a timeout of 30 minutes for the student to resolve the exercise and exit the connection.
+        retval=`ssh_student --hard-time 1800 student/script.sh`
+
+
+
 Archiving files
 ---------------
 
