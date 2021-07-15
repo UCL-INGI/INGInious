@@ -47,12 +47,6 @@ class INGIniousPage(MethodView):
         return flask.current_app
 
     def _pre_check(self, sessionid):
-        # Check for cookieless redirect
-        if not sessionid and flask.session.cookieless:
-            query_string = "?" + flask.request.query_string.decode("utf-8") if flask.request.query_string else ""
-            flask.request.view_args.update(sessionid=flask.session.sid)
-            return redirect(url_for(flask.request.endpoint, **flask.request.view_args) + query_string)
-
         # Check for language
         if "lang" in flask.request.args and flask.request.args["lang"] in self.app.l10n_manager.translations.keys():
             self.user_manager.set_session_language(flask.request.args["lang"])

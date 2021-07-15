@@ -173,9 +173,9 @@ class LTILaunchPage(INGIniousPage):
     def POST(self, courseid, taskid):
         (sessionid, loggedin) = self._parse_lti_data(courseid, taskid)
         if loggedin:
-            return redirect(self.app.get_homepath() + "/@{}@/lti/task".format(sessionid))
+            return redirect(self.app.get_homepath() + "/lti/task")
         else:
-            return redirect(self.app.get_homepath() + "/@{}@/lti/login".format(sessionid))
+            return redirect(self.app.get_homepath() + "/lti/login")
 
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """

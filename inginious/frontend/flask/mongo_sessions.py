@@ -67,9 +67,13 @@ class MongoDBSessionInterface(SessionInterface):
     def open_session(self, app, request):
         # Check for cookieless session in the path
         path_session = re.match(r"(/@)([a-f0-9A-F_]*)(@)", request.path)
+        is_lti_launch = re.match(r"(/lti)", request.path)
         if path_session:  # Cookieless session
             cookieless = True
             sid = path_session.group(2)
+        elif is_lti_launch:
+            cookieless = True
+            sid = None
         else:
             cookieless = False
             sid = request.cookies.get(app.session_cookie_name)
