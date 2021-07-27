@@ -96,3 +96,14 @@ def ssh_wait(ssh_user, timeout=None):
     else:
         print("No one connected !")
         return 253  # timeout
+
+def scripts_isolation(isolate):
+    """
+    Make the script directory isolated or not from the student
+    """
+    if isolate:
+        value = "-rwx"
+    else:
+        value = "+rwx"
+    execute_process(["/usr/bin/bash", "-c", "chmod {} student/scripts".format(value)],
+                    internal_command=True, user="root")

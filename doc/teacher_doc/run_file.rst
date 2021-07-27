@@ -860,16 +860,16 @@ Here is the list of the main parameters:
 - memory limit (--memory)
         Maximum memory for the container, in Megabytes. The default is the same as the current container.
 
-Beyond these optionals args, *ssh_student* also takes two additionnal arguments:
+Beyond these optionals args, *ssh_student* also takes two additionnal string arguments:
 the **setup-script** to be run in the new container before starting the ssh server and the **teardown-script** to be run at ssh session closure.
 
 More technically about these optional arguments, please note that:
 
 - The **setup-script** will be run and finished before starting the ssh server, allowing the teacher to do some setup on the container before giving ssh access to it.
-- The **setup-script** can take the form of a command or a script which may start new subprocess.
-- In the case of a script, only its main body will be executed and finished before starting the ssh server. If you want subprocess to continue running in background while the student has ssh access, these subprocess must be launched in a non-blocking way (such as using `subprocess.Popen <https://docs.python.org/fr/3/library/subprocess.html#subprocess.Popen>`_ inside a python setup script).
-- In the case of a script, it may be potentially usefull to end it by an instruction to remove its own file to avoid the student to read it (such as *remove(argv[0])* in the case of a python setup script).
-- The **teardown-script** follows the same principle. Please note that using a tearsown-script file is not recommended since it is not run as root and the student might read it. Directly putting commands as argument instead of a script file is thus safer. This limitation will be removed in the future when *run_student* and *ssh_student* are available for OCI runtimes that do not share a common kernel between containers.
+- The **setup-script** can take the form of direct commands or a script file.
+- Only the main body of the script will be executed and finished before starting the ssh server. If you want subprocess to continue running in background while the student has ssh access, these subprocess must be launched in a non-blocking way (such as using `subprocess.Popen <https://docs.python.org/fr/3/library/subprocess.html#subprocess.Popen>`_ inside a python setup script).
+- The **teardown-script** follows the same principle.
+- In the case of script files, it is recommanded to place the files in a directory with the path *student/scripts*. This specific directory will automatically be isolated from the student during the ssh session so that the student can not inspect the scripts.
 
 Here are the different return values:
     -   0: the student correctly connected and leaved the ssh connection
@@ -883,23 +883,23 @@ Here are the different return values:
 
     .. code-tab:: ipython3
 
-        # runs student/setup.sh in another safe container, then gives ssh access to that container
+        # runs a python script in another safe container, then gives ssh access to that container
         # with a timeout of 30 minutes for the student to resolve the exercise and exit the connection.
-        retval = ssh_student(setup_script="student/setup.sh", hard_time_limit=1800)
+        retval = ssh_student(setup_script="pyhon3 student/scripts/setup.py", hard_time_limit=1800)
 
     .. code-tab:: py
 
         from inginious_container_api import ssh_student
 
-        # runs student/setup.sh in another safe container, then gives ssh access to that container
+        # runs a python script in another safe container, then gives ssh access to that container
         # with a timeout of 30 minutes for the student to resolve the exercise and exit the connection.
-        retval = ssh_student.ssh_student(setup-script="student/setup.sh", hard_time_limit=1800)
+        retval = ssh_student.ssh_student(setup_script="python3 student/scripts/setup.py", hard_time_limit=1800)
 
     .. code-tab:: bash
 
-        # runs student/setup.sh in another safe container, then gives ssh access to that container
+        # runs a python script in another safe container, then gives ssh access to that container
         # with a timeout of 30 minutes for the student to resolve the exercise and exit the connection.
-        retval=`ssh_student --hard-time 1800 --setup-script "student/setup.sh"`
+        retval=`ssh_student --hard-time 1800 --setup-script "python3 student/scripts/setup.py"`
 
 
 

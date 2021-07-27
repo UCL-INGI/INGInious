@@ -22,7 +22,7 @@ def run_student(cmd, container=None,
     """
     Run a command inside a student container
 
-    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server.
+    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server acting as a setup script.
     :param container: container to use. Must be present in the current agent. By default it is None, meaning the current
                       container type will be used.
     :param time_limit: time limit in seconds. By default it is 0, which means that it will be the same as the current

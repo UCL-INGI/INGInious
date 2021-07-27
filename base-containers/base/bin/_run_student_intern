@@ -12,7 +12,7 @@ import msgpack
 import array
 import struct
 import sys
-from inginious_container_api.utils import set_limits_user, start_ssh_server, ssh_wait
+from inginious_container_api.utils import set_limits_user, start_ssh_server, ssh_wait, scripts_isolation
 
 
 def handle_signals(subprocess, socket):
@@ -100,6 +100,7 @@ if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to run a
 
 # Run the command, which in the case of ssh, acts like a setup_script
 p = subprocess.Popen(shlex.split(start_cmd["command"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1], stderr=fds[2])
+
 # Handle the signals
 print("Signal thread")
 thread = threading.Thread(target=lambda: handle_signals(p, client), daemon=True)
@@ -107,6 +108,8 @@ thread.start()
 # Wait until the subprocess exit
 print("Waiting for process to end")
 retval = p.wait()
+# Setup script finished, make the scripts directory isolated from student
+scripts_isolation(True)
 
 if start_cmd["ssh"]:
     # Start ssh server
@@ -120,7 +123,8 @@ if start_cmd["ssh"]:
     retval = ssh_wait(ssh_user)
 
 if start_cmd["teardown_script"] != "":
-    # Run the teardown_script if there is one
+    # Make the scripts directory available and execute the teardown script
+    scripts_isolation(False)
     p2 = subprocess.Popen(shlex.split(start_cmd["teardown_script"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1],
                          stderr=fds[2])
     teardown_retval = p2.wait() #Waot for teardown_script to finish before exiting the container
