@@ -100,6 +100,40 @@ Each hook available in INGInious is described here, starting with its name and p
     Used to add links to the administration menu. This hook should return a tuple (link,name) 
     where link is the relative link from the index of the course administration.
     You can also return None.
+``submission_admin_menu`` (``course``, ``task``, ``submission`` ``template_helper``)
+    ``course`` : :ref:`inginious.frontend.courses.Course`
+    
+    ``task`` : :ref:`inginious.frontend.tasks.Task`
+
+    ``submission`` : OrderedDict
+
+    ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
+
+    Returns : HTML or None.
+
+    Used to add HTML to the administration menu displayed at the top of a submission. 
+    ``course`` is the course the submission was made for.
+    ``task`` is the task the submission was made for.
+    ``submission`` is the submission's data.
+    ``template_helper`` is an object of type TemplateHelper, that can be useful to render templates.
+``task_list_item`` (``course``, ``task``, ``tasks_data`` ``template_helper``)
+    ``course`` : :ref:`inginious.frontend.courses.Course`
+    
+    ``task`` : :ref:`inginious.frontend.tasks.Task`
+
+    ``tasks_data`` : dict
+
+    ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
+
+    Returns : HTML or None.
+
+    Used to add HTML underneath each item's progress bar in a course's task list (``/course/<courseid>``).
+    This hook is called once for each task the course has. 
+    If a course has 20 tasks, the hook is then called 20 times each time the task list is rendered.
+    ``course`` is the course the submission was made for.
+    ``task`` is the task the submission was made for.
+    ``tasks_data`` is a dictionary used by INGInious which contains the grade and completion status of each of the course's tasks for the visiting user.
+    ``template_helper`` is an object of type TemplateHelper, that can be useful to render templates.
 ``main_menu`` (``template_helper``)
     ``template_helper`` : :ref:`inginious.frontend.template_helper.TemplateHelper`
 
