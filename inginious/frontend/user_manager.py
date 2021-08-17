@@ -227,9 +227,6 @@ class UserManager:
         """ Creates an LTI cookieless session. Returns the new session id"""
 
         self._destroy_session()  # don't forget to destroy the current session
-
-        flask.current_app.session_interface.open_session(flask.current_app, flask.request)
-
         session_id = self._session.sid
 
         self._session["lti"] = {
