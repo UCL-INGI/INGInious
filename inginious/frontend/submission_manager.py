@@ -291,7 +291,7 @@ class WebAppSubmissionManager:
                 continue
             self._logger.debug("LTI data : %s, %s",key, lti_info[key])
             # Add @lti_ prefix
-            key_str = "@lti_" + key;
+            key_str = "@lti_" + key
             inputdata[key_str] = lti_info[key]
 
         self._plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
