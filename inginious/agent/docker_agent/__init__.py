@@ -509,6 +509,45 @@ class DockerAgent(Agent):
         except:
             self._logger.exception("Exception in create_student_container")
 
+    async def start_ssh(self, read_stream, info):
+        buffer = bytearray()
+        try:
+            while not read_stream.at_eof():  # CHECK HERE
+                msg_header = await read_stream.readexactly(8)
+                outtype, length = struct.unpack_from('>BxxxL',
+                                                     msg_header)  # format imposed by docker in the attach endpoint
+                if length != 0:
+                    content = await read_stream.readexactly(length)
+                    if outtype == 1:  # stdout
+                        buffer += content
+
+                    if outtype == 2:  # stderr
+                        self._logger.debug("Received stderr from containers:\n%s", content)
+                    # 4 first bytes are the length of the message. If we have a complete message...
+                    while len(buffer) > 4 and len(buffer) >= 4 + struct.unpack('!I', buffer[0:4])[0]:
+                        msg_encoded = buffer[4:4 + struct.unpack('!I', buffer[0:4])[0]]  # ... get it
+                        buffer = buffer[4 + struct.unpack('!I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
+                        try:
+                            msg = msgpack.unpackb(msg_encoded, use_list=False)
+                            self._logger.debug("Received msg %s from container %s", msg["type"], info.container_id)
+                            if msg["type"] == "ssh_student":
+                                info_student = None
+                                if len(self._student_containers_running) > 0 and msg[
+                                    "container_id"] in info.student_containers:
+                                    info_student = self._student_containers_running[msg["container_id"]]
+                                else:
+                                    self._logger.exception("Exception: no linked student_container running.")
+                                    self._create_safe_task(self.handle_job_closing(info.container_id, -1,
+                                                                                   manual_feedback="Trying to connect with ssh to a non-children student container !"))
+
+                                await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22],
+                                                             msg["ssh_user"], msg["ssh_key"])
+                        except:
+                            self._logger.exception("Received incorrect message from container %s (job id %s)", info.container_id,
+                                                   info.job_id)
+        except asyncio.IncompleteReadError:
+            self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
+
     async def _write_to_container_stdin(self, write_stream, message):
         """
         Send a message to the stdin of a container, with the right data
@@ -596,7 +635,8 @@ class DockerAgent(Agent):
                                                                       "user": msg["user"],
                                                                       "only_dockers": msg["only_dockers"],
                                                                       "stdin": msg["stdin"]})
-
+                                if msg["ssh"] and not msg["only_dockers"]:
+                                    await self.start_ssh(student_read_stream, info)  # If using ssh with kata: wait for ssh info and start ssh
                             elif msg["type"] == "student_signal":  # Transfer the signal to the student_container
                                 student_container_id = msg["student_container_id"]
                                 student_sock = await self._docker.attach_to_container(student_container_id)
@@ -605,7 +645,6 @@ class DockerAgent(Agent):
                                 await self._write_to_container_stdin(student_write_stream, {"type": "student_signal",
                                                                                             "signal_data": msg[
                                                                                                 "signal_data"]})
-
                             elif msg["type"] == "ssh_debug":
                                 # send the data to the frontend (and client) to reach grading_container
                                 self._logger.info("%s %s", info.container_id, str(msg))

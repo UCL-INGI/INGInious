@@ -160,6 +160,40 @@ def run_teardown_script(both_dockers):
     p3.wait()  # Wait for teardown_script to finish before exiting the container
 
 
+async def send_ssh(msg, writer):
+    msg = msgpack.dumps(msg, use_bin_type=True)
+    writer.write(struct.pack('!I', len(msg)))
+    writer.write(msg)
+
+
+async def send_ssh_helper(msg):
+    stdin_sr, stdout = await stdio()
+    await send_ssh(msg, stdout)
+    return "ssh sent"
+
+
+def handle_ssh_session(container_id, both_dockers):
+    # Start ssh server
+    ssh_user, password = start_ssh_server(user)
+    # Send ssh information
+    message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user, "password": password})  # constant size
+    message_size = struct.pack('!I', len(message))
+    if both_dockers:
+        client.send(message_size)
+        client.send(message)
+    else:
+        msg = {"type": "ssh_student", "ssh_user": ssh_user, "ssh_key": password,
+               "container_id": container_id}
+        loop = zmq.asyncio.ZMQEventLoop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(send_ssh_helper(msg))
+    # Wait for user to connect and leave
+    ssh_retval = ssh_wait(ssh_user)
+    return ssh_retval
+
+
+
+
 ######################################################################
 ######################################################################
 ########### BODY #####################################################
@@ -200,15 +234,12 @@ if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to run a
 # Run the command, which in the case of ssh, acts like a setup_script
 retval = run_command(only_dockers)
 
-#Run teardown script
+# Handle SSH
+if start_cmd["ssh"]:
+    retval = handle_ssh_session(student_container_id, only_dockers)
+
+# Run teardown script
 if start_cmd["teardown_script"]:
     run_teardown_script(only_dockers)
 
 exit(retval)
-
-
-
-
-
-
-

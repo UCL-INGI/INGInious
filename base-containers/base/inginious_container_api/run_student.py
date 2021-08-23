@@ -73,6 +73,7 @@ def run_student(cmd, container=None,
         zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root)
         connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
         allow_to_send_signals(signal_handler_callback, connection, student_container_id, only_dockers)
+        handle_ssh(ssh, connection, student_container_id, only_dockers)
         message = wait_until_finished(zmq_socket)
         unlink_unneeded_files(socket_path, path)
         handle_outputs(only_dockers, stdout, stderr)
@@ -155,6 +156,7 @@ def _hack_signals(receive_signal):
                 signal.signal(signum, lambda x, _: receive_signal)
             except:
                 pass
+
 
 async def _send_intern_message(send_socket, msg):
     send_socket.send(msgpack.dumps(msg, use_bin_type=True))
@@ -270,3 +272,23 @@ def handle_outputs(both_dockers, stdout, stderr):
             os.fdopen(stdout, 'w').write(open("student/.stdout", "r").read())
         os.fdopen(stderr, 'w').write(open("student/.stderr", "r").read())
 
+
+def handle_ssh(ssh, connection, student_container_id, both_dockers):
+    # If ssh is required, the student_container will send id and password for ssh connection, transfer it to the agent
+    if not ssh:
+        return "no ssh"
+    if both_dockers:
+        s = connection.recv(4)  # First 4 bytes are for the size
+        message_length = struct.unpack('!I', bytes(s))[0]
+        ssh_id = msgpack.loads(connection.recv(message_length))
+        if ssh_id["type"] == "ssh_student":
+            msg = {"type": "ssh_student", "ssh_user": ssh_id["ssh_user"], "ssh_key": ssh_id["password"],
+                   "container_id": student_container_id}
+            send_socket = zmq.asyncio.Context().socket(zmq.REQ)
+            send_socket.connect("ipc:///sockets/main.sock")
+            loop = asyncio.get_event_loop()
+            task = loop.create_task(_send_intern_message(send_socket, msg))
+            loop.run_until_complete(task)
+            loop.close()
+    #  if grading or student container is on Kata, the ssh informations is sent to agent directly from the student_container
+    return "ok"
