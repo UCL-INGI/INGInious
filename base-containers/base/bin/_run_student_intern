@@ -155,6 +155,9 @@ def receive_signal(socket, only_dockers):
         return reader.read(3)
 
 
+def run_teardown_script(both_dockers):
+    p3 = subprocess.Popen(shlex.split(start_cmd["teardown_script"]), preexec_fn=set_limits)
+    p3.wait()  # Wait for teardown_script to finish before exiting the container
 
 
 ######################################################################
@@ -196,6 +199,13 @@ if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to run a
 
 # Run the command, which in the case of ssh, acts like a setup_script
 retval = run_command(only_dockers)
+
+#Run teardown script
+if start_cmd["teardown_script"]:
+    run_teardown_script(only_dockers)
+
+exit(retval)
+
 
 
 

@@ -605,7 +605,7 @@ class DockerAgent(Agent):
                                 await self._write_to_container_stdin(student_write_stream, {"type": "student_signal",
                                                                                             "signal_data": msg[
                                                                                                 "signal_data"]})
-                                
+
                             elif msg["type"] == "ssh_debug":
                                 # send the data to the frontend (and client) to reach grading_container
                                 self._logger.info("%s %s", info.container_id, str(msg))

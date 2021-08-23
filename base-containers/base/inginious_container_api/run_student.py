@@ -12,6 +12,7 @@ import zmq.asyncio
 import msgpack
 import zmq
 import struct
+import sys
 
 
 def run_student(cmd, container=None,
@@ -72,10 +73,10 @@ def run_student(cmd, container=None,
         zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root)
         connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
         allow_to_send_signals(signal_handler_callback, connection, student_container_id, only_dockers)
-
-
-
-        return "temporary_return_value"
+        message = wait_until_finished(zmq_socket)
+        unlink_unneeded_files(socket_path, path)
+        handle_outputs(only_dockers, stdout, stderr)
+        return message["retval"]
     except:
         return 254
 
@@ -244,4 +245,28 @@ def allow_to_send_signals(signal_handler_callback, connection, student_container
                 send_socket.connect("ipc:///sockets/main.sock")
                 send_socket.send(msgpack.dumps(msg, use_bin_type=True))
         signal_handler_callback(receive_signal)
+
+
+def wait_until_finished(zmq_socket):
+    # message = message from agent telling the student_container finished
+    return msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
+
+
+def unlink_unneeded_files(socket_path, path):
+    # Unlink unneeded files
+    try:
+        os.unlink(socket_path)
+        os.unlink(path)
+    except:
+        pass
+
+
+def handle_outputs(both_dockers, stdout, stderr):
+    # copy outputs from student container
+    if not both_dockers:
+        if stdout == sys.stdout.fileno():
+            print(open("student/.stdout", "r").read())
+        else:
+            os.fdopen(stdout, 'w').write(open("student/.stdout", "r").read())
+        os.fdopen(stderr, 'w').write(open("student/.stderr", "r").read())
 
