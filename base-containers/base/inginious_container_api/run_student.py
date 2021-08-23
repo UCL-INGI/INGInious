@@ -71,6 +71,7 @@ def run_student(cmd, container=None,
         server, socket_id, socket_path, path = create_student_socket(only_dockers)
         zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root)
         connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
+        allow_to_send_signals(signal_handler_callback, connection, student_container_id, only_dockers)
 
 
 
@@ -227,3 +228,20 @@ def send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, s
              "teardown_script": teardown_script, "working_dir": working_dir,
              "ssh": ssh, "user": user, "only_dockers": both_dockers, "stdin": stdin}, use_bin_type=True))
         return None
+
+
+def allow_to_send_signals(signal_handler_callback, connection, student_container_id, both_dockers):
+    if signal_handler_callback is not None:
+        if both_dockers:
+            def receive_signal(signum_s):  # send signal directly to student_container
+                signum_data = str(signum_s).zfill(3).encode("utf8")
+                connection.send(signum_data)
+        else:
+            def receive_signal(signum_s):  # send signal to student_container via docker agent
+                signum_data = str(signum_s).zfill(3).encode("utf8")
+                msg = {"type": "student_signal", "student_container_id": student_container_id, "signal_data": signum_data}
+                send_socket = zmq.asyncio.Context().socket(zmq.REQ)
+                send_socket.connect("ipc:///sockets/main.sock")
+                send_socket.send(msgpack.dumps(msg, use_bin_type=True))
+        signal_handler_callback(receive_signal)
+

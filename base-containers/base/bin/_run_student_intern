@@ -108,6 +108,51 @@ async def stdio():
     return reader, writer
 
 
+def run_command(both_dockers):
+    if both_dockers:
+        p = subprocess.Popen(shlex.split(start_cmd["command"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1],
+                             stderr=fds[2])
+        # Handle the signals
+        print("Signal thread")
+        thread = threading.Thread(target=lambda: handle_signals(p, client, both_dockers), daemon=True)
+        thread.start()
+        # Wait until the subprocess exit
+        print("Waiting for process to end")
+        retval = p.wait()
+        stdin= None  # stdin, stdout and stderr are automatically handled
+        stdout = None
+        stderr = None
+    else:
+        stdin = start_cmd["stdin"]
+        stdout = open("student/.stdout", "w")
+        stderr = open("student/.stderr", "w")
+        p = subprocess.Popen(shlex.split(start_cmd["command"]), preexec_fn=set_limits, stdin=stdin, stdout=stdout, stderr=stderr)
+        # Handle the signals
+        thread = threading.Thread(target=lambda: handle_signals(p, client, both_dockers), daemon=True)
+        thread.start()
+        retval = p.wait()
+        stdin.close()
+        stdout.close()
+        stderr.close()
+    return retval, stdin, stdout, stderr
+
+
+def handle_signals(subprocess, socket, both_dockers):
+    """ Handles signals given by run_student on the socket """
+    while True:
+        signal = receive_signal(socket, both_dockers)
+        if signal == b'---' or len(signal) < 3:  # quit
+            return
+        print("received %s" % signal.decode("utf8"))
+        subprocess.send_signal(int(signal.decode('utf8')))
+
+
+def receive_signal(socket, only_dockers):
+    if only_dockers:
+        return socket.recv(3)
+    else:
+        reader, _ = stdio()
+        return reader.read(3)
 
 
 
@@ -125,6 +170,32 @@ shared_kernel, only_dockers = check_runtimes(runtime, parent_runtime)
 
 # Get the command to be run ##################################
 client, fds, start_cmd = receive_initial_command(only_dockers)
+
+# Check security
+student_container_id = start_cmd["student_container_id"]
+user = start_cmd["user"]  # Know if you are worker (on docker) or root (on Kata)
+if user == "root" and shared_kernel:
+    print("You can not run as root on docker runtime")
+    exit(251)
+
+# Add some elements to /etc/hosts and /etc/resolv.conf if needed
+    system_files = {"hosts": ("/etc/hosts", True), "resolv.conf": ("/etc/resolv.conf", False)}
+    for name, (spath, append) in system_files.items():
+        if os.path.exists(os.path.join('/task/systemfiles/', name)):
+            try:
+                open(spath, 'ab' if append else 'wb').write(b'\n' + open(os.path.join('/task/systemfiles/', name), 'rb').read())
+            except IOError:
+                exit(254)
+
+# Start the process
+os.chdir(start_cmd["working_dir"])
+set_limits = lambda: set_limits_user(user)  # To know if the command should be executed as root or worker
+if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to run an empty command
+    start_cmd["command"] = "echo 'info: student container started with no command set' "
+
+
+# Run the command, which in the case of ssh, acts like a setup_script
+retval = run_command(only_dockers)
 
 
 

@@ -210,6 +210,9 @@ class INGIniousMainRunner:
                                          "only_dockers": message["only_dockers"],
                                          "stdin": message["stdin"]})
                 return False
+            if message["type"] == "student_signal": #signal to transfer to the student_container via the agent
+                await self.write_stdout({"type": "student_signal", "student_container_id": message["student_container_id"], "signal_data": message["signal_data"]})
+                return False
             if message["type"] == "run_student_ask_retval":
                 # ignore, just a dummy message
                 return False
