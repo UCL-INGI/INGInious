@@ -423,7 +423,7 @@ class DockerAgent(Agent):
         await self._timeout_watcher.register_container(out.container_id, out.time_limit, out.hard_time_limit)
 
     async def create_student_container(self, parent_info, socket_id, environment_name,
-                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream, ssh):
+                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream, ssh, run_as_root):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
@@ -441,7 +441,10 @@ class DockerAgent(Agent):
                 return
 
             environment = self._containers[environment_type][environment_name]["id"]
-            runtime = self._containers[environment_type][environment_name]["runtime"]
+            if run_as_root:
+                runtime = "kata-runtime"
+            else:
+                runtime = "io.containerd.runc.v2"
 
             ports_needed = [22] if ssh else []
             ports = {}
@@ -459,6 +462,7 @@ class DockerAgent(Agent):
                                                                            memory_limit, parent_info.student_path, socket_path,
                                                                            parent_info.systemfiles_path,
                                                                            parent_info.course_common_student_path,
+                                                                           parent_info.environment_type,
                                                                            parent_info.container_id if share_network else None,
                                                                            ports)
             except Exception as e:
@@ -567,6 +571,7 @@ class DockerAgent(Agent):
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
                                 ssh = msg["ssh"]
+                                run_as_root = msg["run_as_root"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
                                 if ssh and not info.enable_network:
                                     self._logger.error("Exception: ssh for student requires internet access in the task %s",info.job_id)

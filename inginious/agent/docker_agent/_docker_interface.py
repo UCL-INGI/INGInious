@@ -146,7 +146,7 @@ class DockerInterface(object):  # pragma: no cover
 
     def create_container_student(self, runtime: str, image: str, mem_limit, student_path,
                                  socket_path, systemfiles_path, course_common_student_path,
-                                 share_network_of_container: str=None, ports=None):
+                                 parent_runtime: str, share_network_of_container: str=None, ports=None):
         """
         Creates a student container
         :param runtime: name of the docker runtime to use
@@ -179,7 +179,7 @@ class DockerInterface(object):  # pragma: no cover
         response = self._docker.containers.create(
             image,
             stdin_open=True,
-            command="_run_student_intern "+runtime,  # the script takes the runtime as argument
+            command="_run_student_intern "+runtime + " " + parent_runtime,  # the script takes the runtimes as arguments
             mem_limit=str(mem_limit) + "M",
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,

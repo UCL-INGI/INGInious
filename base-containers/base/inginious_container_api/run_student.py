@@ -53,7 +53,30 @@ def run_student(cmd, container=None,
         - 254 means that an error occurred while running the proxy
     """
 
-    return "ok"
+    #  Checking runtimes
+    shared_kernel = os.path.exists("/.__input/__shared_kernel")
+    only_dockers = shared_kernel and not run_as_root
+    user = "root" if run_as_root else "worker"
+    #  Basic files management
+    if working_dir is None:
+        working_dir = os.getcwd()
+    if stdin is None:
+        stdin = open(os.devnull, 'rb').fileno()
+    if stdout is None:
+        stdout = open(os.devnull, 'rb').fileno()
+    if stderr is None:
+        stderr = open(os.devnull, 'rb').fileno()
+
+    try:
+        server, socket_id, socket_path, path = create_student_socket(only_dockers)
+        zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root)
+
+
+
+
+        return "temporary_return_value"
+    except:
+        return 254
 
 
 def run_student_simple(cmd, cmd_input=None, container=None,
@@ -113,6 +136,13 @@ def run_student_simple(cmd, cmd_input=None, container=None,
     else:
         return stdout, retval
 
+
+######################################################################
+######################################################################
+########### HELPERS ##################################################
+######################################################################
+######################################################################
+
 def _hack_signals(receive_signal):
     """ Catch every signal, and send it to the remote process """
     uncatchable = ['SIG_DFL', 'SIGSTOP', 'SIGKILL']
@@ -127,3 +157,46 @@ def _hack_signals(receive_signal):
 async def _send_intern_message(send_socket, msg):
     send_socket.send(msgpack.dumps(msg, use_bin_type=True))
     send_socket.recv()
+
+
+def create_student_socket(both_dockers):
+    if both_dockers:
+        # creates a placeholder for the socket
+        DIR = "/sockets/"
+        _, path = tempfile.mkstemp('', 'p', DIR)
+
+        # Gets the socket id
+        socket_id = os.path.split(path)[-1]
+        socket_path = os.path.join(DIR, socket_id + ".sock")
+
+        # Start the socket
+        server = socket.socket(socket.AF_UNIX)
+        try:
+            os.unlink(socket_path)
+        except OSError:
+            if os.path.exists(socket_path):
+                raise
+        server.bind(socket_path)
+        server.listen(0)
+        return server, socket_id, socket_path, path
+    else:
+        return None, "socketId", None, None
+
+
+def start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root):
+    # Kindly ask the agent to start a new container linked to our socket
+    context = zmq.Context()
+    zmq_socket = context.socket(zmq.REQ)
+    zmq_socket.connect("ipc:///sockets/main.sock")
+    # print("DEBUG:    Sending message asking agent to create student_container")
+    zmq_socket.send(msgpack.dumps({"type": "run_student", "environment": container,
+                                   "time_limit": time_limit, "hard_time_limit": hard_time_limit,
+                                   "memory_limit": memory_limit, "share_network": share_network,
+                                   "socket_id": socket_id, "ssh": ssh, "run_as_root": run_as_root},
+                                  use_bin_type=True))
+    # Check if the container was correctly started
+    message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
+    assert message["type"] == "run_student_started"
+    student_container_id = message["container_id"]
+    return zmq_socket, student_container_id
+

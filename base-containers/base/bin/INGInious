@@ -187,7 +187,7 @@ class INGIniousMainRunner:
                 await self.write_stdout({"type": "ssh_student", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"], "container_id": message["container_id"]})
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return False
-            if message["type"] == "run_student" and self.shared_kernel:  # disable run_student on non-shared kernels (TODO fix me)
+            if message["type"] == "run_student":
                 # copy the dict manually to ensure the correctness of the message
                 self.running_student_container[message["socket_id"]] = addr
                 await self.write_stdout({"type": "run_student", "environment": message["environment"],
@@ -196,7 +196,8 @@ class INGIniousMainRunner:
                                          "memory_limit": message["memory_limit"],
                                          "share_network": message["share_network"],
                                          "socket_id": message["socket_id"],
-                                         "ssh": message["ssh"]})
+                                         "ssh": message["ssh"]},
+                                         "run_as_root": message["run_as_root"]})
                 return False
             if message["type"] == "run_student_ask_retval":
                 # ignore, just a dummy message
