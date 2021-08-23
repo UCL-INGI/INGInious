@@ -199,6 +199,17 @@ class INGIniousMainRunner:
                                          "ssh": message["ssh"]},
                                          "run_as_root": message["run_as_root"]})
                 return False
+            if message["type"] == "run_student_command":  # This message might be sent from run_student to transfer to the student_container via the agent
+                await self.write_stdout({"type": "run_student_command",
+                                         "student_container_id": message["student_container_id"],
+                                         "command": message["command"],
+                                         "teardown_script": message["teardown_script"],
+                                         "working_dir": message["working_dir"],
+                                         "ssh": message["ssh"],
+                                         "user": message["user"],
+                                         "only_dockers": message["only_dockers"],
+                                         "stdin": message["stdin"]})
+                return False
             if message["type"] == "run_student_ask_retval":
                 # ignore, just a dummy message
                 return False

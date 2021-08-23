@@ -70,7 +70,7 @@ def run_student(cmd, container=None,
     try:
         server, socket_id, socket_path, path = create_student_socket(only_dockers)
         zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root)
-
+        connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
 
 
 
@@ -200,3 +200,30 @@ def start_student_container(container, time_limit, hard_time_limit, memory_limit
     student_container_id = message["container_id"]
     return zmq_socket, student_container_id
 
+
+def send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, both_dockers):
+    if both_dockers:
+        # The socket only works in a ping-pong style so we need to send a dummy message
+        zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, use_bin_type=True))
+
+        # Serve one and only one connection
+        connection, addr = server.accept()
+
+        # _run_student_intern should say hello
+        datagram = connection.recv(1)
+        assert datagram == b'H'
+
+        # send the fds and the command/workdir directly to student_container
+        connection.sendmsg([b'S'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [stdin, stdout, stderr]))])
+        connection.send(msgpack.dumps(
+            {"type": "run_student_command", "student_container_id": student_container_id, "command": cmd,
+             "teardown_script": teardown_script, "working_dir": working_dir, "ssh": ssh, "user": user, "only_dockers": both_dockers, "stdin": stdin}))
+        return connection
+
+    else:
+        # Send the command to the student_container via the agent
+        zmq_socket.send(msgpack.dumps(
+            {"type": "run_student_command", "student_container_id": student_container_id, "command": cmd,
+             "teardown_script": teardown_script, "working_dir": working_dir,
+             "ssh": ssh, "user": user, "only_dockers": both_dockers, "stdin": stdin}, use_bin_type=True))
+        return None

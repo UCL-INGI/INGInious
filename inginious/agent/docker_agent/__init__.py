@@ -580,6 +580,22 @@ class DockerAgent(Agent):
                                     self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network,
                                                                                      write_stream, ssh))
+                            elif msg["type"] == "run_student_command":
+                                student_container_id = msg["student_container_id"]
+                                student_sock = await self._docker.attach_to_container(student_container_id)
+                                student_read_stream, student_write_stream = await asyncio.open_connection(
+                                    sock=student_sock.get_socket())
+                                await self._write_to_container_stdin(student_write_stream,
+                                                                     {"type": "run_student_command",
+                                                                      "command": msg["command"],
+                                                                      "teardown_script": msg["teardown_script"],
+                                                                      "student_container_id": msg[
+                                                                          "student_container_id"],
+                                                                      "working_dir": msg["working_dir"],
+                                                                      "ssh": msg["ssh"],
+                                                                      "user": msg["user"],
+                                                                      "only_dockers": msg["only_dockers"],
+                                                                      "stdin": msg["stdin"]})
                             elif msg["type"] == "ssh_debug":
                                 # send the data to the frontend (and client) to reach grading_container
                                 self._logger.info("%s %s", info.container_id, str(msg))
