@@ -40,6 +40,7 @@
                                         {% if completion.is_integer() %}{{ completion | int }}{% else %}{{ completion }}{% endif %} %
                                     </div>
                                 </div>
+                                {{ template_helper.call('task_list_item', course=course, task=task, tasks_data=tasks_data, template_helper=template_helper) | safe }}
                             {% endif %}
                         </div>
                     </div>
