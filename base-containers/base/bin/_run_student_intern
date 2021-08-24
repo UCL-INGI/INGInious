@@ -18,6 +18,7 @@ import zmq
 import zmq.asyncio
 
 
+
 ######################################################################
 ######################################################################
 ########### HELPERS ##################################################
@@ -131,28 +132,27 @@ def run_command(both_dockers):
         thread = threading.Thread(target=lambda: handle_signals(p, client, both_dockers), daemon=True)
         thread.start()
         retval = p.wait()
-        stdin.close()
         stdout.close()
         stderr.close()
     return retval, stdin, stdout, stderr
 
 
-def handle_signals(subprocess, socket, both_dockers):
+async def handle_signals(subprocess, socket, both_dockers):
     """ Handles signals given by run_student on the socket """
     while True:
-        signal = receive_signal(socket, both_dockers)
+        signal = await receive_signal(socket, both_dockers)
         if signal == b'---' or len(signal) < 3:  # quit
             return
         print("received %s" % signal.decode("utf8"))
         subprocess.send_signal(int(signal.decode('utf8')))
 
 
-def receive_signal(socket, only_dockers):
+async def receive_signal(socket, only_dockers):
     if only_dockers:
         return socket.recv(3)
     else:
-        reader, _ = stdio()
-        return reader.read(3)
+        reader, writer = await stdio()
+        return await reader.read(3)
 
 
 def run_teardown_script(both_dockers):
@@ -175,10 +175,12 @@ async def send_ssh_helper(msg):
 def handle_ssh_session(container_id, both_dockers):
     # Start ssh server
     ssh_user, password = start_ssh_server(user)
-    # Send ssh information
-    message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user, "password": password})  # constant size
-    message_size = struct.pack('!I', len(message))
+
+
     if both_dockers:
+        # Send ssh information
+        message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user, "password": password})  # constant size
+        message_size = struct.pack('!I', len(message))
         client.send(message_size)
         client.send(message)
     else:

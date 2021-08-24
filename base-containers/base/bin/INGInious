@@ -196,7 +196,7 @@ class INGIniousMainRunner:
                                          "memory_limit": message["memory_limit"],
                                          "share_network": message["share_network"],
                                          "socket_id": message["socket_id"],
-                                         "ssh": message["ssh"]},
+                                         "ssh": message["ssh"],
                                          "run_as_root": message["run_as_root"]})
                 return False
             if message["type"] == "run_student_command":  # This message might be sent from run_student to transfer to the student_container via the agent
