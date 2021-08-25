@@ -218,13 +218,13 @@ if user == "root" and shared_kernel:
     exit(251)
 
 # Add some elements to /etc/hosts and /etc/resolv.conf if needed
-    system_files = {"hosts": ("/etc/hosts", True), "resolv.conf": ("/etc/resolv.conf", False)}
-    for name, (spath, append) in system_files.items():
-        if os.path.exists(os.path.join('/task/systemfiles/', name)):
-            try:
-                open(spath, 'ab' if append else 'wb').write(b'\n' + open(os.path.join('/task/systemfiles/', name), 'rb').read())
-            except IOError:
-                exit(254)
+system_files = {"hosts": ("/etc/hosts", True), "resolv.conf": ("/etc/resolv.conf", False)}
+for name, (spath, append) in system_files.items():
+    if os.path.exists(os.path.join('/task/systemfiles/', name)):
+        try:
+            open(spath, 'ab' if append else 'wb').write(b'\n' + open(os.path.join('/task/systemfiles/', name), 'rb').read())
+        except IOError:
+            exit(254)
 
 # Start the process
 os.chdir(start_cmd["working_dir"])

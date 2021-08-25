@@ -441,10 +441,16 @@ class DockerAgent(Agent):
                 return
 
             environment = self._containers[environment_type][environment_name]["id"]
-            if run_as_root:
-                runtime = "kata-runtime"
+
+            # If the user did not enter any environment name as input, it is "default"
+            if environment_name != "default":
+                runtime = environment_name
+            elif run_as_root:
+                runtime_name = {k for k in self._runtimes if self._runtimes[k].run_as_root}.pop()
+                runtime = self._runtimes[runtime_name].runtime
             else:
-                runtime = "io.containerd.runc.v2"
+                runtime_name = {k for k in self._runtimes if not self._runtimes[k].run_as_root}.pop()
+                runtime = self._runtimes[runtime_name].runtime
 
             ports_needed = [22] if ssh else []
             ports = {}
