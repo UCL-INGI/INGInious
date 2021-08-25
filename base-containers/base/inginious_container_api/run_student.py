@@ -144,8 +144,8 @@ def run_student(cmd, container=None,
         message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
 
         # Save the ssh_logs if there are some
-        if os.path.exists("student/.ssh_logs"):
-            copy("student/.ssh_logs", "/archive/ssh_logs")
+        if os.path.exists("/task/student/.ssh_logs"):
+            copy("/task/student/.ssh_logs", "/archive/ssh_logs")
 
         # Unlink unneeded files
         try:
