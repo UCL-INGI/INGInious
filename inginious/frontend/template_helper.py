@@ -28,6 +28,8 @@ class TemplateHelper(object):
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
                               "main_menu": (lambda **kwargs: self._generic_hook('main_menu', **kwargs)),
                               "course_menu": (lambda **kwargs: self._generic_hook('course_menu', **kwargs)),
+                              "submission_admin_menu": (lambda **kwargs: self._generic_hook('submission_admin_menu', **kwargs)),
+                              "task_list_item": (lambda **kwargs: self._generic_hook('task_list_item', **kwargs)),
                               "task_menu": (lambda **kwargs: self._generic_hook('task_menu', **kwargs)),
                               "welcome_text": (lambda **kwargs: self._generic_hook('welcome_text', **kwargs)),
                               "javascript_header": (lambda **_: self._javascript_helper("header")),
