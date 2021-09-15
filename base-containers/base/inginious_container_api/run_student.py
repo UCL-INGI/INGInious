@@ -12,7 +12,7 @@ import zmq.asyncio
 import msgpack
 import zmq
 import struct
-import sys
+import threading
 
 
 def run_student(cmd, container=None,
@@ -74,9 +74,8 @@ def run_student(cmd, container=None,
         connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
         allow_to_send_signals(signal_handler_callback, connection, student_container_id, only_dockers)
         handle_ssh(ssh, connection, student_container_id, only_dockers)
-        message = wait_until_finished(zmq_socket)
+        message = wait_until_finished(only_dockers, zmq_socket, stdin, stdout, stderr, socket_id, student_container_id)
         unlink_unneeded_files(socket_path, path)
-        handle_outputs(only_dockers, stdout, stderr)
         return message["retval"]
     except:
         return 254
@@ -159,20 +158,22 @@ def _hack_signals(receive_signal):
 
 
 async def _send_intern_message(send_socket, msg):
+    """ Send a signal to the grading_container main process"""
     send_socket.send(msgpack.dumps(msg, use_bin_type=True))
     send_socket.recv()
 
 
 def create_student_socket(both_dockers):
+    """ Create a socket for the grading - student containers communication. Only used when both are using docker runtimes """
+    # creates a placeholder for the socket
+    DIR = "/sockets/"
+    _, path = tempfile.mkstemp('', 'p', DIR)
+
+    # Gets the socket id
+    socket_id = os.path.split(path)[-1]
+    socket_path = os.path.join(DIR, socket_id + ".sock")
+
     if both_dockers:
-        # creates a placeholder for the socket
-        DIR = "/sockets/"
-        _, path = tempfile.mkstemp('', 'p', DIR)
-
-        # Gets the socket id
-        socket_id = os.path.split(path)[-1]
-        socket_path = os.path.join(DIR, socket_id + ".sock")
-
         # Start the socket
         server = socket.socket(socket.AF_UNIX)
         try:
@@ -184,15 +185,14 @@ def create_student_socket(both_dockers):
         server.listen(0)
         return server, socket_id, socket_path, path
     else:
-        return None, "socketId", None, None
+        return None, socket_id, socket_path, path
 
 
 def start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root):
-    # Kindly ask the agent to start a new container linked to our socket
+    """ Ask the docker agent to create the student container """
     context = zmq.Context()
     zmq_socket = context.socket(zmq.REQ)
     zmq_socket.connect("ipc:///sockets/main.sock")
-    # print("DEBUG:    Sending message asking agent to create student_container")
     zmq_socket.send(msgpack.dumps({"type": "run_student", "environment": container,
                                    "time_limit": time_limit, "hard_time_limit": hard_time_limit,
                                    "memory_limit": memory_limit, "share_network": share_network,
@@ -206,10 +206,8 @@ def start_student_container(container, time_limit, hard_time_limit, memory_limit
 
 
 def send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, both_dockers):
+    """ Send the commands (aka: student code) to be run in the student container """
     if both_dockers:
-        # The socket only works in a ping-pong style so we need to send a dummy message
-        zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, use_bin_type=True))
-
         # Serve one and only one connection
         connection, addr = server.accept()
 
@@ -221,19 +219,20 @@ def send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, s
         connection.sendmsg([b'S'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [stdin, stdout, stderr]))])
         connection.send(msgpack.dumps(
             {"type": "run_student_command", "student_container_id": student_container_id, "command": cmd,
-             "teardown_script": teardown_script, "working_dir": working_dir, "ssh": ssh, "user": user, "only_dockers": both_dockers, "stdin": stdin}))
+             "teardown_script": teardown_script, "working_dir": working_dir, "ssh": ssh, "user": user, "stdin": stdin}))
         return connection
-
     else:
         # Send the command to the student_container via the agent
         zmq_socket.send(msgpack.dumps(
-            {"type": "run_student_command", "student_container_id": student_container_id, "command": cmd,
+            {"type": "run_student_command", "socket_id": socket_id, "student_container_id": student_container_id, "command": cmd,
              "teardown_script": teardown_script, "working_dir": working_dir,
-             "ssh": ssh, "user": user, "only_dockers": both_dockers, "stdin": stdin}, use_bin_type=True))
+             "ssh": ssh, "user": user}, use_bin_type=True))
+        zmq_socket.recv() #ignore answer
         return None
 
 
 def allow_to_send_signals(signal_handler_callback, connection, student_container_id, both_dockers):
+    """ Allow to transfer signals """
     if signal_handler_callback is not None:
         if both_dockers:
             def receive_signal(signum_s):  # send signal directly to student_container
@@ -246,16 +245,53 @@ def allow_to_send_signals(signal_handler_callback, connection, student_container
                 send_socket = zmq.asyncio.Context().socket(zmq.REQ)
                 send_socket.connect("ipc:///sockets/main.sock")
                 send_socket.send(msgpack.dumps(msg, use_bin_type=True))
+                send_socket.recv()
         signal_handler_callback(receive_signal)
 
 
-def wait_until_finished(zmq_socket):
-    # message = message from agent telling the student_container finished
-    return msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
+def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, socket_id, student_container_id):
+    """ Dynamically handle stdin, stdout and stderr while waiting for final message """
+    # Start a process to handle the stdin and send it to the student_container
+    if not both_dockers:
+        stdin_handler = threading.Thread(target=handle_stdin, args=(stdin, student_container_id), daemon=True)
+        stdin_handler.start()
+
+    # handle the student_container outputs and wait for final message
+    message = None
+    msg_type = None
+    stdout_file = os.fdopen(stdout, 'w')
+    stderr_file = os.fdopen(stderr, 'w')
+
+    while msg_type != "run_student_retval":
+        zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval"}, use_bin_type=True))  # ping pong socket
+        message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
+        msg_type = message["type"]
+
+        if msg_type == "stdout":
+            stdout_file.write(message["message"].rstrip()+'\n')
+            stdout_file.flush()
+
+        if msg_type == "stderr":
+            stderr_file.write(message["message"].rstrip()+'\n')
+            stderr_file.flush()
+    return message
+
+
+def handle_stdin(stdin, student_container_id):
+    """ Read the specified stdin and send content to the student container"""
+    my_context = zmq.Context()
+    my_zmq_socket = my_context.socket(zmq.REQ)
+    my_zmq_socket.connect("ipc:///sockets/main.sock")
+    with os.fdopen(stdin, 'r') as f:
+        for line in f:
+            my_zmq_socket.send(msgpack.dumps(
+                {"type": "stdin", "message": line.rstrip(), "student_container_id": student_container_id},
+                use_bin_type=True))
+            my_zmq_socket.recv()  # ignore answer for ping-pong socket
 
 
 def unlink_unneeded_files(socket_path, path):
-    # Unlink unneeded files
+    """ Unlink unneeded files """
     try:
         os.unlink(socket_path)
         os.unlink(path)
@@ -263,20 +299,11 @@ def unlink_unneeded_files(socket_path, path):
         pass
 
 
-def handle_outputs(both_dockers, stdout, stderr):
-    # copy outputs from student container
-    if not both_dockers:
-        if stdout == sys.stdout.fileno():
-            print(open("student/.stdout", "r").read())
-        else:
-            os.fdopen(stdout, 'w').write(open("student/.stdout", "r").read())
-        os.fdopen(stderr, 'w').write(open("student/.stderr", "r").read())
-
-
 def handle_ssh(ssh, connection, student_container_id, both_dockers):
-    # If ssh is required, the student_container will send id and password for ssh connection, transfer it to the agent
+    """ If ssh is required and both containers are on docker runtime, get the id and password (generated by the student_container) and sent them to the agent
+    If the grading or the student container is on Kata, there is nothing to do, the information is directly sent to the agent from the student_container"""
     if not ssh:
-        return "no ssh"
+        return
     if both_dockers:
         s = connection.recv(4)  # First 4 bytes are for the size
         message_length = struct.unpack('!I', bytes(s))[0]
@@ -290,5 +317,4 @@ def handle_ssh(ssh, connection, student_container_id, both_dockers):
             task = loop.create_task(_send_intern_message(send_socket, msg))
             loop.run_until_complete(task)
             loop.close()
-    #  if grading or student container is on Kata, the ssh informations is sent to agent directly from the student_container
-    return "ok"
+    return

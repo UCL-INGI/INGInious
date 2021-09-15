@@ -13,7 +13,6 @@ import tempfile
 from dataclasses import dataclass
 from os.path import join as path_join
 from typing import Dict, Any, Union, List, Set
-
 import msgpack
 import psutil
 from inginious.agent.docker_agent._docker_interface import DockerInterface
@@ -25,7 +24,6 @@ from inginious.common.asyncio_utils import AsyncIteratorWrapper, AsyncProxy
 from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
-
 
 @dataclass
 class DockerRunningJob:
@@ -61,6 +59,7 @@ class DockerRunningStudentContainer:
     ssh: bool
     ports: Dict[int, int]  # internal port -> external port mapping
     assigned_external_ports: List[int]
+
 
 
 class DockerAgent(Agent):
@@ -455,10 +454,13 @@ class DockerAgent(Agent):
             ports_needed = [22] if ssh else []
             ports = {}
             for p in ports_needed:
-                if len(self._external_ports) == 0:
+                if self._external_ports is None or len(self._external_ports) == 0:
                     self._logger.warning("User asked for a port but no one are available")
-                    for port_to_free in ports:
-                        self._external_ports.add(ports[port_to_free])
+                    if self._external_ports is not None:
+                        for port_to_free in ports:
+                            self._external_ports.add(ports[port_to_free])
+                    self._logger.exception("Cannot create student container! No ports are available right now. Please retry later.")
+                    await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
                     raise CannotCreateJobException('No ports are available right now. Please retry later.')
                 ports[p] = self._external_ports.pop()
 
@@ -566,6 +568,38 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
+    async def handle_student_container_outputs(self, student_read_stream, grading_write_stream):
+        # Receive outputs (stdout and stderr) from student_container and send them to grading_container without decoding
+        buffer = bytearray()
+        try:
+            while not student_read_stream.at_eof():
+                msg_header = await student_read_stream.readexactly(8)
+                outtype, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
+                if length != 0:
+                    content = await student_read_stream.readexactly(length)
+                    if outtype == 1:  # stdout
+                        buffer += content
+                    if outtype == 2:  # stderr
+                        self._logger.debug("Received stderr from containers:\n%s", content)
+
+                    # 4 first bytes are the length of the message. If we have a complete message...
+                    while len(buffer) > 4 and len(buffer) >= 4 + struct.unpack('!I', buffer[0:4])[0]:
+                        msg_encoded = buffer[4:4 + struct.unpack('!I', buffer[0:4])[0]]  # ... get it
+                        buffer = buffer[4 + struct.unpack('!I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
+                        try:
+                            grading_write_stream.write(struct.pack('!I', len(msg_encoded)))  # Transfer the message without decoding it
+                            grading_write_stream.write(msg_encoded)
+                            await grading_write_stream.drain()
+                        except Exception as e:
+                            self._logger.info("Student container closed the stream")
+                            self._logger.info(e)
+                            return
+        except asyncio.IncompleteReadError:
+            self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
+            return
+
+
+
     async def handle_running_container(self, info: DockerRunningJob, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._docker.attach_to_container(info.container_id)
@@ -589,6 +623,8 @@ class DockerAgent(Agent):
 
         buffer = bytearray()
         try:
+            student_read_stream = None
+            student_write_stream = None
             while not read_stream.at_eof():
                 msg_header = await read_stream.readexactly(8)
                 outtype, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
@@ -625,29 +661,45 @@ class DockerAgent(Agent):
                                     self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network,
                                                                                      write_stream, ssh, run_as_root))
-                            elif msg["type"] == "run_student_command":
-                                student_container_id = msg["student_container_id"]
-                                student_sock = await self._docker.attach_to_container(student_container_id)
-                                student_read_stream, student_write_stream = await asyncio.open_connection(
-                                    sock=student_sock.get_socket())
+                            elif msg["type"] == "run_student_command":  # We use non docker-docker communication !
+                                if student_write_stream is None:
+                                    student_container_id = msg["student_container_id"]
+                                    student_sock = await self._docker.attach_to_container(student_container_id)
+                                    student_read_stream, student_write_stream = await asyncio.open_connection(
+                                        sock=student_sock.get_socket())
                                 await self._write_to_container_stdin(student_write_stream,
                                                                      {"type": "run_student_command",
+                                                                      "socket_id": msg["socket_id"],
                                                                       "command": msg["command"],
                                                                       "teardown_script": msg["teardown_script"],
                                                                       "student_container_id": msg[
                                                                           "student_container_id"],
                                                                       "working_dir": msg["working_dir"],
                                                                       "ssh": msg["ssh"],
-                                                                      "user": msg["user"],
-                                                                      "only_dockers": msg["only_dockers"],
-                                                                      "stdin": msg["stdin"]})
+                                                                      "user": msg["user"]
+                                                                      })
+
+                                if not msg["ssh"]:
+                                    self._loop.create_task(self.handle_student_container_outputs(student_read_stream, write_stream))
+
                                 if msg["ssh"] and not msg["only_dockers"]:
                                     await self.start_ssh(student_read_stream, info)  # If using ssh with kata: wait for ssh info and start ssh
+
+                            elif msg["type"] == "stdin":
+                                if student_write_stream is None:
+                                    student_container_id = msg["student_container_id"]
+                                    student_sock = await self._docker.attach_to_container(student_container_id)
+                                    student_read_stream, student_write_stream = await asyncio.open_connection(
+                                        sock=student_sock.get_socket())
+                                await self._write_to_container_stdin(student_write_stream,
+                                                                     {"type": "stdin", "message": msg["message"]})
+
                             elif msg["type"] == "student_signal":  # Transfer the signal to the student_container
-                                student_container_id = msg["student_container_id"]
-                                student_sock = await self._docker.attach_to_container(student_container_id)
-                                student_read_stream, student_write_stream = await asyncio.open_connection(
-                                    sock=student_sock.get_socket())
+                                if student_write_stream is None:
+                                    student_container_id = msg["student_container_id"]
+                                    student_sock = await self._docker.attach_to_container(student_container_id)
+                                    student_read_stream, student_write_stream = await asyncio.open_connection(
+                                        sock=student_sock.get_socket())
                                 await self._write_to_container_stdin(student_write_stream, {"type": "student_signal",
                                                                                             "signal_data": msg[
                                                                                                 "signal_data"]})
@@ -688,13 +740,16 @@ class DockerAgent(Agent):
         if not result:
             self._logger.warning("Container %s has not given any result", info.container_id)
 
+
+
+
     async def handle_student_job_closing(self, container_id, retval):
         """
         Handle a closing student container. Do some cleaning, verify memory limits, timeouts, ... and returns data to the associated grading
         container
         """
         try:
-            self._logger.debug("Closing student %s", container_id)
+            self._logger.debug("CLOSING STUDENT CONTAINER %s", container_id)
             try:
                 info = self._student_containers_running[container_id]
                 del self._student_containers_running[container_id]

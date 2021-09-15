@@ -10,7 +10,6 @@ import sys
 import shutil
 import os
 import os.path
-
 import inginious_container_api.feedback
 from inginious_container_api.run_types import run_types
 from inginious_container_api.utils import start_ssh_server, ssh_wait, execute_process
@@ -21,6 +20,7 @@ import asyncio
 import struct
 import zmq
 import zmq.asyncio
+
 
 ELF_MAGIC = b"\x7F\x45\x4C\x46"
 SHEBANG_MAGIC = b"\x23\x21"
@@ -171,6 +171,11 @@ class INGIniousMainRunner:
                     await self.intern.send_multipart(
                         [addr, b'', msgpack.dumps({"type": "run_student_retval", "retval": message["retval"]},
                                                   use_bin_type=True)])
+            if message["type"] in ["stdout", "stderr"]:
+                if message["socket_id"] in self.running_student_container:
+                    addr = self.running_student_container[message["socket_id"]]
+                    await self.intern.send_multipart([addr, b'', msgpack.dumps(message, use_bin_type=True)])
+
         except:
             self._logger.exception("An exception occured while reading stdin")
 
@@ -201,20 +206,27 @@ class INGIniousMainRunner:
                 return False
             if message["type"] == "run_student_command":  # This message might be sent from run_student to transfer to the student_container via the agent
                 await self.write_stdout({"type": "run_student_command",
+                                         "socket_id": message["socket_id"],
                                          "student_container_id": message["student_container_id"],
                                          "command": message["command"],
                                          "teardown_script": message["teardown_script"],
                                          "working_dir": message["working_dir"],
                                          "ssh": message["ssh"],
-                                         "user": message["user"],
-                                         "only_dockers": message["only_dockers"],
-                                         "stdin": message["stdin"]})
+                                         "user": message["user"]
+                                         })
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_ask_retval"}, use_bin_type=True)])  # ping pong answer
                 return False
             if message["type"] == "student_signal": #signal to transfer to the student_container via the agent
                 await self.write_stdout({"type": "student_signal", "student_container_id": message["student_container_id"], "signal_data": message["signal_data"]})
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_ask_retval"}, use_bin_type=True)])  # ping pong answer
                 return False
             if message["type"] == "run_student_ask_retval":
                 # ignore, just a dummy message
+                return False
+            if message["type"] == "stdin":  # grading container might send stdin messages to send to the student container via the agent
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_ask_retval"}, use_bin_type=True)])  # ping pong answer
+                await self.write_stdout({"type": "stdin", "message": message["message"],
+                                         "student_container_id": message["student_container_id"]})  # send to agent
                 return False
             if message["type"] == "done":
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
