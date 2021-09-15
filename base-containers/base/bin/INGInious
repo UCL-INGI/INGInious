@@ -212,7 +212,8 @@ class INGIniousMainRunner:
                                          "teardown_script": message["teardown_script"],
                                          "working_dir": message["working_dir"],
                                          "ssh": message["ssh"],
-                                         "user": message["user"]
+                                         "user": message["user"],
+                                         "only_dockers": message["only_dockers"]
                                          })
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_ask_retval"}, use_bin_type=True)])  # ping pong answer
                 return False

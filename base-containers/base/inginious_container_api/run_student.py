@@ -74,7 +74,7 @@ def run_student(cmd, container=None,
         connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
         allow_to_send_signals(signal_handler_callback, connection, student_container_id, only_dockers)
         handle_ssh(ssh, connection, student_container_id, only_dockers)
-        message = wait_until_finished(only_dockers, zmq_socket, stdin, stdout, stderr, socket_id, student_container_id)
+        message = wait_until_finished(only_dockers, zmq_socket, stdin, stdout, stderr, student_container_id)
         unlink_unneeded_files(socket_path, path)
         return message["retval"]
     except:
@@ -139,11 +139,9 @@ def run_student_simple(cmd, cmd_input=None, container=None,
         return stdout, retval
 
 
-######################################################################
-######################################################################
-########### HELPERS ##################################################
-######################################################################
-######################################################################
+
+# HELPER FUNCTIONS
+
 
 def _hack_signals(receive_signal):
     """ Catch every signal, and send it to the remote process """
@@ -219,14 +217,14 @@ def send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, s
         connection.sendmsg([b'S'], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [stdin, stdout, stderr]))])
         connection.send(msgpack.dumps(
             {"type": "run_student_command", "student_container_id": student_container_id, "command": cmd,
-             "teardown_script": teardown_script, "working_dir": working_dir, "ssh": ssh, "user": user, "stdin": stdin}))
+             "teardown_script": teardown_script, "working_dir": working_dir, "ssh": ssh, "user": user}))
         return connection
     else:
         # Send the command to the student_container via the agent
         zmq_socket.send(msgpack.dumps(
             {"type": "run_student_command", "socket_id": socket_id, "student_container_id": student_container_id, "command": cmd,
              "teardown_script": teardown_script, "working_dir": working_dir,
-             "ssh": ssh, "user": user}, use_bin_type=True))
+             "ssh": ssh, "user": user, "only_dockers": both_dockers}, use_bin_type=True))
         zmq_socket.recv() #ignore answer
         return None
 
@@ -249,7 +247,7 @@ def allow_to_send_signals(signal_handler_callback, connection, student_container
         signal_handler_callback(receive_signal)
 
 
-def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, socket_id, student_container_id):
+def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, student_container_id):
     """ Dynamically handle stdin, stdout and stderr while waiting for final message """
     # Start a process to handle the stdin and send it to the student_container
     if not both_dockers:

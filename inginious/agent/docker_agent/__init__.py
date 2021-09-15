@@ -679,7 +679,7 @@ class DockerAgent(Agent):
                                                                       "user": msg["user"]
                                                                       })
 
-                                if not msg["ssh"]:
+                                if not msg["ssh"]:  # classical run_student (not ssh_student) with a kata runtime -> handle student_container outputs
                                     self._loop.create_task(self.handle_student_container_outputs(student_read_stream, write_stream))
 
                                 if msg["ssh"] and not msg["only_dockers"]:
