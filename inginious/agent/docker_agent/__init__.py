@@ -518,6 +518,7 @@ class DockerAgent(Agent):
             self._logger.exception("Exception in create_student_container")
 
     async def start_ssh(self, read_stream, info):
+        """ Wait for ssh information from student_container and send ssh info to frontend """
         buffer = bytearray()
         try:
             while not read_stream.at_eof():  # CHECK HERE
@@ -568,8 +569,8 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_student_container_outputs(self, student_read_stream, grading_write_stream):
-        # Receive outputs (stdout and stderr) from student_container and send them to grading_container without decoding
+    async def _handle_student_container_outputs(self, student_read_stream, grading_write_stream):
+        """ Receive outputs (stdout and stderr) from student_container and send them to grading_container without decoding """
         buffer = bytearray()
         try:
             while not student_read_stream.at_eof():
@@ -597,7 +598,6 @@ class DockerAgent(Agent):
         except asyncio.IncompleteReadError:
             self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
             return
-
 
 
     async def handle_running_container(self, info: DockerRunningJob, future_results):
@@ -680,7 +680,7 @@ class DockerAgent(Agent):
                                                                       })
 
                                 if not msg["ssh"]:  # classical run_student (not ssh_student) with a kata runtime -> handle student_container outputs
-                                    self._loop.create_task(self.handle_student_container_outputs(student_read_stream, write_stream))
+                                    self._loop.create_task(self._handle_student_container_outputs(student_read_stream, write_stream))
 
                                 if msg["ssh"] and not msg["only_dockers"]:
                                     await self.start_ssh(student_read_stream, info)  # If using ssh with kata: wait for ssh info and start ssh
@@ -691,8 +691,7 @@ class DockerAgent(Agent):
                                     student_sock = await self._docker.attach_to_container(student_container_id)
                                     student_read_stream, student_write_stream = await asyncio.open_connection(
                                         sock=student_sock.get_socket())
-                                await self._write_to_container_stdin(student_write_stream,
-                                                                     {"type": "stdin", "message": msg["message"]})
+                                await self._write_to_container_stdin(student_write_stream, msg)
 
                             elif msg["type"] == "student_signal":  # Transfer the signal to the student_container
                                 if student_write_stream is None:

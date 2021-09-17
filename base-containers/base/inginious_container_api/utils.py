@@ -12,13 +12,11 @@ import logging
 import array
 import socket
 import shlex
-import msgpack
 import struct
 import asyncio
 import errno
-
 import sys
-
+import msgpack
 
 def set_limits_user(user):
     if user == "worker":
@@ -110,13 +108,14 @@ def ssh_wait(ssh_user, timeout=None):
 
 
 def setup_logger():
+    """ returns a logger for the current container """
     logger = logging.getLogger("inginious-student")
     logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
     return logger
 
 
@@ -141,7 +140,7 @@ def recv_fds(sock, msglen, maxfds):
     """ Receive FDs from the unix socket. Copy-pasted from the Python doc.
     Used only if both grading and student containers are using docker runtime"""
     fds = array.array("i")  # Array of ints
-    msg, ancdata, flags, addr = sock.recvmsg(msglen, socket.CMSG_LEN(maxfds * fds.itemsize))
+    msg, ancdata, _, addr = sock.recvmsg(msglen, socket.CMSG_LEN(maxfds * fds.itemsize))
     for cmsg_level, cmsg_type, cmsg_data in ancdata:
         if (cmsg_level == socket.SOL_SOCKET and cmsg_type == socket.SCM_RIGHTS):
             # Append data, ignoring any truncated integers at the end.
@@ -159,21 +158,21 @@ async def write_stdout(msg, container_stdout):
 
 def run_teardown_script(script, set_limits):
     """ Run the teardown script. Only used when a teardown script was specified """
-    p3 = subprocess.Popen(shlex.split(script), preexec_fn=set_limits)
-    p3.wait()  # Wait for teardown_script to finish before exiting the container
+    tear_down_process = subprocess.Popen(shlex.split(script), preexec_fn=set_limits)
+    tear_down_process.wait()  # Wait for teardown_script to finish before exiting the container
 
 
-def handle_signals(subprocess, socket):
+def handle_signals(concerned_subprocess, com_socket):
     """ Handles signals given by run_student on the socket.
     Used only when both containres are on a shared kernel. Otherwise, it is already handled by handle_stdin function """
     while True:
         try:
-            signal = socket.recv(3)
+            signal = com_socket.recv(3)
             if signal == b'---' or len(signal) < 3:  # quit
                 return
-            subprocess.send_signal(int(signal.decode('utf8')))
+            concerned_subprocess.send_signal(int(signal.decode('utf8')))
         except:
-            exit()
+            sys.exit()
 
 
 def handle_ssh_session(container_id, both_dockers, event_loop, socket_unix, container_stdout, user):
@@ -215,8 +214,8 @@ def receive_initial_command(both_dockers, container_stdin, event_loop):
         unpacker = msgpack.Unpacker()
         start_cmd = None
         while start_cmd is None:
-            s = my_socket.recv(1)
-            unpacker.feed(s)
+            data = my_socket.recv(1)
+            unpacker.feed(data)
             for obj in unpacker:
                 return my_socket, fds, obj
     else:  # Grading or student container is on Kata
@@ -254,15 +253,16 @@ def handle_stdin_message(msg, proc_input, proc):
     Used only when both containers are not on a shared kernel """
     try:
         if msg["type"] == "stdin":
-            input = msg["message"] + '\n'
-            proc_input.write(input.encode("utf8"))
+            input_content = msg["message"] + '\n'
+            proc_input.write(input_content.encode("utf8"))
             proc_input.flush()
-            return "ok"
+            return "stdin ok"
         if msg["type"] == "student_signal":
             signal = msg["signal_data"]
             proc.send_signal(int(signal.decode('utf8')))
-    except IOError as e:
-        if e.errno == errno.EPIPE:
+            return "signal ok"
+    except IOError as ioerror:
+        if ioerror.errno == errno.EPIPE:
             return "pipe_closed"
     except:
         return
@@ -292,23 +292,23 @@ async def handle_stdin(reader: asyncio.StreamReader, proc_input, proc):
         return
 
 
-def handle_outputs_helper(output, socket_id, type, lock, event_loop, container_stdout):
+def handle_outputs_helper(output, socket_id, output_type, lock, event_loop, container_stdout):
     """ Simple helper to launch the handle_outputs function in its own thread using its own asyncio loop.
     Used only when both containers are not on a shared kernel """
     loop = asyncio.new_event_loop()
-    loop.run_until_complete(handle_outputs(output, socket_id, type, lock, container_stdout))
+    loop.run_until_complete(handle_outputs(output, socket_id, output_type, lock, container_stdout))
     loop.close()
-    if type == "stdout":  # when the handle_output thread finishes, it stop the loop (to stop the handle_stin task)
+    if output_type == "stdout":  # when the handle_output thread finishes, it stop the loop (to stop the handle_stin task)
         event_loop.call_soon_threadsafe(event_loop.stop)
 
 
-async def handle_outputs(output, socket_id, type, lock, container_stdout):
+async def handle_outputs(output, socket_id, output_type, lock, container_stdout):
     """ Handle a specific output from the student code process (stdout or stderr) and send it to the grading container via the agent
     Used only when both containers are not on a shared kernel """
     try:
         for line in output:
-            message = {"type": type, "socket_id": socket_id, "message": line.rstrip().decode("utf-8")}
-            if type == "stdout":
+            message = {"type": output_type, "socket_id": socket_id, "message": line.rstrip().decode("utf-8")}
+            if output_type == "stdout":
                 time.sleep(0.001)  # Allow stderr messages to be sent slightly before stdout messages (arbitrary decision to avoid non-deterministic message order)
             lock.acquire()
             await write_stdout(message, container_stdout)
