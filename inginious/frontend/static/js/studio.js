@@ -17,8 +17,7 @@ function studio_load(data)
     });
 
     // Hacky fix for codemirror in collapsable elements
-    var collapsable = $('#tab_subproblems').find('.collapse');
-    collapsable.on('show.bs.collapse', function()
+    $('.card').on('show.bs.collapse',function()
     {
         var t = this;
         setTimeout(function()
