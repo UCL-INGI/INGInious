@@ -101,9 +101,9 @@ function dispenser_util_click_modal_task(task) {
     input.attr("checked", !input.attr("checked"));
 }
 
-function dispenser_util_add_tasks_to_section(button) {
+function dispenser_util_add_tasks_to_section(button, checker) {
     task_id= $("#new_task_id").val();
-    if(!task_id.match(/^[a-zA-Z0-9_\-]+$/)){
+    if(checker && !task_id.match(/^[a-zA-Z0-9_\-]+$/)){
         alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
         return;
     }
