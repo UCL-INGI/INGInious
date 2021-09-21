@@ -4,6 +4,20 @@
 //
 "use strict";
 
+
+// Hacky fix for codemirror in collapsable elements
+function refresh_codemirror()
+{
+    var t = this;
+    setTimeout(function()
+    {
+        $('.CodeMirror', t).each(function(i, el)
+        {
+            el.CodeMirror.refresh();
+        });
+    }, 10);
+}
+
 /**
  * Load the studio, creating blocks for existing subproblems
  */
@@ -16,18 +30,7 @@ function studio_load(data)
         studio_init_template(pid, problem);
     });
 
-    // Hacky fix for codemirror in collapsable elements
-    $('.card').on('show.bs.collapse',function()
-    {
-        var t = this;
-        setTimeout(function()
-        {
-            $('.CodeMirror', t).each(function(i, el)
-            {
-                el.CodeMirror.refresh();
-            });
-        }, 10);
-    });
+    $('#tab_subproblems .card').on('show.bs.collapse',refresh_codemirror);
 
     // Must be done *after* the event definition
     if(collapsable.length !== 1)
@@ -342,6 +345,8 @@ function studio_create_new_subproblem()
 
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
     studio_init_template(new_subproblem_pid, {"type": new_subproblem_type.substring(11)});
+
+    $('#tab_subproblems .card').on('show.bs.collapse',refresh_codemirror);
 }
 
 /**
