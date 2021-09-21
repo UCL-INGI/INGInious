@@ -112,8 +112,8 @@ function dispenser_util_add_tasks_to_section(button) {
     }
     else {
         if(!task_id.match(/^[a-zA-Z0-9_\-]+$/)){
-        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-        return;
+            alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
+            return;
         }
         selected_tasks.push(task_id);
     }
