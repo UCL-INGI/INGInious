@@ -135,17 +135,18 @@ def get_app(config):
     # Init database if needed
     db_version = database.db_version.find_one({})
     if db_version is None:
-        database.submissions.ensure_index([("username", pymongo.ASCENDING)])
-        database.submissions.ensure_index([("courseid", pymongo.ASCENDING)])
-        database.submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-        database.submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
-        database.user_tasks.ensure_index(
+        database.submissions.create_index([("username", pymongo.ASCENDING)])
+        database.submissions.create_index([("courseid", pymongo.ASCENDING)])
+        database.submissions.create_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+        database.submissions.create_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
+        database.submissions.create_index([("status", pymongo.ASCENDING)]) # update_pending_jobs speedup
+        database.user_tasks.create_index(
             [("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)],
             unique=True)
-        database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
-        database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-        database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
-        database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
+        database.user_tasks.create_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
+        database.user_tasks.create_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+        database.user_tasks.create_index([("courseid", pymongo.ASCENDING)])
+        database.user_tasks.create_index([("username", pymongo.ASCENDING)])
         database.db_version.insert({"db_version": DB_VERSION})
     elif db_version.get("db_version", 0) != DB_VERSION:
         raise Exception("Please update the database before running INGInious")
@@ -231,7 +232,6 @@ def get_app(config):
     lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
 
     submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
-
     template_helper = TemplateHelper(plugin_manager, user_manager, config.get('use_minified_js', True))
 
     register_utils(database, user_manager, template_helper)
