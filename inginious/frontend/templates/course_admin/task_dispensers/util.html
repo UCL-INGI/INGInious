@@ -60,7 +60,7 @@
                 <h4>{{ _("Create new task") }}</h4>
                 <div class="form-group row">
                     <div class="col-sm-8"><input type="text" class="form-control" id="new_task_id" placeholder="{{ _('New task id') }}" /></div>
-                    <div class="col-sm-4"><button id="add_new_task" onclick="dispenser_util_add_tasks_to_section(this, 1)" class="btn btn-info btn-large btn-block" type="button" data-dismiss="modal">{{ _("Create new task") }}</button></div>
+                    <div class="col-sm-4"><button id="add_new_task" onclick="dispenser_util_add_tasks_to_section(this)" class="btn btn-info btn-large btn-block" type="button" data-dismiss="modal">{{ _("Create new task") }}</button></div>
                 </div>
                 <h4>{{ _("Import from course filesystem") }}</h4>
                 <input id="searchTask" class="form-control" type="text" placeholder="{{ _('Search...') }}" onkeyup="dispenser_util_search_task(this)">
@@ -78,7 +78,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="add_existing_tasks" onclick="dispenser_util_add_tasks_to_section(this, 0)" type="button" class="btn btn-success" data-dismiss="modal">{{_("Add")}}</button>
+                <button id="add_existing_tasks" onclick="dispenser_util_add_tasks_to_section(this)" type="button" class="btn btn-success" data-dismiss="modal">{{_("Add")}}</button>
             </div>
         </div>
 

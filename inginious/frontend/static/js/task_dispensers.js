@@ -101,12 +101,8 @@ function dispenser_util_click_modal_task(task) {
     input.attr("checked", !input.attr("checked"));
 }
 
-function dispenser_util_add_tasks_to_section(button, checker) {
+function dispenser_util_add_tasks_to_section(button) {
     task_id= $("#new_task_id").val();
-    if(checker && !task_id.match(/^[a-zA-Z0-9_\-]+$/)){
-        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-        return;
-    }
     var selected_tasks = [];
     var existing_task = $(button).attr("id") == "add_existing_tasks";
     if(existing_task) {
@@ -115,6 +111,10 @@ function dispenser_util_add_tasks_to_section(button, checker) {
         });
     }
     else {
+        if(!task_id.match(/^[a-zA-Z0-9_\-]+$/)){
+        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
+        return;
+        }
         selected_tasks.push(task_id);
     }
 
