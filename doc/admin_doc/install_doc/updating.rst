@@ -17,7 +17,10 @@ The provided containers can be automatically updated using:
 
     $ inginious-container-update
 
-For your own or third-party containers, please refer to :ref:`new_container`.
+This will download containers images on docker-hub based on the locally installed INGInious version.
+Please note, if you have not pip-installed INGInious but are running a dev version cloned from the repository,
+you should manually build your containers to take into consideration local changes.
+If you are in this situation or if you want to add new containers, please refer to :ref:`new_container`.
 
 Updating the configuration
 --------------------------
