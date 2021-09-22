@@ -113,4 +113,8 @@ if __name__ == "__main__":
 
     database.db_version.update_one({}, {"$set": {"db_version": db_version}}, upsert=True)
 
+    if db_version < 16:
+        print("Updating database to db_version 16")
+        database.submissions.create_index([("status", pymongo.ASCENDING)])
+        
     print("Database up to date")
