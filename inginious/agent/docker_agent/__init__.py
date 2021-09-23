@@ -441,10 +441,7 @@ class DockerAgent(Agent):
 
             environment = self._containers[environment_type][environment_name]["id"]
 
-            # If the user did not enter any environment name as input, it is "default"
-            if environment_name != "default":
-                runtime = environment_name
-            elif run_as_root:
+            if run_as_root:
                 runtime_name = {k for k in self._runtimes if self._runtimes[k].run_as_root}.pop()
                 runtime = self._runtimes[runtime_name].runtime
             else:
@@ -454,7 +451,7 @@ class DockerAgent(Agent):
             ports_needed = [22] if ssh else []
             ports = {}
             for p in ports_needed:
-                if self._external_ports is None or len(self._external_ports) == 0:
+                if not self._external_ports:
                     self._logger.warning("User asked for a port but no one are available")
                     if self._external_ports is not None:
                         for port_to_free in ports:
@@ -663,11 +660,7 @@ class DockerAgent(Agent):
 
                             elif msg["type"] == "run_student_init":  # We use non docker-docker communication !
                                 if msg["student_container_id"] not in student_containers_streams:
-                                    student_container_id = msg["student_container_id"]
-                                    student_sock = await self._docker.attach_to_container(student_container_id)
-                                    student_read_stream, student_write_stream = await asyncio.open_connection(
-                                        sock=student_sock.get_socket())
-                                    student_containers_streams[student_container_id] = (student_read_stream, student_write_stream)
+                                    student_containers_streams[msg["student_container_id"]] = await self.open_student_stream(msg["student_container_id"])
                                 await self._write_to_container_stdin(student_containers_streams[msg["student_container_id"]][1],
                                                                      {"type": "run_student_init",
                                                                       "socket_id": msg["socket_id"],
@@ -677,31 +670,18 @@ class DockerAgent(Agent):
                                                                           "student_container_id"],
                                                                       "working_dir": msg["working_dir"],
                                                                       "ssh": msg["ssh"],
-                                                                      "user": msg["user"]
-                                                                      })
+                                                                      "user": msg["user"]})
 
                                 if msg["ssh"]:
                                     await self.start_ssh(student_containers_streams[msg["student_container_id"]][0], info)  # If using ssh with kata: wait for ssh info and start ssh
                                 else:  # classical run_student (not ssh_student) with a kata runtime -> handle student_container outputs
                                     self._loop.create_task(self._handle_student_container_outputs(student_containers_streams[msg["student_container_id"]][0], write_stream))
 
-                            elif msg["type"] == "stdin":
+                            elif msg["type"] in ["stdin", "student_signal"]: #Simply transfer to student_container
                                 if msg["student_container_id"] not in student_containers_streams:
-                                    student_container_id = msg["student_container_id"]
-                                    student_sock = await self._docker.attach_to_container(student_container_id)
-                                    student_read_stream, student_write_stream = await asyncio.open_connection(
-                                        sock=student_sock.get_socket())
-                                    student_containers_streams[student_container_id] = (student_read_stream, student_write_stream)
+                                    student_containers_streams[msg["student_container_id"]] = await self.open_student_stream(msg["student_container_id"])
                                 await self._write_to_container_stdin(student_containers_streams[msg["student_container_id"]][1], msg)
 
-                            elif msg["type"] == "student_signal":  # Transfer the signal to the student_container
-                                if msg["student_container_id"] not in student_containers_streams:
-                                    student_container_id = msg["student_container_id"]
-                                    student_sock = await self._docker.attach_to_container(student_container_id)
-                                    student_read_stream, student_write_stream = await asyncio.open_connection(
-                                        sock=student_sock.get_socket())
-                                    student_containers_streams[student_container_id] = (student_read_stream, student_write_stream)
-                                await self._write_to_container_stdin(student_containers_streams[msg["student_container_id"]][1], {"type": "student_signal", "signal_data": msg["signal_data"]})
                             elif msg["type"] == "ssh_debug":
                                 # send the data to the frontend (and client) to reach grading_container
                                 self._logger.info("%s %s", info.container_id, str(msg))
@@ -718,8 +698,7 @@ class DockerAgent(Agent):
                                 self._logger.info("%s %s", info_student.container_id, str(msg))
                                 await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22], msg["ssh_user"], msg["ssh_key"])
                             elif msg["type"] == "result":
-                                # last message containing the results of the container
-                                result = msg["result"]
+                                result = msg["result"]  # last message containing the results of the container
                         except:
                             self._logger.exception("Received incorrect message from container %s (job id %s)", info.container_id, info.job_id)
         except asyncio.IncompleteReadError:
@@ -740,6 +719,12 @@ class DockerAgent(Agent):
             self._logger.warning("Container %s has not given any result", info.container_id)
 
 
+    async def open_student_stream(self, student_container_id):
+        student_sock = await self._docker.attach_to_container(student_container_id)
+        student_read_stream, student_write_stream = await asyncio.open_connection(
+            sock=student_sock.get_socket())
+        stream = (student_read_stream, student_write_stream)
+        return stream
 
 
     async def handle_student_job_closing(self, container_id, retval):

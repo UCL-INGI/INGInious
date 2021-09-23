@@ -71,8 +71,9 @@ else:
     p = subprocess.Popen(shlex.split(start_cmd["command"]), preexec_fn=set_limits, stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     write_lock = threading.Lock()  # Lock to avoid stdout_handler and stderr_handler to write on the stdout_stream at the same time
-    stdout_handler = threading.Thread(target=handle_outputs_helper, args=(p.stdout, start_cmd["socket_id"], "stdout", write_lock, event_loop, container_stdout))
-    stderr_handler = threading.Thread(target=handle_outputs_helper, args=(p.stderr, start_cmd["socket_id"], "stderr", write_lock, event_loop, container_stdout))
+    outputs_loop = asyncio.new_event_loop()  # Loop used in other threads
+    stdout_handler = threading.Thread(target=handle_outputs_helper, args=(p.stdout, start_cmd["socket_id"], "stdout", write_lock, event_loop, container_stdout, outputs_loop))
+    stderr_handler = threading.Thread(target=handle_outputs_helper, args=(p.stderr, start_cmd["socket_id"], "stderr", write_lock, event_loop, container_stdout, outputs_loop))
     stdout_handler.start()
     stderr_handler.start()
     try:

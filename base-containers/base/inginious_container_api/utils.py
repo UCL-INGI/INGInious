@@ -221,11 +221,26 @@ def receive_initial_command(both_dockers, container_stdin, event_loop):
                     return my_socket, fds, msg
                 raise Exception("Received wrong initial message")
     else:  # Grading or student container is on Kata
-        msg = event_loop.run_until_complete(receive_initial_message(container_stdin))
+        msg = event_loop.run_until_complete(receive_message(container_stdin))
+        if msg["type"] != "run_student_init":
+            raise Exception("Received wrong initial message")
         return None, None, msg
 
 
-async def receive_initial_message(reader: asyncio.StreamReader):
+async def handle_stdin(reader: asyncio.StreamReader, proc_input, proc):
+    """ Deamon to handle messages from the agent.
+    Used only when both containers are not on a shared kernel"""
+    try:
+        while not reader.at_eof():
+            message = await receive_message(reader)
+            status = handle_stdin_message(message, proc_input, proc)
+            if status == "pipe_closed":
+                return
+    except:  # This task will raise an exception when the loop stops
+        return
+
+
+async def receive_message(reader: asyncio.StreamReader):
     """ Get the initial command message from the agent.
      Used only when both containers are not on a shared-kernel """
     buf = bytearray()
@@ -235,21 +250,7 @@ async def receive_initial_message(reader: asyncio.StreamReader):
     buf = bytearray()
     while len(buf) != length and not reader.at_eof():
         buf += await reader.read(length - len(buf))
-    message = msgpack.unpackb(bytes(buf), use_list=False)
-    if message["type"] == "run_student_init":
-        return message
-    raise Exception("Received wrong initial message")
-
-
-async def stdio():
-    """ Create the stdin and stdout streams to communicate with the agent """
-    my_loop = asyncio.get_event_loop()
-    reader = asyncio.StreamReader()
-    reader_protocol = asyncio.StreamReaderProtocol(reader)
-    writer_transport, writer_protocol = await my_loop.connect_write_pipe(asyncio.streams.FlowControlMixin, os.fdopen(1, 'wb'))
-    writer = asyncio.StreamWriter(writer_transport, writer_protocol, None, my_loop)
-    await my_loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
-    return reader, writer
+    return msgpack.unpackb(bytes(buf), use_list=False)
 
 
 def handle_stdin_message(msg, proc_input, proc):
@@ -272,50 +273,28 @@ def handle_stdin_message(msg, proc_input, proc):
         return
 
 
-async def handle_stdin(reader: asyncio.StreamReader, proc_input, proc):
-    """ Deamon to handle messages from the agent.
-    Used only when both containers are not on a shared kernel"""
-    try:
-        while not reader.at_eof():
-            buf = bytearray()
-            while len(buf) != 4 and not reader.at_eof():
-                buf += await reader.read(4 - len(buf))
-            if reader.at_eof():
-                continue
-            length = struct.unpack('!I', bytes(buf))[0]
-            buf = bytearray()
-            while len(buf) != length and not reader.at_eof():
-                buf += await reader.read(length - len(buf))
-            if reader.at_eof():
-                continue
-            message = msgpack.unpackb(bytes(buf), use_list=False)  # EXCEPTION EXTRA DATA
-            status = handle_stdin_message(message, proc_input, proc)
-            if status == "pipe_closed":
-                return
-    except:  # This task will raise an exception when the loop stops
-        return
+async def stdio():
+    """ Create the stdin and stdout streams to communicate with the agent """
+    my_loop = asyncio.get_event_loop()
+    reader = asyncio.StreamReader()
+    reader_protocol = asyncio.StreamReaderProtocol(reader)
+    writer_transport, writer_protocol = await my_loop.connect_write_pipe(asyncio.streams.FlowControlMixin, os.fdopen(1, 'wb'))
+    writer = asyncio.StreamWriter(writer_transport, writer_protocol, None, my_loop)
+    await my_loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+    return reader, writer
 
 
-def handle_outputs_helper(output, socket_id, output_type, lock, event_loop, container_stdout):
-    """ Simple helper to launch the handle_outputs function in its own thread using its own asyncio loop.
+def handle_outputs_helper(output, socket_id, output_type, lock, event_loop, container_stdout, outputs_loop):
+    """ Function launched in its own thread using its own asyncio loop to handle outputs and send them to agent.
     Used only when both containers are not on a shared kernel """
-    loop = asyncio.new_event_loop()
-    loop.run_until_complete(handle_outputs(output, socket_id, output_type, lock, container_stdout))
-    loop.close()
-    if output_type == "stdout":  # when the handle_output thread finishes, it stop the loop (to stop the handle_stin task)
+    for line in output:
+        message = {"type": output_type, "socket_id": socket_id, "message": line.rstrip().decode("utf-8")}
+        if output_type == "stdout":
+            time.sleep(0.001)  # (arbitrary delay to avoid non-deterministic message order)
+        lock.acquire()
+        outputs_loop.run_until_complete(write_stdout(message, container_stdout))
+        lock.release()
+    if output_type == "stdout":  # when the handle_output thread finishes, it stop the loop (to stop handle_stin)
+        outputs_loop.close()
         event_loop.call_soon_threadsafe(event_loop.stop)
 
-
-async def handle_outputs(output, socket_id, output_type, lock, container_stdout):
-    """ Handle a specific output from the student code process (stdout or stderr) and send it to the grading container via the agent
-    Used only when both containers are not on a shared kernel """
-    try:
-        for line in output:
-            message = {"type": output_type, "socket_id": socket_id, "message": line.rstrip().decode("utf-8")}
-            if output_type == "stdout":
-                time.sleep(0.001)  # Allow stderr messages to be sent slightly before stdout messages (arbitrary decision to avoid non-deterministic message order)
-            lock.acquire()
-            await write_stdout(message, container_stdout)
-            lock.release()
-    except:
-        return
