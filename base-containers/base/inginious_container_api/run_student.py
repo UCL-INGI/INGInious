@@ -222,9 +222,9 @@ def send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, s
     else:
         # Send the command to the student_container via the agent
         zmq_socket.send(msgpack.dumps(
-            {"type": "run_student_command", "socket_id": socket_id, "student_container_id": student_container_id, "command": cmd,
+            {"type": "run_student_init", "socket_id": socket_id, "student_container_id": student_container_id, "command": cmd,
              "teardown_script": teardown_script, "working_dir": working_dir,
-             "ssh": ssh, "user": user, "only_dockers": both_dockers}, use_bin_type=True))
+             "ssh": ssh, "user": user}, use_bin_type=True))
         zmq_socket.recv() #ignore answer
         return None
 
@@ -261,7 +261,7 @@ def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, student
     stderr_file = os.fdopen(stderr, 'w')
 
     while msg_type != "run_student_retval":
-        zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval"}, use_bin_type=True))  # ping pong socket
+        zmq_socket.send(msgpack.dumps({"type": "dummy_message"}, use_bin_type=True))  # ping pong socket
         message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
         msg_type = message["type"]
 

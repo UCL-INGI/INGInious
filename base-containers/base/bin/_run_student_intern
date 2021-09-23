@@ -40,6 +40,7 @@ socket_unix, fds, start_cmd = receive_initial_command(only_dockers, container_st
 student_container_id = start_cmd["student_container_id"]
 user = start_cmd["user"]  # Know if you are worker (on docker) or root (on Kata)
 if user == "root" and shared_kernel:
+    logger.info("You can not run as root on docker runtime")
     exit(251)
 
 # Add some elements to /etc/hosts and /etc/resolv.conf if needed
@@ -76,9 +77,9 @@ else:
     stderr_handler.start()
     try:
         event_loop.run_until_complete(handle_stdin(container_stdin, p.stdin, p))
-    except RuntimeError as e:
-        if e == 'Event loop stopped before Future completed.':  # The loop will be stopped by stdout_handler
-            logger.info("student code finished !")
+    except RuntimeError as e:  # The loop will be stopped by stdout_handler (causing a RuntimeError)
+        pass
+    logger.info("student code finished !")
     retval = p.wait()
     stdout_handler.join()
     stderr_handler.join()

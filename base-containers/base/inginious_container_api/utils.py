@@ -216,8 +216,10 @@ def receive_initial_command(both_dockers, container_stdin, event_loop):
         while start_cmd is None:
             data = my_socket.recv(1)
             unpacker.feed(data)
-            for obj in unpacker:
-                return my_socket, fds, obj
+            for msg in unpacker:
+                if msg["type"] == "run_student_command":
+                    return my_socket, fds, msg
+                raise Exception("Received wrong initial message")
     else:  # Grading or student container is on Kata
         msg = event_loop.run_until_complete(receive_initial_message(container_stdin))
         return None, None, msg
@@ -233,8 +235,10 @@ async def receive_initial_message(reader: asyncio.StreamReader):
     buf = bytearray()
     while len(buf) != length and not reader.at_eof():
         buf += await reader.read(length - len(buf))
-    message = msgpack.unpackb(bytes(buf), use_list=False)  # EXCEPTION EXTRA DATA
-    return message
+    message = msgpack.unpackb(bytes(buf), use_list=False)
+    if message["type"] == "run_student_init":
+        return message
+    raise Exception("Received wrong initial message")
 
 
 async def stdio():

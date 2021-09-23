@@ -623,8 +623,7 @@ class DockerAgent(Agent):
 
         buffer = bytearray()
         try:
-            student_read_stream = None
-            student_write_stream = None
+            student_containers_streams = {}
             while not read_stream.at_eof():
                 msg_header = await read_stream.readexactly(8)
                 outtype, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
@@ -661,14 +660,16 @@ class DockerAgent(Agent):
                                     self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network,
                                                                                      write_stream, ssh, run_as_root))
-                            elif msg["type"] == "run_student_command":  # We use non docker-docker communication !
-                                if student_write_stream is None:
+
+                            elif msg["type"] == "run_student_init":  # We use non docker-docker communication !
+                                if msg["student_container_id"] not in student_containers_streams:
                                     student_container_id = msg["student_container_id"]
                                     student_sock = await self._docker.attach_to_container(student_container_id)
                                     student_read_stream, student_write_stream = await asyncio.open_connection(
                                         sock=student_sock.get_socket())
-                                await self._write_to_container_stdin(student_write_stream,
-                                                                     {"type": "run_student_command",
+                                    student_containers_streams[student_container_id] = (student_read_stream, student_write_stream)
+                                await self._write_to_container_stdin(student_containers_streams[msg["student_container_id"]][1],
+                                                                     {"type": "run_student_init",
                                                                       "socket_id": msg["socket_id"],
                                                                       "command": msg["command"],
                                                                       "teardown_script": msg["teardown_script"],
@@ -679,29 +680,28 @@ class DockerAgent(Agent):
                                                                       "user": msg["user"]
                                                                       })
 
-                                if not msg["ssh"]:  # classical run_student (not ssh_student) with a kata runtime -> handle student_container outputs
-                                    self._loop.create_task(self._handle_student_container_outputs(student_read_stream, write_stream))
-
-                                if msg["ssh"] and not msg["only_dockers"]:
-                                    await self.start_ssh(student_read_stream, info)  # If using ssh with kata: wait for ssh info and start ssh
+                                if msg["ssh"]:
+                                    await self.start_ssh(student_containers_streams[msg["student_container_id"]][0], info)  # If using ssh with kata: wait for ssh info and start ssh
+                                else:  # classical run_student (not ssh_student) with a kata runtime -> handle student_container outputs
+                                    self._loop.create_task(self._handle_student_container_outputs(student_containers_streams[msg["student_container_id"]][0], write_stream))
 
                             elif msg["type"] == "stdin":
-                                if student_write_stream is None:
+                                if msg["student_container_id"] not in student_containers_streams:
                                     student_container_id = msg["student_container_id"]
                                     student_sock = await self._docker.attach_to_container(student_container_id)
                                     student_read_stream, student_write_stream = await asyncio.open_connection(
                                         sock=student_sock.get_socket())
-                                await self._write_to_container_stdin(student_write_stream, msg)
+                                    student_containers_streams[student_container_id] = (student_read_stream, student_write_stream)
+                                await self._write_to_container_stdin(student_containers_streams[msg["student_container_id"]][1], msg)
 
                             elif msg["type"] == "student_signal":  # Transfer the signal to the student_container
-                                if student_write_stream is None:
+                                if msg["student_container_id"] not in student_containers_streams:
                                     student_container_id = msg["student_container_id"]
                                     student_sock = await self._docker.attach_to_container(student_container_id)
                                     student_read_stream, student_write_stream = await asyncio.open_connection(
                                         sock=student_sock.get_socket())
-                                await self._write_to_container_stdin(student_write_stream, {"type": "student_signal",
-                                                                                            "signal_data": msg[
-                                                                                                "signal_data"]})
+                                    student_containers_streams[student_container_id] = (student_read_stream, student_write_stream)
+                                await self._write_to_container_stdin(student_containers_streams[msg["student_container_id"]][1], {"type": "student_signal", "signal_data": msg["signal_data"]})
                             elif msg["type"] == "ssh_debug":
                                 # send the data to the frontend (and client) to reach grading_container
                                 self._logger.info("%s %s", info.container_id, str(msg))
