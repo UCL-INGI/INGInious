@@ -86,6 +86,7 @@
     <script src="{{get_homepath(True)}}/static/js/audiences.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/groups.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/task_dispensers.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{get_homepath(True)}}/static/js/admin.js" type="text/javascript" charset="utf-8"></script>
     {% endif %}
 
     <script type="text/javascript">
@@ -121,7 +122,13 @@
                         {% if user_manager is defined and user_manager.session_logged_in() %}
                             {# Change to teacher privilege when created #}
                             {% if user_manager.user_is_superadmin() %}
-                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
+                                <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseAdministratorMenu" role="button" aria-expanded="false" aria-controls="collapseAdministratorMenu">
+                                    <i class="fa fa-shield fa-fw"></i> {{ _("Administration") }} <span class="caret"></span>
+                                </a>
+                                <div class="collapse list-group-collapse" id="collapseAdministratorMenu">
+                                    <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/administrator/users"><i class="fa fa-users fa-fw"></i> {{ _("Users") }}</a>
+                                    <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
+                                </div>
                             {% endif %}
                             <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a>
                             <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseUserMenu" role="button" aria-expanded="false" aria-controls="collapseUserMenu">

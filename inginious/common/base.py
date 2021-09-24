@@ -22,7 +22,7 @@ def id_checker(id_to_test):
 def id_checker_tests(id_to_test):
     """Checks if a id is correct"""
     return bool(re.match(r'[a-z0-9\-\._*]+$', id_to_test, re.IGNORECASE))
-    
+
 
 def load_json_or_yaml(file_path):
     """ Load JSON or YAML depending on the file extension. Returns a dict """
@@ -89,7 +89,8 @@ def directory_compare_from_hash(from_directory, to_directory):
     :param to_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
     :return: a tuple containing two list: the files that should be uploaded to "to_directory" and the files that should be removed from "to_directory"
     """
-    from_directory = dict([(os.path.normpath(path), (filehash, stat)) for path, (filehash, stat) in from_directory.items()])
+    from_directory = dict(
+        [(os.path.normpath(path), (filehash, stat)) for path, (filehash, stat) in from_directory.items()])
     to_directory = dict([(os.path.normpath(path), (filehash, stat)) for path, (filehash, stat) in to_directory.items()])
 
     to_upload = []
