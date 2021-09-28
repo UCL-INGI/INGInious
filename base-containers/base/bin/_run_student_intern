@@ -122,7 +122,7 @@ if start_cmd["ssh"]:
     # Wait for user to connect and leave
     retval = ssh_wait(ssh_user)
 
-if start_cmd["teardown_script"] != "":
+if start_cmd["teardown_script"]:
     # Make the scripts directory available and execute the teardown script
     scripts_isolation(False)
     p2 = subprocess.Popen(shlex.split(start_cmd["teardown_script"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1],
