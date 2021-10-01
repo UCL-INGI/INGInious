@@ -216,17 +216,12 @@ class INGIniousMainRunner:
                                          })
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "dummy_message"}, use_bin_type=True)])  # ping pong answer
                 return False
-            if message["type"] == "student_signal": #signal to transfer to the student_container via the agent
-                await self.write_stdout({"type": "student_signal", "student_container_id": message["student_container_id"], "signal_data": message["signal_data"]})
-                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "dummy_message"}, use_bin_type=True)])  # ping pong answer
-                return False
             if message["type"] == "dummy_message":
                 # ignore, just a dummy message
                 return False
-            if message["type"] == "stdin":  # grading container might send stdin messages to send to the student container via the agent
+            if message["type"] in ["student_signal", "stdin"]:
+                await self.write_stdout(message)
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "dummy_message"}, use_bin_type=True)])  # ping pong answer
-                await self.write_stdout({"type": "stdin", "message": message["message"],
-                                         "student_container_id": message["student_container_id"]})  # send to agent
                 return False
             if message["type"] == "done":
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])

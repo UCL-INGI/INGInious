@@ -68,7 +68,7 @@ if only_dockers:
     signal_thread.start()
     retval = p.wait()
 else:
-    p = subprocess.Popen(shlex.split(start_cmd["command"]), preexec_fn=set_limits, stdin=subprocess.PIPE,
+    p = subprocess.Popen(shlex.split(start_cmd["command"]), bufsize=0, preexec_fn=set_limits, stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     write_lock = threading.Lock()  # Lock to avoid stdout_handler and stderr_handler to write on the stdout_stream at the same time
     outputs_loop = asyncio.new_event_loop()  # Loop used in other threads

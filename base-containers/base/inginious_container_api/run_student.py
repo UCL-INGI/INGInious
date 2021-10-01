@@ -13,6 +13,7 @@ import zmq
 import struct
 import threading
 import zmq.asyncio
+from inginious_container_api.utils import read_block
 
 
 def run_student(cmd, container=None,
@@ -142,7 +143,6 @@ def run_student_simple(cmd, cmd_input=None, container=None,
 
 # HELPER FUNCTIONS
 
-
 def _hack_signals(receive_signal):
     """ Catch every signal, and send it to the remote process """
     uncatchable = ['SIG_DFL', 'SIGSTOP', 'SIGKILL']
@@ -257,8 +257,8 @@ def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, student
     # handle the student_container outputs and wait for final message
     message = None
     msg_type = None
-    stdout_file = os.fdopen(stdout, 'w')
-    stderr_file = os.fdopen(stderr, 'w')
+    stdout_file = os.fdopen(stdout, 'wb')
+    stderr_file = os.fdopen(stderr, 'wb')
 
     while msg_type != "run_student_retval":
         zmq_socket.send(msgpack.dumps({"type": "dummy_message"}, use_bin_type=True))  # ping pong socket
@@ -266,11 +266,11 @@ def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, student
         msg_type = message["type"]
 
         if msg_type == "stdout":
-            stdout_file.write(message["message"].rstrip()+'\n')
+            stdout_file.write(message["message"])
             stdout_file.flush()
 
         if msg_type == "stderr":
-            stderr_file.write(message["message"].rstrip()+'\n')
+            stderr_file.write(message["message"])
             stderr_file.flush()
     return message
 
@@ -280,12 +280,13 @@ def handle_stdin(stdin, student_container_id):
     my_context = zmq.Context()
     my_zmq_socket = my_context.socket(zmq.REQ)
     my_zmq_socket.connect("ipc:///sockets/main.sock")
-    with os.fdopen(stdin, 'r') as stdin_read:
-        for line in stdin_read:
-            my_zmq_socket.send(msgpack.dumps(
-                {"type": "stdin", "message": line.rstrip(), "student_container_id": student_container_id},
-                use_bin_type=True))
-            my_zmq_socket.recv()  # ignore answer for ping-pong socket
+    input_file = os.fdopen(stdin, 'rb', buffering=0)
+    chunk_size = 512000
+    while True:
+        block = read_block(input_file, chunk_size)
+        if block:
+            my_zmq_socket.send(msgpack.dumps({"type": "stdin", "message": block, "student_container_id": student_container_id}, use_bin_type=True))
+            my_zmq_socket.recv()
 
 
 def unlink_unneeded_files(socket_path, path):
