@@ -66,9 +66,10 @@ class AccessibleTime(object):
                 self._val = [parse_date(values[0].strip(), datetime.min), parse_date(values[2].strip(), datetime.max)]
                 self._soft_end = parse_date(values[1].strip(), datetime.max)
 
-        # Having a soft deadline after the hard one does not make sense
+        # Having a soft deadline after the hard one does not make sense, make soft-deadline same as hard-deadline
         if self._soft_end > self._val[1]:
-            raise ValueError(_("Cannot have a soft deadline after the hard one"))
+            self._soft_end = self._val[1]
+
 
     def before_start(self, when=None):
         """ Returns True if the task/course is not yet accessible """
