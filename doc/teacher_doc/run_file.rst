@@ -869,7 +869,7 @@ More technically about these optional arguments, please note that:
 - The **setup-script** can take the form of direct commands or a script file.
 - Only the main body of the script will be executed and finished before starting the ssh server. If you want subprocess to continue running in background while the student has ssh access, these subprocess must be launched in a non-blocking way (such as using `subprocess.Popen <https://docs.python.org/fr/3/library/subprocess.html#subprocess.Popen>`_ inside a python setup script).
 - The **teardown-script** follows the same principle.
-- In the case of script files, it is recommanded to place the files in a directory with the path *student/scripts*. This specific directory will automatically be isolated from the student during the ssh session so that the student can not inspect the scripts.
+- In the case of script files, it is recommanded to place the files in a directory with the path *student/scripts*. This specific directory will automatically be isolated from the student during the ssh session so that the student can not inspect the scripts unless he has root privileges.
 
 Here are the different return values:
     -   0: the student correctly connected and leaved the ssh connection
