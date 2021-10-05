@@ -51,6 +51,7 @@ def run_student(cmd, container=None,
         - 253 means that the command timed out
         - 254 means that an error occurred while running the proxy
     """
+
     if not os.path.exists("/.__input/__shared_kernel"):  # disable run_student when the kernel is not shared (TODO fix me)
         print("run_student is not available with Kata yet")
         return 251

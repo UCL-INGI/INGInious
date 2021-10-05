@@ -834,7 +834,8 @@ ssh_student
 
     *ssh_student*, as for *run_student* is not available in some environments, such as those running in OCI runtimes that do not share
     a common kernel between containers. ``kata`` is an example of such runtime. When ``ssh_student`` is not available,
-    it will exit with error code 251. The *ssh_student* feature also requires to allow internet connection in the environment configuration tab.
+    it will exit with error code 251. The *ssh_student* feature also requires to allow ssh and internet connection in the environment configuration tab.
+    Note, to use ssh_student, at least one inginious-agent in your deployment must handle ssh. For more details, see: :ref:`inginious-docker-agent<inginious-agent-docker>`
     
 
 

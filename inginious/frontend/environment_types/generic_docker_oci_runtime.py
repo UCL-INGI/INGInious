@@ -28,6 +28,9 @@ class GenericDockerOCIRuntime(FrontendEnvType):
         # Network access in grading container?
         out["network_grading"] = data.get("network_grading", False)
 
+        # SSH allowed ?
+        out["ssh_allowed"] = data.get("ssh_allowed", False)
+
         # Limits
         limits = {"time": 20, "memory": 1024, "disk": 1024}
         if "limits" in data:

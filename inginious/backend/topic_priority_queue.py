@@ -36,10 +36,11 @@ class TopicPriorityQueue:
         :return: the smallest elements that fits in one of the topics
         :raises: queue.Empty exception if the queue has no elements that fits in any of the topics
         """
+        agent_ssh = topics.ssh_allowed
         best_topic = None
         best_elem = None
-        for topic in topics:
-            if topic in self.queues and len(self.queues[topic]) != 0 and (best_elem is None or best_elem > self.queues[topic][0]):
+        for topic in topics.environments:
+            if topic in self.queues and len(self.queues[topic]) != 0 and (best_elem is None or best_elem > self.queues[topic][0]) and (agent_ssh or not self.queues[topic][0].msg.environment_parameters["ssh_allowed"]):
                 best_topic = topic
                 best_elem = self.queues[topic][0]
         if best_topic is None:

@@ -86,6 +86,8 @@ if __name__ == "__main__":
                         action="store_true")
     parser.add_argument("--debugmode", help="Enables debug mode. For developers only.", action="store_true")
     parser.add_argument("--disable-autorestart", help="Disables the auto restart on agent failure.", action="store_true")
+    parser.add_argument("--ssh", help="Allow this agent to handle tasks with ssh features", action="store_true",
+                        default=False)
     parser.add_argument("--runtime", nargs='+', action=RuntimeParser,
                         help="Add a runtime. Expects at least 2 arguments: the name of the runtime (eg runc), "
                              "the name of the environment type (eg docker or kata). You can then add flags:\n"
@@ -93,7 +95,6 @@ if __name__ == "__main__":
                              "- 'shared' indicates that the containers on this runtime use the host kernel (i.e. they are not VMs)"
                              "\n"
                              "Common values are 'runc docker shared' and 'kata-runtime kata root'.")
-
     (args, fsprovider) = get_args_and_filesystem(parser)
 
     if not os.path.exists(args.tmpdir):
@@ -120,7 +121,7 @@ if __name__ == "__main__":
         # Create agent
         agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider,
                             address_host=args.debug_host, external_ports=args.debug_ports, tmp_dir=args.tmpdir,
-                            runtimes=args.runtime)
+                            runtimes=args.runtime, ssh_allowed=args.ssh)
 
         # Run!
         try:
