@@ -21,10 +21,12 @@ logger = setup_logger()
 # Check the runtimes
 runtime = sys.argv[1]
 parent_runtime = sys.argv[2]
-shared_kernel, only_dockers = check_runtimes(runtime, parent_runtime)
+shared_kernel, both_same_kernel = check_runtimes(runtime, parent_runtime)
+# shared_kernal: boolean, True when this student_container is running on docker runtime. False when running on kata runtime.
+# only_dockers: boolean, True when this student_container and its parent grading_container are both running on docker runtimes.
 
 # Setup the asyncio loop and container_stdin/stdout streams for communications with agent when both containers are not on a shared kernel
-if not only_dockers:
+if not both_same_kernel:
     context = zmq.asyncio.Context()
     event_loop = zmq.asyncio.ZMQEventLoop()
     asyncio.set_event_loop(event_loop)
@@ -34,13 +36,13 @@ else:
 
 
 # Get the command to be run
-socket_unix, fds, start_cmd = receive_initial_command(only_dockers, container_stdin, event_loop)
+socket_unix, fds, start_cmd = receive_initial_command(both_same_kernel, container_stdin, event_loop)
 
 # Check security
 student_container_id = start_cmd["student_container_id"]
 user = start_cmd["user"]  # Know if you are worker (on docker) or root (on Kata)
 if user == "root" and shared_kernel:
-    logger.info("You can not run as root on docker runtime")
+    logger.info("You can not run as root on a runtime with shared_kernel such as docker runtime")
     exit(251)
 
 # Add some elements to /etc/hosts and /etc/resolv.conf if needed
@@ -61,7 +63,7 @@ if start_cmd["command"] is None or start_cmd["command"] == "":  # Avoid to run a
     start_cmd["command"] = "echo 'info: student container started with no command set' "
 
 # Run the student code in its own subprocess and handle inputs/outputs
-if only_dockers:
+if both_same_kernel:
     p = subprocess.Popen(shlex.split(start_cmd["command"]), preexec_fn=set_limits, stdin=fds[0], stdout=fds[1],
                          stderr=fds[2])
     signal_thread = threading.Thread(target=lambda: handle_signals(p, socket_unix), daemon=True)
@@ -90,7 +92,7 @@ logger.info("student container finished running the student code")
 # Handle SSH
 if start_cmd["ssh"]:
     logger.info("student container is starting ssh session")
-    retval = handle_ssh_session(student_container_id, only_dockers, event_loop, socket_unix, container_stdout, user)
+    retval = handle_ssh_session(student_container_id, both_same_kernel, event_loop, socket_unix, container_stdout, user)
     logger.info("student container finished ssh session")
 
 # Run teardown script

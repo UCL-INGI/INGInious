@@ -445,8 +445,7 @@ class DockerAgent(Agent):
                 runtime_name = {k for k in self._runtimes if self._runtimes[k].run_as_root}.pop()
                 runtime = self._runtimes[runtime_name].runtime
             else:
-                runtime_name = {k for k in self._runtimes if not self._runtimes[k].run_as_root}.pop()
-                runtime = self._runtimes[runtime_name].runtime
+                runtime = self._containers[environment_type][environment_name]["runtime"]
 
             ports_needed = [22] if ssh else []
             ports = {}

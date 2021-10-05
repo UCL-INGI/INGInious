@@ -20,7 +20,7 @@ def run_student(cmd, container=None,
         time_limit=0, hard_time_limit=0,
         memory_limit=0, share_network=False,
         working_dir=None, stdin=None, stdout=None, stderr=None,
-        signal_handler_callback=None, ssh=False, run_as_root=False, teardown_script=""):
+        signal_handler_callback=None, ssh=False, start_student_as_root=False, teardown_script=""):
     """
     Run a command inside a student container
 
@@ -43,7 +43,7 @@ def run_student(cmd, container=None,
                                     to the remote process. See the run_student script command for an example, or
                                     the hack_signals function below.
     :param ssh: If set to True, it starts an ssh server for the student after the command finished.
-    :param run_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root).
+    :param start_student_as_root: If set to True, it tries to execute the command as root (for ssh, it accepts connection as root).
                         Default is False. This is a Beta feature and should not be used yet.
     :param teardown_script:  command to be ran (as a string, with parameters) in the student container before closing it.
                             This parameter is mainly useful when ssh is set to True.
@@ -56,9 +56,9 @@ def run_student(cmd, container=None,
     """
 
     #  Checking runtimes
-    shared_kernel = os.path.exists("/.__input/__shared_kernel")
-    only_dockers = shared_kernel and not run_as_root
-    user = "root" if run_as_root else "worker"
+    shared_kernel = os.path.exists("/.__input/__shared_kernel")  # shared_kernal: boolean, True when this grading_container is running on a runtime with shared_kernel.
+    both_same_kernel = shared_kernel and not start_student_as_root  # both_same_kernel: boolean, True when both grading_container and student_container will be running on a shared kernel runtime.
+    user = "root" if start_student_as_root else "worker"  #start_student_as_root: boolean, True when we want to start a student_container and give root privilege.
     #  Basic files management
     if working_dir is None:
         working_dir = os.getcwd()
@@ -70,12 +70,12 @@ def run_student(cmd, container=None,
         stderr = open(os.devnull, 'rb').fileno()
 
     try:
-        server, socket_id, socket_path, path = create_student_socket(only_dockers)
-        zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, run_as_root)
-        connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, only_dockers)
-        allow_to_send_signals(signal_handler_callback, connection, student_container_id, only_dockers)
-        handle_ssh(ssh, connection, student_container_id, only_dockers)
-        message = wait_until_finished(only_dockers, zmq_socket, stdin, stdout, stderr, student_container_id)
+        server, socket_id, socket_path, path = create_student_socket(both_same_kernel)
+        zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, start_student_as_root)
+        connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, both_same_kernel)
+        allow_to_send_signals(signal_handler_callback, connection, student_container_id, both_same_kernel)
+        handle_ssh(ssh, connection, student_container_id, both_same_kernel)
+        message = wait_until_finished(both_same_kernel, zmq_socket, stdin, stdout, stderr, student_container_id)
         unlink_unneeded_files(socket_path, path)
         return message["retval"]
     except:

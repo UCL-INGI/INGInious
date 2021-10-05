@@ -66,6 +66,8 @@ class RuntimeParser(argparse.Action):
         if "shared" in flags:
             flags.remove("shared")
             shared_kernel = True
+        if shared_kernel:  # If shared_kernel, run_as_root is forbidden
+            root = False
         for f in flags:
             raise argparse.ArgumentError(self, "Unknown flag {}".format(f))
         items.append(DockerRuntime(runtime=runtime, envtype=envtype, run_as_root=root, shared_kernel=shared_kernel))

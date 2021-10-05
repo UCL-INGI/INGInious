@@ -29,4 +29,4 @@ def ssh_student(setup_script=None, memory_limit=0, hard_time_limit=0, time_limit
     return inginious_container_api.run_student.run_student(cmd=setup_script, container=container, time_limit=time_limit,
                 hard_time_limit=hard_time_limit, memory_limit=memory_limit,
                 stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                signal_handler_callback=inginious_container_api.run_student._hack_signals, ssh=True, run_as_root=run_as_root, teardown_script=teardown_script)
+                signal_handler_callback=inginious_container_api.run_student._hack_signals, ssh=True, start_student_as_root=run_as_root, teardown_script=teardown_script)
