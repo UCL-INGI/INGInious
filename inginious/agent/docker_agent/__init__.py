@@ -48,6 +48,7 @@ class DockerRunningJob:
     assigned_external_ports: List[int]
     student_containers: Set[str]  # container ids of student containers
     enable_network: bool
+    ssh_allowed: bool
 
 
 @dataclass
@@ -63,7 +64,7 @@ class DockerRunningStudentContainer:
 
 
 class DockerAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp", runtimes=None):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp", runtimes=None, ssh_allowed=False):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -75,8 +76,9 @@ class DockerAgent(Agent):
         :param tmp_dir: temp dir that is used by the agent to start new containers
         :param type: type of the container ("docker" or "kata")
         :param runtime: runtime used by docker (the defaults are "runc" with docker or "kata-runtime" with kata)
+        :param ssh_allowed: boolean to make this agent accept tasks with ssh or not
         """
-        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
+        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs, ssh_allowed=ssh_allowed)
 
         self._runtimes = {x.envtype: x for x in runtimes} if runtimes is not None else None
 
@@ -267,6 +269,7 @@ class DockerAgent(Agent):
 
         try:
             enable_network = message.environment_parameters.get("network_grading", False)
+            ssh_allowed = message.environment_parameters.get("ssh_allowed", False)
             limits = message.environment_parameters.get("limits", {})
             time_limit = int(limits.get("time", 30))
             hard_time_limit = int(limits.get("hard_time", None) or time_limit * 3)
@@ -393,7 +396,8 @@ class DockerAgent(Agent):
             run_cmd=run_cmd,
             assigned_external_ports=list(ports.values()),
             student_containers=set(),
-            enable_network=enable_network
+            enable_network=enable_network,
+            ssh_allowed=ssh_allowed
         )
 
         self._containers_running[container_id] = info
@@ -646,11 +650,9 @@ class DockerAgent(Agent):
                             ssh = msg["ssh"]
                             run_as_root = msg["run_as_root"]
                             assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                            if ssh and not info.enable_network:
-                                self._logger.error("Exception: ssh for student requires internet access in the task %s",
-                                                   info.job_id)
-                                self._create_safe_task(self.handle_job_closing(info.container_id, -1,
-                                                                               manual_feedback="ssh for student requires internet access in the task configuration !"))
+                            if ssh and not (info.enable_network and info.ssh_allowed):
+                                    self._logger.error("Exception: ssh for student requires to allow ssh and internet access in the task %s environment configuration tab",info.job_id)
+                                    self._create_safe_task(self.handle_job_closing(info.container_id, -1, manual_feedback="ssh for student requires to allow ssh and internet access in the task environment configuration tab!"))
                             else:
                                 self._create_safe_task(
                                     self.create_student_container(info, socket_id, environment, memory_limit,

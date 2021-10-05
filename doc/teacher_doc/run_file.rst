@@ -829,7 +829,7 @@ ssh_student
 .. DANGER::
 
     The *ssh_student* feature requires to allow ssh and internet connection in the environment configuration tab.
-    
+    Note, to use ssh_student, at least one inginious-agent in your deployment must handle ssh. For more details, see: :ref:`inginious-docker-agent<inginious-agent-docker>`
 
 
 *ssh_student* allows the *run file* to start a sub-containers and to give ssh access to it. It can accept a setup script to run on the student container before launching the ssh server. It is also possible to specify a teardown script to be run on the student container when the student leaves the ssh session.

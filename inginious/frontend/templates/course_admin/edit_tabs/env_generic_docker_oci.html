@@ -31,6 +31,17 @@
     </div>
 </div>
 <div class="form-group row">
+    <label for="{{env_id}}-ssh-allowed" class="col-sm-4 control-label">{{ _("Allow ssh?") }}</label>
+
+    <div class="col-sm-8">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="{{env_id}}-ssh-allowed" name="envparams[{{env_id}}][ssh_allowed]"
+                   {{'checked="checked"' if env_params.get('ssh_allowed',False) }} />&nbsp;
+        </label></div>
+    </div>
+</div>
+
+<div class="form-group row">
     <label for="{{env_id}}-run-cmd" class="col-sm-4 control-label">{{ _("Custom command to be run in container <small>(instead of running the run script)</small>") | safe}}</label>
 
     <div class="col-sm-8">
