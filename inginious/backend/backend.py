@@ -134,7 +134,7 @@ class Backend(object):
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
         job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[message.job_id] = job
-        self._waiting_jobs_pq.put((message.environment_type, message.environment), job)
+        self._waiting_jobs_pq.put((message.environment_type, message.environment, message.environment_parameters["ssh_allowed"]), job)
 
         await self.update_queue()
 
@@ -194,7 +194,12 @@ class Backend(object):
                 job = None
                 while job is None:
                     # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
-                    job = self._waiting_jobs_pq.get(self._registered_agents[agent_addr])
+
+                    topics = [(*env, False) for env in self._registered_agents[agent_addr].environments]
+                    if self._registered_agents[agent_addr].ssh_allowed:
+                        topics += [(*env, True) for env in self._registered_agents[agent_addr].environments]
+
+                    job = self._waiting_jobs_pq.get(topics)
                     priority, insert_time, client_addr, job_id, job_msg = job
 
                     # Killed job, removing it from the mapping

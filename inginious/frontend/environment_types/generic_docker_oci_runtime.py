@@ -30,6 +30,8 @@ class GenericDockerOCIRuntime(FrontendEnvType):
 
         # SSH allowed ?
         out["ssh_allowed"] = data.get("ssh_allowed", False)
+        if out["ssh_allowed"] == 'on':
+            out["ssh_allowed"] = True
 
         # Limits
         limits = {"time": 20, "memory": 1024, "disk": 1024}

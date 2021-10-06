@@ -32,15 +32,17 @@ class TopicPriorityQueue:
         """
         This operation is in O(m + log n) where m is the number of topics and n the size of the queue
 
-        :param topics: a list of topics
+        :param topics: a list of topics. If None, all topics are explored.
         :return: the smallest elements that fits in one of the topics
         :raises: queue.Empty exception if the queue has no elements that fits in any of the topics
         """
-        agent_ssh = topics.ssh_allowed
+        if topics is None:
+            topics = self.queues.keys()
+
         best_topic = None
         best_elem = None
-        for topic in topics.environments:
-            if topic in self.queues and len(self.queues[topic]) != 0 and (best_elem is None or best_elem > self.queues[topic][0]) and (agent_ssh or not self.queues[topic][0].msg.environment_parameters["ssh_allowed"]):
+        for topic in topics:
+            if topic in self.queues and len(self.queues[topic]) != 0 and (best_elem is None or best_elem > self.queues[topic][0]):
                 best_topic = topic
                 best_elem = self.queues[topic][0]
         if best_topic is None:
