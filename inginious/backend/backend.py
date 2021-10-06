@@ -18,7 +18,11 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentJobDo
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, ClientNewJob, ClientKillJob, BackendKillJob, AgentHello, \
     ClientHello, BackendUpdateEnvironments, Unknown, Ping, Pong, ClientGetQueue, BackendGetQueue, ZMQUtils
 
+# This will be pushed inside a TopicPriorityQueue that uses natural ordering (smallest element has the highest priority)
+# priority and time_received must thus be the two first element of the tuples.
+# a tuple with a small priority value will actually be processed first.
 WaitingJob = namedtuple('WaitingJob', ['priority', 'time_received', 'client_addr', 'job_id', 'msg'])
+
 RunningJob = namedtuple('RunningJob', ['agent_addr', 'client_addr', 'msg', 'time_started'])
 EnvironmentInfo = namedtuple('EnvironmentInfo', ['last_id', 'created_last', 'agents', 'type'])
 AgentInfo = namedtuple('AgentInfo', ['name', 'environments', 'ssh_allowed'])  # environments is a list of tuple (type, environment)
