@@ -165,6 +165,7 @@ class DockerInterface(object):  # pragma: no cover
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
         course_common_student_path = os.path.abspath(course_common_student_path)
+        secured_scripts_path = student_path+"/scripts"
 
         if ports is None:
             ports = {}
@@ -188,6 +189,7 @@ class DockerInterface(object):  # pragma: no cover
             ports=ports,
             volumes={
                 student_path: {'bind': '/task/student'},
+                secured_scripts_path: {'bind': '/task/student/scripts'},
                 socket_path: {'bind': '/__parent.sock'},
                 systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}

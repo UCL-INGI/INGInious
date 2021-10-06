@@ -24,9 +24,9 @@ def run_student(cmd, container=None,
     """
     Run a command inside a student container
 
-    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server.
-    :param container: container to use. Must be present in the current agent. By default it is None, meaning the current
-                      container type will be used.
+    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server acting as a setup script.
+    :param container: container to use. Must be present in the current agent. By default it is None, meaning the current container type will be used.
+
     :param time_limit: time limit in seconds. By default it is 0, which means that it will be the same as the current
                        container (NB: it does not count in the "host" container timeout!)
     :param hard_time_limit: hard time limit. By default it is 0, which means that it will be the same as the current
@@ -70,6 +70,7 @@ def run_student(cmd, container=None,
         stderr = open(os.devnull, 'rb').fileno()
 
     try:
+
         server, socket_id, socket_path, path = create_student_socket(both_same_kernel)
         zmq_socket, student_container_id = start_student_container(container, time_limit, hard_time_limit, memory_limit, share_network, socket_id, ssh, start_student_as_root)
         connection = send_initial_command(socket_id, server, stdin, stdout, stderr, zmq_socket, student_container_id, cmd, teardown_script, working_dir, ssh, user, both_same_kernel)

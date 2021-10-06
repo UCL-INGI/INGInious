@@ -314,3 +314,11 @@ def read_block(bin_file, chunk_size):
         if len(chunk) == 0:  # Only happens when the bin_file (pipe) is closed
             return False
     return chunk
+
+def scripts_isolation(isolate):
+    """ Make the script directory isolated or not from the student """
+    if isolate:
+        os.chmod("/task/student/scripts", 000)
+    else:
+        os.chmod("/task/student/scripts", 777)
+

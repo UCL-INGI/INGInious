@@ -12,7 +12,7 @@ import asyncio
 import zmq.asyncio
 from inginious_container_api.utils import set_limits_user, setup_logger, check_runtimes,\
     run_teardown_script, handle_signals, handle_ssh_session, receive_initial_command, stdio,\
-    handle_stdin, handle_outputs_helper
+    handle_stdin, handle_outputs_helper, scripts_isolation
 
 
 # Setup the logger
@@ -89,6 +89,7 @@ else:
 
 logger.info("student container finished running the student code")
 
+scripts_isolation(True)  # Setup script finished, make the scripts directory isolated from student
 # Handle SSH
 if start_cmd["ssh"]:
     logger.info("student container is starting ssh session")
@@ -97,8 +98,9 @@ if start_cmd["ssh"]:
 
 # Run teardown script
 if start_cmd["teardown_script"]:
+    scripts_isolation(False)  # Make the scripts directory available and execute the teardown script
     logger.info("student container is starting teardown script")
     run_teardown_script(start_cmd["teardown_script"], set_limits)
     logger.info("student container finished teardown script")
-
+    
 exit(retval)

@@ -137,7 +137,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
         else:
             logger.debug('Auth Failed')
             conn.unbind()
-            return self.template_helper.render("custom_auth_form.html", base_template_folder="frontend/plugins/auth",
+            return self.template_helper.render("custom_auth_form.html", template_folder="frontend/plugins/auth",
                                                settings=settings, error=_("Incorrect password"))
 
 

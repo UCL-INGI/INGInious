@@ -166,8 +166,8 @@
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">
     delete_subproblem_message = '{{_("Are you sure that you want to delete this subproblem?")}}';
-    problem_data = {{ problemdata | tojson | safe }};
-    $(function(){ studio_load(problem_data); });
+    problem_data = {{ problemdata | tojson }};
+    $(function(){ studio_load(JSON.parse(problem_data)); });
 </script>
 
 {% endblock %}

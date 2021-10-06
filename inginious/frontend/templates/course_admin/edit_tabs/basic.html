@@ -42,7 +42,7 @@
     <label for="author" class="col-sm-2 control-label">{{ _("Author") }}</label>
     <div class="col-sm-10">
         {% if task_data.get('author',[]) is not string %}
-            {% set a= task_data.get('author',[]) | join(', ') %}
+            {% set a= task_data.get('author',[]) or [] | join(', ') %}
         {% else %}
             {% set a = task_data.get('author',[]) %}
         {% endif %}

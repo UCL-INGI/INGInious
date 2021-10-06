@@ -22,8 +22,10 @@ parser.add_argument('--hard-time', help="Hard timeout for the container (in real
                     type=int, default=0)
 parser.add_argument('--memory', help="Maximum memory for the container, in Mo. The default is the same as the current container", type=int, default=0)
 parser.add_argument('--run-as-root', help="Tries to give root access to the student if possible. This feature is in beta and should not be used yet", action='store_true')
-parser.add_argument('--setup-script', help="Specify, using string format, the commands to run on the student container before giving ssh access to the student. Example: \"python3 setup_script.py my_argument\"", type=str, default="")
-parser.add_argument('--teardown-script', help="Specify, using string format, the commands to run when the student leaves the ssh connection, just before killing the student container. Example: \"python3 teardown_script.py\"", type=str, default="")
+parser.add_argument('--setup-script', help="Specify, using string format, the commands to run on the student container before giving ssh access to the student. Example: \"python3 student/scripts/setup_script.py my_argument\". "
+                                           "In the case of script files, it is recommended to put them in the student/scripts directory since this specific subdirectory will be isolated from the student", type=str, default="")
+parser.add_argument('--teardown-script', help="Specify, using string format, the commands to run when the student leaves the ssh connection, just before killing the student container. Example: \"python3 student/scripts/teardown_script.py\". "
+                                              "In the case of script files, it is recommended to put them in the student/scripts directory since this specific subdirectory will be isolated from the student", type=str, default="")
 
 args = parser.parse_args()
 
