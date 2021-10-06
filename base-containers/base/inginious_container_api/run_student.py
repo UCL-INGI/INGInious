@@ -12,6 +12,7 @@ import zmq.asyncio
 import msgpack
 import zmq
 import struct
+from shutil import copy
 
 
 def run_student(cmd, container=None,
@@ -22,8 +23,9 @@ def run_student(cmd, container=None,
     """
     Run a command inside a student container
 
-    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server.
+    :param cmd: command to be ran (as a string, with parameters). If ssh is set to True, this command will be run before launching the ssh server acting as a setup script.
     :param container: container to use. Must be present in the current agent. By default it is None, meaning the current container type will be used.
+
     :param time_limit: time limit in seconds. By default it is 0, which means that it will be the same as the current
                        container (NB: it does not count in the "host" container timeout!)
     :param hard_time_limit: hard time limit. By default it is 0, which means that it will be the same as the current
@@ -140,6 +142,10 @@ def run_student(cmd, container=None,
         # Wait for everything to end
         # message = message from agent telling the student_container finished
         message = msgpack.loads(zmq_socket.recv(), use_list=False, strict_map_key=False)
+
+        # Save the ssh_logs if there are some
+        if os.path.exists("/task/student/.ssh_logs"):
+            copy("/task/student/.ssh_logs", "/archive/ssh_logs")
 
         # Unlink unneeded files
         try:
