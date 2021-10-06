@@ -60,7 +60,7 @@ class CourseEditTask(INGIniousAdminPage):
         return self.template_helper.render("course_admin/task_edit.html", course=course, taskid=taskid,
                                            problem_types=self.task_factory.get_problem_types(), task_data=task_data,
                                            environment_types=environment_types, environments=environments,
-                                           problemdata=task_data.get('problems', {}),
+                                           problemdata=json.dumps(task_data.get('problems', {})),
                                            contains_is_html=self.contains_is_html(task_data),
                                            current_filetype=current_filetype,
                                            available_filetypes=available_filetypes, AccessibleTime=AccessibleTime,

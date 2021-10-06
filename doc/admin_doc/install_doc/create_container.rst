@@ -1,4 +1,4 @@
-.. _new_container:
+
 
 Creating a new container image
 ==============================
@@ -62,7 +62,10 @@ install the dependencies of Mozart, then install Mozart itself, and then removin
 
 Dockerfiles can do many more things, read the documentation on the Docker website to know more about the possibilities.
 
-"Compiling" the Dockerfile
+
+.. _new_container:
+
+Compiling the Dockerfile
 --------------------------
 
 Once you have Docker up and running, it is very simple to create a container image from a Dockerfile:
@@ -78,7 +81,7 @@ Dockerfile. Therefore, the tag ```my_container_image``` can be set to any value.
 ```inginious-c-XXX```.
 
 For the new environment to be available, you have to restart INGInious (or, at least, the Docker agent if you are running
-INGInious components on separate machines).
+INGInious components on separate machines). More details here: https://inginious.org/course/tutorial/12_environments
 
 You can also enter directly in the container image to test it in the command line:
 
@@ -86,6 +89,22 @@ You can also enter directly in the container image to test it in the command lin
 
     $ docker run -t -i --rm my_container_image /bin/bash
 
+
+It is also easy to rebuild the initially provided containers images.
+If you have a proper INGInious version installed, no need for building images, you can re-download the provided images by simply running:
+::
+    $ inginious-container-update
+
+If you are running on a dev environment (cloned from the repository), from the main directory, enter the following commands to take into consideration your local files:
+::
+
+    $ cd base-containers/base
+    $ docker build -t ingi/inginious-c-base ./
+    $ cd ../default
+    $ docker build -t ingi/inginious-c-default ./
+
+Note, this manual building step should not be necessary for a teacher.
+Of course, if you rebuilt your images, you will have to restart inginious-webapp.
 
 Share what you created
 ----------------------

@@ -19,6 +19,8 @@ from itsdangerous import Signer, BadSignature, want_bytes
 from flask.sessions import SessionMixin
 from werkzeug.datastructures import CallbackDict
 from flask.sessions import SessionInterface
+from werkzeug.exceptions import HTTPException
+from inginious.frontend.pages.lti import LTILaunchPage
 
 
 class MongoDBSession(CallbackDict, SessionMixin):
@@ -67,9 +69,21 @@ class MongoDBSessionInterface(SessionInterface):
     def open_session(self, app, request):
         # Check for cookieless session in the path
         path_session = re.match(r"(/@)([a-f0-9A-F_]*)(@)", request.path)
+
+        # Check if currently accessed URL is LTI launch page
+        try:
+            # request.url_rule is not set yet here.
+            endpoint, args = app.create_url_adapter(request).match()
+            is_lti_launch = app.view_functions.get(endpoint).view_class == LTILaunchPage
+        except HTTPException:
+            is_lti_launch = False
+
         if path_session:  # Cookieless session
             cookieless = True
             sid = path_session.group(2)
+        elif is_lti_launch:
+            cookieless = True
+            sid = None
         else:
             cookieless = False
             sid = request.cookies.get(app.session_cookie_name)
