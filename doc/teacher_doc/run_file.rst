@@ -752,12 +752,6 @@ followed by a *:filename* or *:value* suffix.
 run_student
 -----------
 
-.. DANGER::
-
-    *run_student* is not available in some environments, such as those running in OCI runtimes that do not share
-    a common kernel between containers. ``kata`` is an example of such runtime. When ``run_student`` is not available,
-    it will exit with error code 251.
-
 *run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading,
 making sure the untrusted code made by the student don't interact with yours.
 
@@ -781,6 +775,8 @@ Here is the list of the main parameters:
 - network sharing (--share-network)
         Share the network stack of the grading container with the student container. This is not the case by
         default. If the container container has network access, this will also be the case for the student!
+- start student as root (--run-as-root)
+        Start the student_container on a safe non shared kernel runtime with root access.
 
 Beyond these optionals args, *run_student* various commands also takes an additional (mandatory) argument:
 the command to be run in the new container.
@@ -832,14 +828,12 @@ ssh_student
 
 .. DANGER::
 
-    *ssh_student*, as for *run_student* is not available in some environments, such as those running in OCI runtimes that do not share
-    a common kernel between containers. ``kata`` is an example of such runtime. When ``ssh_student`` is not available,
-    it will exit with error code 251. The *ssh_student* feature also requires to allow internet connection in the environment configuration tab.
+    The *ssh_student* feature requires to allow ssh and internet connection in the environment configuration tab.
     
 
 
 *ssh_student* allows the *run file* to start a sub-containers and to give ssh access to it. It can accept a setup script to run on the student container before launching the ssh server. It is also possible to specify a teardown script to be run on the student container when the student leaves the ssh session.
-This makes you able to secure the grading while giving the student the chance to interact and enter commands within his own container. All the ssh session is recorded into the ``.ssh_logs`` file resulting in the ``student`` subdirectory after the ssh session closed. Please note the setup and teardown scripts will not be run as root to avoid any potential damage to the supervisor. This limitation will be removed in the future when *run_student* and *ssh_student* are available for OCI runtimes that do not share a common kernel between containers.
+This makes you able to secure the grading while giving the student the chance to interact and enter commands within his own container. All the ssh session is recorded into the ``.ssh_logs`` file resulting in the ``student`` subdirectory after the ssh session closed. Please note the setup and teardown scripts will not be run as root to avoid any potential damage to the supervisor (unless the student has root access, meaning it is using a runtime that does not share kernel between containers).
 
 When the student exits the ssh connection, after the teardown script, his specific container is killed and only the changes made to the ``student`` subdirectory will remain in the main (grading) container.
 
@@ -859,17 +853,17 @@ Here is the list of the main parameters:
         Example would be 900 (15 min) or 1800 (30 min). In any case, when the student exits the connection, the container will be killed regardless of its remaining hard time limit.
 - memory limit (--memory)
         Maximum memory for the container, in Megabytes. The default is the same as the current container.
+- run as root (--run-as-root)
+        Start the student_container on a safe non shared kernel runtime with root access.
 
 Beyond these optionals args, *ssh_student* also takes two additionnal string arguments:
 the **setup-script** to be run in the new container before starting the ssh server and the **teardown-script** to be run at ssh session closure.
 
 More technically about these optional arguments, please note that:
 
-- The **setup-script** will be run and finished before starting the ssh server, allowing the teacher to do some setup on the container before giving ssh access to it.
-- The **setup-script** can take the form of direct commands or a script file.
-- Only the main body of the script will be executed and finished before starting the ssh server. If you want subprocess to continue running in background while the student has ssh access, these subprocess must be launched in a non-blocking way (such as using `subprocess.Popen <https://docs.python.org/fr/3/library/subprocess.html#subprocess.Popen>`_ inside a python setup script).
-- The **teardown-script** follows the same principle.
-- In the case of script files, it is recommanded to place the files in a directory with the path *student/scripts*. This specific directory will automatically be isolated from the student during the ssh session so that the student can not inspect the scripts unless he has root privileges.
+- The **setup-script** can take the form of direct commands or a script file which may start new subprocess. Only the main body of the script will be executed and finished before starting the ssh server. If you want subprocess to continue running in background while the student has ssh access, these subprocess must be launched in a non-blocking way (such as using `subprocess.Popen <https://docs.python.org/fr/3/library/subprocess.html#subprocess.Popen>`_ inside a python setup script).
+- The **teardown-script** follows the same principle. Please note that teardown_script files should be placed in *student/scripts*. This specific directory will automatically be isolated from the student during the ssh session so that the student can not inspect the scripts unless he has root privileges.
+
 
 Here are the different return values:
     -   0: the student correctly connected and leaved the ssh connection

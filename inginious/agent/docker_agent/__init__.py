@@ -13,7 +13,6 @@ import tempfile
 from dataclasses import dataclass
 from os.path import join as path_join
 from typing import Dict, Any, Union, List, Set
-
 import msgpack
 import psutil
 from inginious.agent.docker_agent._docker_interface import DockerInterface
@@ -25,7 +24,6 @@ from inginious.common.asyncio_utils import AsyncIteratorWrapper, AsyncProxy
 from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
-
 
 @dataclass
 class DockerRunningJob:
@@ -61,6 +59,7 @@ class DockerRunningStudentContainer:
     ssh: bool
     ports: Dict[int, int]  # internal port -> external port mapping
     assigned_external_ports: List[int]
+
 
 
 class DockerAgent(Agent):
@@ -423,7 +422,7 @@ class DockerAgent(Agent):
         await self._timeout_watcher.register_container(out.container_id, out.time_limit, out.hard_time_limit)
 
     async def create_student_container(self, parent_info, socket_id, environment_name,
-                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream, ssh):
+                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream, ssh, run_as_root):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
@@ -441,15 +440,23 @@ class DockerAgent(Agent):
                 return
 
             environment = self._containers[environment_type][environment_name]["id"]
-            runtime = self._containers[environment_type][environment_name]["runtime"]
+
+            if run_as_root:
+                runtime_name = {k for k in self._runtimes if self._runtimes[k].run_as_root}.pop()
+                runtime = self._runtimes[runtime_name].runtime
+            else:
+                runtime = self._containers[environment_type][environment_name]["runtime"]
 
             ports_needed = [22] if ssh else []
             ports = {}
             for p in ports_needed:
-                if len(self._external_ports) == 0:
+                if not self._external_ports:
                     self._logger.warning("User asked for a port but no one are available")
-                    for port_to_free in ports:
-                        self._external_ports.add(ports[port_to_free])
+                    if self._external_ports is not None:
+                        for port_to_free in ports:
+                            self._external_ports.add(ports[port_to_free])
+                    self._logger.exception("Cannot create student container! No ports are available right now. Please retry later.")
+                    await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
                     raise CannotCreateJobException('No ports are available right now. Please retry later.')
                 ports[p] = self._external_ports.pop()
 
@@ -459,6 +466,7 @@ class DockerAgent(Agent):
                                                                            memory_limit, parent_info.student_path, socket_path,
                                                                            parent_info.systemfiles_path,
                                                                            parent_info.course_common_student_path,
+                                                                           parent_info.environment_type,
                                                                            parent_info.container_id if share_network else None,
                                                                            ports)
             except Exception as e:
@@ -505,6 +513,63 @@ class DockerAgent(Agent):
         except:
             self._logger.exception("Exception in create_student_container")
 
+
+    async def read_stream(self, reader_stream, buffer):
+        """Helper to read a read and put data on a buffer"""
+        msg_header = await reader_stream.readexactly(8)
+        outtype, length = struct.unpack_from('>BxxxL',
+                                                 msg_header)  # format imposed by docker in the attach endpoint
+        if length != 0:
+            content = await reader_stream.readexactly(length)
+            if outtype == 1:  # stdout
+                buffer += content
+
+            if outtype == 2:  # stderr
+                self._logger.debug("Received stderr from containers:\n%s", content)
+            # 4 first bytes are the length of the message. If we have a complete message...
+            return buffer
+        else:
+            raise Exception("Wrong format message received")
+
+    def read_buffer(self, buffer, decode=True):
+        """Helper to read a buffer containing data from a stream"""
+        length = struct.unpack('!I', buffer[0:4])[0]
+        msg = buffer[4:4 + length]  # ... get it
+        buffer = buffer[4 + length:]  # ... withdraw it from the buffer
+        if decode:
+            msg = msgpack.unpackb(msg, use_list=False)
+        return buffer, msg
+
+    def buffer_has_data(self, buffer):
+        """Helper to know if a buffer still has available data"""
+        return len(buffer) > 4 and len(buffer) >= 4 + struct.unpack('!I', buffer[0:4])[0]
+
+    async def start_ssh(self, reader_stream, info):
+        """ Wait for ssh information from student_container and send ssh info to frontend """
+        buffer = bytearray()
+        try:
+            while not reader_stream.at_eof():  # CHECK HERE
+                buffer = await self.read_stream(reader_stream, buffer)
+                while self.buffer_has_data(buffer):
+                    buffer, msg = self.read_buffer(buffer)
+                    self._logger.debug("Received msg %s from container %s", msg["type"], info.container_id)
+                    if msg["type"] == "ssh_student":
+                        info_student = None
+                        if len(self._student_containers_running) > 0 and msg[
+                            "container_id"] in info.student_containers:
+                            info_student = self._student_containers_running[msg["container_id"]]
+                            await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22],
+                                                         msg["ssh_user"], msg["ssh_key"])
+                        else:
+                            self._logger.exception("Exception: no linked student_container running.")
+                            self._create_safe_task(self.handle_job_closing(info.container_id, -1, manual_feedback="Trying to connect with ssh to a non-children student container !"))
+                        return
+        except asyncio.IncompleteReadError:
+            self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
+        except:
+            self._logger.exception("Received incorrect message from container %s (job id %s)", info.container_id,
+                                   info.job_id)
+
     async def _write_to_container_stdin(self, write_stream, message):
         """
         Send a message to the stdin of a container, with the right data
@@ -517,11 +582,34 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
+    async def _handle_student_container_outputs(self, student_reader_stream, grading_write_stream):
+        """ Receive outputs (stdout and stderr) from student_container and send them to grading_container without decoding """
+        buffer = bytearray()
+        try:
+            while not student_reader_stream.at_eof():
+                buffer = await self.read_stream(student_reader_stream, buffer)
+                while self.buffer_has_data(buffer):
+                    buffer, msg_encoded = self.read_buffer(buffer, decode=False)
+                    try:
+                        grading_write_stream.write(
+                            struct.pack('!I', len(msg_encoded)))  # Transfer the message without decoding it
+                        grading_write_stream.write(msg_encoded)
+                        await grading_write_stream.drain()
+                    except Exception as e:
+                        self._logger.info("Student container closed the stream")
+                        self._logger.info(e)
+                        return
+        except asyncio.IncompleteReadError:
+            self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
+            return
+        except:
+            self._logger.exception("Received incorrect message from student container")
+
     async def handle_running_container(self, info: DockerRunningJob, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._docker.attach_to_container(info.container_id)
         try:
-            read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
+            reader_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
         except asyncio.CancelledError:
             raise
         except:
@@ -540,61 +628,91 @@ class DockerAgent(Agent):
 
         buffer = bytearray()
         try:
-            while not read_stream.at_eof():
-                msg_header = await read_stream.readexactly(8)
-                outtype, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
-                if length != 0:
-                    content = await read_stream.readexactly(length)
-                    if outtype == 1:  # stdout
-                        buffer += content
+            student_containers_streams = {}
+            while not reader_stream.at_eof():
+                buffer = await self.read_stream(reader_stream, buffer)
+                while self.buffer_has_data(buffer):
+                    buffer, msg = self.read_buffer(buffer)
+                    try:
+                        self._logger.debug("Received msg %s from container %s", msg["type"], info.container_id)
+                        if msg["type"] == "run_student":
+                            # start a new student container
+                            environment = msg["environment"] or info.environment_name
+                            memory_limit = min(msg["memory_limit"] or info.mem_limit, info.mem_limit)
+                            time_limit = min(msg["time_limit"] or info.time_limit, info.time_limit)
+                            hard_time_limit = min(msg["hard_time_limit"] or info.hard_time_limit, info.hard_time_limit)
+                            share_network = msg["share_network"]
+                            socket_id = msg["socket_id"]
+                            ssh = msg["ssh"]
+                            run_as_root = msg["run_as_root"]
+                            assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
+                            if ssh and not info.enable_network:
+                                self._logger.error("Exception: ssh for student requires internet access in the task %s",
+                                                   info.job_id)
+                                self._create_safe_task(self.handle_job_closing(info.container_id, -1,
+                                                                               manual_feedback="ssh for student requires internet access in the task configuration !"))
+                            else:
+                                self._create_safe_task(
+                                    self.create_student_container(info, socket_id, environment, memory_limit,
+                                                                  time_limit, hard_time_limit, share_network,
+                                                                  write_stream, ssh, run_as_root))
 
-                    if outtype == 2:  # stderr
-                        self._logger.debug("Received stderr from containers:\n%s", content)
+                        elif msg["type"] == "run_student_init":  # We use non docker-docker communication !
+                            if msg["student_container_id"] not in student_containers_streams:
+                                student_containers_streams[
+                                    msg["student_container_id"]] = await self.open_student_stream(
+                                    msg["student_container_id"])
+                            await self._write_to_container_stdin(
+                                student_containers_streams[msg["student_container_id"]][1],
+                                {"type": "run_student_init",
+                                 "socket_id": msg["socket_id"],
+                                 "command": msg["command"],
+                                 "teardown_script": msg["teardown_script"],
+                                 "student_container_id": msg[
+                                     "student_container_id"],
+                                 "working_dir": msg["working_dir"],
+                                 "ssh": msg["ssh"],
+                                 "user": msg["user"]})
 
-                    # 4 first bytes are the length of the message. If we have a complete message...
-                    while len(buffer) > 4 and len(buffer) >= 4+struct.unpack('!I',buffer[0:4])[0]:
-                        msg_encoded = buffer[4:4 + struct.unpack('!I', buffer[0:4])[0]]  # ... get it
-                        buffer = buffer[4 + struct.unpack('!I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
-                        try:
-                            msg = msgpack.unpackb(msg_encoded, use_list=False)
-                            self._logger.debug("Received msg %s from container %s", msg["type"], info.container_id)
-                            if msg["type"] == "run_student":
-                                # start a new student container
-                                environment = msg["environment"] or info.environment_name
-                                memory_limit = min(msg["memory_limit"] or info.mem_limit, info.mem_limit)
-                                time_limit = min(msg["time_limit"] or info.time_limit, info.time_limit)
-                                hard_time_limit = min(msg["hard_time_limit"] or info.hard_time_limit, info.hard_time_limit)
-                                share_network = msg["share_network"]
-                                socket_id = msg["socket_id"]
-                                ssh = msg["ssh"]
-                                assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                                if ssh and not info.enable_network:
-                                    self._logger.error("Exception: ssh for student requires internet access in the task %s",info.job_id)
-                                    self._create_safe_task(self.handle_job_closing(info.container_id, -1, manual_feedback="ssh for student requires internet access in the task configuration !"))
-                                else:
-                                    self._create_safe_task(self.create_student_container(info, socket_id, environment, memory_limit,
-                                                                                     time_limit, hard_time_limit, share_network,
-                                                                                     write_stream, ssh))
-                            elif msg["type"] == "ssh_debug":
-                                # send the data to the frontend (and client) to reach grading_container
-                                self._logger.info("%s %s", info.container_id, str(msg))
-                                await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22], msg["ssh_user"], msg["ssh_key"])
+                            if msg["ssh"]:
+                                await self.start_ssh(student_containers_streams[msg["student_container_id"]][0],
+                                                     info)  # If using ssh with kata: wait for ssh info and start ssh
+                            else:  # classical run_student (not ssh_student) with a kata runtime -> handle student_container outputs
+                                self._loop.create_task(self._handle_student_container_outputs(
+                                    student_containers_streams[msg["student_container_id"]][0], write_stream))
 
-                            elif msg["type"] == "ssh_student":
-                                # send the data to the frontend (and client) to reach student_container
-                                info_student = None
-                                if len(self._student_containers_running) > 0 and msg["container_id"] in info.student_containers:
-                                    info_student = self._student_containers_running[msg["container_id"]]
-                                else:
-                                    self._logger.exception("Exception: no linked student_container running.")
-                                    self._create_safe_task(self.handle_job_closing(info.container_id, -1, manual_feedback="Trying to connect with ssh to a non-children student container !"))
-                                self._logger.info("%s %s", info_student.container_id, str(msg))
-                                await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22], msg["ssh_user"], msg["ssh_key"])
-                            elif msg["type"] == "result":
-                                # last message containing the results of the container
-                                result = msg["result"]
-                        except:
-                            self._logger.exception("Received incorrect message from container %s (job id %s)", info.container_id, info.job_id)
+                        elif msg["type"] in ["stdin", "student_signal"]:  # Simply transfer to student_container
+                            if msg["student_container_id"] not in student_containers_streams:
+                                student_containers_streams[
+                                    msg["student_container_id"]] = await self.open_student_stream(
+                                    msg["student_container_id"])
+                            await self._write_to_container_stdin(
+                                student_containers_streams[msg["student_container_id"]][1], msg)
+
+                        elif msg["type"] == "ssh_debug":
+                            # send the data to the frontend (and client) to reach grading_container
+                            self._logger.info("%s %s", info.container_id, str(msg))
+                            await self.send_ssh_job_info(info.job_id, self._address_host, info.ports[22],
+                                                         msg["ssh_user"], msg["ssh_key"])
+
+                        elif msg["type"] == "ssh_student":
+                            # send the data to the frontend (and client) to reach student_container
+                            info_student = None
+                            if len(self._student_containers_running) > 0 and msg[
+                                "container_id"] in info.student_containers:
+                                info_student = self._student_containers_running[msg["container_id"]]
+                            else:
+                                self._logger.exception("Exception: no linked student_container running.")
+                                self._create_safe_task(self.handle_job_closing(info.container_id, -1,
+                                                                               manual_feedback="Trying to connect with ssh to a non-children student container !"))
+                            self._logger.info("%s %s", info_student.container_id, str(msg))
+                            await self.send_ssh_job_info(info.job_id, self._address_host, info_student.ports[22],
+                                                         msg["ssh_user"], msg["ssh_key"])
+                        elif msg["type"] == "result":
+                            result = msg["result"]  # last message containing the results of the container
+                    except:
+                        self._logger.exception("Received incorrect message from container %s (job id %s)",
+                                               info.container_id, info.job_id)
         except asyncio.IncompleteReadError:
             self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
         except asyncio.CancelledError:
@@ -612,13 +730,19 @@ class DockerAgent(Agent):
         if not result:
             self._logger.warning("Container %s has not given any result", info.container_id)
 
+
+    async def open_student_stream(self, student_container_id):
+        student_sock = await self._docker.attach_to_container(student_container_id)
+        student_reader_stream, student_write_stream = await asyncio.open_connection(
+            sock=student_sock.get_socket())
+        stream = (student_reader_stream, student_write_stream)
+        return stream
+
+
     async def handle_student_job_closing(self, container_id, retval):
-        """
-        Handle a closing student container. Do some cleaning, verify memory limits, timeouts, ... and returns data to the associated grading
-        container
-        """
+        """ Handle a closing student container. Do some cleaning, verify memory limits, timeouts, ... and returns data to the associated grading container """
         try:
-            self._logger.debug("Closing student %s", container_id)
+            self._logger.debug("CLOSING STUDENT CONTAINER %s", container_id)
             try:
                 info = self._student_containers_running[container_id]
                 del self._student_containers_running[container_id]

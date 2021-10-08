@@ -32,4 +32,4 @@ exit(run_student.run_student(cmd=' '.join(args.cmd), container=args.container, t
                              hard_time_limit=args.hard_time, memory_limit=args.memory,
                              share_network=args.share_network,
                              stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                             signal_handler_callback=run_student._hack_signals, run_as_root=args.run_as_root, teardown_script=args.teardown_script))
+                             signal_handler_callback=run_student._hack_signals, start_student_as_root=args.run_as_root, teardown_script=args.teardown_script))

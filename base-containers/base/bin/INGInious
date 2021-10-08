@@ -10,7 +10,6 @@ import sys
 import shutil
 import os
 import os.path
-
 import inginious_container_api.feedback
 from inginious_container_api.run_types import run_types
 from inginious_container_api.utils import start_ssh_server, ssh_wait, execute_process
@@ -21,6 +20,7 @@ import asyncio
 import struct
 import zmq
 import zmq.asyncio
+
 
 ELF_MAGIC = b"\x7F\x45\x4C\x46"
 SHEBANG_MAGIC = b"\x23\x21"
@@ -171,6 +171,11 @@ class INGIniousMainRunner:
                     await self.intern.send_multipart(
                         [addr, b'', msgpack.dumps({"type": "run_student_retval", "retval": message["retval"]},
                                                   use_bin_type=True)])
+            if message["type"] in ["stdout", "stderr"]:
+                if message["socket_id"] in self.running_student_container:
+                    addr = self.running_student_container[message["socket_id"]]
+                    await self.intern.send_multipart([addr, b'', msgpack.dumps(message, use_bin_type=True)])
+
         except:
             self._logger.exception("An exception occured while reading stdin")
 
@@ -187,7 +192,7 @@ class INGIniousMainRunner:
                 await self.write_stdout({"type": "ssh_student", "ssh_user": message["ssh_user"], "ssh_key": message["ssh_key"], "container_id": message["container_id"]})
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
                 return False
-            if message["type"] == "run_student" and self.shared_kernel:  # disable run_student on non-shared kernels (TODO fix me)
+            if message["type"] == "run_student":
                 # copy the dict manually to ensure the correctness of the message
                 self.running_student_container[message["socket_id"]] = addr
                 await self.write_stdout({"type": "run_student", "environment": message["environment"],
@@ -196,10 +201,27 @@ class INGIniousMainRunner:
                                          "memory_limit": message["memory_limit"],
                                          "share_network": message["share_network"],
                                          "socket_id": message["socket_id"],
-                                         "ssh": message["ssh"]})
+                                         "ssh": message["ssh"],
+                                         "run_as_root": message["run_as_root"]})
                 return False
-            if message["type"] == "run_student_ask_retval":
+            if message["type"] == "run_student_init":  # This message may be sent from run_student to transfer to the student_container via the agent (only when starting a kata student_container)
+                await self.write_stdout({"type": "run_student_init",
+                                         "socket_id": message["socket_id"],
+                                         "student_container_id": message["student_container_id"],
+                                         "command": message["command"],
+                                         "teardown_script": message["teardown_script"],
+                                         "working_dir": message["working_dir"],
+                                         "ssh": message["ssh"],
+                                         "user": message["user"]
+                                         })
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "dummy_message"}, use_bin_type=True)])  # ping pong answer
+                return False
+            if message["type"] == "dummy_message":
                 # ignore, just a dummy message
+                return False
+            if message["type"] in ["student_signal", "stdin"]:
+                await self.write_stdout(message)
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "dummy_message"}, use_bin_type=True)])  # ping pong answer
                 return False
             if message["type"] == "done":
                 await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, use_bin_type=True)])
