@@ -15,6 +15,7 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
                            [--debug-ports DEBUG_PORTS] [--tmpdir TMPDIR]
                            [--concurrency CONCURRENCY] [-v] [--debugmode]
                            [--disable-autorestart]
+                           [--ssh]
                            [--runtime RUNTIME [RUNTIME ...]]
                            [--tasks TASKS | --fs {local}] [--fs-help]
                            backend
@@ -62,6 +63,10 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
 
    Disables the auto restart on agent failure.
 
+.. option:: --ssh
+
+    Allow this agent to handle tasks using ssh features.
+
 .. option:: --runtime
 
    Add a runtime, such as crun, runc or kata. If no runtime is given, the available runtimes are detected automatically.
@@ -73,6 +78,7 @@ INGInious to use a local backend, it is automatically run by ``inginious-webapp`
    - 'shared' indicates that the containers on this runtime use the host kernel (i.e. they are not VMs)"
 
    Common values are 'runc docker shared' and 'kata-runtime kata root'.
+
 
 .. option:: backend
 

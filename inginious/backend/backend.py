@@ -25,7 +25,7 @@ WaitingJob = namedtuple('WaitingJob', ['priority', 'time_received', 'client_addr
 
 RunningJob = namedtuple('RunningJob', ['agent_addr', 'client_addr', 'msg', 'time_started'])
 EnvironmentInfo = namedtuple('EnvironmentInfo', ['last_id', 'created_last', 'agents', 'type'])
-AgentInfo = namedtuple('AgentInfo', ['name', 'environments'])  # environments is a list of tuple (type, environment)
+AgentInfo = namedtuple('AgentInfo', ['name', 'environments', 'ssh_allowed'])  # environments is a list of tuple (type, environment)
 
 class Backend(object):
     """
@@ -138,7 +138,7 @@ class Backend(object):
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
         job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[message.job_id] = job
-        self._waiting_jobs_pq.put((message.environment_type, message.environment), job)
+        self._waiting_jobs_pq.put((message.environment_type, message.environment, message.environment_parameters["ssh_allowed"]), job)
 
         await self.update_queue()
 
@@ -198,7 +198,12 @@ class Backend(object):
                 job = None
                 while job is None:
                     # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
-                    job = self._waiting_jobs_pq.get(self._registered_agents[agent_addr].environments)
+
+                    topics = [(*env, False) for env in self._registered_agents[agent_addr].environments]
+                    if self._registered_agents[agent_addr].ssh_allowed:
+                        topics += [(*env, True) for env in self._registered_agents[agent_addr].environments]
+
+                    job = self._waiting_jobs_pq.get(topics)
                     priority, insert_time, client_addr, job_id, job_msg = job
 
                     # Killed job, removing it from the mapping
@@ -236,7 +241,7 @@ class Backend(object):
 
         self._registered_agents[agent_addr] = AgentInfo(message.friendly_name,
                                                         [(etype, env) for etype, envs in
-                                                         message.available_environments.items() for env in envs])
+                                                         message.available_environments.items() for env in envs], message.ssh_allowed)
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
 
