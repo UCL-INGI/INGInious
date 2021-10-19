@@ -30,7 +30,8 @@ function studio_load(data)
         studio_init_template(pid, problem);
     });
 
-    $('#tab_subproblems .card').on('show.bs.collapse',refresh_codemirror);
+    var collapsable = $('#tab_subproblems .card');
+    collapsable.on('show.bs.collapse',refresh_codemirror);
 
     // Must be done *after* the event definition
     if(collapsable.length !== 1)
