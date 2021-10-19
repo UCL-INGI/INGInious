@@ -93,6 +93,28 @@ class Installer:
             except:
                 pass
 
+    def _configure_directory(self, dirtype: str):
+        """Configure user specified directory and create it if required"""
+        self._display_question("Please choose a directory in which to store the %s files." % dirtype)
+        directory = None
+        while directory is None:
+            directory = self._ask_with_default("%s directory" % (dirtype[0].upper()+dirtype[1:]), "./%s" % dirtype)
+            if not os.path.exists(directory):
+                if self._ask_boolean("Path does not exist. Create directory?", True):
+                    try:
+                        os.makedirs(directory)
+                    except FileExistsError:
+                        pass # We should never reach this part since the path is verified above
+                    except PermissionError:
+                        self._display_error("Permission denied. Are you sure of your path?\nIf yes, contact your system administrator"
+                                            " or create manually the directory with the correct user permissions.\nOtherwise, you may"
+                                            " enter a new path now.")
+                        directory = None
+                else:
+                    directory = None
+
+        return os.path.abspath(directory)
+
     #######################################
     #            Main function            #
     #######################################
@@ -340,16 +362,7 @@ class Installer:
 
     def configure_task_directory(self):
         """ Configure task directory """
-        self._display_question(
-            "Please choose a directory in which to store the course/task files. By default, the tool will put them in the current "
-            "directory")
-        task_directory = None
-        while task_directory is None:
-            task_directory = self._ask_with_default("Task directory", ".")
-            if not os.path.exists(task_directory):
-                self._display_error("Path does not exists")
-                if self._ask_boolean("Would you like to retry?", True):
-                    task_directory = None
+        task_directory = self._configure_directory("tasks")
 
         if os.path.exists(task_directory):
             self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
@@ -497,17 +510,7 @@ class Installer:
 
     def configure_backup_directory(self):
         """ Configure backup directory """
-        self._display_question("Please choose a directory in which to store the backup files. By default, the tool will them in the current "
-                               "directory")
-        backup_directory = None
-        while backup_directory is None:
-            backup_directory = self._ask_with_default("Backup directory", ".")
-            if not os.path.exists(backup_directory):
-                self._display_error("Path does not exists")
-                if self._ask_boolean("Would you like to retry?", True):
-                    backup_directory = None
-
-        return {"backup_directory": backup_directory}
+        return {"backup_directory": self._configure_directory("backups")}
 
     def ldap_plugin(self):
         """ Configures the LDAP plugin """
