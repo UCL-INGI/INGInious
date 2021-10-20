@@ -37,14 +37,15 @@ class GroupPage(INGIniousAuthPage):
 
                 group = self.database.groups.find_one(
                     {"courseid": course.get_id(), "students": username})
-
                 if group is not None:
                     group["students"].remove(username)
                     self.database.groups.replace_one({"courseid": course.get_id(), "students": username}, group)
 
-                # Add student in the audience and unique group
-                new_group = self.database.groups.find_one_and_update({"_id": ObjectId(data["register_group"])},
-                                                             {"$push": {"students": username}})
+                # Add student in the audience and unique group if group is not full
+                new_group = self.database.groups.find_one_and_update(
+                    {"_id": ObjectId(data["register_group"]),
+                     "$where": "this.students.length<this.size"},
+                    {"$push": {"students": username}})
 
                 if new_group is None:
                     error = True
