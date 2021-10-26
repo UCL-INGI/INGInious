@@ -403,10 +403,20 @@ class WebAppSubmissionManager:
                                                                     submission["response_type"],
                                                                     show_everything, translation).parse())
                 else:  # new-style submission
-                    submission["problems"][problem] = (
-                    submission["problems"][problem][0], ParsableText(submission["problems"][problem][1],
+
+                    try:
+                        submission["problems"][problem] = (
+                        submission["problems"][problem][0], ParsableText(submission["problems"][problem][1],
                                                                      submission["response_type"],
                                                                      show_everything, translation).parse())
+                    except TypeError:
+                        self._logger.error(
+                            "Something went wrong with provided feedback for submission %s", str(submission["_id"])
+                            )
+                        submission["problems"][problem] = (
+                            'crash', ParsableText(_("Feedback is badly formatted."),
+                                                                    submission["response_type"],
+                                                                    show_everything, translation).parse())
         return submission
 
     def is_running(self, submissionid, user_check=True):
