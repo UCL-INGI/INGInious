@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-07-06 09:39+0200\n"
-"PO-Revision-Date: 2019-10-16 22:04+0000\n"
-"Last-Translator: Kim Mens <kim.mens@uclouvain.be>\n"
+"PO-Revision-Date: 2021-10-26 13:26+0000\n"
+"Last-Translator: Ludovic Taffin <ludovic.taffin@uclouvain.be>\n"
 "Language-Team: Dutch <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/nl/>\n"
 "Language: nl\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/accessible_time.py:71
 msgid "Cannot have a soft deadline after the hard one"
-msgstr ""
+msgstr "Kan geen zachte deadline hebben na de harde"
 
 #: inginious/frontend/courses.py:29
 msgid "List of exercises"
-msgstr ""
+msgstr "Lijst met oefeningen"
 
 #: inginious/frontend/parsable_text.py:37
 msgid "[no content]"
