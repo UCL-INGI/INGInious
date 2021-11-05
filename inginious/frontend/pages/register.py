@@ -95,8 +95,10 @@ class RegistrationPage(INGIniousPage):
             msg = _("Please accept the Terms of Service and Data Privacy")
 
         if not error:
+            email = data["email"].split('@')
+            sanitized_email = "%s@%s" % (email[0], email[1].lower())
             existing_user = self.database.users.find_one(
-                {"$or": [{"username": data["username"]}, {"email": data["email"]}]})
+                {"$or": [{"username": data["username"]}, {"email": sanitized_email}]})
             if existing_user is not None:
                 error = True
                 if existing_user["username"] == data["username"]:
@@ -108,7 +110,7 @@ class RegistrationPage(INGIniousPage):
                 activate_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
                 self.database.users.insert_one({"username": data["username"],
                                                 "realname": data["realname"],
-                                                "email": data["email"],
+                                                "email": sanitized_email,
                                                 "password": passwd_hash,
                                                 "activate": activate_hash,
                                                 "bindings": {},
@@ -122,7 +124,7 @@ class RegistrationPage(INGIniousPage):
 To activate your account, please click on the following link :
 """) + flask.request.url_root + "register?activate=" + activate_hash
 
-                    message = Message(recipients=[(data["realname"], data["email"])],
+                    message = Message(recipients=[(data["realname"], sanitized_email)],
                                       subject=subject,
                                       body=body)
                     mail.send(message)
