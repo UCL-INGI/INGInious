@@ -220,6 +220,23 @@ class TaskFactory(object):
     def _get_last_updates(self, course, taskid, task_fs, need_content=False):
         descriptor_name, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
         last_update = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
+        translations_fs = task_fs.from_subfolder("$i18n")
+
+        if not translations_fs.exists():
+            translations_fs = task_fs.from_subfolder("student").from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("student").from_subfolder(
+                "$i18n")
+        if not translations_fs.exists():
+            translations_fs = course.get_fs().from_subfolder("$i18n")
+
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    last_update["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
 
         if need_content:
             try:
