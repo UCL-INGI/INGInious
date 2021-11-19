@@ -36,7 +36,7 @@ class LocalFSProvider(FileSystemProvider):
 
     def from_subfolder(self, subfolder):
         self._checkpath(subfolder)
-        return LocalFSProvider(self.prefix + "/" + subfolder)
+        return LocalFSProvider(self.prefix + subfolder)
 
     def exists(self, path=None):
         if path is None:
