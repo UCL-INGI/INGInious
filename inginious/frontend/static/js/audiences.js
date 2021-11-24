@@ -72,75 +72,40 @@ function audiences_tutor_remove(username, id) {
 }
 
 function audiences_student_add() {
-    if($("#tab_registered_student").hasClass("active")) {
-        var input_data = ($("#registered_students").val()).split(',');
-        for(var student_id in input_data) {
-            if (input_data[student_id] !== "") {
-                var new_li = jQuery('<li/>', {
-                    'class': "list-group-item group-entry",
-                    'data-username': input_data[student_id]
-                });
-                var new_user = jQuery('<span/>', {
-                    id: new_li.data("username"),
-                    text: ' ' + input_data[student_id]
-                }).appendTo(new_li);
+    var input_data = ($("#registered_students").val()).split(',');
+    for(var student_id in input_data) {
+        if (input_data[student_id] !== "") {
+            var new_li = jQuery('<li/>', {
+                'class': "list-group-item group-entry",
+                'data-username': input_data[student_id]
+            });
+            var new_user = jQuery('<span/>', {
+                id: new_li.data("username"),
+                text: ' ' + input_data[student_id]
+            }).appendTo(new_li);
 
-                jQuery('<i/>', {
-                    class: "fa fa-arrows",
-                }).prependTo(new_user);
+            jQuery('<i/>', {
+                class: "fa fa-arrows",
+            }).prependTo(new_user);
 
-                var user_del_link = jQuery('<a/>', {
-                    'class': "pull-right",
-                    'id': 'user_delete',
-                    'href': '#',
-                    'onclick': "javascript:student_remove('" + new_li.data("username") + "')",
-                    'data-toggle': 'tooltip',
-                    'data-placement': 'left',
-                    'title': 'Remove student'
-                });
+            var user_del_link = jQuery('<a/>', {
+                'class': "pull-right",
+                'id': 'user_delete',
+                'href': '#',
+                'onclick': "javascript:student_remove('" + new_li.data("username") + "')",
+                'data-toggle': 'tooltip',
+                'data-placement': 'left',
+                'title': 'Remove student'
+            });
 
-                jQuery('<i/>', {
-                    'class': 'fa fa-user-times'
-                }).appendTo(user_del_link);
+            jQuery('<i/>', {
+                'class': 'fa fa-user-times'
+            }).appendTo(user_del_link);
 
-                new_li.append(user_del_link);
-                new_li.appendTo($("#group_0"));
-            }
+            new_li.append(user_del_link);
+            new_li.appendTo($("#group_0"));
         }
     }
-    else {
-        var new_li = jQuery('<li/>', {
-            'class':"list-group-item group-entry",
-            'data-username': $("#new_student").val()
-        });
-
-        var new_user = jQuery('<span/>', {
-            id: new_li.data("username"),
-            text: ' ' + $("#new_student").val() + ' (will be registered)'
-        }).appendTo(new_li);
-
-        jQuery('<i/>', {
-            class: "fa fa-arrows",
-        }).prependTo(new_user);
-
-        var user_del_link = jQuery('<a/>', {
-            'class': "pull-right",
-            'id': 'user_delete',
-            'href': '#',
-            'onclick': "javascript:student_remove('" + new_li.data("username") + "')",
-            'data-toggle': 'tooltip',
-            'data-placement': 'left',
-            'title': 'Remove student'
-        });
-
-        jQuery('<i/>', {
-            'class': 'fa fa-user-times'
-        }).appendTo(user_del_link);
-
-        new_li.append(user_del_link);
-        new_li.appendTo($("#group_0"));
-    }
-
     $("#student_modal").modal('hide');
 }
 
