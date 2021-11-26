@@ -69,11 +69,11 @@ class LocalFSProvider(FileSystemProvider):
     def list(self, folders=True, files=True, recursive=False):
         if recursive:
             output = []
-            for root, subdirs, files in os.walk(self.prefix):
+            for root, subdirs, listed_files in os.walk(self.prefix):
                 if folders:
                     output += [root+"/"+d for d in subdirs]
                 if files:
-                    output += [root+"/"+f for f in files]
+                    output += [root+"/"+f for f in listed_files]
             output = [os.path.relpath(f, self.prefix) for f in output]
         else:
             if files and folders:
