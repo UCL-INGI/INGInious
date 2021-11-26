@@ -4,7 +4,7 @@ import os
 import shutil
 import zipstream
 
-from inginious.common.filesystems.provider import FileSystemProvider, NotFoundException
+from inginious.common.filesystems.provider import FileSystemProvider
 
 
 class LocalFSProvider(FileSystemProvider):
@@ -105,7 +105,7 @@ class LocalFSProvider(FileSystemProvider):
         try:
             return os.stat(os.path.join(self.prefix, filepath)).st_mtime
         except:
-            raise NotFoundException()
+            raise FileNotFoundError()
 
     def move(self, src, dest):
         self._checkpath(src)

@@ -3,10 +3,6 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
 
-class NotFoundException(Exception):
-    pass
-
-
 class FileSystemProvider(object, metaclass=ABCMeta):
     """ Provides tools to access a given filesystem. The filesystem may be distant, and subclasses of FileSystemProvider should take care of 
         doing appropriate caching.
@@ -39,9 +35,10 @@ class FileSystemProvider(object, metaclass=ABCMeta):
             self.prefix += "/"
 
     def _checkpath(self, path):
-        """ Checks that a given path is valid. If it's not, raises NotFoundException """
+        """ Checks that a given path is valid.
+        :exception FileNotFoundError: If path is invalid """
         if path.startswith("/") or ".." in path or path.strip() != path:
-            raise NotFoundException()
+            raise FileNotFoundError()
 
     @abstractmethod
     def from_subfolder(self, subfolder):
@@ -68,17 +65,20 @@ class FileSystemProvider(object, metaclass=ABCMeta):
 
     @abstractmethod
     def get_fd(self, filepath, timestamp:datetime=None):
-        """ Returns a file descriptor. Raises NotFoundException if the file does not exists or cannot be retrieved.
+        """ Returns a file descriptor.
             If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant)
             filesystem since the timestamp.
+            :exception FileNotFoundError: if the file does not exists or cannot be retrieved.
+            :exception IsADirectoryError: if filepath points to a directory.
         """
         pass
 
     @abstractmethod
     def get(self, filepath, timestamp:datetime=None):
-        """ Get the content of a file. Raises NotFoundException if the file does not exists or cannot be retrieved.
+        """ Get the content of a file.
             If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant) 
             filesystem since the timestamp.
+            :exception FileNotFoundError: If the file does not exists or cannot be retrieved.
         """
         pass
 
