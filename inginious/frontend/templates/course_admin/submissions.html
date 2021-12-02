@@ -65,6 +65,7 @@
                 <th>{{ _("id") }}</th>
             {% endif %}
             <th>{{ _("submitted on") }}</th>
+            <th>{{ _("Last replay") }}</th>
             <th>{{ _("result") }}</th>
             {% if "show_tags" in old_params %}
                 <th>{{ _("tags") }}</th>
@@ -119,6 +120,13 @@
                 <td>{{ submission["_id"] }}</td>
             {% endif %}
             <td>{{ submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") }}</td>
+            <td>
+                {% if "last_replay" in submission %}
+                    {{submission["last_replay"].strftime("%d/%m/%Y %H:%M:%S") }}
+                {% else %}
+                    {{_("No replay")}}
+                {% endif %}
+            </td>
             <td id="status">
                 {% if succeeded %}
                     {{_("Succeeded")}}
