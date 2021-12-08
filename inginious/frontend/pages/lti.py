@@ -166,6 +166,7 @@ class LTILaunchPage(INGIniousPage):
     """
     Page called by the TC to start an LTI session on a given task
     """
+    endpoint = 'ltilaunchpage'
 
     def GET(self, courseid, taskid):
         raise MethodNotAllowed()

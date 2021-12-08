@@ -73,8 +73,8 @@ class MongoDBSessionInterface(SessionInterface):
         # Check if currently accessed URL is LTI launch page
         try:
             # request.url_rule is not set yet here.
-            endpoint, args = app.create_url_adapter(request).match()
-            is_lti_launch = app.view_functions.get(endpoint).view_class == LTILaunchPage
+            endpoint, _ = app.create_url_adapter(request).match()
+            is_lti_launch = endpoint == LTILaunchPage.endpoint
         except HTTPException:
             is_lti_launch = False
 
