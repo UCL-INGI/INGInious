@@ -9,14 +9,6 @@ inginious.common.filesystems package
 Submodules
 ----------
 
-inginious.common.filesystems.provider module
----------------------------------------------------------
-
-.. automodule:: inginious.common.filesystems.provider
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.filesystems.local module
 -----------------------------------------------------
 

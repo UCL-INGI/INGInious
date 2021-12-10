@@ -5,7 +5,7 @@ import os
 import shutil
 import zipstream
 
-from inginious.common.filesystems.provider import FileSystemProvider
+from inginious.common.filesystems import FileSystemProvider
 
 
 class LocalFSProvider(FileSystemProvider):
