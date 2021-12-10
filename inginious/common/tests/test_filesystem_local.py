@@ -1,101 +1,152 @@
+# pylint: disable=redefined-outer-name
+
 import os
 import tempfile
 import shutil
+import hashlib
 
 import pytest
 
 from inginious.common.filesystems.local import LocalFSProvider
 
-FILE_CONTENT = b"test string"
-PROVIDER=LocalFSProvider
 
-@pytest.fixture
-def init_tmp_dir():
+FS = {
+    'test1.txt': b'test string 1',
+    'subfolder/test2.txt': b'test string 2',
+}
+
+FS = {filepath: {'content': content, 'hash': hash(content)} for filepath, content in FS.items()}
+
+def compare_files(filepath, content):
+    return FS[filepath]['hash'] == hash(content)
+
+def myhash(content: str) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+@pytest.fixture(params=[LocalFSProvider])
+def init_tmp_dir(request):
     """ Create a temporary folder """
     dir_path = tempfile.mkdtemp()
-    yield dir_path
+    yield (request.param, dir_path)
+    """ Some FUT could create content in the prefix """
     shutil.rmtree(dir_path)
 
 @pytest.fixture
 def init_prefix(init_tmp_dir):
+    """ Create a prefix directory for the FSProvider under test """
+    provider, tmp_dir = init_tmp_dir
     prefix = 'prefix'
-    full_prefix = os.path.join(init_tmp_dir, prefix)
+    full_prefix = os.path.join(tmp_dir, prefix)
     os.mkdir(full_prefix)
-    yield full_prefix
+    provider = provider(full_prefix)
+
+    yield (provider, full_prefix)
+
     if os.path.exists(full_prefix):
         shutil.rmtree(full_prefix)
 
 @pytest.fixture
 def init_prefix_with_file(init_prefix):
-    filename = 'test.txt'
-    filepath = os.path.join(init_prefix, filename)
+    """ Create a prefix folder with a direct file within
+        /tmp/<tmp_dir>/prefix
+        |_ test1.txt
+    """
+    provider, full_prefix = init_prefix
+
+    filename = 'test1.txt'
+    filepath = os.path.join(full_prefix, filename)
     with open(filepath, 'wb') as fd:
-        fd.write(FILE_CONTENT)
-    yield (init_prefix, filename)
+        fd.write(FS[filename]['content'])
+
+    yield (provider, full_prefix, filename)
+
     if os.path.exists(filepath):
         os.remove(filepath)
 
 @pytest.fixture
 def init_subfolder(init_prefix):
-    """ Create a prefix folder with a subfolder named 'subfolder' within """
+    """ Create a prefix folder with a subfolder named 'subfolder' within
+        /tmp/<tmp_dir>/prefix
+        |_ subfolder/
+    """
+
+    provider, full_prefix = init_prefix
+
     test_dir = 'subfolder'
-    subdir = os.path.join(init_prefix, test_dir)
+    subdir = os.path.join(full_prefix, test_dir)
     os.mkdir(subdir)
-    yield (init_prefix, test_dir)
+
+    yield (provider, full_prefix, test_dir)
+
     if os.path.exists(subdir):
         os.rmdir(subdir)
 
 @pytest.fixture
 def init_subfolder_with_file(init_subfolder):
-    filename = 'test.txt'
-    prefix, subfolder = init_subfolder
+    """ Generate
+        /tmp/<tmp_dir>/prefix
+        |_ subfolder/
+            |_ test2.txt (file2)
+    """
+
+    provider, full_prefix, subfolder = init_subfolder
+
+    filename = 'test2.txt'
     filepath = subfolder + '/' + filename
-    full_filepath = os.path.join(prefix, filepath)
+    full_filepath = os.path.join(full_prefix, filepath)
     with open(full_filepath, 'wb') as fd:
-        fd.write(FILE_CONTENT)
-    yield (prefix, filepath)
+        fd.write(FS[filepath]['content'])
+
+    yield (provider, full_prefix, filepath)
+
     if os.path.exists(full_filepath):
         os.remove(full_filepath)
 
 @pytest.fixture
 def init_full(init_prefix_with_file, init_subfolder_with_file):
-    prefix, file1 = init_prefix_with_file
-    _, file2 = init_subfolder_with_file
-    return (prefix, file1, file2)
+    """ Generates
+        /tmp/<tmp_dir>/prefix
+        |_ test.txt (file1)
+        |_ subfolder/
+            |_ test.txt (file2)
+    """
+    provider, prefix, file1 = init_prefix_with_file
+    _, _, file2 = init_subfolder_with_file
+    return (provider, prefix, file1, file2)
 
 
 class TestInit:
-    """ LocalFSProvider initialization """
+    """ FileSystemProvider initialization """
 
     def test_prefix(self, init_prefix):
-        """ Test the prefix of a newly generated LocalFSProvider without trailing slash """
-        tmp_dir = init_prefix
-        lp = PROVIDER(tmp_dir)
-        assert lp.prefix == tmp_dir + '/'
+        """ Test the prefix of a newly generated FileSystemProvider without trailing slash """
+        provider, prefix = init_prefix
+        assert provider.prefix == prefix + '/'
 
-    def test_prefix_trailing(self, init_prefix):
-        """ Test the prefix of a newly generated LocalFSProvider with trailing slash """
-        tmp_dir = init_prefix + '/'
-        lp = PROVIDER(tmp_dir)
-        assert lp.prefix == tmp_dir
+    def test_prefix_trailing(self, init_tmp_dir):
+        """ Test the prefix of a newly generated FileSystemProvider with trailing slash """
+        provider, tmp_dir = init_tmp_dir
+        prefix = tmp_dir + 'prefix/'
+        provider = provider(prefix)
+        assert provider.prefix == prefix
 
     def test_prefix_non_existing(self, init_tmp_dir):
         """ Test the prefix of a newly generated LocalFSProvider with non-existing prefix """
-        tmp_dir = init_tmp_dir + '/prefix'
-        lp = PROVIDER(tmp_dir)
-        assert lp.prefix == tmp_dir + '/'
+        provider, tmp_dir = init_tmp_dir
+        prefix = tmp_dir + 'prefix'
+        provider = provider(prefix)
+        assert provider.prefix == prefix + '/'
 
 
 class TestFromSubfolder:
     """ from_subfolder() tests """
 
     def test_subfolder(self, init_subfolder):
-        """ Test the creation of a new LocalFSP whose prefix is a subfolder of an existing one """
-        prefix, subfolder = init_subfolder
-        lp = PROVIDER(prefix)
-        sub_lp = lp.from_subfolder(subfolder)
-        assert sub_lp != lp # from_subfolder must return a new LocalFSProvider object
-        assert sub_lp.prefix == os.path.join(prefix, subfolder) + '/'
+        """ Test the creation of a new FileSystemProvider whose prefix is a subfolder of an existing one """
+        provider, prefix, subfolder = init_subfolder
+        sub_provider = provider.from_subfolder(subfolder)
+        assert sub_provider != provider # from_subfolder must return a new FileSystemProvider object
+        assert sub_provider.prefix == os.path.join(prefix, subfolder) + '/'
 
 
 class TestExists:
@@ -103,20 +154,22 @@ class TestExists:
 
     def test_exists_prefix_and_subfolder(self, init_subfolder):
         """ Test if LocalFSP can check that its prefix and subfolder exists """
-        lp = PROVIDER(init_subfolder[0])
-        assert lp.exists()
-        assert lp.exists(os.path.join(init_subfolder[0], init_subfolder[1]))
+        provider, prefix, subfolder = init_subfolder
+        assert provider.exists()
+        assert provider.exists(os.path.join(prefix, subfolder))
 
     def test_exists_non_existing_path(self, init_tmp_dir):
         """ Test if LocalFSP can check that a subfolder does not exist """
-        lp = PROVIDER(init_tmp_dir)
-        assert not lp.exists(os.path.join(lp.prefix, 'test'))
+        provider, tmp_dir = init_tmp_dir
+        provider = provider(tmp_dir)
+        assert not provider.exists(os.path.join(provider.prefix, 'test'))
 
     def test_exists_non_existing_prefix(self, init_tmp_dir):
         """ Test if LocalFSP can check that its prefix does not exist """
-        prefix = os.path.join(init_tmp_dir, 'prefix')
-        lp = PROVIDER(prefix)
-        assert not lp.exists()
+        provider, tmp_dir = init_tmp_dir
+        prefix = os.path.join(tmp_dir, 'prefix')
+        provider = provider(prefix)
+        assert not provider.exists()
 
 
 class TestEnsureExists:
@@ -124,30 +177,31 @@ class TestEnsureExists:
 
     def test_ensure_exists(self, init_subfolder_with_file):
         """ Test if LocalFSP can check the existence of its prefix without overriding its content """
-        prefix, filepath = init_subfolder_with_file
-        lp = PROVIDER(prefix)
-        lp.ensure_exists()
+        provider, prefix, filepath = init_subfolder_with_file
+        provider.ensure_exists()
         assert os.path.exists(os.path.join(prefix, filepath))
 
     def test_ensure_exists_prefix(self, init_tmp_dir):
         """ Test if LocalFSP can create its prefix folder if it does not exist """
-        prefix = os.path.join(init_tmp_dir, 'prefix')
-        lp = PROVIDER(prefix)
-        lp.ensure_exists()
+        provider, tmp_dir = init_tmp_dir
+        prefix = os.path.join(tmp_dir, 'prefix')
+        provider = provider(prefix)
+        provider.ensure_exists()
         assert os.path.exists(prefix)
 
     def test_ensure_exists_subfolder(self, init_tmp_dir):
         """ Test if LocalFSP can create its prefix in nested non-existing folders """
-        prefix1 = os.path.join(init_tmp_dir, 'prefix1')
+        provider, tmp_dir = init_tmp_dir
+        prefix1 = os.path.join(tmp_dir, 'prefix1')
         prefix2 = os.path.join(prefix1, 'prefix2')
-        lp = PROVIDER(prefix2)
-        lp.ensure_exists()
+        provider = provider(prefix2)
+        provider.ensure_exists()
         assert os.path.exists(prefix2)
 
 
 class TestPut:
     """ put() tests """
-    pass # TODO
+    # TODO
 
 
 class TestGetFd:
@@ -155,35 +209,32 @@ class TestGetFd:
 
     def test_get_fd_full_path(self, init_prefix_with_file):
         """ Test getting fd on valid full path """
-        prefix, filename = init_prefix_with_file
-        lp = PROVIDER(prefix)
+        provider, prefix, filename = init_prefix_with_file
         with pytest.raises(FileNotFoundError):
-            lp.get_fd(os.path.join(lp.prefix, filename))
+            provider.get_fd(os.path.join(prefix, filename))
 
     def test_get_fd_non_existing_file(self, init_prefix):
         """ Test get_fd on non-existing filepath """
-        lp = PROVIDER(init_prefix)
+        provider, _ = init_prefix
         with pytest.raises(FileNotFoundError):
-            lp.get_fd('test.txt')
+            provider.get_fd('test.txt')
 
     def test_get_fd_directory(self, init_subfolder):
         """ Test get_fd on filepath leading to a folder """
-        prefix, subfolder = init_subfolder
-        lp = PROVIDER(prefix)
+        provider, _, subfolder = init_subfolder
         with pytest.raises(IsADirectoryError):
-            lp.get_fd(subfolder)
+            provider.get_fd(subfolder)
 
     def test_get_fd(self, init_prefix_with_file):
         """ Test getting fd on a valid file """
-        prefix, filename = init_prefix_with_file
-        lp = PROVIDER(prefix)
-        fd = lp.get_fd(filename)
-        assert fd.read() == FILE_CONTENT
+        provider, _, filename = init_prefix_with_file
+        with provider.get_fd(filename) as fd:
+            assert compare_files(filename, fd.read())
 
 
 class TestGet:
     """ get() tests """
-    pass # TODO
+    # TODO
 
 
 class TestList:
@@ -191,116 +242,106 @@ class TestList:
 
     def test_list_file_populated(self, init_full):
         """ List direct files """
-        prefix, filename, _ = init_full
-        lp = PROVIDER(prefix)
-        assert lp.list(files=True, folders=False) == [filename]
+        provider, _, filename, _ = init_full
+        assert provider.list(files=True, folders=False) == [filename]
 
     def test_list_file_populated_recursive(self, init_full):
         """ List all files recursively """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
-        assert set(lp.list(files=True, folders=False, recursive=True)) == set([file1, file2])
+        provider, _, file1, file2 = init_full
+        assert set(provider.list(files=True, folders=False, recursive=True)) == set([file1, file2])
 
     def test_list_folder_populated(self, init_full):
         """ List direct directories """
-        prefix, _, file2 = init_full
-        lp = PROVIDER(prefix)
-        assert set(lp.list(files=False, folders=True)) == set(['%s/' % file2.split('/')[0]])
+        provider, _, _, file2 = init_full
+        assert set(provider.list(files=False, folders=True)) == set(['%s/' % file2.split('/')[0]])
 
     def test_list_folder_populated_recursive(self, init_full):
         """ List all directories recursively """
-        prefix, _, file2 = init_full
-        lp = PROVIDER(prefix)
-        assert set(lp.list(files=False, folders=True, recursive=True)) == set(['%s/' % file2.split('/')[0]])
+        provider, _, _, file2 = init_full
+        assert set(provider.list(files=False, folders=True, recursive=True)) == set(['%s/' % file2.split('/')[0]])
 
     def test_list_empty(self, init_prefix):
         """ List direct empty prefix """
-        lp = PROVIDER(init_prefix)
-        assert lp.list(files=True, folders=True) == []
+        provider, _ = init_prefix
+        assert provider.list(files=True, folders=True) == []
 
     def test_list_empty_recursively(self, init_prefix):
         """ List empty prefix recursively """
-        lp = PROVIDER(init_prefix)
-        assert lp.list(files=True, folders=True, recursive=True) == []
+        provider, _ = init_prefix
+        assert provider.list(files=True, folders=True, recursive=True) == []
 
     def test_list_populated_disabled(self, init_full):
         """ List nothing """
-        prefix, _, _ = init_full
-        lp = PROVIDER(prefix)
-        assert lp.list(files=False, folders=False) == []
+        provider, _, _, _ = init_full
+        assert provider.list(files=False, folders=False) == []
 
     def test_list_populated_disabled_recursive(self, init_full):
         """ List nothing recursively """
-        prefix, _, _ = init_full
-        lp = PROVIDER(prefix)
-        assert lp.list(files=False, folders=False, recursive=True) == []
+        provider, _, _, _ = init_full
+        assert provider.list(files=False, folders=False, recursive=True) == []
 
     def test_list_populated(self, init_full):
         """ List all direct prefix's content """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
-        assert set(lp.list(files=True, folders=True)) == set([file1, '%s/' % file2.split('/')[0]])
+        provider, _, file1, file2 = init_full
+        assert set(provider.list(files=True, folders=True)) == set([file1, '%s/' % file2.split('/')[0]])
 
     def test_list_populated_recursively(self, init_full):
         """ List all prefix's content recursively """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
-        assert set(lp.list(files=True, folders=True, recursive=True)) == set([file1, file2, '%s/' % file2.split('/')[0]])
+        provider, prefix, file1, file2 = init_full
+        assert set(provider.list(files=True, folders=True, recursive=True)) == set([file1, file2, '%s/' % file2.split('/')[0]])
 
     def test_list_non_existing_prefix(self, init_tmp_dir):
         """ Try to list non-existing prefix """
-        prefix = os.path.join(init_tmp_dir, 'prefix')
-        lp = PROVIDER(prefix)
+        provider, tmp_dir = init_tmp_dir
+        prefix = os.path.join(tmp_dir, 'prefix')
+        provider = provider(prefix)
         with pytest.raises(FileNotFoundError):
-            lp.list()
+            provider.list()
 
 class TestDelete:
     """ delete() tests """
 
     def test_delete_non_existing(self, init_tmp_dir):
         """ Delete non-existing prefix """
-        prefix = os.path.join(init_tmp_dir, 'prefix')
-        lp = PROVIDER(prefix)
+        provider, tmp_dir = init_tmp_dir
+        prefix = os.path.join(tmp_dir, 'prefix')
+        provider = provider(prefix)
         with pytest.raises(FileNotFoundError):
-            lp.delete()
+            provider.delete()
 
     def test_delete_empty_prefix(self, init_prefix):
         """ Delete existing empty prefix """
-        lp = PROVIDER(init_prefix)
-        lp.delete()
-        assert not os.path.exists(init_prefix)
+        provider, prefix = init_prefix
+        provider.delete()
+        assert not os.path.exists(prefix)
 
     def test_delete_populated_prefix(self, init_full):
         """ Delete a populated prefix """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
-        lp.delete()
+        provider, prefix, _, _ = init_full
+        provider.delete()
         assert not os.path.exists(prefix)
 
     def test_delete_subfolder_file(self, init_full):
         """ Delete a subfolder file without removing the subfolder """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
-        lp.delete(file2)
+        provider, prefix, file1, file2 = init_full
+        provider.delete(file2)
         assert os.path.exists(os.path.join(prefix, file1))
         assert os.path.exists(os.path.join(prefix, file2.split('/')[0]))
 
     def test_delete_subfolder(self, init_full):
         """ Delete a subfolder """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
+        provider, prefix, file1, file2 = init_full
         subfolder = file2.split('/')[0]
-        lp.delete(subfolder)
+        provider.delete(subfolder)
         assert os.path.exists(os.path.join(prefix, file1))
         assert not os.path.exists(os.path.join(prefix, subfolder))
 
     def test_delete_fullpath(self, init_full):
         """ Try to delete a full path """
-        prefix, file1, file2 = init_full
-        lp = PROVIDER(prefix)
+        provider, prefix, _, file2 = init_full
         subfolder = file2.split('/')[0]
         with pytest.raises(FileNotFoundError):
-            lp.delete(os.path.join(prefix, subfolder))
+            provider.delete(os.path.join(prefix, subfolder))
 
 
 class TestGetLastModificationTime:
@@ -311,8 +352,26 @@ class TestGetLastModificationTime:
 class TestMove:
     """ move() tests """
 
-    def test_move_non_existing_file(self, init_prefix):
-        lp = PROVIDER(init_prefix)
-        with pytest.raises(FileNotFoundError):
-            lp.move('non-existing.src', 'non-existing.dst')
+    def test_move(self, init_full):
+        """ Try to move a file at the same directory level """
+        provider, prefix, file1, file2 = init_full
+        file1_path = os.path.join(prefix, file1)
+        dest = 'moved_%s' % file1
+        full_dest = os.path.join(prefix, dest)
+        provider.move(file1, dest)
+        assert not os.path.exists(file1_path)
+        assert os.path.exists(full_dest)
+        with open(full_dest, 'rb') as fd:
+            assert compare_files(file1, fd.read())
+        assert os.path.exists(os.path.join(prefix, file2))
 
+    def test_move_non_existing_file(self, init_prefix):
+        """ Try to move a non existing file """
+        provider, _ = init_prefix
+        with pytest.raises(FileNotFoundError):
+            provider.move('non-existing.src', 'non-existing.dst')
+
+
+class TestCopyTo:
+    """ copy_to() tests """
+    # TODO
