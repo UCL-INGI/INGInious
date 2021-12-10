@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import annotations
 import mimetypes
 import os
 import shutil
@@ -13,7 +14,7 @@ class LocalFSProvider(FileSystemProvider):
     """
     @classmethod
     def get_needed_args(cls):
-        """ Returns a list of arguments needed to create a FileSystemProvider. In the form 
+        """ Returns a list of arguments needed to create a FileSystemProvider. In the form
             {
                 "arg1": (int, False, "description1"),
                 "arg2: (str, True, "description2")
@@ -31,14 +32,11 @@ class LocalFSProvider(FileSystemProvider):
         """ Given the args from get_needed_args, creates the FileSystemProvider """
         return LocalFSProvider(location)
 
-    def __init__(self, prefix):
-        super().__init__(prefix)
-
-    def from_subfolder(self, subfolder):
+    def from_subfolder(self, subfolder: str) -> LocalFSProvider:
         self._checkpath(subfolder)
         return LocalFSProvider(self.prefix + subfolder)
 
-    def exists(self, path=None):
+    def exists(self, path: str=None) -> bool:
         if path is None:
             path = self.prefix
         else:
@@ -59,14 +57,14 @@ class LocalFSProvider(FileSystemProvider):
             content = content.encode("utf-8")
         open(fullpath, 'wb').write(content)
 
-    def get_fd(self, filepath, timestamp=None):
+    def get_fd(self, filepath: str, timestamp=None):
         self._checkpath(filepath)
         return open(os.path.join(self.prefix, filepath), 'rb')
 
     def get(self, filepath, timestamp=None):
         return self.get_fd(filepath, timestamp).read()
 
-    def list(self, folders=True, files=True, recursive=False):
+    def list(self, folders: bool=True, files: bool=True, recursive: bool=False) -> list:
         if recursive:
             output = []
             for root, subdirs, listed_files in os.walk(self.prefix):
@@ -88,7 +86,7 @@ class LocalFSProvider(FileSystemProvider):
         isdir = lambda x: '/' if os.path.isdir(os.path.join(self.prefix, x)) else ''
         return [f+isdir(f) for f in output]
 
-    def delete(self, filepath=None):
+    def delete(self, filepath: str=None):
         if filepath is None:
             filepath = self.prefix
         else:
@@ -139,9 +137,9 @@ class LocalFSProvider(FileSystemProvider):
             if not os.path.isdir(dest):
                 os.makedirs(dest)
             files = os.listdir(src)
-            for f in files:
-                self._recursive_overwrite(os.path.join(src, f),
-                                          os.path.join(dest, f))
+            for file in files:
+                self._recursive_overwrite(os.path.join(src, file),
+                                          os.path.join(dest, file))
         else:
             shutil.copyfile(src, dest, follow_symlinks=False)
 
