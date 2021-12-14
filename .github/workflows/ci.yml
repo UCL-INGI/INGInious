@@ -28,12 +28,34 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install nose==1.3.7 selenium==3.141.0 coverage pyvirtualdisplay
+          pip3 install nose==1.3.7 selenium==3.141.0 coverage pyvirtualdisplay pytest coverage-badge
+
       - name: Start services
         run: |
           sudo systemctl start mongod
           sudo systemctl start docker
+
       - name: Install INGInious
         run: pip3 install .
-      - name: Launch tests
-        run: nosetests -v --with-coverage --cover-package=inginious --cover-branches --cover-html
+
+      - name: Launch nose tests
+        run: nosetests -v --with-coverage --cover-package=inginious --cover-branches --cover-html -I "^test_"
+
+      - name: Launch pytest tests
+        run: coverage run --branch -m pytest -v
+
+      - name: Generate coverage report
+        if: always()
+        run: |
+          coverage report --include="inginious/*"
+          coverage html --include="inginious/*"
+          coverage-badge -o coverage.svg
+
+      - name: Save coverage output
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: coverage
+          path: |
+            /home/runner/work/INGInious/INGInious/htmlcov/
+            /home/runner/work/INGInious/INGInious/coverage.svg
