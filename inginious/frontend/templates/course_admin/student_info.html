@@ -115,7 +115,7 @@
       $('.modal-dialog .taskname').each(function (index) {
           $(this).text($(event.relatedTarget).data('task'));
       });
-      $('.modal-dialog #taskname').val($(event.relatedTarget).data('task_id'));
+      $('.modal-dialog #taskid').val($(event.relatedTarget).data('task_id'));
     });
     $(".reset_modal").each(function(index) {
         $(this).tooltip({"placement": "bottom"});
