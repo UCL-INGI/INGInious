@@ -209,7 +209,7 @@ class WebAppSubmissionManager:
 
         self._database.submissions.update(
             {"_id": submission["_id"], "status": "waiting"},
-            {"$set": {"jobid": jobid}}
+            {"$set": {"jobid": jobid,"last_replay": datetime.now()}}
         )
 
         if not copy:
