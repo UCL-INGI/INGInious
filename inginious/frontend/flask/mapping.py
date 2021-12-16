@@ -89,7 +89,7 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>preferences/delete', view_func=DeletePage.as_view('deletepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences/profile', view_func=ProfilePage.as_view('profilepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>lti/task', view_func=LTITaskPage.as_view('ltitaskpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>lti/<courseid>/<taskid>', view_func=LTILaunchPage.as_view('ltilaunchpage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>lti/<courseid>/<taskid>', view_func=LTILaunchPage.as_view(LTILaunchPage.endpoint))
     flask_app.add_url_rule('/<cookieless:sessionid>lti/bind', view_func=LTIBindPage.as_view('ltibindpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>lti/login', view_func=LTILoginPage.as_view('ltiloginpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>lti/asset/<path:asset_url>', view_func=LTIAssetPage.as_view('ltiassetpage'))
