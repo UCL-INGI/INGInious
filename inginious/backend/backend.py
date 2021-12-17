@@ -144,11 +144,10 @@ class Backend(object):
 
     async def handle_client_kill_job(self, client_addr, message: ClientKillJob):
         """ Handle an ClientKillJob message. Remove a job from the waiting list or send the kill message to the right agent. """
-        # Check if the job is not in the queue
+        # Check if the job is not in the waiting list
         if message.job_id in self._waiting_jobs:
-            # Erase the job reference in priority queue
-            job = self._waiting_jobs.pop(message.job_id)
-            job._replace(msg=None)
+            # Erase the job in waiting list
+            del self._waiting_jobs[message.job_id]
 
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
@@ -201,9 +200,8 @@ class Backend(object):
                     job = self._waiting_jobs_pq.get(self._registered_agents[agent_addr].environments)
                     priority, insert_time, client_addr, job_id, job_msg = job
 
-                    # Killed job, removing it from the mapping
-                    if not job_msg:
-                        del self._waiting_jobs[job_id]
+                    # Ensure the job has not been removed (killed)
+                    if job_id not in self._waiting_jobs:
                         job = None  # repeat the while loop. we need a job
             except queue.Empty:
                 continue  # skip agent, nothing to do!
