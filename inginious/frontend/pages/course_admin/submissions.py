@@ -117,13 +117,13 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
-        data, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
+        data, sub_count, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
 
         return self.template_helper.render("course_admin/submissions.html", course=course, users=users,
                                            tutored_users=tutored_users, audiences=audiences,
                                            tutored_audiences=tutored_audiences, tasks=tasks, old_params=params,
                                            data=data, displayed_selection=json.dumps(params),
-                                           number_of_pages=pages, page_number=page, msgs=msgs)
+                                           number_of_pages=pages, page_number=page, msgs=msgs, sub_count = sub_count)
 
     def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None, best_only=False):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
@@ -220,6 +220,6 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
         if limit is not None:
             number_of_pages = submissions_count // limit + (submissions_count % limit > 0)
-            return out, number_of_pages
+            return out, submissions_count, number_of_pages
         else:
             return out
