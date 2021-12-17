@@ -37,7 +37,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_tabs.tabs',
     'IPython.sphinxext.ipython_console_highlighting',
-    'sphinx.ext.autodoc',
     'sphinx_autodoc_typehints'
 ]
 
