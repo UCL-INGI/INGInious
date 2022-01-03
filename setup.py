@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 install_requires = [
     "docker>=2.5.0",
     "docutils>=0.14",
-    "pymongo>=3.2.2",
+    "pymongo==3.12.3",
     "PyYAML>=3.11",
     "Jinja2 >= 2.10",
     "lti>=0.9.0",
