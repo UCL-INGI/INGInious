@@ -31,10 +31,10 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     gridfs.delete(submission[key])
 
         self.database.courses.update_one({"_id": courseid}, {"$set": {"students": []}})
-        self.database.audiences.remove({"courseid": courseid})
-        self.database.groups.remove({"courseid": courseid})
-        self.database.user_tasks.remove({"courseid": courseid})
-        self.database.submissions.remove({"courseid": courseid})
+        self.database.audiences.delete_many({"courseid": courseid})
+        self.database.groups.delete_many({"courseid": courseid})
+        self.database.user_tasks.delete_many({"courseid": courseid})
+        self.database.submissions.delete_many({"courseid": courseid})
 
         self._logger.info("Course %s wiped.", courseid)
 
@@ -94,15 +94,15 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
             audiences = bson.json_util.loads(zipf.read("audiences.json").decode("utf-8"))
             if len(audiences) > 0:
-                self.database.audiences.insert(audiences)
+                self.database.audiences.insert_many(audiences)
 
             groups = bson.json_util.loads(zipf.read("groups.json").decode("utf-8"))
             if len(groups) > 0:
-                self.database.groups.insert(groups)
+                self.database.groups.insert_many(groups)
 
             user_tasks = bson.json_util.loads(zipf.read("user_tasks.json").decode("utf-8"))
             if len(user_tasks) > 0:
-                self.database.user_tasks.insert(user_tasks)
+                self.database.user_tasks.insert_many(user_tasks)
 
             submissions = bson.json_util.loads(zipf.read("submissions.json").decode("utf-8"))
             for submission in submissions:
@@ -111,7 +111,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                         submission[key] = self.submission_manager.get_gridfs().put(zipf.read(key + "/" + str(submission[key]) + ".data"))
 
             if len(submissions) > 0:
-                self.database.submissions.insert(submissions)
+                self.database.submissions.insert_many(submissions)
 
         self._logger.info("Course %s restored from backup directory.", courseid)
 

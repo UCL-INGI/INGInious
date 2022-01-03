@@ -180,9 +180,9 @@ class CourseStudentListPage(INGIniousAdminPage):
     def post_audiences(self, course, data, active_tab, msg, error):
         try:
             if 'audience' in data:
-                self.database.audiences.insert({"courseid": course.get_id(), "students": [],
-                                                 "tutors": [],
-                                                 "description": data['audience']})
+                self.database.audiences.insert_one({"courseid": course.get_id(), "students": [],
+                                                    "tutors": [],
+                                                    "description": data['audience']})
                 msg["audiences"] = _("New audience created.")
                 active_tab = "tab_audiences"
 
