@@ -80,8 +80,8 @@ class CourseTaskListPage(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId:
                     self.submission_manager.get_gridfs().delete(submission[key])
 
-        self.database.user_tasks.remove({"courseid": courseid, "taskid": taskid})
-        self.database.submissions.remove({"courseid": courseid, "taskid": taskid})
+        self.database.user_tasks.delete_many({"courseid": courseid, "taskid": taskid})
+        self.database.submissions.delete_many({"courseid": courseid, "taskid": taskid})
 
         logging.getLogger("inginious.webapp.task_edit").info("Task %s/%s wiped.", courseid, taskid)
 

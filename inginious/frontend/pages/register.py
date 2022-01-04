@@ -106,15 +106,15 @@ class RegistrationPage(INGIniousPage):
             else:
                 passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
                 activate_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
-                self.database.users.insert({"username": data["username"],
-                                            "realname": data["realname"],
-                                            "email": data["email"],
-                                            "password": passwd_hash,
-                                            "activate": activate_hash,
-                                            "bindings": {},
-                                            "language": self.user_manager._session.get("language", "en"),
-                                            "tos_accepted": True
-                                            })
+                self.database.users.insert_one({"username": data["username"],
+                                                "realname": data["realname"],
+                                                "email": data["email"],
+                                                "password": passwd_hash,
+                                                "activate": activate_hash,
+                                                "bindings": {},
+                                                "language": self.user_manager._session.get("language", "en"),
+                                                "tos_accepted": True
+                                                })
                 try:
                     subject = _("Welcome on INGInious")
                     body = _("""Welcome on INGInious !
@@ -129,7 +129,7 @@ To activate your account, please click on the following link :
                     msg = _("You are succesfully registered. An email has been sent to you for activation.")
                 except Exception as ex:
                     # Remove newly inserted user (do not add after to prevent email sending in case of failure)
-                    self.database.users.remove({"username": data["username"]})
+                    self.database.users.delete_one({"username": data["username"]})
                     error = True
                     msg = _("Something went wrong while sending you activation email. Please contact the administrator.")
                     self._logger.error("Couldn't send email : {}".format(str(ex)))

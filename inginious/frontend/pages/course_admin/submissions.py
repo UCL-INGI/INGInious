@@ -201,7 +201,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
                                                                     keep_only_crashes=keep_only_crashes)
 
         submissions = self.database.submissions.find(filter)
-        submissions_count = submissions.count()
+        submissions_count = self.database.submissions.count_documents(filter)
 
         if sort_by[0] not in ["submitted_on", "username", "grade", "taskid"]:
             sort_by[0] = "submitted_on"

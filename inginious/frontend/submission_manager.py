@@ -190,10 +190,10 @@ class WebAppSubmissionManager:
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {}  # Be sure tags are reinitialized
             submission["user_ip"] = flask.request.remote_addr
-            submissionid = self._database.submissions.insert(submission)
+            submissionid = self._database.submissions.insert_one(submission).inserted_id
 
         # Clean the submission document in db
-        self._database.submissions.update(
+        self._database.submissions.update_one(
             {"_id": submission["_id"]},
             {"$set": {"status": "waiting", "response_type": task.get_response_type()},
              "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "state": "",
@@ -207,7 +207,7 @@ class WebAppSubmissionManager:
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
 
 
-        self._database.submissions.update(
+        self._database.submissions.update_one(
             {"_id": submission["_id"], "status": "waiting"},
             {"$set": {"jobid": jobid,"last_replay": datetime.now()}}
         )
@@ -299,7 +299,7 @@ class WebAppSubmissionManager:
 
         self._before_submission_insertion(task, inputdata, debug, obj)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
-        submissionid = self._database.submissions.insert(obj)
+        submissionid = self._database.submissions.insert_one(obj).inserted_id
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         ssh_callback = lambda host, port, user, password: self._handle_ssh_callback(submissionid, host, port, user, password)
@@ -310,7 +310,7 @@ class WebAppSubmissionManager:
                                                               custom, state, archive, stdout, stderr, True)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
-        self._database.submissions.update(
+        self._database.submissions.update_one(
             {"_id": submissionid, "status": "waiting"},
             {"$set": {"jobid": jobid}}
         )
@@ -710,7 +710,6 @@ def update_pending_jobs(database):
     """ Updates pending jobs status in the database """
 
     # Updates the submissions that are waiting with the status error, as the server restarted
-    database.submissions.update({'status': 'waiting'},
+    database.submissions.update_many({'status': 'waiting'},
                                 {"$unset": {'jobid': ""},
-                                 "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}},
-                                multi=True)
+                                 "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}})

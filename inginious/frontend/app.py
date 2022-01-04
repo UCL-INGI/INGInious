@@ -147,7 +147,7 @@ def get_app(config):
         database.user_tasks.create_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
         database.user_tasks.create_index([("courseid", pymongo.ASCENDING)])
         database.user_tasks.create_index([("username", pymongo.ASCENDING)])
-        database.db_version.insert({"db_version": DB_VERSION})
+        database.db_version.insert_one({"db_version": DB_VERSION})
     elif db_version.get("db_version", 0) != DB_VERSION:
         raise Exception("Please update the database before running INGInious")
 

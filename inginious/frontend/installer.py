@@ -553,12 +553,12 @@ class Installer:
         email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
         password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
 
-        database.users.insert({"username": username,
-                               "realname": realname,
-                               "email": email,
-                               "password": hashlib.sha512(password.encode("utf-8")).hexdigest(),
-                               "bindings": {},
-                               "language": "en"})
+        database.users.insert_one({"username": username,
+                                   "realname": realname,
+                                   "email": email,
+                                   "password": hashlib.sha512(password.encode("utf-8")).hexdigest(),
+                                   "bindings": {},
+                                   "language": "en"})
 
         options["superadmins"].append(username)
 
