@@ -100,7 +100,7 @@ class CourseEditAudience(INGIniousAdminPage):
                     # Display the page
                     return self.display_page(course, audienceid, msg, error)
                 elif username not in student_list:
-                    self.user_manager.course_register_user(course, username)
+                    self.user_manager.course_register_user(course, username, force=True)
             self.database.audiences.update_one(
                 {"_id": ObjectId(audiences_dict[0]["_id"])},
                 {"$set": {"students": audiences_dict[0]["students"],
