@@ -138,7 +138,7 @@ class Backend(object):
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
         job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[message.job_id] = job
-        self._waiting_jobs_pq.put((message.environment_type, message.environment, message.environment_parameters["ssh_allowed"]), job)
+        self._waiting_jobs_pq.put((message.environment_type, message.environment, self._get_ssh_allowed(message)), job)
 
         await self.update_queue()
 
@@ -405,3 +405,10 @@ class Backend(object):
             return int(job_info.environment_parameters["limits"]["time"])
         except:
             return -1 # unknown
+
+    def _get_ssh_allowed(self, job_info: ClientNewJob):
+        """
+            Returns if the job requires that the agent allows ssh
+            For this to work, ["ssh_allowed"] must be a parameter of the environment.
+        """
+        return job_info.environment_parameters.get("ssh_allowed", False)
