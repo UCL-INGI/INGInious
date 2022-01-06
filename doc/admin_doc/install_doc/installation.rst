@@ -149,7 +149,7 @@ This will automatically upgrade an existing version.
 Configuring INGInious
 ---------------------
 
-INGInious comes with a mini-LMS web app that provides statistics, groups management, and the
+INGInious comes with a mini-LMS web app that provides statistics, group management, and the
 INGInious studio, that allows to modify and test your tasks directly in your browser. It supports the LTI_ interface
 that allows to interface with Learning Management System via the LTI_ specification. Any LMS supporting LTI_ is
 compatible. This includes Moodle, edX, among many others.
