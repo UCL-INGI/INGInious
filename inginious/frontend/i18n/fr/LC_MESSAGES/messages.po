@@ -748,7 +748,7 @@ msgstr "Statistiques"
 #: inginious/frontend/pages/course_admin/utils.py:347
 #: inginious/frontend/templates/course_admin/student_list.html:20
 #: inginious/frontend/templates/course_admin/student_list.html:28
-msgid "Users management"
+msgid "User management"
 msgstr "Gestion des utilisateurs"
 
 #: inginious/frontend/pages/course_admin/utils.py:350
@@ -1155,7 +1155,7 @@ msgstr "Groupe : {}"
 
 #: inginious/frontend/templates/course.html:63
 #: inginious/frontend/templates/task.html:170
-msgid "Groups management"
+msgid "Group management"
 msgstr "Gestion des groupes"
 
 #: inginious/frontend/templates/course.html:68
