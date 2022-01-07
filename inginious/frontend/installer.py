@@ -335,7 +335,7 @@ class Installer:
         database_name = "INGInious"
 
         should_ask = True
-        if self.try_mongodb_opts(host, database_name):
+        if self.try_mongodb_opts(host, database_name) is not None:
             should_ask = self._ask_boolean(
                 "Successfully connected to MongoDB. Do you want to edit the configuration anyway?", False)
         else:
