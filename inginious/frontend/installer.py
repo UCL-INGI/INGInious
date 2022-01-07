@@ -552,6 +552,8 @@ class Installer:
         realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
         email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
         password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
+        email = email.split('@')
+        email = "%s@%s" % (email[0], email[1].lower())
 
         database.users.insert_one({"username": username,
                                    "realname": realname,

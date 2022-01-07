@@ -386,6 +386,8 @@ class UserManager:
 
     def bind_user(self, auth_id, user):
         username, realname, email, additional = user
+        email = email.split('@')
+        email = "%s@%s" % (email[0], email[1].lower())
 
         auth_method = self.get_auth_method(auth_id)
         if not auth_method:
