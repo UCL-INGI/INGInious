@@ -19,6 +19,23 @@ from collections import OrderedDict, namedtuple
 import pymongo
 from binascii import hexlify
 import os
+import re
+
+
+def sanitize_email(email: str) -> str:
+    """
+    Sanitize an email address and put the bar part of an address foo@bar in lower case.
+    """
+    email_re = re.compile(
+        r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
+        r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"'  # quoted-string
+        r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
+
+    if email_re.match(email) is None:
+        return None
+
+    email = email.split('@')
+    return "%s@%s" % (email[0], email[1].lower())
 
 
 class AuthInvalidInputException(Exception):
@@ -386,8 +403,10 @@ class UserManager:
 
     def bind_user(self, auth_id, user):
         username, realname, email, additional = user
-        email = email.split('@')
-        email = "%s@%s" % (email[0], email[1].lower())
+        email = sanitize_email(email)
+        if email is None:
+            self._logger.exception("Invalid email format.")
+            return False
 
         auth_method = self.get_auth_method(auth_id)
         if not auth_method:
