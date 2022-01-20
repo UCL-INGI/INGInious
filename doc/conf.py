@@ -36,7 +36,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx_tabs.tabs',
-    'IPython.sphinxext.ipython_console_highlighting'
+    'IPython.sphinxext.ipython_console_highlighting',
+    'sphinx_autodoc_typehints'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

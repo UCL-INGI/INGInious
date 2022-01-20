@@ -6,7 +6,7 @@
 """ Factory for loading courses from disk """
 import logging
 
-from inginious.common.filesystems.provider import FileSystemProvider
+from inginious.common.filesystems import FileSystemProvider
 from inginious.common.log import get_course_logger
 from inginious.common.base import id_checker, get_json_or_yaml, loads_json_or_yaml
 from inginious.frontend.plugin_manager import PluginManager

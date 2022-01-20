@@ -11,6 +11,7 @@ Subpackages
 
 .. toctree::
 
+    inginious.common.filesystems
     inginious.common.task_file_readers
     inginious.common.tests
 

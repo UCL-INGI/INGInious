@@ -22,7 +22,7 @@ from inginious.agent.docker_agent._docker_runtime import DockerRuntime
 from inginious.agent.docker_agent._timeout_watcher import TimeoutWatcher
 from inginious.common.asyncio_utils import AsyncIteratorWrapper, AsyncProxy
 from inginious.common.base import id_checker, id_checker_tests
-from inginious.common.filesystems.provider import FileSystemProvider
+from inginious.common.filesystems import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
 
 @dataclass

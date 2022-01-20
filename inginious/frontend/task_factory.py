@@ -6,7 +6,7 @@
 """ Factory for loading tasks from disk """
 
 from os.path import splitext
-from inginious.common.filesystems.provider import FileSystemProvider
+from inginious.common.filesystems import FileSystemProvider
 from inginious.common.log import get_course_logger
 from inginious.common.base import id_checker, get_json_or_yaml
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
