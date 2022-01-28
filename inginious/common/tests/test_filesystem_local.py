@@ -1,6 +1,8 @@
 # pylint: disable=redefined-outer-name
 
 import os
+import re
+import time
 import tempfile
 import shutil
 import hashlib
@@ -10,26 +12,103 @@ import pytest
 from inginious.common.filesystems.local import LocalFSProvider
 
 
+def myhash(content: str) -> str:
+    return hashlib.sha256(content).hexdigest()
+
 FS = {
     'test1.txt': b'test string 1',
     'subfolder/test2.txt': b'test string 2',
 }
 
-FS = {filepath: {'content': content, 'hash': hash(content)} for filepath, content in FS.items()}
+FS = {filepath: {'content': content, 'hash': myhash(content)} for filepath, content in FS.items()}
 
 def compare_files(filepath, content):
-    return FS[filepath]['hash'] == hash(content)
+    return FS[filepath]['hash'] == myhash(content)
 
-def myhash(content: str) -> str:
-    return hashlib.sha256(content).hexdigest()
+########################
+### Generic fixtures ###
+########################
+
+@pytest.fixture
+def init_files():
+    """ Fixture factory which allows to populate a temporary directory with FS content """
+    all_files = []
+    all_dirs = []
+
+    def _create(prefix, files):
+        for file in files:
+            filepath = os.path.join(prefix, file)
+            all_files.append(filepath)
+            dirs = '/'.join(re.sub(prefix+'/', '', filepath).split('/')[:-1])
+            if dirs != '':
+                subdirs = os.path.join(prefix, dirs)
+                all_dirs.append(subdirs)
+                os.makedirs(subdirs, exist_ok=True)
+            with open(filepath, 'wb') as fd:
+                fd.write(FS[file]['content'])
+        return files
+
+    yield _create
+
+    for filepath in all_files:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    for dirs in all_dirs:
+        if os.path.exists(dirs):
+            shutil.rmtree(dirs)
+
+@pytest.fixture
+def init_tmp_dir_factory():
+    """ Create a temporary folder """
+    paths = []
+
+    def _tmp_dir():
+        dir_path = tempfile.mkdtemp()
+        paths.append(dir_path)
+        return dir_path
+    yield _tmp_dir
+
+    """ Some FUT could create content in the prefix """
+    for path in paths:
+        shutil.rmtree(path)
+
+#############################
+### Non-provider fixtures ###
+#############################
+
+@pytest.fixture
+def init_tmp_dir_np(init_tmp_dir_factory):
+    return init_tmp_dir_factory()
+
+@pytest.fixture
+def init_tmp_single_file_factory(init_tmp_dir_np, init_files):
+    """ Fixture factory populating a single file from FS in a temporary directory """
+    def _return(idx: int):
+        root = init_tmp_dir_np
+        files = init_files(root, [list(FS.keys())[idx]])
+        return (root, files[0])
+    return _return
+
+@pytest.fixture
+def init_tmp_file_np(init_tmp_single_file_factory):
+    return init_tmp_single_file_factory(0)
+
+@pytest.fixture
+def init_tmp_subfolder_file_np(init_tmp_single_file_factory):
+    return init_tmp_single_file_factory(1)
+
+@pytest.fixture(params=[idx for idx, key in enumerate(FS.keys())])
+def init_tmp_each(request, init_tmp_single_file_factory):
+    return init_tmp_single_file_factory(request.param)
+
+#########################
+### Provider fixtures ###
+#########################
 
 @pytest.fixture(params=[LocalFSProvider])
-def init_tmp_dir(request):
-    """ Create a temporary folder """
-    dir_path = tempfile.mkdtemp()
-    yield (request.param, dir_path)
-    """ Some FUT could create content in the prefix """
-    shutil.rmtree(dir_path)
+def init_tmp_dir(request, init_tmp_dir_factory):
+    """ Create a temporary folder and a FSProvider class to test """
+    return (request.param, init_tmp_dir_factory())
 
 @pytest.fixture
 def init_prefix(init_tmp_dir):
@@ -46,22 +125,46 @@ def init_prefix(init_tmp_dir):
         shutil.rmtree(full_prefix)
 
 @pytest.fixture
-def init_prefix_with_file(init_prefix):
+def init_single_file_factory(init_prefix, init_files):
+    """ Fixture factory populating a single file from FS in a temporary directory """
+    def _return(idx: int):
+        provider, prefix = init_prefix
+        files = init_files(prefix, [list(FS.keys())[idx]])
+        return (provider, prefix, files[0])
+    return _return
+
+@pytest.fixture(params=[idx for idx, key in enumerate(FS.keys())])
+def init_each(request, init_single_file_factory):
+    return init_single_file_factory(request.param)
+
+@pytest.fixture
+def init_prefix_with_file(init_single_file_factory):
     """ Create a prefix folder with a direct file within
         /tmp/<tmp_dir>/prefix
         |_ test1.txt
     """
-    provider, full_prefix = init_prefix
+    return init_single_file_factory(0)
 
-    filename = 'test1.txt'
-    filepath = os.path.join(full_prefix, filename)
-    with open(filepath, 'wb') as fd:
-        fd.write(FS[filename]['content'])
+@pytest.fixture
+def init_subfolder_with_file(init_single_file_factory):
+    """ Generate
+        /tmp/<tmp_dir>/prefix
+        |_ subfolder/
+            |_ test2.txt
+    """
+    return init_single_file_factory(1)
 
-    yield (provider, full_prefix, filename)
-
-    if os.path.exists(filepath):
-        os.remove(filepath)
+@pytest.fixture
+def init_full(init_prefix, init_files):
+    """ Generates
+        /tmp/<tmp_dir>/prefix
+        |_ test.txt
+        |_ subfolder/
+            |_ test.txt
+    """
+    provider, prefix = init_prefix
+    files = init_files(prefix, list(FS.keys()))
+    return tuple([provider, prefix] + files)
 
 @pytest.fixture
 def init_subfolder(init_prefix):
@@ -79,40 +182,12 @@ def init_subfolder(init_prefix):
     yield (provider, full_prefix, test_dir)
 
     if os.path.exists(subdir):
-        os.rmdir(subdir)
+        shutil.rmtree(subdir)
 
-@pytest.fixture
-def init_subfolder_with_file(init_subfolder):
-    """ Generate
-        /tmp/<tmp_dir>/prefix
-        |_ subfolder/
-            |_ test2.txt (file2)
-    """
 
-    provider, full_prefix, subfolder = init_subfolder
-
-    filename = 'test2.txt'
-    filepath = subfolder + '/' + filename
-    full_filepath = os.path.join(full_prefix, filepath)
-    with open(full_filepath, 'wb') as fd:
-        fd.write(FS[filepath]['content'])
-
-    yield (provider, full_prefix, filepath)
-
-    if os.path.exists(full_filepath):
-        os.remove(full_filepath)
-
-@pytest.fixture
-def init_full(init_prefix_with_file, init_subfolder_with_file):
-    """ Generates
-        /tmp/<tmp_dir>/prefix
-        |_ test.txt (file1)
-        |_ subfolder/
-            |_ test.txt (file2)
-    """
-    provider, prefix, file1 = init_prefix_with_file
-    _, _, file2 = init_subfolder_with_file
-    return (provider, prefix, file1, file2)
+##################
+### Test Cases ###
+##################
 
 
 class TestInit:
@@ -159,7 +234,7 @@ class TestExists:
         assert provider.exists(os.path.join(prefix, subfolder))
 
     def test_exists_non_existing_path(self, init_tmp_dir):
-        """ Test if LocalFSP can check that a subfolder does not exist """
+        """ Test if LocalFSP can check that a file/subfolder does not exist """
         provider, tmp_dir = init_tmp_dir
         provider = provider(tmp_dir)
         assert not provider.exists(os.path.join(provider.prefix, 'test'))
@@ -201,7 +276,44 @@ class TestEnsureExists:
 
 class TestPut:
     """ put() tests """
-    # TODO
+    
+    @pytest.mark.parametrize("file", [file for file in FS.keys()])
+    def test_put(self, init_prefix, file):
+        """ Write a single file """
+        provider, prefix = init_prefix
+        full_path = os.path.join(prefix, file)
+        provider.put(file, FS[file]['content'])
+
+        # check if the file is correctly written
+        assert os.path.exists(full_path)
+        with open(full_path, 'rb') as fd:
+            content = fd.read()
+        assert compare_files(file, content)
+
+        # check side effects
+        content = os.listdir(prefix)
+        assert len(content) == 1
+        if os.path.isdir(content[0]):
+            assert len(os.listdir(content[0])) == 1
+
+    def test_subfolder(self, init_subfolder):
+        """ Try to rewrite a folder """
+        provider, _, subfolder = init_subfolder
+        with pytest.raises(IsADirectoryError):
+            provider.put(subfolder, 'test')
+
+    def test_write_full_path(self, init_full):
+        """ Try to rewrite a file from its full path """
+        provider, prefix, file1, file2 = init_full
+        full_path = os.path.join(prefix, file1)
+        with pytest.raises(FileNotFoundError):
+            provider.put(full_path, 'test')
+
+    def test_write_int(self, init_prefix):
+        """ Try to write an int rather than a str """
+        provider, prefix = init_prefix
+        with pytest.raises(TypeError):
+            provider.put('test1.txt', 1)
 
 
 class TestGetFd:
@@ -234,7 +346,22 @@ class TestGetFd:
 
 class TestGet:
     """ get() tests """
-    # TODO
+    def test_get(self, init_each):
+        """ Get existing files content """
+        provider, prefix, file = init_each
+        assert compare_files(file, provider.get(file))
+
+    def test_get_non_existing_files(self, init_prefix):
+        """ Try to get the content of a non existing file """
+        provider, _ = init_prefix
+        with pytest.raises(FileNotFoundError):
+            provider.get('test.txt')
+
+    def test_get_fd_directory(self, init_subfolder):
+        """ Test get_fd on filepath leading to a folder """
+        provider, _, subfolder = init_subfolder
+        with pytest.raises(IsADirectoryError):
+            provider.get(subfolder)
 
 
 class TestList:
@@ -344,11 +471,6 @@ class TestDelete:
             provider.delete(os.path.join(prefix, subfolder))
 
 
-class TestGetLastModificationTime:
-    """ get_last_modification_time() test """
-    # TODO
-
-
 class TestMove:
     """ move() tests """
 
@@ -371,7 +493,143 @@ class TestMove:
         with pytest.raises(FileNotFoundError):
             provider.move('non-existing.src', 'non-existing.dst')
 
+    def test_move_to_non_existing_subfolder(self, init_prefix_with_file):
+        provider, prefix, file = init_prefix_with_file
+        """ Try to move a file to a non-existing subfolder """
+        new_file = 'subfolder/%s' % file
+        provider.move(file, new_file)
+        full_dest = os.path.join(prefix, new_file)
+        assert os.path.exists(full_dest)
+        with open(full_dest, 'rb') as fd:
+            assert compare_files(file, fd.read())
+
+    def test_move_outside_fullpath(self, init_full, init_prefix):
+        """ Try to move a file outside the prefix with a full path """
+        _, prefix1 = init_prefix
+        provider, _, file1, _ = init_full
+        with pytest.raises(FileNotFoundError):
+            provider.move(file1, os.path.join(prefix1, file1))
+
+    def test_move_outside_relativepath(self, init_tmp_dir_np, init_full):
+        """ Try to move a file outside the prefix with a relative path """
+        tmp = init_tmp_dir_np
+        provider, prefix, file, _ = init_full
+        path = '../../%s' % tmp.split('/')[-1]
+
+        curdir = os.getcwd()
+        os.chdir(prefix)
+        assert os.path.exists(path)
+        with pytest.raises(FileNotFoundError):
+            provider.move(file, '%s/%s' % (path, file))
+        os.chdir(curdir)
+
+
+class TestGetLastModificationTime:
+    """ get_last_modification_time() tests """
+
+    def test_non_existing_file(self, init_prefix):
+        """ Try to get modification time of a non-existing file """
+        provider, prefix = init_prefix
+        with pytest.raises(FileNotFoundError):
+            provider.get_last_modification_time('test1.txt')
+
+    def test_file(self, init_each):
+        """ Try to get the modification time of existing files """
+        provider, prefix, file = init_each
+        assert provider.get_last_modification_time(file) == os.stat(os.path.join(prefix, file)).st_mtime
+
+    def test_full_path(self, init_each):
+        """ Try to get the last modification of a file with its full path """
+        provider, prefix, file = init_each
+        with pytest.raises(FileNotFoundError):
+            provider.get_last_modification_time(os.path.join(prefix, file))
+
+    def test_updated_file(self, init_each):
+        """ Get the last modification time after file modification """
+        provider, prefix, file = init_each
+        full_file = os.path.join(prefix, file)
+        before = os.stat(full_file).st_mtime
+        time.sleep(1)
+        with open(full_file, 'w+') as fd:
+            fd.write('test')
+        after = os.stat(full_file).st_mtime
+        last = provider.get_last_modification_time(file)
+        assert last != before
+        assert last == after
+        
+    def test_directory(self, init_subfolder):
+        """ Try last modification time of a folder """
+        provider, prefix, subfolder = init_subfolder
+        assert os.stat(os.path.join(prefix, subfolder)).st_mtime == provider.get_last_modification_time(subfolder)
+
+    def test_updated_directory(self, init_subfolder):
+        """ Get last modification time of a folder after modification """
+        provider, prefix, subfolder = init_subfolder
+        full_path = os.path.join(prefix, subfolder)
+        before = os.stat(full_path).st_mtime
+        time.sleep(1)
+        with open(os.path.join(full_path, 'test'), 'w') as fd:
+            fd.write('')
+        after = os.stat(full_path).st_mtime
+        last = provider.get_last_modification_time(subfolder)
+        assert last != before
+        assert last == after
+
 
 class TestCopyTo:
     """ copy_to() tests """
+
+    @pytest.mark.parametrize("explicit", [True, False])
+    def test_copy(self, init_tmp_each, init_prefix, explicit):
+        """ Copy a file from the disk to the prefix """
+        root, file = init_tmp_each
+        provider, prefix = init_prefix
+        full_path = os.path.join(root, file)
+        new_file = os.path.join(prefix, file if explicit else file.split('/')[-1])
+        provider.copy_to(full_path, file if explicit else None)
+        assert os.path.exists(new_file)
+        with open(new_file, 'rb') as fd:
+            content = fd.read()
+        assert compare_files(file, content)
+
+    @pytest.mark.parametrize("explicit, file", [(explicit, file) for explicit in (True, False) for file in FS.keys()])
+    def test_copy_non_existing(self, init_tmp_dir_np, init_prefix, explicit, file):
+        """ Copy a non-existing file from the disk to the prefix """
+        root = init_tmp_dir_np
+        provider, prefix = init_prefix
+        full_path = os.path.join(root, file if explicit else file.split('/')[-1])
+        with pytest.raises(FileNotFoundError):
+            provider.copy_to(full_path, file if explicit else None)
+
+    # TODO: test copy of file1.txt in existing subfolder
+    # TODO: test copy of file1.txt in non-existing subfolder
+    # TODO: test copy all files from a folder to explicitly prefix
+    # TODO: test copy all files from a folder to implicitly prefix
+    # TODO: test copy all files from a folder to existing subfolder
+    # TODO: test copy all files from a folder to non-existing subfolder
+    # TODO: copy empty folder
+
+
+class TestCopyFrom:
+    """ copy_from() tests """
     # TODO
+
+
+class TestClassMethods:
+    """ Tests for class methods of FSProvider """
+
+    def test_get_needed_args(self, init_prefix):
+        provider, _ = init_prefix
+        if isinstance(provider, LocalFSProvider):
+            assert provider.get_needed_args() == {"location": (str, True, "On-disk path to the directory containing courses/tasks")}
+        else:
+            assert False
+
+    def test_init_from_args(self, init_tmp_dir):
+        provider_class, tmp = init_tmp_dir
+        prefix = os.path.join(tmp, 'prefix')
+        if provider_class.__name__ == 'LocalFSProvider':
+            provider = provider_class.init_from_args(**{'location': prefix})
+            assert provider.prefix == prefix + '/'
+        else:
+            assert False
