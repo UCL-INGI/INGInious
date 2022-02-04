@@ -4,7 +4,7 @@ Using through LTI (edX, Moodle, ...)
 =====================================
 
 INGInious implements the LTI specification in order to integrate into edX, Moodle, or any other LMS that also implements
-this specification. To get started, all you need is to activate te LTI mode in the course administration and define
+this specification. To get started, all you need is to activate the LTI mode in the course administration and define
 your LTI keys (consumer key and secret). You'll then be able to use INGInious tasks as activities in your LMS.
 
 Defining LTI keys
