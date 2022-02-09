@@ -258,8 +258,8 @@ def wait_until_finished(both_dockers, zmq_socket, stdin, stdout, stderr, student
     # handle the student_container outputs and wait for final message
     message = None
     msg_type = None
-    stdout_file = os.fdopen(stdout, 'wb')
-    stderr_file = os.fdopen(stderr, 'wb')
+    stdout_file = os.fdopen(stdout, 'wb', closefd=False)
+    stderr_file = os.fdopen(stderr, 'wb', closefd=False)
 
     while msg_type != "run_student_retval":
         zmq_socket.send(msgpack.dumps({"type": "dummy_message"}, use_bin_type=True))  # ping pong socket
