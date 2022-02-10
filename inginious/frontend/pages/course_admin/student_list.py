@@ -2,7 +2,11 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+import io
+import csv
 import json
+import re
+
 import yaml
 
 import flask
@@ -50,6 +54,7 @@ class CourseStudentListPage(INGIniousAdminPage):
         data["delete"] = flask.request.form.getlist("delete")
         data["groupfile"] = flask.request.files.get("groupfile")
         data["audiencefile"] = flask.request.files.get("audiencefile")
+        data["audiencecreationfile"] = flask.request.files.get("audiencecreationfile")
         error = {}
         msg = {}
         active_tab = "tab_students"
@@ -284,6 +289,31 @@ class CourseStudentListPage(INGIniousAdminPage):
                 msg["groups"] = _('An error occurred while parsing the data.')
                 error["groups"] = True
             active_tab = "tab_groups"
+
+        if "audiencecreationfile" in data:
+            text_stream = io.TextIOWrapper(data["audiencecreationfile"], encoding='utf-8')
+            reader = csv.reader(text_stream)
+
+            def _list_checker(users):
+                inserted_content = []
+                for usr in users:
+                    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+                    if re.fullmatch(regex, usr):
+                        user = self.database.users.find_one({"email": usr})
+                        inserted_content.append(user.username) if user is not None else None
+                    else:
+                        inserted_content.append(usr)
+                return inserted_content
+
+            for row in reader:
+                description = row[0]
+                stud = row[1].split(';') if 1 < len(row) else []
+                tutors = row[2].split(';') if 2 < len(row) else []
+                inserted_student = _list_checker(stud)
+                inserted_tutors = _list_checker(tutors)
+                self.database.audiences.insert_one({"courseid": course.get_id(), "students": inserted_student,
+                                                    "tutors": inserted_tutors,
+                                                    "description": description})
         return active_tab
 
     def get_user_lists(self, course):

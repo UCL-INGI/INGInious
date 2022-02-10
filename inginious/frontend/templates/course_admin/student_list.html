@@ -78,6 +78,7 @@
             <h2> {{ _("Audiences") }}
                     <div class="pull-right">
                         <div class="btn-group btn-group-sm">
+                            <button type="submit" id="create_audiences_f" class="btn btn-warning" data-toggle="modal" data-target="#upload_audiences_creation"><i class="fa fa-upload"></i> {{ _("Upload audiences creation") }}</button>
                             <button type="submit" id="switch" class="btn btn-danger" data-toggle="modal" data-target="#upload_modal_audiences"><i class="fa fa-upload"></i> <div class="d-none d-sm-inline">{{ _("Upload structure") }}</div></button>
                             <a href="?download_audiences" class="btn btn-success"><i class="fa fa-download"></i> <div class="d-none d-sm-inline">{{ _("Download structure") }}</div></a>
                         </div>
@@ -119,6 +120,29 @@
                     </div>
                 </form>
             </div>
+            <div class="modal fade" id="upload_audiences_creation">
+                <form method="post" enctype="multipart/form-data" action="#">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title"> {{ _("Upload audience creation") }}</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <p> {{ _("Note : Please refer to documentation for file format") }}</p>
+                                <div class="form-group">
+                                    <label class="control-label"> {{ _("Audiences") }}</label>
+                                    <input name="audiencecreationfile" type="file">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button name="upload_audiences_creation" class="btn btn-danger btn-block" type="submit"><i class="fa fa-upload"></i>  {{ _("Upload (will erase current repartition)") }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
             <div style="overflow-x:auto;">
                 <table class="table">
                     <thead class="table-borderless">
