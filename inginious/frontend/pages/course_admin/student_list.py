@@ -306,14 +306,13 @@ class CourseStudentListPage(INGIniousAdminPage):
                 return inserted_content
 
             for row in reader:
-                description = row[0]
                 stud = row[1].split(';') if 1 < len(row) else []
                 tutors = row[2].split(';') if 2 < len(row) else []
                 inserted_student = _list_checker(stud)
                 inserted_tutors = _list_checker(tutors)
                 self.database.audiences.insert_one({"courseid": course.get_id(), "students": inserted_student,
                                                     "tutors": inserted_tutors,
-                                                    "description": description})
+                                                    "description": row[0]})
         return active_tab
 
     def get_user_lists(self, course):
