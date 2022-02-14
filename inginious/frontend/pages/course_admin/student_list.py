@@ -289,10 +289,11 @@ class CourseStudentListPage(INGIniousAdminPage):
                 msg["groups"] = _('An error occurred while parsing the data.')
                 error["groups"] = True
             active_tab = "tab_groups"
-
-        if "audiencecreationfile" in data:
+        if "audiencecreationfile" in data and 'upload_audiences_creation' in data:
+            self.database.audiences.delete_many({"courseid": course.get_id()})
             text_stream = io.TextIOWrapper(data["audiencecreationfile"], encoding='utf-8')
             reader = csv.reader(text_stream)
+            stud_list, _, _, _ = self.get_user_lists(course)
 
             def _list_checker(users):
                 inserted_content = []
@@ -300,7 +301,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
                     if re.fullmatch(regex, usr):
                         user = self.database.users.find_one({"email": usr})
-                        inserted_content.append(user.username) if user is not None else None
+                        inserted_content.append(user["username"]) if user is not None else None
                     else:
                         inserted_content.append(usr)
                 return inserted_content
@@ -313,6 +314,10 @@ class CourseStudentListPage(INGIniousAdminPage):
                 self.database.audiences.insert_one({"courseid": course.get_id(), "students": inserted_student,
                                                     "tutors": inserted_tutors,
                                                     "description": row[0]})
+                not_registered_stud = list(set(inserted_student)-(set(stud_list)))
+                for stud in not_registered_stud:
+                    self.user_manager.course_register_user(course, stud)
+
         return active_tab
 
     def get_user_lists(self, course):
