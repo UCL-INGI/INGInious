@@ -18,7 +18,7 @@ from gridfs import GridFS
 from pymongo import MongoClient
 from inginious import __version__
 import inginious.common.custom_yaml as yaml
-from inginious.frontend.user_manager import sanitize_email
+from inginious.frontend.user_manager import UserManager
 
 HEADER = '\033[95m'
 INFO = '\033[94m'
@@ -553,7 +553,7 @@ class Installer:
         realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
         while True:
             email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
-            email = sanitize_email(email)
+            email = UserManager.sanitize_email(email)
             if email is None:
                 self._display_error("Invalid email format.")
             else:

@@ -16,7 +16,7 @@ from flask_mail import Message
 from werkzeug.exceptions import Forbidden
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.flask.mail import mail
-from inginious.frontend.user_manager import sanitize_email
+from inginious.frontend.user_manager import UserManager
 
 
 class RegistrationPage(INGIniousPage):
@@ -73,7 +73,7 @@ class RegistrationPage(INGIniousPage):
         error = False
         msg = ""
 
-        email = sanitize_email(data["email"])
+        email = UserManager.sanitize_email(data["email"])
 
         # Check input format
         if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
