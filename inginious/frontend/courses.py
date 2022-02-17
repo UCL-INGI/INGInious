@@ -84,7 +84,7 @@ class Course(object):
             # to avoid them to be cached along with the course object. Passing the task factory as argument
             # would require to pass the course too, and have a useless reference back.
             self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self), self._content.get("dispenser_data", ''))
-            if(self._task_dispenser.get_id() == "demo_dispenser"):
+            if(self._task_dispenser.get_id() == "cat_dispenser"):
                 self._task_dispenser.add_database(database)
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())

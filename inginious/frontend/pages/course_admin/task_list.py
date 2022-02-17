@@ -25,7 +25,6 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         errors = []
         user_input = flask.request.form
-
         if "task_dispenser" in user_input:
             selected_task_dispenser = user_input.get("task_dispenser", "toc")
             task_dispenser_class = self.course_factory.get_task_dispensers().get(selected_task_dispenser, None)
