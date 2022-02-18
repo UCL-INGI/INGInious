@@ -551,13 +551,12 @@ class Installer:
 
         username = self._ask_with_default("Enter the login of the superadmin", "superadmin")
         realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
-        while True:
+        email = None
+        while not email:
             email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
             email = UserManager.sanitize_email(email)
             if email is None:
                 self._display_error("Invalid email format.")
-            else:
-                break
 
         password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
 
