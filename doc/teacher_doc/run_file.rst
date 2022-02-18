@@ -489,7 +489,7 @@ The *rst-image* command generates a raw reStructuredText block containing an ima
         rst-image smiley.png | feedback-msg -a
 
 The optional *format* parameter is used to specify the image format (jpg, png,...) if this is not explicitly specified
-the the image filename. The output is written on the standard output. For instance, the command can be used as follows:
+the image filename. The output is written on the standard output. For instance, the command can be used as follows:
 
 get_admonition / rst-msgblock
 `````````````````````````````
