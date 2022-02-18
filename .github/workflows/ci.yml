@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install nose==1.3.7 selenium==3.141.0 coverage pyvirtualdisplay pytest coverage-badge
+          pip3 install nose==1.3.7 selenium==3.141.0 coverage pyvirtualdisplay pytest
 
       - name: Start services
         run: |
@@ -48,14 +48,11 @@ jobs:
         if: always()
         run: |
           coverage report --include="inginious/*"
-          coverage html --include="inginious/*"
-          coverage-badge -o coverage.svg
+          coverage xml --include="inginious/*"
 
       - name: Save coverage output
-        uses: actions/upload-artifact@v2
-        if: always()
+        uses: codacy/codacy-coverage-reporter-action@v1
+        if: ${{ github.event_name == 'push' }}
         with:
-          name: coverage
-          path: |
-            /home/runner/work/INGInious/INGInious/htmlcov/
-            /home/runner/work/INGInious/INGInious/coverage.svg
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: coverage.xml
