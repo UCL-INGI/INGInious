@@ -56,7 +56,7 @@
                 <td>
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="{{get_homepath()}}/admin/{{course.get_id()}}/student/{{user['username']}}" class="btn btn-secondary" title="{{ _('View submissions') }}"
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-file-code-o fa-fw"></i></a>
                         {% if is_admin and not is_staff %}
                             <button type="button" data-username="{{user['username']}}" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
                         {% endif %}

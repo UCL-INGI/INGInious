@@ -140,7 +140,7 @@
         {% endif %}
         <div class="list-group mb-3">
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{course.get_id()}}/submissions?tasks={{task.get_id()}}">
-                <i class="fa fa-tasks fa-fw"></i>&nbsp; {{ _("View submissions") }}
+                <i class="fa fa-file-code-o fa-fw"></i>&nbsp; {{ _("View submissions") }}
             </a>
             {% if user_manager.has_admin_rights_on_course(course) %}
                 <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{course.get_id()}}/edit/task/{{task.get_id()}}">

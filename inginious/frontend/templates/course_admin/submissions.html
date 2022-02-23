@@ -15,7 +15,7 @@
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cloud-download"></i> {{ _("Submissions") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-file-code-o fa-fw"></i> {{ _("Submissions") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
 {% endblock %}
@@ -175,7 +175,7 @@
             <td>
                 <div class="btn-group btn-group-sm" role="group">
                     <a href="{{get_homepath()}}/submission/{{submission['_id']}}"
-                       class="btn btn-secondary" title="{{ _('View submission') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                       class="btn btn-secondary" title="{{ _('View submission') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-file-code-o fa-fw"></i></a>
                     <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?download_submission={{submission['_id']}}#alerts" class="btn btn-secondary" title="{{ _('Download submission') }}" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
                     {% if is_admin %}
