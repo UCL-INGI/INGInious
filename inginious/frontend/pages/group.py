@@ -30,7 +30,8 @@ class GroupPage(INGIniousAuthPage):
         data = flask.request.args
         if self.user_manager.has_staff_rights_on_course(course):
             raise Forbidden(description=_("You can't access this page as a member of the staff."))
-        elif not self.user_manager.course_is_open_to_user(course, lti=False):
+        elif not (self.user_manager.course_is_open_to_user(course, lti=False)
+                  and self.user_manager.course_is_user_registered(course, username)):
             return self.template_helper.render("course_unavailable.html")
         elif "register_group" in data:
             if course.can_students_choose_group():
