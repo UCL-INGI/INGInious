@@ -18,6 +18,7 @@ def myhash(content: str) -> str:
 FS = {
     'test1.txt': b'test string 1',
     'subfolder/test2.txt': b'test string 2',
+#    'subfolder/test3.txt': b'test string 3',
 }
 
 FS = {filepath: {'content': content, 'hash': myhash(content)} for filepath, content in FS.items()}
@@ -100,6 +101,13 @@ def init_tmp_subfolder_file_np(init_tmp_single_file_factory):
 @pytest.fixture(params=[idx for idx, key in enumerate(FS.keys())])
 def init_tmp_each(request, init_tmp_single_file_factory):
     return init_tmp_single_file_factory(request.param)
+
+@pytest.fixture
+def init_tmp_full(init_tmp_dir_np, init_files):
+    prefix = init_tmp_dir_np
+    files = init_files(prefix, list(FS.keys()))
+    return tuple([prefix] + [(files)])
+
 
 #########################
 ### Provider fixtures ###
@@ -578,6 +586,7 @@ class TestGetLastModificationTime:
 
 class TestCopyTo:
     """ copy_to() tests """
+    # TODO: check file rewrite
 
     @pytest.mark.parametrize("explicit", [True, False])
     def test_copy(self, init_tmp_each, init_prefix, explicit):
@@ -601,13 +610,53 @@ class TestCopyTo:
         with pytest.raises(FileNotFoundError):
             provider.copy_to(full_path, file if explicit else None)
 
-    # TODO: test copy of file1.txt in existing subfolder
-    # TODO: test copy of file1.txt in non-existing subfolder
-    # TODO: test copy all files from a folder to explicitly prefix
-    # TODO: test copy all files from a folder to implicitly prefix
-    # TODO: test copy all files from a folder to existing subfolder
-    # TODO: test copy all files from a folder to non-existing subfolder
-    # TODO: copy empty folder
+    def test_copy_to_subfolder(self, init_tmp_each, init_subfolder):
+        """ Copy files to an existing subfolder """
+        root, file = init_tmp_each
+        provider, prefix, subfolder = init_subfolder
+        provider.copy_to(os.path.join(root, file), subfolder)
+        dst = os.path.join(prefix, subfolder)
+        newfile = os.path.join(dst, os.path.basename(file))
+        assert os.path.exists(newfile)
+        with open(newfile, 'rb') as fd:
+            content = fd.read()
+        assert compare_files(file, content)
+
+    def test_copy_to_non_existing_subfolder(self, init_tmp_each, init_prefix):
+        """ Copy files to a non-existing subfolder """
+        root, file = init_tmp_each
+        provider, prefix = init_prefix
+        subfolder = 'mysubfolder/'
+        provider.copy_to(os.path.join(root, file), subfolder)
+        dst = os.path.join(prefix, subfolder)
+        newfile = os.path.join(dst, os.path.basename(file))
+        assert os.path.exists(newfile)
+        with open(newfile, 'rb') as fd:
+            content = fd.read()
+        assert compare_files(file, content)
+
+    @pytest.mark.parametrize("explicit", [True, False])
+    def test_copy_folder(self, init_tmp_full, init_subfolder, explicit):
+        """ Copy files to a non-existing subfolder """
+        root, files = init_tmp_full
+        provider, prefix, subfolder = init_subfolder
+        provider.copy_to(root, None if not explicit else subfolder)
+        dst = prefix if not explicit else os.path.join(prefix, subfolder)
+        for file in files:
+            newfile = os.path.join(dst, file)
+            assert os.path.exists(newfile)
+            with open(newfile, 'rb') as fd:
+                content = fd.read()
+            assert compare_files(file, content)
+
+    @pytest.mark.parametrize("explicit", [True, False])
+    def test_copy_empty_folder(self, init_tmp_dir_np, init_subfolder, explicit):
+        """ Copy files to a non-existing subfolder """
+        root = init_tmp_dir_np
+        provider, prefix, subfolder = init_subfolder
+        provider.copy_to(root, None if not explicit else subfolder)
+        assert os.listdir(prefix) == [subfolder]
+        assert os.listdir(os.path.join(prefix, subfolder)) == []
 
 
 class TestCopyFrom:
