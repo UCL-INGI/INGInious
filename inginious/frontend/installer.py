@@ -18,6 +18,7 @@ from gridfs import GridFS
 from pymongo import MongoClient
 from inginious import __version__
 import inginious.common.custom_yaml as yaml
+from inginious.frontend.user_manager import UserManager
 
 HEADER = '\033[95m'
 INFO = '\033[94m'
@@ -550,7 +551,13 @@ class Installer:
 
         username = self._ask_with_default("Enter the login of the superadmin", "superadmin")
         realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
-        email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
+        email = None
+        while not email:
+            email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
+            email = UserManager.sanitize_email(email)
+            if email is None:
+                self._display_error("Invalid email format.")
+
         password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
 
         database.users.insert_one({"username": username,
