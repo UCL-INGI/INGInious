@@ -136,7 +136,7 @@ class FileSystemProvider(metaclass=ABCMeta):
     @abstractmethod
     def distribute(self, filepath, allow_folders=True):
         """ Give information on how to distribute a file. Provides Zip files of folders. Can return:
-            ("file", mimetype, fileobj) where fileobj is an object-like file (with read()) and mimetype its mime-type.
+            ("local", mimetype, fileobj) where fileobj is an object-like file (with read()) and mimetype its mime-type.
             ("url", None, url) where url is a url to a distant server which possess the file.
             ("invalid", None, None) if the file cannot be distributed
         """
