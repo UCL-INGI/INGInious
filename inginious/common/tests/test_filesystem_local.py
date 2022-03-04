@@ -26,6 +26,16 @@ FS = {filepath: {'content': content, 'hash': myhash(content)} for filepath, cont
 def compare_files(filepath, content):
     return FS[filepath]['hash'] == myhash(content)
 
+def recursive_content(dirname: str) -> list:
+    def loop(dirname: str):
+        acc = []
+        for entry in os.listdir(dirname):
+            entry = os.path.join(dirname, entry)
+            acc += loop(entry) if os.path.isdir(entry) else [entry]
+        return acc                                                    
+    return loop(dirname)  
+
+
 ########################
 ### Generic fixtures ###
 ########################
@@ -285,7 +295,7 @@ class TestEnsureExists:
 class TestPut:
     """ put() tests """
     
-    @pytest.mark.parametrize("file", [file for file in FS.keys()])
+    @pytest.mark.parametrize("file", FS.keys())
     def test_put(self, init_prefix, file):
         """ Write a single file """
         provider, prefix = init_prefix
@@ -302,7 +312,8 @@ class TestPut:
         content = os.listdir(prefix)
         assert len(content) == 1
         if os.path.isdir(content[0]):
-            assert len(os.listdir(content[0])) == 1
+            dir = os.path.join(prefix, content[0])
+            assert len(os.listdir(dir)) == 1
 
     def test_subfolder(self, init_subfolder):
         """ Try to rewrite a folder """
@@ -661,7 +672,110 @@ class TestCopyTo:
 
 class TestCopyFrom:
     """ copy_from() tests """
-    # TODO
+
+    @pytest.mark.parametrize("explicit", [True, False])
+    def test_empty_prefix(self, init_tmp_dir_np, init_prefix, explicit):
+        """ copy empty prefix to disk """
+        root = init_tmp_dir_np
+        provider, prefix = init_prefix
+        provider.copy_from('' if explicit else None, root);
+        assert os.listdir(root) == []
+
+    @pytest.mark.parametrize("explicit", [True, False])
+    def test_full_prefix(self, init_tmp_dir_np, init_full, explicit):
+        """ copy populated prefix to disk """
+        root = init_tmp_dir_np
+        provider, prefix, *files = init_full
+        provider.copy_from('' if explicit else None, root);
+        for file in files:
+            newfile = os.path.join(root, file)
+            assert os.path.exists(newfile)
+            with open(newfile, 'rb') as fd:
+                content = fd.read()
+            assert compare_files(file, content)
+
+    @pytest.mark.parametrize("file", FS.keys())
+    def test_full_prefix_single(self, init_tmp_dir_np, init_full, file):
+        """ copy populated prefix to disk file per file """
+        root = init_tmp_dir_np
+        provider, prefix, *_ = init_full
+        provider.copy_from(file, root);
+        filename = os.path.basename(file)
+        newfile = os.path.join(root, filename)
+
+        """ Test the file copy """
+        assert os.path.exists(newfile)
+        with open(newfile, 'rb') as fd:
+            content = fd.read()
+        assert compare_files(file, content)
+
+        """ Test that only the specified file is copied """
+        assert [re.sub(root + '/', '', entry) for entry in recursive_content(root)] == [filename]
+
+    @pytest.mark.parametrize("file", FS.keys())
+    def test_copy_non_existing(self, init_tmp_dir_np, init_prefix, file):
+        """ Copy a non-existing file from the disk to the prefix """
+        root = init_tmp_dir_np
+        provider, prefix = init_prefix
+        with pytest.raises(FileNotFoundError):
+            provider.copy_from(file, root)
+
+
+class TestDistribute:
+    """ Tests for distribute() """
+
+    @pytest.mark.parametrize("file, folders", [(file, folders) for file in FS.keys() for folders in [True, False]])
+    def test_non_existing(self, init_prefix, file, folders):
+        """ Test distribute non existing files """
+        provider, prefix = init_prefix
+        (t, m, o) = provider.distribute(file, folders)
+        assert t == 'invalid'
+        assert m is None
+        assert o is None
+    
+    @pytest.mark.parametrize("folders", [True, False])
+    def test_single_files(self, init_full, folders):
+        """ Test single files distribution """
+        import io
+        import mimetypes
+        mimetypes.init()
+
+        provider, prefix, *files = init_full
+        for file in files:
+            (t, m, o) = provider.distribute(file, folders)
+            assert t == 'url' or t == 'invalid' or t == 'local'
+            assert m is not None if t == 'local' else m is None
+            assert o is None if t == 'invalid' else o is not None
+            assert isinstance(o, io.BufferedIOBase) if t == 'local' else True
+            if t == 'local':
+                guessed = mimetypes.guess_type(os.path.join(prefix, file))
+                assert guessed[1] is None
+                assert m == (guessed[0] if guessed[0] is not None else 'application/octet-stream')
+                assert compare_files(file, o.read())
+
+    @pytest.mark.parametrize("folders", [True, False])
+    def test_prefix(self, init_tmp_dir_np, init_full, folders):
+        """ Test prefix distribution """
+        import io
+        import zipstream
+        import zipfile
+
+        tmp = init_tmp_dir_np
+        provider, prefix, *files = init_full
+        (t, m, o) = provider.distribute('', folders)
+        assert t == ('local' if folders else 'invalid')
+        assert m == ('application/zip' if folders else None)
+        assert isinstance(o, zipstream.ZipFile) if folders else o is None
+        if folders:
+            archive = os.path.join(tmp, 'archive.zip')
+            with open(archive, 'wb') as fd:
+                for data in o:
+                    fd.write(data)
+            z = zipfile.ZipFile(archive)
+            content = z.namelist()
+            assert content == list(FS.keys())
+            for file in content:
+                assert compare_files(file, z.read(file))
 
 
 class TestClassMethods:
