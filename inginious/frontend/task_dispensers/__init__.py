@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class TaskDispenser(metaclass=ABCMeta):
-    def __init__(self, task_list_func, dispenser_data,database=None,courseId=None):
+    def __init__(self, task_list_func, dispenser_data, database=None, course_id=None):
         """
         Instantiate a new TaskDispenser
         :param task_list_func: A function returning the list of available course tasks from the task factory
