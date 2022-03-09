@@ -7,7 +7,7 @@ class TaskDispenser(metaclass=ABCMeta):
         :param task_list_func: A function returning the list of available course tasks from the task factory
         :param dispenser_data: The dispenser data structure/configuration
         :param database: The MongoDB database
-        :param course_id: A String that is the id of the course 
+        :param course_id: A String that is the id of the course
         """
         pass
 
