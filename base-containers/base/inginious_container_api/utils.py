@@ -27,8 +27,9 @@ def set_limits_user(user):
 
 
 def set_executable(filename):
-    st = os.stat(filename)
-    os.chmod(filename, st.st_mode | stat.S_IEXEC)
+    if "course/common" not in filename:
+        st = os.stat(filename)
+        os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
 
 def execute_process(args, stdin_string="", internal_command=False, user="worker"):

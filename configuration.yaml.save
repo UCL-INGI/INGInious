@@ -1,0 +1,26 @@
+backend: local
+backup_directory: /var/www/inginious/backup
+static_directory: /var/www/inginious/-config: {}
+mongo_opt:
+    database: INGInious
+    host: localhost
+privacy_page: "privacy"
+terms_page: "terms"
+web_debug: true
+superadmins:
+- superadmin
+tasks_directory: "tasks"
+use_minified_js: false
+smtp:  # Configure the email server to be used
+  sender_name: 'ICTV v2 <no-reply@uclouvain.be>'
+  host: 'smtp.uclouvain.be'
+  port: 587
+  password: ""
+  username: "no-reply@uclouvain.be"
+  starttls: True
+
+session_parameters:
+        timeout: 86400  # 24 * 60 * 60, # 24 hours in seconds
+        ignore_change_ip: False # change this to True if you want user to keep their session if they change their IP
+        secure: False # change this to True if you only use https
+        secret_key: "c23c2412042b457c355365f97712eee466e4149278e0ae741314c882c0517a3d"

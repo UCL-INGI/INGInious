@@ -20,7 +20,7 @@ import asyncio
 import struct
 import zmq
 import zmq.asyncio
-
+import traceback
 
 ELF_MAGIC = b"\x7F\x45\x4C\x46"
 SHEBANG_MAGIC = b"\x23\x21"
@@ -277,7 +277,7 @@ class INGIniousMainRunner:
 
         if run_cmd is not None:
             return run_cmd.split(" ")
-        for prefix in ["task", "course"]:
+        for prefix in ["task", "course/common", "course"]:
             if os.path.exists("/{}/run".format(prefix)):
                 return ["/{}/run".format(prefix)]
             for ext, cmd in run_types.items():
@@ -367,10 +367,11 @@ class INGIniousMainRunner:
                 try:
                     user = "root" if self.run_as_root else "worker"
                     stdout, stderr = execute_process(run_final_cmd, user=user)
-                except:
+                except Exception as e:
                     inginious_container_api.feedback.set_global_result('crash')
                     inginious_container_api.feedback.set_global_feedback(
-                        "An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
+			"An error occured while running the grading script. It is possible that it is non-executable or made a timeout " + str(traceback.format_exc()))
+
             else:
                 inginious_container_api.feedback.set_global_result('crash')
                 inginious_container_api.feedback.set_global_feedback("'/task/run' could not be found")
@@ -424,6 +425,5 @@ class INGIniousMainRunner:
         loop.run_until_complete(INGIniousMainRunner(context, loop).serve())
         loop.close()
         context.destroy(1)
-
 
 INGIniousMainRunner.start()
