@@ -27,7 +27,10 @@ def set_limits_user(user):
 
 
 def set_executable(filename):
-    if "course/common" not in filename:
+    # When mounting the course/common/run file, the permissions of the file on the host and in the container will still be the same
+    # It should therefore already be executable on the host for the moment
+    # TODO: fix this problem by moving the set_executable function to the agent where temporary folder is created for example
+    if not filename.startswith("/course/common"):
         st = os.stat(filename)
         os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
