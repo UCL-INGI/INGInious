@@ -8,7 +8,7 @@ from inginious.frontend.task_dispensers.util import SectionsList, check_toc, Sec
 
 class CombinatoryTest(TaskDispenser):
 
-    def __init__(self, task_list_func, dispenser_data):
+    def __init__(self, task_list_func, dispenser_data, database, course_id):
         self._task_list_func = task_list_func
         self._data = SectionsList(dispenser_data)
 

@@ -1,12 +1,13 @@
 from abc import ABCMeta, abstractmethod
 
-
 class TaskDispenser(metaclass=ABCMeta):
-    def __init__(self, task_list_func, dispenser_data):
+    def __init__(self, task_list_func, dispenser_data, database, course_id):
         """
         Instantiate a new TaskDispenser
         :param task_list_func: A function returning the list of available course tasks from the task factory
         :param dispenser_data: The dispenser data structure/configuration
+        :param database: The MongoDB database
+        :param course_id: A String that is the id of the course
         """
         pass
 

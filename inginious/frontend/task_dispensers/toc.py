@@ -12,7 +12,7 @@ from inginious.frontend.task_dispensers import TaskDispenser
 
 class TableOfContents(TaskDispenser):
 
-    def __init__(self, task_list_func, dispenser_data):
+    def __init__(self, task_list_func, dispenser_data, database, course_id):
         self._task_list_func = task_list_func
         self._toc = SectionsList(dispenser_data)
 
