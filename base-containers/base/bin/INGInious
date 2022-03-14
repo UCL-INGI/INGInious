@@ -277,7 +277,7 @@ class INGIniousMainRunner:
 
         if run_cmd is not None:
             return run_cmd.split(" ")
-        for prefix in ["task", "course"]:
+        for prefix in ["task", "course/common", "course"]:
             if os.path.exists("/{}/run".format(prefix)):
                 return ["/{}/run".format(prefix)]
             for ext, cmd in run_types.items():
