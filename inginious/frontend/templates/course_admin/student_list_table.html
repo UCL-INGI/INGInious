@@ -24,7 +24,7 @@
                         <a href="{{get_homepath()}}/admin/{{course.get_id()}}/students?csv_student" class="btn btn-info"
                            title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                         <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions" class="btn btn-secondary"
-                           title="{{ _('View  all submissions') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                           title="{{ _('View  all submissions') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-files-o"></i></a>
                         {% if not is_staff and is_admin %}
                             <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning remove_user" title="{{ _('Unregister all') }}"><i class="fa fa-user-times"></i></button>
                         {% endif %}
