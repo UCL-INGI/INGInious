@@ -70,7 +70,7 @@ class Course(object):
             self._registration_ac = self._content.get('registration_ac', None)
             if self._registration_ac not in [None, "username", "binding", "email"]:
                 raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
-            self._registration_ac_type = self._content.get('registration_ac_type', "accept")
+            self._registration_ac_accept = self._content.get('registration_ac_accept', True)
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups_student_choice = self._content.get("groups_student_choice", False)
             self._allow_unregister = self._content.get('allow_unregister', True)
@@ -171,9 +171,9 @@ class Course(object):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """
         return self._registration_ac
 
-    def get_access_control_type(self):
-        """ Returns either "accept" or "deny", depending on the control type used to verify that users can register to the course """
-        return self._registration_ac_type
+    def get_access_control_accept(self):
+        """ Returns either True (accept) or False (deny), depending on the control type used to verify that users can register to the course """
+        return self._registration_ac_accept
 
     def get_access_control_list(self) -> List[str]:
         """ Returns the list of all users/emails/binding methods/... (see get_access_control_method) allowed by the AC list """
@@ -216,7 +216,7 @@ class Course(object):
         # check that at least one key matches in the list
         keys = keys_per_access_control_method[self.get_access_control_method()]()
         at_least_one = any(self._registration_ac_regex.fullmatch(key) for key in keys)
-        return at_least_one if self.get_access_control_type() == "accept" else not at_least_one
+        return at_least_one if self.get_access_control_accept() else not at_least_one
 
     def allow_preview(self):
         return self._allow_preview
