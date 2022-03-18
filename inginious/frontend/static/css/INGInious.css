@@ -255,6 +255,11 @@ body {
     transform: rotate(90deg);
   }
 }
+@media (max-width: 700px){
+  h2{
+    font-size:20px;
+  }
+}
 @media (max-width: 991.98px) and (min-width: 600px) {
   body.sidebar-state-0 #inginious-sidebar-toggle i {
     transform: rotate(0deg);

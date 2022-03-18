@@ -43,151 +43,153 @@
 <p>{{sub_count}} {{_("submissions selected")}}</p>
 
 <!-- Submission table -->
-<table class="table">
-    <thead class="table-borderless">
-        <tr>
-            <th></th>
-            <th>
-                {% if "show_stud_name" in old_params %}
-                    {{ _("student name") }}
-                {% else %}
-                    {{ _("username") }}
-                {% endif %}
-            </th>
-            <th>
-                {% if "show_task_name" in old_params %}
-                    {{ _("task name")}}
-                {% else %}
-                    {{ _("taskid") }}
-                {% endif %}
-            </th>
-            {% if "show_id" in old_params %}
-                <th>{{ _("id") }}</th>
-            {% endif %}
-            <th>{{ _("submitted on") }}</th>
-            <th>{{ _("replayed on") }}</th>
-            <th>{{ _("result") }}</th>
-            {% if "show_tags" in old_params %}
-                <th>{{ _("tags") }}</th>
-            {% endif %}
-            <th>
-                <form method="post" action="submissions#alerts">
-                    <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button class="btn btn-info" type="submit" name="csv" formmethod="post" title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
-                        <div class="btn btn-danger" data-toggle="modal" data-target="#download_modal">
-                            <div data-toggle="tooltip" data-placement="top" title="{{ _('Download current selection') }}"><i class="fa fa-download"></i></div>
-                        </div>
-                        {% if is_admin %}
-                            <button class="btn btn-warning" type="submit" name="replay" formmethod="post" title="{{ _('Replay current selection') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
-                        {% endif %}
-                    </div>
-                </form>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for submission in data %}
-        {% set succeeded = "result" in submission and submission["result"] == "success" %}
-        <tr class="
-        {% if succeeded %}
-            table-success
-        {% elif submission['status'] == 'waiting' %}
-            table-warning
-        {%else %}
-            table-danger
-        {%endif %}">
-            <td>
-                {% if "best" in submission and submission["best"] %}
-                    <i class="fa fa-star" title="{{ submission['_id'] }}" data-toggle="tooltip" data-placement="bottom"></i>
-                {% endif %}
-            </td>
-            <td>
-                {% for user in submission["username"] %}
+<div style="overflow-x:auto;">
+    <table class="table">
+        <thead class="table-borderless">
+            <tr>
+                <th></th>
+                <th>
                     {% if "show_stud_name" in old_params %}
-                        {{ users[user] if user in users else '?' }}<br>
+                        {{ _("student name") }}
                     {% else %}
-                        {{ user }}<br>
+                        {{ _("username") }}
                     {% endif %}
-                {% endfor %}
-            </td>
-            {% if "show_task_name" in old_params %}
-                <td>{{ tasks[submission["taskid"]].get_name(user_manager.session_language()) }}</td>
-            {% else %}
-                <td>{{ submission["taskid"] }}</td>
-            {% endif %}
-            {% if "show_id" in old_params %}
-                <td>{{ submission["_id"] }}</td>
-            {% endif %}
-            <td>{{ submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") }}</td>
-            <td>
-                {% if "last_replay" in submission %}
-                    {{submission["last_replay"].strftime("%d/%m/%Y %H:%M:%S") }}
-                {% else %}
-                    -
+                </th>
+                <th>
+                    {% if "show_task_name" in old_params %}
+                        {{ _("task name")}}
+                    {% else %}
+                        {{ _("taskid") }}
+                    {% endif %}
+                </th>
+                {% if "show_id" in old_params %}
+                    <th>{{ _("id") }}</th>
                 {% endif %}
-            </td>
-            <td id="status">
-                {% if succeeded %}
-                    {{_("Succeeded")}}
-                {%elif submission['status'] == 'waiting' %}
-                    {{_("Waiting")}}
-                {% else %}
-                    {{_("Failed")}}
+                <th>{{ _("submitted on") }}</th>
+                <th>{{ _("replayed on") }}</th>
+                <th>{{ _("result") }}</th>
+                {% if "show_tags" in old_params %}
+                    <th>{{ _("tags") }}</th>
                 {% endif %}
-                ({{ submission.get("grade", 0.0) }}%)
-            </td>
-
-            <!-- TAGS td -->
-            {% if "show_tags" in old_params %}
+                <th>
+                    <form method="post" action="submissions#alerts">
+                        <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-info" type="submit" name="csv" formmethod="post" title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
+                            <div class="btn btn-danger" data-toggle="modal" data-target="#download_modal">
+                                <div data-toggle="tooltip" data-placement="top" title="{{ _('Download current selection') }}"><i class="fa fa-download"></i></div>
+                            </div>
+                            {% if is_admin %}
+                                <button class="btn btn-warning" type="submit" name="replay" formmethod="post" title="{{ _('Replay current selection') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for submission in data %}
+            {% set succeeded = "result" in submission and submission["result"] == "success" %}
+            <tr class="
+            {% if succeeded %}
+                table-success
+            {% elif submission['status'] == 'waiting' %}
+                table-warning
+            {%else %}
+                table-danger
+            {%endif %}">
                 <td>
-                {% set course_tags = course.get_tags() %}
-                {% for key in course.get_task(submission['taskid']).get_categories() %}
-                    {% set tag = course_tags[key] %}
-                    {% if tag.get_type() == 0  %}
-                        <span style="line-height: 18px;">
-                            <span class="badge alert-success" id="{{tag.get_id()}}">{{ tag.get_name(user_manager.session_language()) }}</span>
-                        </span>
-                    {% elif tag.get_type() == 1 %}
-                        <span style="line-height: 18px;">
-                            <span class="badge alert-danger" id="{{tag.get_id()}}"> {{ tag.get_name(user_manager.session_language()) }}</span>
-                        </span>
+                    {% if "best" in submission and submission["best"] %}
+                        <i class="fa fa-star" title="{{ submission['_id'] }}" data-toggle="tooltip" data-placement="bottom"></i>
                     {% endif %}
-                {% endfor %}
-                {# Auto-tags not defined in task #}
-                {% if "tests" in submission %}
-                    {% for tag in submission["tests"] %}
-                        {% if tag.startswith("*auto-tag-") %}
+                </td>
+                <td>
+                    {% for user in submission["username"] %}
+                        {% if "show_stud_name" in old_params %}
+                            {{ users[user] if user in users else '?' }}<br>
+                        {% else %}
+                            {{ user }}<br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                {% if "show_task_name" in old_params %}
+                    <td>{{ tasks[submission["taskid"]].get_name(user_manager.session_language()) }}</td>
+                {% else %}
+                    <td>{{ submission["taskid"] }}</td>
+                {% endif %}
+                {% if "show_id" in old_params %}
+                    <td>{{ submission["_id"] }}</td>
+                {% endif %}
+                <td>{{ submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") }}</td>
+                <td>
+                    {% if "last_replay" in submission %}
+                        {{submission["last_replay"].strftime("%d/%m/%Y %H:%M:%S") }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td id="status">
+                    {% if succeeded %}
+                        {{_("Succeeded")}}
+                    {%elif submission['status'] == 'waiting' %}
+                        {{_("Waiting")}}
+                    {% else %}
+                        {{_("Failed")}}
+                    {% endif %}
+                    ({{ submission.get("grade", 0.0) }}%)
+                </td>
+
+                <!-- TAGS td -->
+                {% if "show_tags" in old_params %}
+                    <td>
+                    {% set course_tags = course.get_tags() %}
+                    {% for key in course.get_task(submission['taskid']).get_categories() %}
+                        {% set tag = course_tags[key] %}
+                        {% if tag.get_type() == 0  %}
                             <span style="line-height: 18px;">
-                                {% if len(submission["tests"][tag]) > 30 %}
-                                    <span class="badge alert-default" data-toggle="tooltip" data-placement="left" data-original-title="{{submission['tests'][tag]}}">{{ submission["tests"][tag][:30] }} …</span>
-                                {% else %}
-                                    <span class="badge alert-default">{{ submission["tests"][tag] }}</span>
-                                {% endif %}
+                                <span class="badge alert-success" id="{{tag.get_id()}}">{{ tag.get_name(user_manager.session_language()) }}</span>
+                            </span>
+                        {% elif tag.get_type() == 1 %}
+                            <span style="line-height: 18px;">
+                                <span class="badge alert-danger" id="{{tag.get_id()}}"> {{ tag.get_name(user_manager.session_language()) }}</span>
                             </span>
                         {% endif %}
                     {% endfor %}
-                {% endif %}
-                </td>
-            {% endif %}
-            <!-- END TAGS td -->
-
-            <td>
-                <div class="btn-group btn-group-sm" role="group">
-                    <a href="{{get_homepath()}}/submission/{{submission['_id']}}"
-                       class="btn btn-secondary" title="{{ _('View submission') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-file-code-o fa-fw"></i></a>
-                    <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?download_submission={{submission['_id']}}#alerts" class="btn btn-secondary" title="{{ _('Download submission') }}" data-toggle="tooltip"
-                       data-placement="bottom"><i class="fa fa-download"></i></a>
-                    {% if is_admin %}
-                        <a href="#alerts" class="replay btn btn-secondary" title=" {{ _('Replay submission') }}" data-toggle="tooltip" data-submissionid="{{ submission['_id'] }}"
-                           data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                    {# Auto-tags not defined in task #}
+                    {% if "tests" in submission %}
+                        {% for tag in submission["tests"] %}
+                            {% if tag.startswith("*auto-tag-") %}
+                                <span style="line-height: 18px;">
+                                    {% if len(submission["tests"][tag]) > 30 %}
+                                        <span class="badge alert-default" data-toggle="tooltip" data-placement="left" data-original-title="{{submission['tests'][tag]}}">{{ submission["tests"][tag][:30] }} …</span>
+                                    {% else %}
+                                        <span class="badge alert-default">{{ submission["tests"][tag] }}</span>
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
-                </div>
-            </td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+                    </td>
+                {% endif %}
+                <!-- END TAGS td -->
+
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{{get_homepath()}}/submission/{{submission['_id']}}"
+                           class="btn btn-secondary" title="{{ _('View submission') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa file-code-o fa-fw"></i></a>
+                        <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?download_submission={{submission['_id']}}#alerts" class="btn btn-secondary" title="{{ _('Download submission') }}" data-toggle="tooltip"
+                           data-placement="bottom"><i class="fa fa-download"></i></a>
+                        {% if is_admin %}
+                            <a href="#alerts" class="replay btn btn-secondary" title=" {{ _('Replay submission') }}" data-toggle="tooltip" data-submissionid="{{ submission['_id'] }}"
+                               data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <!-- Pagination -->
 <div class="d-flex justify-content-center">
