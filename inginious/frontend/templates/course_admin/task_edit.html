@@ -28,8 +28,8 @@
     {{_("Edit task \"{}\"").format(taskid)}}
     <div class="pull-right">
         <div class="btn-group">
-            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
-            <a id="switch" class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"><i class="fa fa-eye"></i> {{ _("View task") }}</a>
+            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">{{ _("Save changes") }}</div></button>
+            <a id="switch" class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"><i class="fa fa-eye"></i> <div class="d-none d-sm-inline">{{ _("View task") }}</div></a>
         </div>
     </div>
 </h2>

@@ -47,42 +47,45 @@
     <div class="tab-content">
         <div role="tabpanel" class="card-body tab-pane active" id="tab_progress">
             <h3>{{ _("Tasks") }}</h3>
-            <table class="table">
-                <tr>
-                    <th>{{_("task name")}}</th>
-                    <th>{{_("# student viewed")}}</th>
-                    <th>{{_("# student attempted")}}</th>
-                    <th>{{_("# student succeeded")}}</th>
-                    <th>{{_("# attempts")}}</th>
-                    <th>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <a href="{{get_homepath()}}/admin/{{course.get_id()}}/stats?progress_csv" class="btn btn-info"
-                               title="{{_('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i
-                                class="fa fa-table"></i></a>
-                            <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions"
-                               class="btn btn-secondary" title="{{ _('View all submissions') }}" data-toggle="tooltip"
-                            data-placement="bottom"><i class="fa fa-files-o"></i></a>
-                        </div>
-                    </th>
-                </tr>
-                {% for taskid in stats_progress %}
-                <tr>
-                    <td>
-                        {{ stats_progress[taskid]["name"] }}
-                        <input type="hidden" name="task" value="{{taskid}}">
-                    </td>
-                    <td>{{stats_progress[taskid]["viewed"]}}</td>
-                    <td>{{stats_progress[taskid]["attempted"]}}</td>
-                    <td>{{stats_progress[taskid]["succeeded"]}}</td>
-                    <td>{{stats_progress[taskid]["attempts"]}}</td>
-                                <td style="min-width:120px">
+            <div style="overflow-x:auto;">
+                <table class="table">
+                    <tr>
+                        <th>{{_("task name")}}</th>
+                        <th>{{_("# student viewed")}}</th>
+                        <th>{{_("# student attempted")}}</th>
+                        <th>{{_("# student succeeded")}}</th>
+                        <th>{{_("# attempts")}}</th>
+                        <th>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions{{stats_progress[taskid]['url']}}" class="btn btn-secondary" title="{{_('View submissions') }}" data-toggle="tooltip"
-                                   data-placement="bottom"><i class="fa fa-file-code-o fa-fw"></i></a>
+                                <a href="{{get_homepath()}}/admin/{{course.get_id()}}/stats?progress_csv" class="btn btn-info"
+                                   title="{{_('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i
+                                    class="fa fa-table"></i></a>
+                                <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions"
+                                   class="btn btn-secondary" title="{{ _('View all submissions') }}" data-toggle="tooltip"
+                                data-placement="bottom"><i class="fa fa-files-o"></i></a>
+                            </div>
+                        </th>
+                    </tr>
+                    {% for taskid in stats_progress %}
+                    <tr>
+                        <td>
+                            {{ stats_progress[taskid]["name"] }}
+                            <input type="hidden" name="task" value="{{taskid}}">
                         </td>
-                </tr>
-                {% endfor %}
-            </table>
+                        <td>{{stats_progress[taskid]["viewed"]}}</td>
+                        <td>{{stats_progress[taskid]["attempted"]}}</td>
+                        <td>{{stats_progress[taskid]["succeeded"]}}</td>
+                        <td>{{stats_progress[taskid]["attempts"]}}</td>
+                                    <td style="min-width:120px">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions{{stats_progress[taskid]['url']}}" class="btn btn-secondary" title="{{_('View submissions') }}" data-toggle="tooltip"
+                                       data-placement="bottom"><i class="fa fa-file-code-o fa-fw"></i></a>
+                                </div>
+                            </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
         <div role="tabpanel" class="tab-pane card-body" id="tab_submissions">
             {% with target="stats#alerts", is_stats=True %}
