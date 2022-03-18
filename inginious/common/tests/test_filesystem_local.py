@@ -18,7 +18,7 @@ def myhash(content: str) -> str:
 FS = {
     'test1.txt': b'test string 1',
     'subfolder/test2.txt': b'test string 2',
-#    'subfolder/test3.txt': b'test string 3',
+    'subfolder2/subfolder3/test3.txt': b'test string 3',
 }
 
 FS = {filepath: {'content': content, 'hash': myhash(content)} for filepath, content in FS.items()}
@@ -35,6 +35,18 @@ def recursive_content(dirname: str) -> list:
         return acc                                                    
     return loop(dirname)  
 
+def get_dirs(dirs: list) -> set:
+    def loop(dirs: list, acc: list) -> list:
+        if dirs == []: return acc
+        result = [dir for dir in [os.path.dirname(dir) for dir in dirs] if dir != '']
+        return loop(result, acc + result)
+    return loop(dirs, [])
+
+def get_formatted_dirs(dirs: list) -> list:
+    return ['%s/' % dir for dir in get_dirs(dirs)]
+
+def get_direct_dirs(dirs: list) -> list:
+    return ['%s/' % j for (i,j) in [os.path.split(i) for i in get_dirs(dirs)] if i == '']
 
 ########################
 ### Generic fixtures ###
@@ -49,8 +61,8 @@ def init_files():
     def _create(prefix, files):
         for file in files:
             filepath = os.path.join(prefix, file)
+            dirs = os.path.dirname(file)
             all_files.append(filepath)
-            dirs = '/'.join(re.sub(prefix+'/', '', filepath).split('/')[:-1])
             if dirs != '':
                 subdirs = os.path.join(prefix, dirs)
                 all_dirs.append(subdirs)
@@ -323,8 +335,8 @@ class TestPut:
 
     def test_write_full_path(self, init_full):
         """ Try to rewrite a file from its full path """
-        provider, prefix, file1, file2 = init_full
-        full_path = os.path.join(prefix, file1)
+        provider, prefix, *files = init_full
+        full_path = os.path.join(prefix, files[0])
         with pytest.raises(FileNotFoundError):
             provider.put(full_path, 'test')
 
@@ -388,23 +400,25 @@ class TestList:
 
     def test_list_file_populated(self, init_full):
         """ List direct files """
-        provider, _, filename, _ = init_full
-        assert provider.list(files=True, folders=False) == [filename]
+        provider, _, *files = init_full
+        assert provider.list(files=True, folders=False) == [files[0]]
 
     def test_list_file_populated_recursive(self, init_full):
         """ List all files recursively """
-        provider, _, file1, file2 = init_full
-        assert set(provider.list(files=True, folders=False, recursive=True)) == set([file1, file2])
+        provider, _, *files = init_full
+        assert set(provider.list(files=True, folders=False, recursive=True)) == set(files)
 
     def test_list_folder_populated(self, init_full):
         """ List direct directories """
-        provider, _, _, file2 = init_full
-        assert set(provider.list(files=False, folders=True)) == set(['%s/' % file2.split('/')[0]])
+        provider, _, *files = init_full
+        expected = get_direct_dirs(files)
+        assert set(provider.list(files=False, folders=True)) == set(expected)
 
     def test_list_folder_populated_recursive(self, init_full):
         """ List all directories recursively """
-        provider, _, _, file2 = init_full
-        assert set(provider.list(files=False, folders=True, recursive=True)) == set(['%s/' % file2.split('/')[0]])
+        provider, _, *files = init_full
+        expected = get_formatted_dirs(files)
+        assert set(provider.list(files=False, folders=True, recursive=True)) == set(expected)
 
     def test_list_empty(self, init_prefix):
         """ List direct empty prefix """
@@ -418,23 +432,23 @@ class TestList:
 
     def test_list_populated_disabled(self, init_full):
         """ List nothing """
-        provider, _, _, _ = init_full
+        provider, _, _, *_ = init_full
         assert provider.list(files=False, folders=False) == []
 
     def test_list_populated_disabled_recursive(self, init_full):
         """ List nothing recursively """
-        provider, _, _, _ = init_full
+        provider, _, _, *_ = init_full
         assert provider.list(files=False, folders=False, recursive=True) == []
 
     def test_list_populated(self, init_full):
         """ List all direct prefix's content """
-        provider, _, file1, file2 = init_full
-        assert set(provider.list(files=True, folders=True)) == set([file1, '%s/' % file2.split('/')[0]])
+        provider, _, *files = init_full
+        assert set(provider.list(files=True, folders=True)) == set(get_direct_dirs(files) + [j for (i,j) in [os.path.split(entry) for entry in files] if i == ''])
 
     def test_list_populated_recursively(self, init_full):
         """ List all prefix's content recursively """
-        provider, prefix, file1, file2 = init_full
-        assert set(provider.list(files=True, folders=True, recursive=True)) == set([file1, file2, '%s/' % file2.split('/')[0]])
+        provider, prefix, *files = init_full
+        assert set(provider.list(files=True, folders=True, recursive=True)) == set(files + get_formatted_dirs(files))
 
     def test_list_non_existing_prefix(self, init_tmp_dir):
         """ Try to list non-existing prefix """
@@ -463,29 +477,32 @@ class TestDelete:
 
     def test_delete_populated_prefix(self, init_full):
         """ Delete a populated prefix """
-        provider, prefix, _, _ = init_full
+        provider, prefix, _, *_ = init_full
         provider.delete()
         assert not os.path.exists(prefix)
 
     def test_delete_subfolder_file(self, init_full):
         """ Delete a subfolder file without removing the subfolder """
-        provider, prefix, file1, file2 = init_full
-        provider.delete(file2)
-        assert os.path.exists(os.path.join(prefix, file1))
-        assert os.path.exists(os.path.join(prefix, file2.split('/')[0]))
+        provider, prefix, *files = init_full
+        provider.delete(files[1])
+        for path in files + get_dirs(files):
+            if path != files[1]:
+                assert os.path.exists(os.path.join(prefix, path))
 
     def test_delete_subfolder(self, init_full):
         """ Delete a subfolder """
-        provider, prefix, file1, file2 = init_full
-        subfolder = file2.split('/')[0]
+        provider, prefix, *files = init_full
+        removed = files[1]
+        subfolder = os.path.dirname(removed)
         provider.delete(subfolder)
-        assert os.path.exists(os.path.join(prefix, file1))
-        assert not os.path.exists(os.path.join(prefix, subfolder))
+        for path in files + get_dirs(files):
+            if path != removed and path != subfolder:
+                assert os.path.exists(os.path.join(prefix, path))
 
     def test_delete_fullpath(self, init_full):
         """ Try to delete a full path """
-        provider, prefix, _, file2 = init_full
-        subfolder = file2.split('/')[0]
+        provider, prefix, *files = init_full
+        subfolder = os.path.dirname(files[1])
         with pytest.raises(FileNotFoundError):
             provider.delete(os.path.join(prefix, subfolder))
 
@@ -495,16 +512,16 @@ class TestMove:
 
     def test_move(self, init_full):
         """ Try to move a file at the same directory level """
-        provider, prefix, file1, file2 = init_full
-        file1_path = os.path.join(prefix, file1)
-        dest = 'moved_%s' % file1
+        provider, prefix, *files = init_full
+        file1_path = os.path.join(prefix, files[0])
+        dest = 'moved_%s' % files[0]
         full_dest = os.path.join(prefix, dest)
-        provider.move(file1, dest)
+        provider.move(files[0], dest)
         assert not os.path.exists(file1_path)
         assert os.path.exists(full_dest)
         with open(full_dest, 'rb') as fd:
-            assert compare_files(file1, fd.read())
-        assert os.path.exists(os.path.join(prefix, file2))
+            assert compare_files(files[0], fd.read())
+        assert os.path.exists(os.path.join(prefix, files[1]))
 
     def test_move_non_existing_file(self, init_prefix):
         """ Try to move a non existing file """
@@ -525,21 +542,21 @@ class TestMove:
     def test_move_outside_fullpath(self, init_full, init_prefix):
         """ Try to move a file outside the prefix with a full path """
         _, prefix1 = init_prefix
-        provider, _, file1, _ = init_full
+        provider, _, *files = init_full
         with pytest.raises(FileNotFoundError):
-            provider.move(file1, os.path.join(prefix1, file1))
+            provider.move(files[0], os.path.join(prefix1, files[0]))
 
     def test_move_outside_relativepath(self, init_tmp_dir_np, init_full):
         """ Try to move a file outside the prefix with a relative path """
         tmp = init_tmp_dir_np
-        provider, prefix, file, _ = init_full
-        path = '../../%s' % tmp.split('/')[-1]
+        provider, prefix, *files = init_full
+        path = os.path.join('../../', os.path.basename(tmp))
 
         curdir = os.getcwd()
         os.chdir(prefix)
         assert os.path.exists(path)
         with pytest.raises(FileNotFoundError):
-            provider.move(file, '%s/%s' % (path, file))
+            provider.move(files[0], os.path.join(path, files[0]))
         os.chdir(curdir)
 
 
@@ -605,7 +622,7 @@ class TestCopyTo:
         root, file = init_tmp_each
         provider, prefix = init_prefix
         full_path = os.path.join(root, file)
-        new_file = os.path.join(prefix, file if explicit else file.split('/')[-1])
+        new_file = os.path.join(prefix, file if explicit else os.path.basename(file))
         provider.copy_to(full_path, file if explicit else None)
         assert os.path.exists(new_file)
         with open(new_file, 'rb') as fd:
@@ -617,7 +634,7 @@ class TestCopyTo:
         """ Copy a non-existing file from the disk to the prefix """
         root = init_tmp_dir_np
         provider, prefix = init_prefix
-        full_path = os.path.join(root, file if explicit else file.split('/')[-1])
+        full_path = os.path.join(root, file if explicit else os.path.basename(file))
         with pytest.raises(FileNotFoundError):
             provider.copy_to(full_path, file if explicit else None)
 
@@ -773,7 +790,7 @@ class TestDistribute:
                     fd.write(data)
             z = zipfile.ZipFile(archive)
             content = z.namelist()
-            assert content == list(FS.keys())
+            assert set(content) == set(list(FS.keys()))
             for file in content:
                 assert compare_files(file, z.read(file))
 
