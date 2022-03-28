@@ -293,34 +293,31 @@ class CourseStudentListPage(INGIniousAdminPage):
                 error["groups"] = True
             active_tab = "tab_groups"
         if "audiencecreationfile" in data and 'upload_audiences_creation' in data:
-            self.database.audiences.delete_many({"courseid": course.get_id()})
-            text_stream = io.TextIOWrapper(data["audiencecreationfile"], encoding='utf-8')
-            reader = csv.reader(text_stream)
-            stud_list, _, _, _ = self.get_user_lists(course)
+            reader = csv.reader(data["audiencecreationfile"].read().decode("utf-8").split("\n"))
+            for line in reader:
+                if len(line)!=4:
+                    msg["audiences"] = _("File wrongly formatted.")
+                    error["audiences"] = True
+            if not error["udiences"]:
+                stud_list, _, _, _ = self.get_user_lists(course)
+                self.database.audiences.delete_many({"courseid": course.get_id()})
+                for user_id, field, role, description in reader:
+                    query = {"courseid": course.get_id(), "description": description}
+                    if field is not "username":
+                        user = self.database.users.find_one({field: user_id})
+                        user_id = user["username"] if user is not None else ""
+                    update = {"$push": {"students": user_id}} if role == "student" else {"$push": {"tutors": user_id}}
 
-            def _list_checker(users):
-                inserted_content = []
-                for usr in users:
-                    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-                    if re.fullmatch(regex, usr):
-                        user = self.database.users.find_one({"email": usr})
-                        user is not None and inserted_content.append(user["username"])
-                    else:
-                        inserted_content.append(usr)
-                return inserted_content
-
-            for row in reader:
-                stud = row[1].split(';') if len(row) > 1 else []
-                tutors = row[2].split(';') if len(row) > 2 else []
-                inserted_student = _list_checker(stud)
-                inserted_tutors = _list_checker(tutors)
-                self.database.audiences.insert_one({"courseid": course.get_id(), "students": inserted_student,
-                                                    "tutors": inserted_tutors,
-                                                    "description": row[0]})
-                not_registered_stud = list(set(inserted_student) - (set(stud_list)))
-                for stud in not_registered_stud:
-                    self.user_manager.course_register_user(course, stud)
-
+                    self.database.audiences.update_one(query, update, upsert=True)
+                    self.database.audiences.update_one({"courseid": course.get_id(),
+                                                        "description": description,
+                                                        'students': {'$exists': False}}, {'$set': {'students': []}})
+                    self.database.audiences.update_one({"courseid": course.get_id(),
+                                                        "description": description,
+                                                        'tutors': {'$exists': False}}, {'$set': {'tutors': []}})
+                    if user_id not in stud_list and role == "student":
+                        self.user_manager.course_register_user(course, user_id)
+            active_tab = "tab_audiences"
         return active_tab
 
     def get_user_lists(self, course):
