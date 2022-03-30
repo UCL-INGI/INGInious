@@ -30,7 +30,7 @@ Groups
 ------
 Groups are also subset of students based on a description. As this structure can be used for submission,
 it's important to notice that groups are frontend structure.
-Backend is doesn't know group. It's a table on frontend level.
+Backend doesn't know group. It's a table on frontend level.
 
 Here is database structure description:
 
