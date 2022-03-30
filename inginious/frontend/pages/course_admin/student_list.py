@@ -302,10 +302,15 @@ class CourseStudentListPage(INGIniousAdminPage):
                 stud_list, _, _, _ = self.get_user_lists(course)
                 self.database.audiences.delete_many({"courseid": course.get_id()})
                 for user_id, field, role, description in reader:
+                    user_id = user_id.strip()
+                    field = field.strip()
+                    role = role.strip()
+                    description = description.strip()
                     query = {"courseid": course.get_id(), "description": description}
                     if field is not "username":
                         user = self.database.users.find_one({field: user_id})
                         user_id = user["username"] if user is not None else ""
+                        #TODO - Handle user not found
                     update = {"$push": {"students": user_id}} if role == "student" else {"$push": {"tutors": user_id}}
 
                     self.database.audiences.update_one(query, update, upsert=True)
