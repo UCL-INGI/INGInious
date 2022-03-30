@@ -1,0 +1,265 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+{% block title %}{{_("Users Administration") }}{% endblock %}
+{% block column %}
+    {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
+{% endblock %}
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list fa-fw"></i> {{ _("Users Admin") }}
+                <span class="sr-only">{{_("(current)")}}</span></a></li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+
+
+<h2>{{ _("Users Administration") }}</h2>
+<div>
+    <button type="button" data-type="single" data-toggle="modal"
+            data-target="#add_modal" class="btn btn-info add_user" title="Add"><i class="fa fa-user-plus"></i> Add user</button>
+</div>
+{% if feedback %}
+    <p>{{feedback}}</p>
+{% endif %}
+<div class="card-deck m-0">
+    <table class="table">
+        <thead class="table-borderless">
+            <tr>
+                <th>{{_("member")}}</th>
+                <th>{{_("username")}}</th>
+                <th>{{_("email address")}}</th>
+                <th>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="#" class="btn btn-info"
+                           title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                    </div>
+                </th>
+                <th>
+                    <form method="post" action="users">
+                        <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
+                     </form>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in all_users %}
+
+             <tr>
+                <td>
+                    {{ all_users[user]["realname"] or all_users[user]["username"] }}
+                </td>
+                <td>
+                    {{all_users[user]["username"]}}
+                </td>
+                <td>
+                    <a href="mailto:{{all_users[user]['email']}}">{{all_users[user]["email"]}}</a>
+                </td>
+                <td id="binding_{{all_users[user]['username']}}"  style="display:none;" data-bindings="{{all_users[user]['bindings']}}">
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" data-username="{{all_users[user]['username']}}"
+                                    data-type="single" data-toggle="modal"
+                                    data-target="#binding_modal"
+                                    class="btn btn-secondary binding_user" title="{{ _('Bindings') }}"><i class="fa fa-cloud"></i></button>
+                        {% if all_users[user]["username"] != user_manager.session_username() %}
+                            {% if not all_users[user]["activated"] %}
+                                <button type="button" data-username="{{all_users[user]['username']}}"
+                                    data-type="single" data-toggle="modal"
+                                    data-target="#activate_modal"
+                                    class="btn btn-success activate_user" title="Activate"><i class="fa fa-thumbs-o-up"></i></button>
+                            {% endif %}
+                            <button type="button" data-username="{{all_users[user]['username']}}"
+                                    data-type="single" data-toggle="modal"
+                                    data-target="#delete_modal"
+                                    class="btn btn-danger delete_user" title="Delete"><i class="fa fa-trash"></i></button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <!-- Pagination -->
+<div class="d-flex justify-content-center">
+    <ul id="pagination" class="pagination-sm"></ul>
+    <form id="page_form" method="post" action="users">
+        <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
+        <input id="page_input" type="hidden" name="page" value="1">
+    </form>
+</div>
+
+<!-- Modals -->
+<div id="delete_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Delete") }} <span class="username"></span></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="feedback" class="alert alert-danger" role="alert" style="display:none;"></div>
+                <p>{{ _("This will delete {}. Are you sure ?").format('<span class="username"></span>') | safe }}</p>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" name="username" id="username">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                <button type="submit" onclick="javascript:action_handler('delete')" name="delete user" class="btn btn-danger">{{ _("Remove") | safe }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="activate_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Activate") }} <span class="username"></span></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="feedback" class="alert alert-danger" role="alert" style="display:none;"></div>
+                <p>{{ _("This will activate {}.").format('<span class="username"></span>') | safe }}</p>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" name="username" id="username">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                <button type="submit" onclick="javascript:action_handler('activate')" name="activate user" class="btn btn-success">{{ _("Activate") | safe }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Add user") }} </span></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p id="feedback" class="alert alert-danger" role="alert" style="display:none;"></p>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label class="control-label">{{ _("Username (min. 4 alphanumerical characters) :") }} </label>
+                        <input name="usrname" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-12">
+                        <label class="control-label">{{ _("Complete name :") }} </label>
+                        <input name="realname" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-12">
+                        <label class="control-label">{{ _("Email address :") }} </label>
+                        <input name="email" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-12">
+                        <label class="control-label">{{ _("Password (min. 6 characters) :") }} </label>
+                        <input name="password" type="password" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                <button type="submit" onclick="javascript:action_handler('add_user')" name="Add user" class="btn btn-success">{{ _("Add") | safe }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="binding_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Available bindings") }}</span></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="feedback_bindings" class="alert alert-danger" role="alert" style="display:none;"></div>
+                <div id="binding_content"></div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" name="username" id="username">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#delete_modal').on('show.bs.modal', function (event) {
+      $('.modal-dialog .username').each(function (index) {
+          $(this).text($(event.relatedTarget).data('username'));
+      });
+      $('.modal-dialog #username').val($(event.relatedTarget).data('username'));
+    });
+    $('#delete_modal').on('hidden.bs.modal', function () {
+        $('#feedback').empty();
+        $('#feedback').hide();
+    })
+    $('#activate_modal').on('show.bs.modal', function (event) {
+      $('.modal-dialog .username').each(function (index) {
+          $(this).text($(event.relatedTarget).data('username'));
+      });
+      $('.modal-dialog #username').val($(event.relatedTarget).data('username'));
+    });
+    $('#activate_modal').on('hidden.bs.modal', function () {
+        $('#feedback').empty();
+        $('#feedback').hide();
+    })
+    $('#binding_modal').on('show.bs.modal', function (event) {
+        $('.modal-dialog #username').val($(event.relatedTarget).data('username'));
+        var username=$('#username').val();
+        display_bindings(username, get_bindings(username));
+    });
+    $('#binding_modal').on('hide.bs.modal', function (event) {
+        $("#binding_content").html('');
+        $('#feedback_bindings').empty();
+        $('#feedback_bindings').hide();
+    });
+    $(".delete_user").each(function(index) {
+        $(this).tooltip({"placement": "bottom"});
+    });
+    $(".activate_user").each(function(index) {
+        $(this).tooltip({"placement": "bottom"});
+    });
+    $('#pagination').twbsPagination({
+        totalPages: {{ number_of_pages }},
+        startPage: {{ page_number }},
+        visiblePages: 5,
+
+        onPageClick: function (event, page) {
+            if(page != {{ page_number }}) {
+                $("#page_input").val(page)
+                $("#page_form").submit();
+            }
+
+        }
+    });
+</script>
+
+<div id="hidden-template" style="display:none;">
+    <div class="card mb-3">
+        <div class="card-header">
+            <span class="binding_method"></span>
+            <div class="pull-right">
+            <a href='#' class='binding_revoke' data-username="" data-binding="" data-toggle="tooltip" data-placement="bottom" title="{{ _('Revoke access') }}">
+                <i style="color:red;" class="fa fa-trash-o fa-fw"></i>
+            </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-11">
+                    <p>{{_("Identifier :")}}<span class="binding_identifier"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

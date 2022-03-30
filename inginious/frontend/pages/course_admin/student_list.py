@@ -168,7 +168,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                         self.database.groups.replace_one({"_id": group["_id"]}, group)
                     self.database.courses.find_one_and_update({"_id": course.get_id()}, {"$set": {"students": []}})
                 else:
-                    self.user_manager.course_unregister_user(course, data["username"])
+                    self.user_manager.course_unregister_user(course.get_id(), data["username"])
             except:
                 pass
         elif "register_student" in data:

@@ -20,25 +20,13 @@ class DeletePage(INGIniousAuthPage):
         msg = ""
 
         username = self.user_manager.session_username()
+        result = self.user_manager.delete_user(username, data.get("delete_email", ""))
 
-        # Check input format
-        result = self.database.users.find_one_and_delete({"username": username,
-                                                          "email": data.get("delete_email", "")})
         if not result:
             error = True
             msg = _("The specified email is incorrect.")
         else:
-            self.database.submissions.delete_many({"username": username})
-            self.database.user_tasks.delete_many({"username": username})
-
-            all_courses = self.course_factory.get_all_courses()
-
-            for courseid, course in all_courses.items():
-                if self.user_manager.course_is_open_to_user(course, username):
-                    self.user_manager.course_unregister_user(course, username)
-
             self.user_manager.disconnect_user()
-
         return msg, error
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ

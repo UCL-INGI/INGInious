@@ -44,7 +44,7 @@ class CoursePage(INGIniousAuthPage):
 
         user_input = flask.request.form
         if "unregister" in user_input and course.allow_unregister():
-            self.user_manager.course_unregister_user(course, self.user_manager.session_username())
+            self.user_manager.course_unregister_user(courseid, self.user_manager.session_username())
             return redirect(self.app.get_homepath() + '/mycourses')
 
         return self.show_page(course)

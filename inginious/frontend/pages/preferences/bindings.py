@@ -7,7 +7,6 @@
 import flask
 from flask import redirect
 
-from pymongo import ReturnDocument
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
@@ -45,18 +44,7 @@ class BindingsPage(INGIniousAuthPage):
                 return redirect("/auth/signin/" + auth_binding)
         elif "revoke_auth_binding" in user_input:
             auth_id = user_input["revoke_auth_binding"]
-
-            if auth_id not in auth_methods.keys():
-                error = True
-                msg = _("Incorrect authentication binding.")
-            elif len(user_data.get("bindings", {}).keys()) > 1 or "password" in user_data:
-                user_data = self.database.users.find_one_and_update(
-                    {"username": self.user_manager.session_username()},
-                    {"$unset": {"bindings." + auth_id: 1}},
-                    return_document=ReturnDocument.AFTER)
-            else:
-                error = True
-                msg = _("You must set a password before removing all bindings.")
+            error, msg = self.user_manager.revoke_binding(self.user_manager.session_username(), auth_id)
 
         bindings = user_data.get("bindings", {})
 

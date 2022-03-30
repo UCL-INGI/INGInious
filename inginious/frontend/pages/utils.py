@@ -51,7 +51,8 @@ class INGIniousPage(MethodView):
         if "lang" in flask.request.args and flask.request.args["lang"] in self.app.l10n_manager.translations.keys():
             self.user_manager.set_session_language(flask.request.args["lang"])
         elif "language" not in flask.session:
-            best_lang = flask.request.accept_languages.best_match(self.app.l10n_manager.translations.keys(), default="en")
+            best_lang = flask.request.accept_languages.best_match(self.app.l10n_manager.translations.keys(),
+                                                                  default="en")
             self.user_manager.set_session_language(best_lang)
 
         return ""
@@ -174,11 +175,11 @@ class INGIniousAuthPage(INGIniousPage):
         if self.user_manager.session_logged_in():
             if (not self.user_manager.session_username() or (self.app.terms_page is not None and
                                                              self.app.privacy_page is not None and
-                                                             not self.user_manager.session_tos_signed()))\
+                                                             not self.user_manager.session_tos_signed())) \
                     and not self.__class__.__name__ == "ProfilePage":
                 return redirect("/preferences/profile")
 
-            if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
+            if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
                 self.user_manager.disconnect_user()
                 return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods())
 
@@ -193,7 +194,8 @@ class INGIniousAuthPage(INGIniousPage):
             if "callbackerror" in flask.request.args:
                 error = _("Couldn't fetch the required information from the service. Please check the provided "
                           "permissions (name, email) and contact your INGInious administrator if the error persists.")
-            return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(), error=error)
+            return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(),
+                                               error=error)
 
     def POST(self, *args, **kwargs):
         """
@@ -215,7 +217,8 @@ class INGIniousAuthPage(INGIniousPage):
                 if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
                     return self.GET_AUTH(*args, **kwargs)
                 else:
-                    return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(), error=_("Invalid login/password"))
+                    return self.template_helper.render("auth.html", auth_methods=self.user_manager.get_auth_methods(),
+                                                       error=_("Invalid login/password"))
             elif self.preview_allowed(*args, **kwargs):
                 return self.POST_AUTH(*args, **kwargs)
             else:
@@ -227,6 +230,37 @@ class INGIniousAuthPage(INGIniousPage):
             Override this function with a custom check if needed.
         """
         return False
+
+
+class INGIniousAdministratorPage(INGIniousAuthPage):
+    """
+       Augmented version of INGIniousAuthPage that checks if user is administrator (superadmin).
+    """
+
+    def GET(self, *args, **kwargs):
+        """
+        Checks if user is superadmin and calls GET_AUTH or performs logout.
+        Otherwise, returns the login template.
+        """
+        username = self.user_manager.session_username()
+        if self.user_manager.session_logged_in():
+            if not self.user_manager.user_is_superadmin(username):
+                return self.template_helper.render("forbidden.html",
+                                                   message=_("Forbidden"))
+            return self.GET_AUTH(*args, **kwargs)
+        return INGIniousAuthPage.GET(self, *args, **kwargs)
+
+    def POST(self, *args, **kwargs):
+        """
+        Checks if user is superadmin and calls POST_AUTH.
+        Otherwise, returns the forbidden template.
+        """
+
+        username = self.user_manager.session_username()
+        if self.user_manager.session_logged_in() and self.user_manager.user_is_superadmin(username):
+            return self.POST_AUTH()
+        return self.template_helper.render("forbidden.html",
+                                           message=_("You have not sufficient right to see this part."))
 
 
 class SignInPage(INGIniousAuthPage):
@@ -289,7 +323,8 @@ class INGIniousStaticPage(INGIniousPage):
         return self.template_helper.render("static.html", pagetitle=title, content=content)
 
 
-def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str, name: str, id:str, placeholder:str=None, single=False):
+def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str,
+                                name: str, id: str, placeholder: str = None, single=False):
     """
     Returns the HTML for a user selection box.
     The user using the box must have admin/tutors rights on the course with id course_id.
@@ -308,8 +343,10 @@ def generate_user_selection_box(user_manager: UserManager, render_func, current_
     :param single: False for multiple user selection, True for single user selection
     :return: HTML code for the box
     """
-    current_users = [{"realname": y.realname if y is not None else x, "username": x} for x, y in user_manager.get_users_info(current_users).items()]
-    return render_func("course_admin/user_selection_box.html", current_users=current_users, course_id=course_id, name=name, id=id, placeholder=placeholder, single=single)
+    current_users = [{"realname": y.realname if y is not None else x, "username": x} for x, y in
+                     user_manager.get_users_info(current_users).items()]
+    return render_func("course_admin/user_selection_box.html", current_users=current_users, course_id=course_id,
+                       name=name, id=id, placeholder=placeholder, single=single)
 
 
 def register_utils(database, user_manager, template_helper: TemplateHelper):
@@ -318,5 +355,7 @@ def register_utils(database, user_manager, template_helper: TemplateHelper):
     """
     template_helper.add_to_template_globals("user_selection_box",
                                             lambda current_users, course_id, name, id, placeholder=None, single=False:
-                                                generate_user_selection_box(user_manager, template_helper.render, current_users, course_id, name, id, placeholder, single)
+                                            generate_user_selection_box(user_manager, template_helper.render,
+                                                                        current_users, course_id, name, id, placeholder,
+                                                                        single)
                                             )
