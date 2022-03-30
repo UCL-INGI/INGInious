@@ -17,6 +17,7 @@ from functools import reduce
 from natsort import natsorted
 from collections import OrderedDict, namedtuple
 import pymongo
+from pymongo import ReturnDocument
 from binascii import hexlify
 import os
 import re
@@ -85,7 +86,7 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
 
-UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language"])
+UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language", "activated"])
 
 
 class UserManager:
@@ -305,15 +306,25 @@ class UserManager:
         Authenticate the user in database
         :param username: Username/Login
         :param password: User password
-        :return: Returns a dict represrnting the user
+        :return: Returns a dict representing the user
         """
-        password_hash = hashlib.sha512(password.encode("utf-8")).hexdigest()
+        password_hash = self.hash_password(password)
 
         user = self._database.users.find_one(
             {"username": username, "password": password_hash, "activate": {"$exists": False}})
 
         return user if user is not None and self.connect_user(username, user["realname"], user["email"],
-                                                              user["language"], user.get("tos_accepted", False)) else None
+                                                              user["language"],
+                                                              user.get("tos_accepted", False)) else None
+
+    def is_user_activated(self, username):
+        """
+        Verify if user is activated
+        :param username: Username/Login
+        :return Returns a boolean with value of activation"""
+        user = self._database.users.find_one(
+            {"username": username, "activate": {"$exists": True, "$nin": [None]}})
+        return user is None
 
     def connect_user(self, username, realname, email, language, tos_accepted):
         """ Opens a session for the user
@@ -341,18 +352,23 @@ class UserManager:
                               self.session_email(), ip)
         self._destroy_session()
 
-    def get_users_info(self, usernames) -> Dict[str, Optional[UserInfo]]:
+    def get_users_count(self):
+        return self._database.users.estimated_document_count()
+
+    def get_users_info(self, usernames, limit=0, skip=0) -> Dict[str, Optional[UserInfo]]:
         """
         :param usernames: a list of usernames
-        :return: a dict, in the form {username: val}, where val is either None if the user cannot be found, or a UserInfo
+        :param limit A limit of users requested
+        :param skip A quantity of users to skip
+        :return: a dict, in the form {username: val}, where val is either None if the user cannot be found,
+        or a UserInfo. If the list of usernames is empty, return an empty dict.
         """
-        retval = {username: None for username in usernames}
-        remaining_users = usernames
+        retval = {username: None for username in usernames} if usernames is not None else {}
+        query = {"username": {"$in": usernames}} if usernames is not None else {}
+        infos = self._database.users.find(query).skip(skip).limit(limit)
 
-        infos = self._database.users.find({"username": {"$in": remaining_users}})
-        for info in infos:
-            retval[info["username"]] = UserInfo(info["realname"], info["email"], info["username"], info["bindings"], info["language"])
-
+        retval = {info["username"]: UserInfo(info["realname"], info["email"], info["username"], info["bindings"],
+                                             info["language"], "activate" not in info) for info in infos}
         return retval
 
     def get_user_info(self, username) -> Optional[UserInfo]:
@@ -361,7 +377,7 @@ class UserManager:
         :return: a tuple (realname, email) if the user can be found, None else
         """
         info = self.get_users_info([username])
-        return info[username]
+        return info[username] if username in info else ""
 
     def get_user_realname(self, username):
         """
@@ -401,7 +417,29 @@ class UserManager:
             apikey = retval.get("apikey", None)
         return apikey
 
+    def get_user_activate_hash(self, username):
+        """
+        Get activate hash for a user
+        :return the activate hash
+        """
+        user = self._database.users.find_one({"username": username})
+        return user["activate"] if user and "activate" in user else None
+
+    def activate_user(self, activate_hash):
+        """Active a user based on his/her activation hash
+        :param activate_hash: The activation hash of a user
+        :return A boolean if the user was found and updated
+        """
+        user = self._database.users.find_one_and_update({"activate": activate_hash}, {"$unset": {"activate": True}})
+        return user is not None
+
     def bind_user(self, auth_id, user):
+        """
+        Add a binding method to a user
+        :param auth_id: The binding method id
+        :param user: User object
+        :return: Boolean if method has been add
+        """
         username, realname, email, additional = user
         email = UserManager.sanitize_email(email)
         if email is None:
@@ -450,6 +488,66 @@ class UserManager:
                 self.connect_user("", realname, email, self._session.get("language", "en"), False)
 
         return True
+
+    def revoke_binding(self, username, binding_id):
+        """
+        Revoke a binding method for a user
+        :param binding_id: The binding method id
+        :param username: username of the user
+        :return: Boolean if error occurred and message if necessary
+        """
+        user_data = self._database.users.find_one({"username": username})
+        if binding_id not in self.get_auth_methods().keys():
+            error = True
+            msg = _("Incorrect authentication binding.")
+        elif user_data is not None and (len(user_data.get("bindings", {}).keys()) > 1 or "password" in user_data):
+            user_data = self._database.users.find_one_and_update(
+                {"username": username},
+                {"$unset": {"bindings." + binding_id: 1}},
+                return_document=ReturnDocument.AFTER)
+            msg = ""
+            error = False
+        else:
+            error = True
+            msg = _("You must set a password before removing all bindings.")
+        return error, msg
+
+    def delete_user(self, username, confirmation_email=None):
+        """
+        Delete a user based on username
+        :param username: the username of the user
+        :param confirmation_email: An email to confirm suppression. May be None
+        :return a boolean if a user was deleted
+        """
+        query = {"username": username, "email": confirmation_email} \
+            if confirmation_email is not None else {"username": username}
+        result = self._database.users.find_one_and_delete(query)
+        if not result:
+            return False
+        else:
+            self._database.submissions.delete_many({"username": username})
+            self._database.user_tasks.delete_many({"username": username})
+            user_courses = self._database.courses.find({"students": username})
+            for elem in user_courses: self.course_unregister_user(elem['_id'], username)
+        return True
+
+    def create_user(self, values):
+        """
+        Create a new user
+        :param values: Dictionary of fields
+        :return: An error message if something went wrong else None
+        """
+        already_exits_user = self._database.users.find_one(
+            {"$or": [{"username": values["username"]}, {"email": values["email"]}]})
+        if already_exits_user is not None:
+            return _("User could not be created.")
+        self._database.users.insert_one({"username": values["username"],
+                                         "realname": values["realname"],
+                                         "email": values["email"],
+                                         "password": self.hash_password(values["password"]),
+                                         "bindings": {},
+                                         "language": "en"})
+        return None
 
     ##############################################
     #      User task/course info management      #
@@ -572,7 +670,8 @@ class UserManager:
     def user_saw_task(self, username, courseid, taskid):
         """ Set in the database that the user has viewed this task """
         self._database.user_tasks.update_one({"username": username, "courseid": courseid, "taskid": taskid},
-                                             {"$setOnInsert": {"username": username, "courseid": courseid, "taskid": taskid,
+                                             {"$setOnInsert": {"username": username, "courseid": courseid,
+                                                               "taskid": taskid,
                                                                "tried": 0, "succeeded": False, "grade": 0.0,
                                                                "submissionid": None, "state": ""}},
                                              upsert=True)
@@ -779,10 +878,10 @@ class UserManager:
         self._logger.info("User %s registered to course %s", username, course.get_id())
         return True
 
-    def course_unregister_user(self, course, username=None):
+    def course_unregister_user(self, course_id, username=None):
         """
         Unregister a user to the course
-        :param course: a Course object
+        :param course_id: a course id
         :param username: The username of the user that we want to unregister. If None, uses self.session_username()
         """
         if username is None:
@@ -790,22 +889,22 @@ class UserManager:
 
         # If user doesn't belong to a group, will ensure correct deletion
         self._database.audiences.find_one_and_update(
-            {"courseid": course.get_id(), "students": username},
+            {"courseid": course_id, "students": username},
             {"$pull": {"students": username}})
 
         # Needed if user belongs to a group
         self._database.groups.find_one_and_update(
-            {"courseid": course.get_id(), "groups.students": username},
+            {"courseid": course_id, "groups.students": username},
             {"$pull": {"groups.$.students": username, "students": username}})
 
         # If user doesn't belong to a group, will ensure correct deletion
         self._database.groups.find_one_and_update(
-            {"courseid": course.get_id(), "students": username},
+            {"courseid": course_id, "students": username},
             {"$pull": {"students": username}})
 
-        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$pull": {"students": username}})
+        self._database.courses.find_one_and_update({"_id": course_id}, {"$pull": {"students": username}})
 
-        self._logger.info("User %s unregistered from course %s", username, course.get_id())
+        self._logger.info("User %s unregistered from course %s", username, course_id)
 
     def course_is_open_to_user(self, course, username=None, lti=None, return_reason=False):
         """ Checks if a user is can access a course
@@ -940,3 +1039,11 @@ class UserManager:
     @classmethod
     def generate_api_key(cls):
         return hexlify(os.urandom(40)).decode('utf-8')
+
+    @classmethod
+    def hash_password(cls, content):
+        """
+        :param content: a str input
+        :return a hash of str input
+        """
+        return hashlib.sha512(content.encode("utf-8")).hexdigest()
