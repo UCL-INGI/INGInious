@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-07-06 09:39+0200\n"
-"PO-Revision-Date: 2021-10-26 13:26+0000\n"
-"Last-Translator: Ludovic Taffin <ludovic.taffin@uclouvain.be>\n"
+"PO-Revision-Date: 2022-04-04 15:01+0000\n"
+"Last-Translator: Olivier Goletti <olivier.goletti@uclouvain.be>\n"
 "Language-Team: French <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/fr/>\n"
 "Language: fr\n"
@@ -465,9 +465,8 @@ msgid "Audience updated."
 msgstr "Public mis à jour."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:98
-#, fuzzy
 msgid "User not found : {}"
-msgstr "Cours introuvable."
+msgstr "Utilisateur introuvable : {}"
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:144
 msgid "This file doesn't exist."
@@ -706,19 +705,16 @@ msgid "Something wrong happened: "
 msgstr "Quelque choe de mal est survenu: "
 
 #: inginious/frontend/pages/course_admin/task_list.py:54
-#, fuzzy
 msgid "Couldn't create task {} : "
-msgstr "Impossible de supprimer l'exercice: "
+msgstr "Impossible de supprimer l'exercice : {} "
 
 #: inginious/frontend/pages/course_admin/task_list.py:59
-#, fuzzy
 msgid "Couldn't delete task {} : "
-msgstr "Impossible de supprimer l'exercice: "
+msgstr "Impossible de supprimer l'exercice : {} "
 
 #: inginious/frontend/pages/course_admin/task_list.py:64
-#, fuzzy
 msgid "Couldn't wipe task {} : "
-msgstr "Impossible de nettoyer les donnée de l'exercice: "
+msgstr "Impossible de supprimer les données de la tâche : {} "
 
 #: inginious/frontend/pages/course_admin/utils.py:40
 msgid "You don't have staff rights on this course."
@@ -876,9 +872,8 @@ msgid "Close"
 msgstr "Fermer"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:26
-#, fuzzy
 msgid "Authentication failed"
-msgstr "Méthodes d'authentification"
+msgstr "L'authentification a échoué"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:31
 #: inginious/frontend/templates/auth.html:21
@@ -916,9 +911,8 @@ msgstr ""
 "{score}% sur l'exercice {task} !"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:78
-#, fuzzy
 msgid "Empty password"
-msgstr "Réinitialiser mon mot de passe"
+msgstr "Mot de passe vide"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:96
 msgid "Cannot contact host"
@@ -937,9 +931,8 @@ msgid "Can't get some user fields"
 msgstr "Impossible de récupérer certains champs utilisateur"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:141
-#, fuzzy
 msgid "Incorrect password"
-msgstr "Ancien mot de passe incorrect."
+msgstr "Mot de passe incorrect"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:5
 #, fuzzy
@@ -1038,9 +1031,8 @@ msgstr ""
 "dans une certaine proximité temporelle."
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:78
-#, fuzzy
 msgid "Number of days:"
-msgstr "Nombre d'étudiants"
+msgstr "Nombre de jours :"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:86
 #: inginious/frontend/templates/course_admin/audience_edit.html:96
@@ -1115,9 +1107,8 @@ msgid "No title for one section"
 msgstr "Une section n'a pas de titre"
 
 #: inginious/frontend/task_dispensers/util.py:161
-#, fuzzy
 msgid "One task id contains non alphanumerical characters"
-msgstr "Nom d'utilisateur (min. 4 caractères alphanumériques) :"
+msgstr "Un id de tâche contient des  caractères non-alphanumériques"
 
 #: inginious/frontend/templates/auth.html:5
 msgid "Welcome"
