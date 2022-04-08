@@ -264,6 +264,12 @@ class DockerAgent(Agent):
             except:
                 self._logger.exception("Exception in _watch_docker_events")
 
+    def __get_fd_limit(self):
+        # get process *NOFILE* resource limits
+        p = psutil.Process()
+        fd_limits = p.rlimit(psutil.RLIMIT_NOFILE)
+        return (int(fd_limits[0] / self._concurrency), int(fd_limits[1] / self._concurrency))
+
     def __new_job_sync(self, message: BackendNewJob, future_results):
         """ Synchronous part of _new_job. Creates needed directories, copy files, and starts the container. """
         course_id = message.course_id
@@ -373,13 +379,10 @@ class DockerAgent(Agent):
 
         # Run the container
         try:
-            # get process *NOFILE* resource limits
-            p = psutil.Process()
-            no_file_rlimit = p.rlimit(psutil.RLIMIT_NOFILE)
-            rlimit_per_slot = (int(no_file_rlimit[0] / self._concurrency), int(no_file_rlimit[1] / self._concurrency))
             container_id = self._docker.sync.create_container(environment, enable_network, mem_limit, task_path,
                                                               sockets_path, course_common_path,
-                                                              course_common_student_path, rlimit_per_slot, runtime,
+                                                              course_common_student_path,
+                                                              self.__get_fd_limit(), runtime,
                                                               ports)
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
@@ -483,18 +486,13 @@ class DockerAgent(Agent):
 
             try:
                 socket_path = path_join(parent_info.sockets_path, str(socket_id) + ".sock")
-                # get process *NOFILE* resource limits
-                p = psutil.Process()
-                no_file_rlimit = p.rlimit(psutil.RLIMIT_NOFILE)
-                rlimit_per_slot = (
-                    int(no_file_rlimit[0] / self._concurrency), int(no_file_rlimit[1] / self._concurrency))
                 container_id = await self._docker.create_container_student(runtime, environment,
                                                                            memory_limit, parent_info.student_path,
                                                                            socket_path,
                                                                            parent_info.systemfiles_path,
                                                                            parent_info.course_common_student_path,
                                                                            parent_info.environment_type,
-                                                                           rlimit_per_slot,
+                                                                           self.__get_fd_limit(),
                                                                            parent_info.container_id if share_network else None,
                                                                            ports)
             except Exception as e:

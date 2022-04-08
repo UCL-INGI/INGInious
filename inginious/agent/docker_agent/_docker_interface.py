@@ -106,7 +106,7 @@ class DockerInterface(object):  # pragma: no cover
             return None
 
     def create_container(self, image, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, fs_limit, runtime: str, ports=None):
+                         course_common_path, course_common_student_path, fd_limit, runtime: str, ports=None):
         """
         Creates a container.
         :param image: env to start (name/id of a docker image)
@@ -116,7 +116,7 @@ class DockerInterface(object):  # pragma: no cover
         :param sockets_path: path to the socket directory that will be mounted in the container
         :param course_common_path:
         :param course_common_student_path:
-        :param fs_limit: Tuple with soft and hard limits per slot for FS
+        :param fd_limit: Tuple with soft and hard limits per slot for FS
         :param runtime: name of the docker runtime to use
         :param ports: dictionary in the form {docker_port: external_port}
         :return: the container id
@@ -128,7 +128,7 @@ class DockerInterface(object):  # pragma: no cover
         if ports is None:
             ports = {}
 
-        nofile_limit = Ulimit(name='nofile', soft=fs_limit[0], hard=fs_limit[1])
+        nofile_limit = Ulimit(name='nofile', soft=fd_limit[0], hard=fd_limit[1])
 
         response = self._docker.containers.create(
             image,
@@ -152,9 +152,10 @@ class DockerInterface(object):  # pragma: no cover
 
     def create_container_student(self, runtime: str, image: str, mem_limit, student_path,
                                  socket_path, systemfiles_path, course_common_student_path,
-                                 parent_runtime: str,rlimit_per_slot, share_network_of_container: str=None, ports=None):
+                                 parent_runtime: str,fd_limit, share_network_of_container: str=None, ports=None):
         """
         Creates a student container
+        :param fd_limit:Tuple with soft and hard limits per slot for FS
         :param runtime: name of the docker runtime to use
         :param image: env to start (name/id of a docker image)
         :param mem_limit: in Mo
@@ -183,7 +184,7 @@ class DockerInterface(object):  # pragma: no cover
         else:
             net_mode = 'container:' + share_network_of_container
 
-        nofile_limit = Ulimit(name='nofile', soft=rlimit_per_slot[0], hard=rlimit_per_slot[1])
+        nofile_limit = Ulimit(name='nofile', soft=fd_limit[0], hard=fd_limit[1])
 
         response = self._docker.containers.create(
             image,
