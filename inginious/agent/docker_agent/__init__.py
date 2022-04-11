@@ -7,6 +7,7 @@ import asyncio
 import base64
 import logging
 import os
+import resource
 import shutil
 import struct
 import tempfile
@@ -265,10 +266,9 @@ class DockerAgent(Agent):
                 self._logger.exception("Exception in _watch_docker_events")
 
     def __get_fd_limit(self):
-        # get process *NOFILE* resource limits
-        p = psutil.Process()
-        fd_limits = p.rlimit(psutil.RLIMIT_NOFILE)
-        return (int(fd_limits[0] / self._concurrency), int(fd_limits[1] / self._concurrency))
+        """Get soft and hard fd limits per simultaneous jobs"""
+        fd_limits = resource.getrlimit(resource.RLIMIT_NOFILE)
+        return int(fd_limits[0] / self._concurrency), int(fd_limits[1] / self._concurrency)
 
     def __new_job_sync(self, message: BackendNewJob, future_results):
         """ Synchronous part of _new_job. Creates needed directories, copy files, and starts the container. """
