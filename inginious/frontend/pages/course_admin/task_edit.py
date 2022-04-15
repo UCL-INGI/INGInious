@@ -164,6 +164,8 @@ class CourseEditTask(INGIniousAdminPage):
                 data["weight"] = float(data["weight"])
             except:
                 return json.dumps({"status": "error", "message": _("Grade weight must be a floating-point number")})
+            if data["weight"] < 0:
+                return json.dumps({"status": "error", "message": _("Grade weight must be positive!")})
 
             # Groups
             if "groups" in data:
@@ -176,7 +178,7 @@ class CourseEditTask(INGIniousAdminPage):
                     data["stored_submissions"] = 0 if data["store_all"] == "true" else int(stored_submissions)
                 except:
                     return json.dumps(
-                        {"status": "error", "message": _("The number of stored submission must be positive!")})
+                        {"status": "error", "message": _("The number of stored submission must be an integer!")})
 
                 if data["store_all"] == "false" and data["stored_submissions"] <= 0:
                     return json.dumps({"status": "error", "message": _("The number of stored submission must be positive!")})
@@ -195,8 +197,13 @@ class CourseEditTask(INGIniousAdminPage):
                 else:
                     try:
                         result = {"amount": int(data["submission_limit_soft_0"]), "period": int(data["submission_limit_soft_1"])}
+                        if result['period'] < 0:
+                            return json.dumps({"status": "error", "message": _("The soft limit period must be positive!")})
                     except:
                         return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
+
+                if data['submission_limit'] != 'none' and result['amount'] < 0:
+                    return json.dumps({"status": "error", "message": _("The submission limit must be positive!")})
 
                 del data["submission_limit_hard"]
                 del data["submission_limit_soft_0"]
@@ -217,6 +224,14 @@ class CourseEditTask(INGIniousAdminPage):
                 AccessibleTime(data["accessible"])
             except Exception as message:
                 return json.dumps({"status": "error", "message": _("Invalid task accessibility ({})").format(message)})
+
+            # Random inputs
+            try:
+                data['input_random'] = int(data['input_random'])
+            except:
+                return json.dumps({"status": "error", "message": _("The number of random inputs must be an integer!")})
+            if data['input_random'] < 0:
+                return json.dumps({"status": "error", "message": _("The number of random inputs must be positive!")})
 
             # Checkboxes
             if data.get("responseIsHTML"):
