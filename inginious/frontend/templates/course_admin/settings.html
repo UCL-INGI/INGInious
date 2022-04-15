@@ -288,6 +288,25 @@
             </label>
         </div>
     </div>
+    <div class="form-group row no-lti ac_accept">
+	<label for="registration_ac_accept" class="col-sm-2 control-label">{{_("Access control type")}}</label>
+        <div class="col-sm-10">
+            <label>
+		<input type="radio" value="true" name="registration_ac_accept" id="registration_ac_accept"
+                    {% if course.get_access_control_accept() %}
+                        checked="checked"
+                    {% endif %}
+                /> {{_("Accept")}}
+            </label><br/>
+            <label>
+		<input type="radio" value="false" name="registration_ac_accept"
+		    {% if not course.get_access_control_accept() %}
+                        checked="checked"
+                    {% endif %}
+                /> {{_("Deny")}}
+            </label><br/>
+	</div>
+    </div>
     <div class="form-group row no-lti">
         <label for="registration_ac_list" class="col-sm-2 control-label">{{_("Access control list")}}</label>
         <div class="col-sm-10">
@@ -324,6 +343,14 @@
 </form>
 
 <script type="text/javascript">
+    function hideAcType() {
+	if($("#registration_ac").is(":checked")){
+	    $(".ac_accept").hide();
+	} else {
+	    $(".ac_accept").show();
+	}
+    }
+
     function updateLTI() {
         if($("#lti").is(":checked"))
         {
@@ -340,6 +367,8 @@
         updateLTI();
         $("#lti").click(updateLTI);
         $("#lti").change(updateLTI);
+        hideAcType();
+        $("[name='registration_ac']").change(hideAcType);
     })
 </script>
 {% endblock %}
