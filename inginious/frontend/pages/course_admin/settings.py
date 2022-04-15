@@ -76,7 +76,10 @@ class CourseSettingsPage(INGIniousAdminPage):
                 errors.append(_('Invalid ACL value'))
             if course_content['registration_ac'] == "None":
                 course_content['registration_ac'] = None
+
+            course_content['registration_ac_accept'] = True if data['registration_ac_accept'] == "true" else False
             course_content['registration_ac_list'] = [line.strip() for line in data['registration_ac_list'].splitlines()]
+
 
             course_content['is_lti'] = 'lti' in data and data['lti'] == "true"
             course_content['lti_url'] = data.get("lti_url", "")
