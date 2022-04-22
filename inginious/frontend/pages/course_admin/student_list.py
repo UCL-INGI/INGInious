@@ -54,7 +54,6 @@ class CourseStudentListPage(INGIniousAdminPage):
         data["delete"] = flask.request.form.getlist("delete")
         data["groupfile"] = flask.request.files.get("groupfile")
         data["audiencefile"] = flask.request.files.get("audiencefile")
-        data["audiencecreationfile"] = flask.request.files.get("audiencecreationfile")
         error = {}
         msg = {}
         active_tab = "tab_students"
@@ -199,35 +198,45 @@ class CourseStudentListPage(INGIniousAdminPage):
             active_tab = "tab_audiences"
 
         try:
-            if "upload_audiences" in data or "audiences" in data:
-                errored_students = []
-                if "upload_audiences" in data:
+            if "audiencefile" in data and 'upload_audiences_creation' in data:
+                # get the Werkzeug datastructures.FileStorage object.
+                # The stream of this object is the stream body of the uploaded file.
+                # Furthermore, FileStorage.stream seems to inherit ʻio.BufferedIOBase`, so this stream should be boiled.
+                reader = csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8'))
+                csv_data = list(reader)  # read everything else into a list of rows
+
+                for line in csv_data:
+                    if len(line) != 4:
+                        msg["audiences"] = _("File wrongly formatted.")
+                        error["audiences"] = True
+                if "audiences" not in error or not error["audiences"]:
+                    stud_list, aud_li, oth_stu, u_info = self.get_user_lists(course)
                     self.database.audiences.delete_many({"courseid": course.get_id()})
-                    audiences = custom_yaml.load(data["audiencefile"].read())
-                else:
-                    audiences = json.loads(data["audiences"])
+                    for user_id, field, role, description in csv_data:
+                        user_id = user_id.strip()
+                        field = field.strip()
+                        role = role.strip()
+                        description = description.strip()
+                        query = {"courseid": course.get_id(), "description": description}
+                        if field != "username":
+                            user = self.database.users.find_one({field: user_id})
+                            user_id = user["username"] if user is not None else ""
+                            # TODO - Handle user not found
+                        update = {"$push": {"students": user_id}} if role == "student" else {
+                            "$push": {"tutors": user_id}}
 
-                for index, new_audience in enumerate(audiences):
-                    # In case of file upload, no id specified
-                    new_audience['_id'] = new_audience['_id'] if '_id' in new_audience else 'None'
-
-                    # Update the audience
-                    audience, errors = self.update_audience(course, new_audience['_id'], new_audience)
-
-                    # If file upload was done, get the default audience id
-                    audienceid = audience['_id']
-                    errored_students += errors
-
-                if len(errored_students) > 0:
-                    msg["audiences"] = _("Changes couldn't be applied for following students :") + "<ul>"
-                    for student in errored_students:
-                        msg["audiences"] += "<li>" + student + "</li>"
-                    msg["audiences"] += "</ul>"
-                    error["audiences"] = True
-                elif not error:
-                    msg["audiences"] = _("Audience updated.")
+                        self.database.audiences.update_one(query, update, upsert=True)
+                        self.database.audiences.update_one({"courseid": course.get_id(),
+                                                            "description": description,
+                                                            'students': {'$exists': False}}, {'$set': {'students': []}})
+                        self.database.audiences.update_one({"courseid": course.get_id(),
+                                                            "description": description,
+                                                            'tutors': {'$exists': False}}, {'$set': {'tutors': []}})
+                        if user_id not in stud_list and role == "student":
+                            self.user_manager.course_register_user(course, user_id)
                 active_tab = "tab_audiences"
-        except Exception:
+        except Exception as e:
+            print(e)
             msg["audiences"] = _('An error occurred while parsing the data.')
             error["audiences"] = True
             active_tab = "tab_audiences"
@@ -284,6 +293,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                     msg["groups"] = _("Changes couldn't be applied for following students :") + "<ul>"
                     for student in errored_students:
                         msg["groups"] += "<li>" + student + "</li>"
+
                     msg["groups"] += "</ul>"
                     error["groups"] = True
                 elif not error:
@@ -292,37 +302,6 @@ class CourseStudentListPage(INGIniousAdminPage):
                 msg["groups"] = _('An error occurred while parsing the data.')
                 error["groups"] = True
             active_tab = "tab_groups"
-        if "audiencecreationfile" in data and 'upload_audiences_creation' in data:
-            reader = csv.reader(data["audiencecreationfile"].read().decode("utf-8").split("\n"))
-            for line in reader:
-                if len(line)!=4:
-                    msg["audiences"] = _("File wrongly formatted.")
-                    error["audiences"] = True
-            if not error["udiences"]:
-                stud_list, _, _, _ = self.get_user_lists(course)
-                self.database.audiences.delete_many({"courseid": course.get_id()})
-                for user_id, field, role, description in reader:
-                    user_id = user_id.strip()
-                    field = field.strip()
-                    role = role.strip()
-                    description = description.strip()
-                    query = {"courseid": course.get_id(), "description": description}
-                    if field is not "username":
-                        user = self.database.users.find_one({field: user_id})
-                        user_id = user["username"] if user is not None else ""
-                        #TODO - Handle user not found
-                    update = {"$push": {"students": user_id}} if role == "student" else {"$push": {"tutors": user_id}}
-
-                    self.database.audiences.update_one(query, update, upsert=True)
-                    self.database.audiences.update_one({"courseid": course.get_id(),
-                                                        "description": description,
-                                                        'students': {'$exists': False}}, {'$set': {'students': []}})
-                    self.database.audiences.update_one({"courseid": course.get_id(),
-                                                        "description": description,
-                                                        'tutors': {'$exists': False}}, {'$set': {'tutors': []}})
-                    if user_id not in stud_list and role == "student":
-                        self.user_manager.course_register_user(course, user_id)
-            active_tab = "tab_audiences"
         return active_tab
 
     def get_user_lists(self, course):
