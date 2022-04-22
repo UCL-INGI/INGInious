@@ -168,7 +168,7 @@ def get_app(config):
         "vi": "Tiếng Việt",
         "nl": "Nederlands",
         "de": "Deutsch",
-        "he": "Hebrew"
+        "he": "עִבְרִית"
     }
 
     available_languages = {"en": "English"}
