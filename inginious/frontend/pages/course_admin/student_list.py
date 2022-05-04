@@ -204,7 +204,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                 # Furthermore, FileStorage.stream seems to inherit ʻio.BufferedIOBase`, so this stream should be boiled.
                 reader = csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8'))
                 csv_data = list(reader)  # read everything else into a list of rows
-
+                auth_method_ids = self.user_manager.get_auth_methods().keys()
                 for line in csv_data:
                     if len(line) != 4:
                         msg["audiences"] = _("File wrongly formatted.")
@@ -215,6 +215,8 @@ class CourseStudentListPage(INGIniousAdminPage):
                     for user_id, field, role, description in csv_data:
                         user_id = user_id.strip()
                         field = field.strip()
+                        if field not in ["username", "email", "realname"] + auth_method_ids:
+                            continue
                         role = role.strip()
                         description = description.strip()
                         query = {"courseid": course.get_id(), "description": description}
