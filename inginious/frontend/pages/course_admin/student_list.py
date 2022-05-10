@@ -215,30 +215,33 @@ class CourseStudentListPage(INGIniousAdminPage):
                     for user_id, field, role, description in csv_data:
                         user_id = user_id.strip()
                         field = field.strip()
-                        if field not in ["username", "email", "realname"] + auth_method_ids:
-                            continue
                         role = role.strip()
                         description = description.strip()
-                        query = {"courseid": course.get_id(), "description": description}
+                        if field not in ["username", "email", "realname"] + list(auth_method_ids) \
+                                or role not in ["student", "tutors"]:
+                            continue
                         if field != "username":
                             user = self.database.users.find_one({field: user_id})
                             user_id = user["username"] if user is not None else ""
                             # TODO - Handle user not found
-                        update = {"$push": {"students": user_id}} if role == "student" else {
-                            "$push": {"tutors": user_id}}
+                        query = {"courseid": course.get_id(), "description": description}
 
-                        self.database.audiences.update_one(query, update, upsert=True)
-                        self.database.audiences.update_one({"courseid": course.get_id(),
-                                                            "description": description,
-                                                            'students': {'$exists': False}}, {'$set': {'students': []}})
-                        self.database.audiences.update_one({"courseid": course.get_id(),
-                                                            "description": description,
-                                                            'tutors': {'$exists': False}}, {'$set': {'tutors': []}})
+                        existing_audience = self.database.audiences.find_one(query)
+                        if not existing_audience:
+                            insert = {"courseid": course.get_id(), "description": description,
+                                      "students": [user_id], "tutors": []} \
+                                if role == "student" else \
+                                {"courseid": course.get_id(), "description": description,
+                                 "students": [], "tutors": [user_id]}
+                            self.database.audiences.insert_one(insert)
+                        else:
+                            update = {'$push': {'students': user_id}} \
+                                if role == "student" else {'$push': {'tutors': user_id}}
+                            self.database.audiences.update_one(query, update)
                         if user_id not in stud_list and role == "student":
                             self.user_manager.course_register_user(course, user_id)
                 active_tab = "tab_audiences"
-        except Exception as e:
-            print(e)
+        except Exception:
             msg["audiences"] = _('An error occurred while parsing the data.')
             error["audiences"] = True
             active_tab = "tab_audiences"
