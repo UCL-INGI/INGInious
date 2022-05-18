@@ -300,7 +300,7 @@ class ParsableText(object):
             'raw_enabled': True,
             'file_insertion_enabled': False,
             'math_output': 'MathJax /this/does/not/need/to/exist.js',
-            'line_length_limit': len(string)
+            'line_length_limit': len(string)  # Use string size to be safe.
         }
         if debug:
             overrides['halt_level'] = 2
