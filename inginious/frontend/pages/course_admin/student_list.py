@@ -202,8 +202,8 @@ class CourseStudentListPage(INGIniousAdminPage):
                 # get the Werkzeug datastructures.FileStorage object.
                 # The stream of this object is the stream body of the uploaded file.
                 # Furthermore, FileStorage.stream seems to inherit ʻio.BufferedIOBase`, so this stream should be boiled.
-                reader = csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8'))
-                csv_data = list(reader)  # read everything else into a list of rows
+                # As reader return an iterator and that we iterate twice, it is faster to cast into a list.
+                csv_data = list(csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8')))
                 auth_method_ids = self.user_manager.get_auth_methods().keys()
                 for line in csv_data:
                     if len(line) != 4:
@@ -219,11 +219,14 @@ class CourseStudentListPage(INGIniousAdminPage):
                         description = description.strip()
                         if field not in ["username", "email", "realname"] + list(auth_method_ids) \
                                 or role not in ["student", "tutors"]:
+                            msg["audiences"] = _("Some fields were not recognized.")
+                            error["audiences"] = True
                             continue
                         if field != "username":
                             user = self.database.users.find_one({field: user_id})
                             user_id = user["username"] if user is not None else ""
-                            # TODO - Handle user not found
+                            msg["audiences"] = _("Some users were not found.")
+                            error["audiences"] = True
                         query = {"courseid": course.get_id(), "description": description}
 
                         existing_audience = self.database.audiences.find_one(query)
