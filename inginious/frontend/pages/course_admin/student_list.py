@@ -235,6 +235,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                             else:
                                 msg["audiences"] = _("Some users were not found: " + user_id)
                                 error["audiences"] = True
+                                continue
                         if role == "student":
                             students_per_audience.setdefault(description, []).append(user_id)
                             course_students.append(user_id)
