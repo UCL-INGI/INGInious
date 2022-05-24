@@ -205,46 +205,62 @@ class CourseStudentListPage(INGIniousAdminPage):
                 # As reader return an iterator and that we iterate twice, it is faster to cast into a list.
                 csv_data = list(csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8')))
                 auth_method_ids = self.user_manager.get_auth_methods().keys()
+                students_per_audience = {}
+                tutors_per_audience = {}
+                course_students = []
+                course_tutors = []
+                audiences = []
                 for line in csv_data:
                     if len(line) != 4:
                         msg["audiences"] = _("File wrongly formatted.")
                         error["audiences"] = True
                 if "audiences" not in error or not error["audiences"]:
                     stud_list, aud_li, oth_stu, u_info = self.get_user_lists(course)
-                    self.database.audiences.delete_many({"courseid": course.get_id()})
+                    courseid = course.get_id()
+                    self.database.audiences.delete_many({"courseid": courseid})
                     for user_id, field, role, description in csv_data:
                         user_id = user_id.strip()
                         field = field.strip()
                         role = role.strip()
                         description = description.strip()
                         if field not in ["username", "email", "realname"] + list(auth_method_ids) \
-                                or role not in ["student", "tutors"]:
-                            msg["audiences"] = _("Some fields were not recognized.")
+                                or role not in ["student", "tutor"]:
+                            msg["audiences"] = _("Some fields were not recognized:" + field)
                             error["audiences"] = True
                             continue
                         if field != "username":
                             user = self.database.users.find_one({field: user_id})
-                            user_id = user["username"] if user is not None else ""
-                            msg["audiences"] = _("Some users were not found.")
-                            error["audiences"] = True
-                        query = {"courseid": course.get_id(), "description": description}
-
-                        existing_audience = self.database.audiences.find_one(query)
-                        if not existing_audience:
-                            insert = {"courseid": course.get_id(), "description": description,
-                                      "students": [user_id], "tutors": []} \
-                                if role == "student" else \
-                                {"courseid": course.get_id(), "description": description,
-                                 "students": [], "tutors": [user_id]}
-                            self.database.audiences.insert_one(insert)
+                            if user is not None:
+                                user_id = user["username"]
+                            else:
+                                msg["audiences"] = _("Some users were not found: " + user_id)
+                                error["audiences"] = True
+                        if role == "student":
+                            students_per_audience.setdefault(description, []).append(user_id)
+                            course_students.append(user_id)
                         else:
-                            update = {'$push': {'students': user_id}} \
-                                if role == "student" else {'$push': {'tutors': user_id}}
-                            self.database.audiences.update_one(query, update)
-                        if user_id not in stud_list and role == "student":
-                            self.user_manager.course_register_user(course, user_id)
-                active_tab = "tab_audiences"
-        except Exception:
+                            tutors_per_audience.setdefault(description, []).append(user_id)
+                            course_tutors.append(user_id)
+                    for key, value in students_per_audience.items():
+                        audiences.append({"description": key, "courseid": courseid,
+                                  "students": value, "tutors": tutors_per_audience[key] if key in tutors_per_audience else []})
+                    new_students = list(set(stud_list).union(set(course_students)))
+                    new_tutors = list(set(course.get_tutors()).union(set(course_tutors)))
+                    self.database.courses.update_one({"_id": "LFSAB1106"}, {"$set": {"students": new_students,
+                                                                                     "tutors": new_tutors}})
+                    for audience in audiences:
+                        existing_audience = self.database.audiences.find_one(
+                            {"courseid": courseid, "description": audience["description"]})
+                        if not existing_audience:
+                            self.database.audiences.insert_one(audience)
+                        else:
+                            self.database.audiences.update_one({"courseid": courseid,
+                                                                "description": audience["description"]},
+                                                               {"$set": {"students": audience["students"],
+                                                                         "tutors": audience["tutors"]}})
+
+            active_tab = "tab_audiences"
+        except Exception as e:
             msg["audiences"] = _('An error occurred while parsing the data.')
             error["audiences"] = True
             active_tab = "tab_audiences"
