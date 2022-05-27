@@ -13,8 +13,8 @@ from requests_oauthlib import OAuth2Session
 
 from inginious.frontend.user_manager import AuthMethod
 
-authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization'
-token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
+authorization_base_url = 'https://www.linkedin.com/oauth/v2/authorization'
+token_url = 'https://www.linkedin.com/oauth/v2/accessToken'
 scope = ["r_liteprofile", "r_emailaddress"]
 
 
@@ -36,7 +36,7 @@ class LinkedInAuthMethod(AuthMethod):
             r = linkedin.get('https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)')
             profile = json.loads(r.content.decode('utf-8'))
             r = linkedin.get('https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))')
-            result  = json.loads(r.content.decode('utf-8'))
+            result = json.loads(r.content.decode('utf-8'))
             for contact in result["elements"]:
                 if contact["type"] == "EMAIL":
                     profile["emailAddress"] = contact["handle~"]["emailAddress"]
