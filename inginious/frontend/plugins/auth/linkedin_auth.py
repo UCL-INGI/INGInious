@@ -10,7 +10,6 @@ import os
 import flask
 
 from requests_oauthlib import OAuth2Session
-from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 
 from inginious.frontend.user_manager import AuthMethod
 
@@ -25,7 +24,6 @@ class LinkedInAuthMethod(AuthMethod):
     """
     def get_auth_link(self, auth_storage, share=False):
         linkedin = OAuth2Session(self._client_id, scope=scope + (["w_share"] if share else []), redirect_uri=flask.request.url_root + self._callback_page)
-        linkedin = linkedin_compliance_fix(linkedin)
         authorization_url, state = linkedin.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
         return authorization_url
