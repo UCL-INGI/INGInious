@@ -10,12 +10,11 @@ import os
 import flask
 
 from requests_oauthlib import OAuth2Session
-from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 
 from inginious.frontend.user_manager import AuthMethod
 
-authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization'
-token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
+authorization_base_url = 'https://www.linkedin.com/oauth/v2/authorization'
+token_url = 'https://www.linkedin.com/oauth/v2/accessToken'
 scope = ["r_liteprofile", "r_emailaddress"]
 
 
@@ -25,7 +24,6 @@ class LinkedInAuthMethod(AuthMethod):
     """
     def get_auth_link(self, auth_storage, share=False):
         linkedin = OAuth2Session(self._client_id, scope=scope + (["w_share"] if share else []), redirect_uri=flask.request.url_root + self._callback_page)
-        linkedin = linkedin_compliance_fix(linkedin)
         authorization_url, state = linkedin.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
         return authorization_url
@@ -38,7 +36,7 @@ class LinkedInAuthMethod(AuthMethod):
             r = linkedin.get('https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)')
             profile = json.loads(r.content.decode('utf-8'))
             r = linkedin.get('https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))')
-            result  = json.loads(r.content.decode('utf-8'))
+            result = json.loads(r.content.decode('utf-8'))
             for contact in result["elements"]:
                 if contact["type"] == "EMAIL":
                     profile["emailAddress"] = contact["handle~"]["emailAddress"]
