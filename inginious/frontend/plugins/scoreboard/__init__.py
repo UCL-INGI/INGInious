@@ -160,8 +160,8 @@ class ScoreBoard(INGIniousAuthPage):
                 line.append("")
 
             # Users
-            line.append(",".join(sorted([users_realname[u] for u in user])))
-
+            line.append(",".join(sorted([users_realname[u] if u in users_realname and users_realname[u] != ''
+                                         else u for u in user])))
             if len(scoreboard_content) == 1:
                 line.append(overall_result_per_user[user]["total"])
             else:
