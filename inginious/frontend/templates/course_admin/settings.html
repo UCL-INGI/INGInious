@@ -33,7 +33,7 @@
 {% endif %}
 
 <form id="edit_course_form" action="{{get_homepath()}}/admin/{{course.get_id()}}/settings" method="post">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs mb-2">
       <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#base">{{ _("Base") }}</a>
       </li>
@@ -41,7 +41,7 @@
         <a class="nav-link" data-toggle="tab" href="#accessibility">{{ _("Accessibility") }}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#lti">{{ _("LTI") }}</a>
+        <a class="nav-link" data-toggle="tab" href="#tab_lti">{{ _("LTI") }}</a>
       </li>
     </ul>
 
@@ -322,7 +322,7 @@
             </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="lti">
+      <div class="tab-pane fade" id="tab_lti">
         <div class="form-group row">
             <label for="lti" class="col-sm-2 control-label">{{ _("Enable LTI") }}</label>
             <div class="col-sm-10">
@@ -378,13 +378,11 @@
     function updateLTI() {
         if($("#lti").is(":checked"))
         {
-            console.log("lti activé");
             $(".no-lti").hide();
             $(".lti").show();
         }
         else
         {
-            console.log("lti désactivé");
             $(".no-lti").show();
             $(".lti").hide();
         }
