@@ -101,7 +101,7 @@ class CourseSettingsPage(INGIniousAdminPage):
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
             course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
-
+        self.define_tags(course)
         return self.page(course, errors, errors is None)
 
     def page(self, course, errors=None, saved=False):
