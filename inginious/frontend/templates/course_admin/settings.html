@@ -368,11 +368,11 @@
 
 <script type="text/javascript">
     function hideAcType() {
-	if($("#registration_ac").is(":checked")){
-	    $(".ac_accept").hide();
-	} else {
-	    $(".ac_accept").show();
-	}
+        if($("#registration_ac").is(":checked")){
+            $(".ac_accept").hide();
+        } else {
+            $(".ac_accept").show();
+        }
     }
 
     function updateLTI() {
@@ -384,6 +384,7 @@
         else
         {
             $(".no-lti").show();
+            hideAcType();
             $(".lti").hide();
         }
     }
