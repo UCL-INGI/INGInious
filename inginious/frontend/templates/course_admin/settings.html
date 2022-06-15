@@ -42,7 +42,7 @@
               <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#accessibility">{{ _("Accessibility") }}</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" id="lti-nav-item">
                 <a class="nav-link" data-toggle="tab" href="#tab_lti">{{ _("LTI") }}</a>
               </li>
             </ul>
@@ -95,7 +95,18 @@
                     </label>
                 </div>
             </div>
-
+            <div class="form-group row">
+                <label for="lti" class="col-sm-2 control-label">{{ _("Enable LTI") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="checkbox" value="true" id="lti" name="lti"
+                               {% if course.is_lti() %}
+                                checked="checked"
+                               {% endif %}
+                        /> {{ _("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the group system.") }}
+                    </label><br/>
+                </div>
+            </div>
 
           </div>
 
@@ -327,18 +338,6 @@
             </div>
           </div>
           <div class="card-body tab-pane fade" id="tab_lti">
-            <div class="form-group row">
-                <label for="lti" class="col-sm-2 control-label">{{ _("Enable LTI") }}</label>
-                <div class="col-sm-10">
-                    <label>
-                        <input type="checkbox" value="true" id="lti" name="lti"
-                               {% if course.is_lti() %}
-                                checked="checked"
-                               {% endif %}
-                        /> {{ _("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the group system.") }}
-                    </label><br/>
-                </div>
-            </div>
             <div class="form-group row lti">
                 <label for="lti_url" class="col-sm-2 control-label">{{ _("External platform URL") }}</label>
                 <div class="col-sm-10">
@@ -384,12 +383,14 @@
         {
             $(".no-lti").hide();
             $(".lti").show();
+            $("#lti-nav-item").show();
         }
         else
         {
             $(".no-lti").show();
             hideAcType();
             $(".lti").hide();
+            $("#lti-nav-item").hide();
         }
     }
     $(function() {
