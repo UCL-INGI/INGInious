@@ -249,6 +249,8 @@ class CourseStudentListPage(INGIniousAdminPage):
                     new_tutors = list(set(course.get_tutors()).union(set(course_tutors)))
                     self.database.courses.update_one({"_id": courseid}, {"$set": {"students": new_students,
                                                                                      "tutors": new_tutors}})
+
+                    # this is done to avoid removing the audience id and impact the group audience filter.
                     for audience in audiences:
                         existing_audience = self.database.audiences.find_one(
                             {"courseid": courseid, "description": audience["description"]})
