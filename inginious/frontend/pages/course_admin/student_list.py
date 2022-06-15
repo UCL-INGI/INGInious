@@ -247,7 +247,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                                   "students": value, "tutors": tutors_per_audience[key] if key in tutors_per_audience else []})
                     new_students = list(set(stud_list).union(set(course_students)))
                     new_tutors = list(set(course.get_tutors()).union(set(course_tutors)))
-                    self.database.courses.update_one({"_id": "LFSAB1106"}, {"$set": {"students": new_students,
+                    self.database.courses.update_one({"_id": courseid}, {"$set": {"students": new_students,
                                                                                      "tutors": new_tutors}})
                     for audience in audiences:
                         existing_audience = self.database.audiences.find_one(
