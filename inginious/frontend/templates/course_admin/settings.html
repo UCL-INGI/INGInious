@@ -499,14 +499,12 @@
     function updateLTI() {
         if($("#lti").is(":checked"))
         {
-            console.log("lti activé");
             $(".no-lti").hide();
             $(".lti").show();
             $("#lti-nav-item").show();
         }
         else
         {
-            console.log("lti désactivé");
             $(".no-lti").show();
             hideAcType();
             $(".lti").hide();
