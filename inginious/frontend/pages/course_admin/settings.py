@@ -96,6 +96,9 @@ class CourseSettingsPage(INGIniousAdminPage):
         if tag_error is not None:
             errors.append(tag_error)
 
+        additional_fields_error = self.define_additionnal_fields(course, data, course_content)
+        if additional_fields_error is not None:
+            errors.append(additional_fields_error)
 
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
