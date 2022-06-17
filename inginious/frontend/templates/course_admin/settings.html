@@ -464,9 +464,9 @@
                     </td>
                 </tr>
 
-                {% for key,field in fields %}
-                    {% set description = tag["description"] if "description" in tag else "" %}
-                    {% set type = tag["type"] if "type" in tag else 0 %}
+                {% for key,field in course.get_descriptor().get("fields", {}).items() %}
+                    {% set description = field["description"] if "description" in field else "" %}
+                    {% set type = field["type"] if "type" in field else 0 %}
                     <tr id="{{loop.index}}">
                         <td><input type="text" id="id_field_{{loop.index}}" class="form-control" name="field[{{loop.index}}][id]" value="{{ key }}"/></td>
                         <td><textarea class="form-control" onfocus="studio_expand_description(this);" onblur="studio_expand_description_not(this);" name="field[{{loop.index}}][description]" rows="1" style="resize:none">{{description}}</textarea></td>
