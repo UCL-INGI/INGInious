@@ -104,7 +104,7 @@ class CourseSettingsPage(INGIniousAdminPage):
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
             course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
-        self.define_tags(course)
+
         return self.page(course, errors, errors is None)
 
     def page(self, course, errors=None, saved=False):
@@ -132,6 +132,27 @@ class CourseSettingsPage(INGIniousAdminPage):
             del tag["id"]
 
         course_content["tags"] = tags
+        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
+
+    def define_additionnal_fields(self, course, data, course_content):
+        fields = self.prepare_datas(data, "field")
+        if type(fields) is not dict:
+            # prepare_datas returned an error
+            return fields
+
+        # Repair fields
+        for key, field in fields.items():
+            field["type"] = int(field["type"])
+
+            if (field["id"] == "" and field["type"] != 2):
+                return _("Some fields were missing.")
+
+            if not id_checker(field["id"]):
+                return _("Invalid id: {}").format(field["id"])
+
+            del field["id"]
+
+        course_content["fields"] = fields
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def prepare_datas(self, data, prefix: str):
