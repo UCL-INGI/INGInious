@@ -140,6 +140,11 @@
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/queue"><i class="fa fa-dashboard fa-fw"></i> {{ _("Service status") }}</a>
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
                             </div>
+                            <div class="list-group" style="bottom: 0; position: fixed; width: 250px; z-index: 1O">
+                              <a class="list-group-item list-group-item-action d-md-none d-lg-block" role="button" style="width: 100%;">
+                                <i class="fa fa-user fa-fw"></i> {{ user_manager.session.realname }} <span class="caret"></span>
+                              </a>
+                            </div>
                         {% else %}
                             <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseLang" role="button" aria-expanded="false" aria-controls="collapseLang">
                                 <i class="fa fa-globe fa-fw"></i> {{ _("English") }} <span class="caret"></span>
