@@ -68,6 +68,9 @@
                     <i class="fa fa-user-times fa-fw"></i>&nbsp; {{ _("Unregister from this course") }}
                 </a>
             {% endif %}
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/custom/{{ course.get_id() }}">
+                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Custom fields") }}
+            </a>
         </div>
     {% elif not user_manager.session_logged_in() %}
         {% include "signin_button.html" %}
