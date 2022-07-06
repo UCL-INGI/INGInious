@@ -73,9 +73,15 @@
         <div class="form-group row">
             <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ key }}</label>
             {% if  custom_fields[key]["type"] == 2 %}
-                <label><input class="" type="checkbox" id="{{ key }}" name="{{ key }}">{{ custom_fields[key]["description"] }}</label>
+                <label><input class="" type="checkbox" id="{{ key }}" name="{{ key }}" {% if custom_values_user[key]=="on" %} checked {% endif %}>{{ custom_fields[key]["description"] }}</label>
             {% else %}
-                <input class="form-control col-sm-10 " type="text" id="{{ key }}" name="{{ key }}" placeholder="{{ custom_fields[key]["description"] }}">
+                <input class="form-control col-sm-10 "
+                        {% if custom_fields[key]["type"] == 0 %}
+                            type="number"
+                        {% else %}
+                            type="text"
+                        {% endif %}
+                       id="{{ key }}" name="{{ key }}" placeholder="{{ custom_fields[key]["description"] }}" value="{{ custom_values_user[key] }}">
             {% endif %}
         </div>
     {% endfor %}
