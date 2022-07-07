@@ -141,9 +141,9 @@
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
                             </div>
                             <div style="bottom: 0px; position: fixed; width: 250px; z-index: 10;" id="userBox" class="list-group">
-                                <a role="button" style="width: 100%;" class="list-group-item list-group-item-action d-md-none d-lg-block d-sm-none">
+                                <div class="list-group-item d-md-none d-lg-block d-sm-none">
                                     <i class="fa fa-user fa-fw"></i> {{ user_manager.session_realname() }}
-                                </a>
+                                </div>
                             </div>
                         {% else %}
                             <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseLang" role="button" aria-expanded="false" aria-controls="collapseLang">
