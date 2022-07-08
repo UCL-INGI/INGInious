@@ -83,6 +83,11 @@
     </div>
 {% endif %}
 
+<div id="errorLogContainer" class="col-md-12">
+    <p id="errorLog" style="color: white; margin-top: auto; margin-bottom: auto"></p>
+</div>
+<br>
+
 {% if errors %}
     {% for error in errors %}
         <div class="alert alert-danger" role="alert">
@@ -113,4 +118,48 @@
         </button>
     </div>
 </div>
+
+<script>
+	const tasksWithErrors = document.getElementsByClassName("bg-danger")
+
+	for(let task of tasksWithErrors){
+		document.getElementById("errorLogContainer").innerHTML += "<br>&nbsp &nbsp &nbsp<a href='#" + task.id + "' style='color: white; text-decoration: underline'>" + task.innerText + "</a><br>"
+	}
+
+	console.log(tasksWithErrors.length)
+
+	if(tasksWithErrors.length == 1){
+		document.getElementById("errorLog").innerText = "There is a task with some errors";
+		document.getElementById("errorLogContainer").classList.remove("d-none");
+		document.getElementById("errorLogContainer").classList.add("bg-danger"); 
+	} else if(tasksWithErrors.length > 0){
+		document.getElementById("errorLog").innerText = "There are " + tasksWithErrors.length + " tasks with some errors";
+		document.getElementById("errorLogContainer").classList.remove("d-none");
+		document.getElementById("errorLogContainer").classList.add("bg-danger");
+	} else {
+		document.getElementById("errorLogContainer").classList.add("d-none");
+	}
+
+	const list_delete_button = document.getElementsByClassName("delete_task")
+	
+	for(let del_button of list_delete_button){
+		const task_id = del_button.parentElement.parentElement.id
+		
+		del_button.addEventListener("click", () => {
+			if(del_button.parentElement.parentElement.classList.contains("bg-danger")){
+				const deletedLink = document.querySelector(`[href="#${task_id}"]`)
+				console.log(document.getElementById("errorLogContainer").children)
+				console.log(deletedLink.previousSibling)
+				deletedLink.previousSibling.remove()
+				deletedLink.previousSibling.remove()
+				deletedLink.nextSibling.remove()
+				deletedLink.remove()
+				console.log(document.getElementById("errorLogContainer").children)
+				if(document.getElementById("errorLogContainer").children.length == 1){
+					document.getElementById("errorLogContainer").classList.add("d-none")
+				}
+			}
+		})
+	}
+</script>
 {% endblock %}
