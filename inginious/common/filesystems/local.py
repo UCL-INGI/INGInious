@@ -145,7 +145,7 @@ class LocalFSProvider(FileSystemProvider):
             dirname = os.path.dirname(dest)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            shutil.copy(src, dest, follow_symlinks=False)
+            shutil.copy2(src, dest, follow_symlinks=False)
 
     def distribute(self, filepath, allow_folders=True):
         self._checkpath(filepath)
