@@ -33,322 +33,349 @@
 {% endif %}
 
 <form id="edit_course_form" action="{{get_homepath()}}/admin/{{course.get_id()}}/settings" method="post">
-    <div class="form-group row">
-        <label for="name" class="col-sm-2 control-label">{{ _("Name") }}</label>
-        <div class="col-sm-10">
-            <input type="text" class="form-control" id="name" name="name" placeholder="title" value="{{ course.get_name(user_manager.session_language()) }}">
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#base">{{ _("Base") }}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#accessibility">{{ _("Accessibility") }}</a>
+              </li>
+              <li class="nav-item" id="lti-nav-item">
+                <a class="nav-link" data-toggle="tab" href="#tab_lti">{{ _("LTI") }}</a>
+              </li>
+            </ul>
         </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2 control-label"> {{_("Administrators") }}</label>
-        <div class="col-sm-10">
-            {{ user_selection_box(course_id=course.get_id(), current_users=course.get_admins(), name="admins", id="admins", placeholder=_("Enter something here to search for a user")) | safe }}
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2 control-label"> {{_("Tutors") }}</label>
-        <div class="col-sm-10">
-            {{ user_selection_box(course_id=course.get_id(), current_users=course.get_tutors(), name="tutors", id="tutors", placeholder=_("Enter something here to search for a user")) | safe }}
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="description" class="col-sm-2 control-label">{{ _("Description") }} </label>
-        <div class="col-sm-10">
-            <textarea id="description" class="code-editor form-control" name="description" data-x-language="rst" data-x-lines="10">{{ course.get_descriptor().get('description','') }}</textarea>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="allow_preview" class="col-sm-2 control-label">{{ _("Course preview") }}</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="radio" value="true" name="allow_preview" id="allow_preview"
-                    {% if course.allow_preview() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Allowed (read-only for non-registered users)") }}
-            </label><br/>
-            <label>
-                <input type="radio" value="false" name="allow_preview"
-                    {% if not course.allow_preview() %}
-                        checked="checked"
-                    {% endif %}
-                />  {{ _("Not allowed") }}
-            </label>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="lti" class="col-sm-2 control-label">{{ _("Enable LTI") }}</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="checkbox" value="true" id="lti" name="lti"
-                       {% if course.is_lti() %}
-                        checked="checked"
-                       {% endif %}
-                /> {{ _("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the group system.") }}
-            </label><br/>
-        </div>
-    </div>
-    <div class="form-group row no-lti">
-        <label class="col-sm-2 control-label">{{ _("Group attribution") }}</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="radio" value="false" name="groups_student_choice"
-                    {% if not course.can_students_choose_group() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Staff only") }}
-            </label><br/>
-            <label>
-                <input type="radio" value="true" name="groups_student_choice"
-                    {% if course.can_students_choose_group() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Staff and students") }}
-            </label>
-        </div>
-    </div>
-    <div class="form-group row no-lti">
-        <label class="col-sm-2 control-label">{{_("Accessibility")}}</label>
-        <div class="col-sm-10">
-            {% set at = course.get_accessibility(False) %}
-            <label>
-                <input type="radio" value="false" name="accessible"
-                    {% if at.is_never_accessible() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Course hidden from students") }}
-            </label><br/>
-            <label>
-                <input type="radio" value="true" name="accessible"
-                    {% if at.is_always_accessible() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Always accessible") }}
-            </label><br/>
-            <label>
-                <input type="radio" value="custom" name="accessible"
-                    {% if not at.is_never_accessible() and not at.is_always_accessible() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Custom:") }}
-            </label>
 
-            <div class="row">
-                <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("From") }}</label></div>
-                <div class="col-xs-10 col-lg-4">
-                    <div class="form-group">
-                        <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
-                                <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
 
-                        </div>
-                    </div>
-
-                </div>
-                <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("To") }}</label></div>
-                <div class="col-xs-10 col-lg-4">
-                    <div class="form-group">
-                        <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
-                                <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-
-                        </div>
-                    </div>
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div class="card-body tab-pane active" id="base">
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 control-label">{{ _("Name") }}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="title" value="{{ course.get_name(user_manager.session_language()) }}">
                 </div>
             </div>
-            <script type="text/javascript">
-                $(function() {
-                    $('#accessible_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                    $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                });
-            </script>
-        </div>
-    </div>
-    <div class="form-group row no-lti">
-        <label class="col-sm-2 control-label">{{_("Registration")}}</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="radio" value="false" name="registration"
-                    {%if course.get_registration_accessibility().is_never_accessible() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("Closed")}}
-            </label><br/>
-            <label>
-                <input type="radio" value="true" name="registration"
-                    {%if course.get_registration_accessibility().is_always_accessible() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("Always open")}}
-            </label><br/>
-            <label>
-                <input type="radio" value="custom" name="registration"
-                    {% if not course.get_registration_accessibility().is_never_accessible() and not course.get_registration_accessibility().is_always_accessible() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("Custom:")}}
-            </label>
-            {% set at = course.get_registration_accessibility() %}
-            <div class="row">
-                <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("From") }}</label></div>
-                <div class="col-xs-10 col-lg-4">
-                    <div class="form-group">
-                        <div class='input-group date' id='registration_start_picker' data-target-input="nearest">
-                                <input data-target='#registration_start_picker' name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                <div class="input-group-append" data-target="#registration_start_picker" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+            <div class="form-group row">
+                <label class="col-sm-2 control-label"> {{_("Administrators") }}</label>
+                <div class="col-sm-10">
+                    {{ user_selection_box(course_id=course.get_id(), current_users=course.get_admins(), name="admins", id="admins", placeholder=_("Enter something here to search for a user")) | safe }}
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 control-label"> {{_("Tutors") }}</label>
+                <div class="col-sm-10">
+                    {{ user_selection_box(course_id=course.get_id(), current_users=course.get_tutors(), name="tutors", id="tutors", placeholder=_("Enter something here to search for a user")) | safe }}
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="description" class="col-sm-2 control-label">{{ _("Description") }} </label>
+                <div class="col-sm-10">
+                    <textarea id="description" class="code-editor form-control" name="description" data-x-language="rst" data-x-lines="10">{{ course.get_descriptor().get('description','') }}</textarea>
+                </div>
+            </div>
+            <div class="form-group row no-lti">
+                <label class="col-sm-2 control-label">{{ _("Group attribution") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="radio" value="false" name="groups_student_choice"
+                            {% if not course.can_students_choose_group() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Staff only") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="true" name="groups_student_choice"
+                            {% if course.can_students_choose_group() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Staff and students") }}
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="lti" class="col-sm-2 control-label">{{ _("Enable LTI") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="checkbox" value="true" id="lti" name="lti"
+                               {% if course.is_lti() %}
+                                checked="checked"
+                               {% endif %}
+                        /> {{ _("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the group system.") }}
+                    </label><br/>
+                </div>
+            </div>
+
+          </div>
+
+          <div class="card-body tab-pane fade" id="accessibility">
+            <div class="form-group row">
+                <label for="allow_preview" class="col-sm-2 control-label">{{ _("Course preview") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="radio" value="true" name="allow_preview" id="allow_preview"
+                            {% if course.allow_preview() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Allowed (read-only for non-registered users)") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="false" name="allow_preview"
+                            {% if not course.allow_preview() %}
+                                checked="checked"
+                            {% endif %}
+                        />  {{ _("Not allowed") }}
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row no-lti">
+                <label class="col-sm-2 control-label">{{_("Accessibility")}}</label>
+                <div class="col-sm-10">
+                    {% set at = course.get_accessibility(False) %}
+                    <label>
+                        <input type="radio" value="false" name="accessible"
+                            {% if at.is_never_accessible() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Course hidden from students") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="true" name="accessible"
+                            {% if at.is_always_accessible() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Always accessible") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="custom" name="accessible"
+                            {% if not at.is_never_accessible() and not at.is_always_accessible() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Custom:") }}
+                    </label>
+
+                    <div class="row">
+                        <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("From") }}</label></div>
+                        <div class="col-xs-10 col-lg-4">
+                            <div class="form-group">
+                                <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
+                                        <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+
                                 </div>
+                            </div>
 
                         </div>
-                    </div>
-                </div>
-                <div class="col-xs-2 col-lg-2"><label class="control-label">{{_("To")}}</label></div>
-                <div class="col-xs-10 col-lg-4">
-                    <div class="form-group">
-                            <div class='input-group date' id='registration_end_picker' data-target-input="nearest">
-                                    <input data-target='#registration_end_picker' name="registration_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                    <div class="input-group-append" data-target="#registration_end_picker" data-toggle="datetimepicker">
-                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
+                        <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("To") }}</label></div>
+                        <div class="col-xs-10 col-lg-4">
+                            <div class="form-group">
+                                <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
+                                        <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
 
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('#accessible_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                            $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                        });
+                    </script>
                 </div>
             </div>
-            <script type="text/javascript">
-                $(function() {
-                    $('#registration_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                    $('#registration_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                });
-            </script>
+            <div class="form-group row no-lti">
+                <label class="col-sm-2 control-label">{{_("Registration")}}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="radio" value="false" name="registration"
+                            {%if course.get_registration_accessibility().is_never_accessible() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("Closed")}}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="true" name="registration"
+                            {%if course.get_registration_accessibility().is_always_accessible() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("Always open")}}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="custom" name="registration"
+                            {% if not course.get_registration_accessibility().is_never_accessible() and not course.get_registration_accessibility().is_always_accessible() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("Custom:")}}
+                    </label>
+                    {% set at = course.get_registration_accessibility() %}
+                    <div class="row">
+                        <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("From") }}</label></div>
+                        <div class="col-xs-10 col-lg-4">
+                            <div class="form-group">
+                                <div class='input-group date' id='registration_start_picker' data-target-input="nearest">
+                                        <input data-target='#registration_start_picker' name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <div class="input-group-append" data-target="#registration_start_picker" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-lg-2"><label class="control-label">{{_("To")}}</label></div>
+                        <div class="col-xs-10 col-lg-4">
+                            <div class="form-group">
+                                    <div class='input-group date' id='registration_end_picker' data-target-input="nearest">
+                                            <input data-target='#registration_end_picker' name="registration_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                            <div class="input-group-append" data-target="#registration_end_picker" data-toggle="datetimepicker">
+                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('#registration_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                            $('#registration_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="form-group row no-lti">
+                <label class="col-sm-2 control-label">{{ _("Allow auto-unregistration") }}</label>
+                {% set allow_unregister = course.allow_unregister(False) %}
+                <div class="col-sm-10">
+                    <label>
+                        <input type="radio" value="true" name="allow_unregister"
+                            {% if allow_unregister %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Yes") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="false" name="allow_unregister" id="allow_unregister"
+                            {% if not allow_unregister %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("No") }}
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row no-lti">
+                <label for="name" class="col-sm-2 control-label">{{ _("Registration password") }}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="registration_password" name="registration_password"
+                    placeholder="{{ _('Password needed for registration. Leave blank if you don\'t want to set a password.') }}"
+                    value="{{ course.get_registration_password() | default('', true) }}">
+                </div>
+            </div>
+            <div class="form-group row no-lti">
+                <label for="registration_ac" class="col-sm-2 control-label">{{ _("Access control") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="radio" value="None" name="registration_ac" id="registration_ac"
+                            {% if course.get_access_control_method() is none %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("No access control (everyone can register)")}}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="username" name="registration_ac"
+                            {% if course.get_access_control_method() == "username" %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("Check by username")}}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="binding" name="registration_ac"
+                            {% if course.get_access_control_method() == "binding" %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Check by authentication binding") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="email" name="registration_ac"
+                            {% if course.get_access_control_method() == "email" %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ _("Check by email") }}
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row no-lti ac_accept">
+                <label for="registration_ac_accept" class="col-sm-2 control-label">{{_("Access control type")}}</label>
+                <div class="col-sm-10">
+                    <label>
+                <input type="radio" value="true" name="registration_ac_accept" id="registration_ac_accept"
+                            {% if course.get_access_control_accept() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("Accept")}}
+                    </label><br/>
+                    <label>
+                <input type="radio" value="false" name="registration_ac_accept"
+                    {% if not course.get_access_control_accept() %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{_("Deny")}}
+                    </label><br/>
+                </div>
+            </div>
+            <div class="form-group row no-lti">
+                <label for="registration_ac_list" class="col-sm-2 control-label">{{_("Access control list")}}</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="registration_ac_list" name="registration_ac_list" rows="10" placeholder="{{ _('Only used if access control is activated. Separate users by new lines.') }}">{{ course.get_access_control_list() | join('\n') }}</textarea>
+                </div>
+            </div>
+          </div>
+          <div class="card-body tab-pane fade" id="tab_lti">
+            <div class="form-group row lti">
+                <label for="lti_url" class="col-sm-2 control-label">{{ _("External platform URL") }}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="lti_url" name="lti_url" placeholder="{{ _('External platform URL') }}" value="{{course.lti_url()}}">
+                </div>
+            </div>
+            <div class="form-group row lti">
+                <label for="lti_keys" class="col-sm-2 control-label">{{ _("LTI keys") }}</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="lti_keys" name="lti_keys" rows="10" placeholder="{{ _('LTI keys in the form name:key, separated by newlines. Please ensure keys are long enough and random.') }}"
+                    >{% for a,b in course.lti_keys().items() %}{{a ~ ":" ~ b ~ "\n"}}{%endfor %}</textarea>
+                </div>
+            </div>
+            <div class="form-group row lti">
+                <label for="lti_send_back_grade" class="col-sm-2 control-label">{{ _("Send back grades") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="checkbox" value="true" id="lti_send_back_grade" name="lti_send_back_grade"
+                               {% if course.lti_send_back_grade() %}
+                                    checked="checked"
+                               {% endif %}
+                        /> {{ _("Enable this to send back grades to the calling Tool Consumer (which is, most of the time, your LMS). INGInious will deactivate students' access to the course and tasks from the web application when enabled. Tasks will be only available from the LTI interface.") }}
+                    </label><br/>
+                </div>
+            </div>
+          </div>
         </div>
+        <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-download"></i> {{ _("Save changes") }}</button>
     </div>
-    <div class="form-group row no-lti">
-        <label class="col-sm-2 control-label">{{ _("Allow auto-unregistration") }}</label>
-        {% set allow_unregister = course.allow_unregister(False) %}
-        <div class="col-sm-10">
-            <label>
-                <input type="radio" value="true" name="allow_unregister"
-                    {% if allow_unregister %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Yes") }}
-            </label><br/>
-            <label>
-                <input type="radio" value="false" name="allow_unregister" id="allow_unregister"
-                    {% if not allow_unregister %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("No") }}
-            </label>
-        </div>
-    </div>
-    <div class="form-group row no-lti">
-        <label for="name" class="col-sm-2 control-label">{{ _("Registration password") }}</label>
-        <div class="col-sm-10">
-            <input type="text" class="form-control" id="registration_password" name="registration_password" 
-            placeholder="{{ _('Password needed for registration. Leave blank if you don\'t want to set a password.') }}"
-            value="{{ course.get_registration_password() | default('', true) }}">
-        </div>
-    </div>
-    <div class="form-group row no-lti">
-        <label for="registration_ac" class="col-sm-2 control-label">{{ _("Access control") }}</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="radio" value="None" name="registration_ac" id="registration_ac"
-                    {% if course.get_access_control_method() is none %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("No access control (everyone can register)")}}
-            </label><br/>
-            <label>
-                <input type="radio" value="username" name="registration_ac"
-                    {% if course.get_access_control_method() == "username" %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("Check by username")}}
-            </label><br/>
-            <label>
-                <input type="radio" value="binding" name="registration_ac"
-                    {% if course.get_access_control_method() == "binding" %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Check by authentication binding") }}
-            </label><br/>
-            <label>
-                <input type="radio" value="email" name="registration_ac"
-                    {% if course.get_access_control_method() == "email" %}
-                        checked="checked"
-                    {% endif %}
-                /> {{ _("Check by email") }}
-            </label>
-        </div>
-    </div>
-    <div class="form-group row no-lti ac_accept">
-	<label for="registration_ac_accept" class="col-sm-2 control-label">{{_("Access control type")}}</label>
-        <div class="col-sm-10">
-            <label>
-		<input type="radio" value="true" name="registration_ac_accept" id="registration_ac_accept"
-                    {% if course.get_access_control_accept() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("Accept")}}
-            </label><br/>
-            <label>
-		<input type="radio" value="false" name="registration_ac_accept"
-		    {% if not course.get_access_control_accept() %}
-                        checked="checked"
-                    {% endif %}
-                /> {{_("Deny")}}
-            </label><br/>
-	</div>
-    </div>
-    <div class="form-group row no-lti">
-        <label for="registration_ac_list" class="col-sm-2 control-label">{{_("Access control list")}}</label>
-        <div class="col-sm-10">
-            <textarea class="form-control" id="registration_ac_list" name="registration_ac_list" rows="10" placeholder="{{ _('Only used if access control is activated. Separate users by new lines.') }}">{{ course.get_access_control_list() | join('\n') }}</textarea>
-        </div>
-    </div>
-    <div class="form-group row lti">
-        <label for="lti_url" class="col-sm-2 control-label">{{ _("External platform URL") }}</label>
-        <div class="col-sm-10">
-            <input type="text" class="form-control" id="lti_url" name="lti_url" placeholder="{{ _('External platform URL') }}" value="{{course.lti_url()}}">
-        </div>
-    </div>
-    <div class="form-group row lti">
-        <label for="lti_keys" class="col-sm-2 control-label">{{ _("LTI keys") }}</label>
-        <div class="col-sm-10">
-            <textarea class="form-control" id="lti_keys" name="lti_keys" rows="10" placeholder="{{ _('LTI keys in the form name:key, separated by newlines. Please ensure keys are long enough and random.') }}"
-            >{% for a,b in course.lti_keys().items() %}{{a ~ ":" ~ b ~ "\n"}}{%endfor %}</textarea>
-        </div>
-    </div>
-    <div class="form-group row lti">
-        <label for="lti_send_back_grade" class="col-sm-2 control-label">{{ _("Send back grades") }}</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="checkbox" value="true" id="lti_send_back_grade" name="lti_send_back_grade"
-                       {% if course.lti_send_back_grade() %}
-                            checked="checked"
-                       {% endif %}
-                /> {{ _("Enable this to send back grades to the calling Tool Consumer (which is, most of the time, your LMS). INGInious will deactivate students' access to the course and tasks from the web application when enabled. Tasks will be only available from the LTI interface.") }}
-            </label><br/>
-        </div>
-    </div>
-    <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-download"></i> {{ _("Save changes") }}</button>
-    
 </form>
 
 <script type="text/javascript">
     function hideAcType() {
-	if($("#registration_ac").is(":checked")){
-	    $(".ac_accept").hide();
-	} else {
-	    $(".ac_accept").show();
-	}
+        if($("#registration_ac").is(":checked")){
+            $(".ac_accept").hide();
+        } else {
+            $(".ac_accept").show();
+        }
     }
 
     function updateLTI() {
@@ -356,11 +383,14 @@
         {
             $(".no-lti").hide();
             $(".lti").show();
+            $("#lti-nav-item").show();
         }
         else
         {
             $(".no-lti").show();
+            hideAcType();
             $(".lti").hide();
+            $("#lti-nav-item").hide();
         }
     }
     $(function() {
