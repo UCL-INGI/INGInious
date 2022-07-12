@@ -54,8 +54,8 @@
         <div role="tabpanel" class="card-body tab-pane active" id="tab_students">
             {% set len_all_users = user_data|length %}
             {% set len_staff = course.get_staff()|length %}
-            <p>{{ _("Number of students") }} : {{ len_all_users - len_staff }}</p>
             {% with user_data=user_data[len_staff:len_all_users], is_staff=False %}
+                <p>{{ _("Number of students") }} : {{ user_data | length }}</p>
                 {% include "course_admin/student_list_table.html" %}
             {% endwith %}
             {% if user_manager.has_admin_rights_on_course(course) %}
