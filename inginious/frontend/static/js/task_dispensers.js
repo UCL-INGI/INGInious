@@ -197,9 +197,7 @@ function dispenser_util_delete_task(button, keep_files, taskid){
 
     const tasksWithErrors = $(".bg-danger")
 
-    if(tasksWithErrors.length == 1){
-	$("#errorLogContainer").removeClass("d-none");
-    } else if(tasksWithErrors.length > 0){
+    if(tasksWithErrors.length > 0){
 	$("#errorLogContainer").removeClass("d-none");
     } else {
 	$("#errorLogContainer").addClass("d-none");
