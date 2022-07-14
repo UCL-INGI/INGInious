@@ -60,6 +60,9 @@
     </div>
 </div>
 
+<div id="errorLogContainer" class="alert alert-danger" role="alert"></div>
+<br>
+
 {% if webdav_host %}
     <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">
         <div class="card border-info">
@@ -113,4 +116,17 @@
         </button>
     </div>
 </div>
+
+<script>
+	const tasksWithErrors = document.getElementsByClassName("bg-danger")
+
+	for(let task of tasksWithErrors){
+		$("#errorLogContainer").append($("<a></a>").attr("href", "#" + task.id).addClass("alert").text(task.innerText))
+		$("#errorLogContainer").append($("<br></br>"))
+	}
+
+	if(tasksWithErrors.length === 0)
+		$("#errorLogContainer").addClass("d-none")
+</script>
+
 {% endblock %}
