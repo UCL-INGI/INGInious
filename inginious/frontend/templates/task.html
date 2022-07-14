@@ -394,6 +394,9 @@
                             {{ _("Question {}").format(loop.index) }}:
                         {% endif %}
                         {{ problem.get_name(user_manager.session_language()) }}
+			{% if problem.is_optional() %}
+   			    - Optional
+   			{% endif %}
                     </h5>
 
                 </div>
