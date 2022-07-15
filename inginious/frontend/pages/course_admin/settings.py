@@ -136,7 +136,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content["tags"] = tags
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
-    def define_additional_fields(self, data):
+    def define_additionnal_fields(self, course, data, course_content):
         """Additional field definition method"""
         fields = self.prepare_datas(data, "field")
         if not isinstance(fields, dict):
@@ -144,11 +144,12 @@ class CourseSettingsPage(INGIniousAdminPage):
             return fields
 
         # Repair fields
-        for field in fields.values():
-            try:
-                field["type"] = FieldTypes(int(field["type"])).value
-            except:
-                return _("Invalid type value: {}").format(field["type"])
+        for key, field in fields.items():
+            field["type"] = int(field["type"])
+
+            if (field["id"] == "" and field["type"] != 2):
+                return _("Some fields were missing.")
+
             if not id_checker(field["id"]):
                 return _("Invalid id: {}").format(field["id"])
 
