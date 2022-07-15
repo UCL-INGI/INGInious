@@ -24,9 +24,9 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
     def get_type_name(cls, language):
         pass
 
-    @classmethod
     @abstractmethod
     def is_optional(self):
+        """ check if the problem is optional or not """
         pass
 
     def adapt_input_for_backend(self, input_data):
