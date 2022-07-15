@@ -191,11 +191,11 @@ function dispenser_util_delete_task(button, keep_files, taskid){
     const parent = task.closest(".tasks_list");
     task.remove()
 
-        const deletedLink = $(`a[href="#task_${taskid}"]`)
-    deletedLink.next().remove()
-    deletedLink.remove()
+    const deletedLink = $(`a[href="#task_${taskid}"]`);
+    deletedLink.next().remove();
+    deletedLink.remove();
 
-    const tasksWithErrors = $(".bg-danger")
+    const tasksWithErrors = $(".bg-danger");
 
     if(tasksWithErrors.length > 0){
         $("#errorLogContainer").removeClass("d-none");
