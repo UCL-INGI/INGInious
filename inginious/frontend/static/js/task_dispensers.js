@@ -187,9 +187,21 @@ function dispenser_util_delete_task(button, keep_files, taskid){
     if(wipe){
         dispenser_wipe_task(taskid)
     }
+    
     const task = $("#task_" + taskid);
     const parent = task.closest(".tasks_list");
-    task.remove()
+    task.remove();
+    const deletedLink = $(`a[href="#task_${taskid}"]`);
+    deletedLink.next().remove();
+    deletedLink.remove();
+
+    const tasksWithErrors = $(".bg-danger");
+
+    if(tasksWithErrors.length > 0){
+	$("#errorLogContainer").removeClass("d-none");
+    } else {
+	$("#errorLogContainer").addClass("d-none");
+    }
 
     warn_before_exit = true;
     dispenser_util_content_modified(parent);
