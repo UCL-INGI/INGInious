@@ -117,7 +117,6 @@ class CourseSettingsPage(INGIniousAdminPage):
         # Repair tags
         for key, tag in tags.items():
             # Since unchecked checkboxes are not present here, we manually add them to avoid later errors
-            print(tag)
             tag["visible"] = "visible" in tag
             tag["type"] = int(tag["type"])
 
