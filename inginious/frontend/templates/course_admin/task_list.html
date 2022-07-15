@@ -83,6 +83,9 @@
     </div>
 {% endif %}
 
+<div id="errorLogContainer" class="alert alert-danger" role="alert"></div>
+<br>
+
 {% if errors %}
     {% for error in errors %}
         <div class="alert alert-danger" role="alert">
@@ -113,4 +116,16 @@
         </button>
     </div>
 </div>
+
+<script>
+    const tasksWithErrors = document.getElementsByClassName("bg-danger")
+
+    for(let task of tasksWithErrors){
+        $("#errorLogContainer").append(`<a href="#${task.id}" class="alert">${task.innerText}</a><br></br>`)
+    }
+
+    if(tasksWithErrors.length === 0)
+        $("#errorLogContainer").addClass("d-none")
+</script>
+
 {% endblock %}
