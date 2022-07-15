@@ -24,6 +24,11 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
     def get_type_name(cls, language):
         pass
 
+    @classmethod
+    @abstractmethod
+    def is_optional(self):
+        pass
+
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the inginious.backend """
         return input_data
@@ -54,6 +59,10 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     @classmethod
     def get_type_name(cls, language):
         return _("code")
+
+    @classmethod
+    def is_optional(self):
+        return self._optional
 
     def adapt_input_for_backend(self, input_data):
         return input_data
@@ -88,6 +97,10 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
     def get_type_name(cls, language):
         return _("single-line code")
 
+    @classmethod
+    def is_optional(self):
+        return self._optional
+
     def show_input(self, template_helper, language, seed):
         """ Show InputBox """
         header = ParsableText(self.gettext(language, self._header), "rst",
@@ -113,6 +126,10 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
     @classmethod
     def get_type_name(cls, language):
         return _("file upload")
+
+    @classmethod
+    def is_optional(self):
+        return False
 
     def adapt_input_for_backend(self, input_data):
         try:
@@ -147,6 +164,10 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
     @classmethod
     def get_type_name(cls, language):
         return _("multiple choice")
+
+    @classmethod
+    def is_optional(self):
+        return self._optional
 
     def show_input(self, template_helper, language, seed):
         """ Show multiple choice problems """
@@ -217,6 +238,10 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     @classmethod
     def get_type_name(cls, language):
         return _("match")
+
+    @classmethod
+    def is_optional(self):
+        return self._optional
 
     def show_input(self, template_helper, language, seed):
         """ Show MatchProblem """
