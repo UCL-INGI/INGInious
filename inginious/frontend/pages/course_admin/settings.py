@@ -135,6 +135,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def define_additionnal_fields(self, course, data, course_content):
+        """Additional field definition method"""
         fields = self.prepare_datas(data, "field")
         if not isinstance(fields, dict):
             # prepare_datas returned an error
