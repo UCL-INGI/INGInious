@@ -349,8 +349,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     if user_manager.has_admin_rights_on_course(course):
         default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks"))]
 
-    default_entries += [("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),
-                        ("submissions", "<i class='fa fa-file-code-o fa-fw'></i>&nbsp; " + _("Submissions"))]
+    default_entries += [("submissions", "<i class='fa fa-file-code-o fa-fw'></i>&nbsp; " + _("Submissions"))]
 
     if user_manager.has_admin_rights_on_course(course):
         default_entries += [("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]

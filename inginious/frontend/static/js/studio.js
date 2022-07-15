@@ -634,17 +634,17 @@ function studio_get_feedback(sid)
  * Functions for tags edition. Use in tags.html
  */
 
-function studio_expand_tag_description(elem){
+function studio_expand_description(elem){
     elem.rows = 5;
 }
-function studio_expand_tag_description_not(elem){
+function studio_expand_description_not(elem){
     elem.rows = 1;
 }
 // Add a new line to the tag table
-function studio_add_tag_line(line) {
+function studio_add_table_line(line,target,target_blank_row) {
 
-    var new_row = $("#NEW").clone();
-    var new_id = 1 + parseInt($('#table tr:last').attr('id'));
+    var new_row = $("#"+target_blank_row).clone();
+    var new_id = 1 + parseInt($('#'+target+' tr:last').attr('id'));
     if (isNaN(new_id))
         new_id = 0
             
@@ -673,7 +673,7 @@ function studio_add_tag_line(line) {
     modified_row = modified_row.replace("type_replace_"+type, 'selected="selected"');
     modified_row = modified_row.replace("id_stop", "");
 
-    $('#table').find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
+    $('#'+target).find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
     new_row.show();
 }
 
