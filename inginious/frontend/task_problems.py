@@ -60,7 +60,6 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     def get_type_name(cls, language):
         return _("code")
 
-    @classmethod
     def is_optional(self):
         return self._optional
 
@@ -97,7 +96,6 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
     def get_type_name(cls, language):
         return _("single-line code")
 
-    @classmethod
     def is_optional(self):
         return self._optional
 
@@ -127,7 +125,6 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
     def get_type_name(cls, language):
         return _("file upload")
 
-    @classmethod
     def is_optional(self):
         return False
 
@@ -165,7 +162,6 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
     def get_type_name(cls, language):
         return _("multiple choice")
 
-    @classmethod
     def is_optional(self):
         return self._optional
 
@@ -239,7 +235,6 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     def get_type_name(cls, language):
         return _("match")
 
-    @classmethod
     def is_optional(self):
         return self._optional
 
