@@ -136,7 +136,7 @@ class CourseSettingsPage(INGIniousAdminPage):
 
     def define_additionnal_fields(self, course, data, course_content):
         fields = self.prepare_datas(data, "field")
-        if type(fields) is not dict:
+        if not isinstance(fields, dict):
             # prepare_datas returned an error
             return fields
 
