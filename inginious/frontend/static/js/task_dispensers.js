@@ -367,6 +367,12 @@ function dispenser_util_get_sections_list(element) {
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
+        
+        weights = dispenser_util_get_weights();
+        if(Object.keys(weights).length > 0){
+            structure["weights"] = weights;
+        }
+ 
         return structure;
     }).get();
 }
@@ -380,6 +386,32 @@ function dispenser_util_get_section_config(element) {
             config_list[this.id] = this.value;
     });
     return config_list;
+}
+
+function dispenser_util_get_weights() {
+    const weight_list = {};
+    $(".weight").each(function(index){
+        weight = parseFloat(this.value)
+        if(weight > 1){
+            weight_list[this.id] = weight
+        }
+        else if(isNaN(weight) && this.value !== ""){
+            document.getElementById("main-content").innerHTML = 
+                '<div class="alert alert-danger" role="alert">' + 
+                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
+                    'The weights must be values' + 
+                '</div>' + document.getElementById("main-content").innerHTML;
+            throw("The weights must be values")
+        }else if(weight < 1){
+            document.getElementById("main-content").innerHTML = 
+                '<div class="alert alert-danger" role="alert">' + 
+                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
+                    'The weights must be >= 1' + 
+                '</div>' + document.getElementById("main-content").innerHTML;
+            throw("The weights must be >= 1")
+        }
+    })
+    return weight_list;
 }
 
 function dispenser_util_get_tasks_list(element) {

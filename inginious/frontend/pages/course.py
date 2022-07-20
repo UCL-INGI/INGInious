@@ -88,6 +88,8 @@ class CoursePage(INGIniousAuthPage):
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
 
+            course_grade = course.get_task_dispenser().get_course_grade(username, course, user_task_list)
+            
             # Get tag list
             tag_list = course.get_tags()
 

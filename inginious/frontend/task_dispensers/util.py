@@ -160,6 +160,10 @@ class TerminalSection(Section):
         if not all(id_checker(id) for id in structure["tasks_list"]):
             raise InvalidTocException(_("One task id contains non alphanumerical characters"))
         self._task_list = [task for task, _ in sorted(structure["tasks_list"].items(), key=lambda x: x[1])]
+        if "weights" in structure:
+            self._weights = structure["weights"]
+        else:
+            self._weights = {}
 
     def is_terminal(self):
         return True
@@ -203,7 +207,7 @@ class TerminalSection(Section):
         :return: The structure in YAML format
         """
         return {"id": self._id, "rank": rank, "title": self._title,
-                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}}
+                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights}
 
 
 def check_toc(toc):
