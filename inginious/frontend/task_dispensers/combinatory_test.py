@@ -11,6 +11,7 @@ class CombinatoryTest(TaskDispenser):
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         self._task_list_func = task_list_func
         self._data = SectionsList(dispenser_data)
+        self._database = database
 
     @classmethod
     def get_id(cls):
@@ -19,6 +20,34 @@ class CombinatoryTest(TaskDispenser):
     @classmethod
     def get_name(cls, language):
         return _("Combinatory test")
+
+    def get_course_grade(self, username, course, user_task_list):
+        tasks = course.get_tasks()
+        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in user_task_list}
+        user_tasks = self._database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": user_task_list}})
+        tasks_score = [0.0, 0.0]
+
+        for taskid in user_task_list:
+            tasks_score[1] += tasks[taskid].get_grading_weight()
+
+        for user_task in user_tasks:
+            tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
+            tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
+
+            weighted_score = user_task["grade"]*tasks[user_task["taskid"]].get_grading_weight()
+            tasks_score[0] += weighted_score
+
+        course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
+        return course_grade
+
+    def get_weight(self, taskid):
+        try:
+            weights = self._data.to_structure()[0]["weights"]
+            if taskid in weights:
+                return weights[taskid]
+            return 1
+        except:
+            return 1
 
     def get_dispenser_data(self):
         return ""

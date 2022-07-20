@@ -159,14 +159,6 @@ class CourseEditTask(INGIniousAdminPage):
             # Task environment parameters
             data["environment_parameters"] = environment_parameters
 
-            # Weight
-            try:
-                data["weight"] = float(data["weight"])
-            except:
-                return json.dumps({"status": "error", "message": _("Grade weight must be a floating-point number")})
-            if data["weight"] < 0:
-                return json.dumps({"status": "error", "message": _("Grade weight must be positive!")})
-
             # Groups
             if "groups" in data:
                 data["groups"] = True if data["groups"] == "true" else False
