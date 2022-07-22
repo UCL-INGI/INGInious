@@ -46,6 +46,15 @@ class TableOfContents(TaskDispenser):
         course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
         return course_grade
 
+    def get_stored_submissions(self,taskid):
+        try:
+            stored_submissions = self._toc.to_structure()[0]["store_submission"]
+            if taskid in stored_submissions:
+                return stored_submissions[taskid]
+            return 0
+        except:
+            return 0
+
     def get_weight(self, taskid):
         try:
             weights = self._toc.to_structure()[0]["weights"]

@@ -49,6 +49,15 @@ class CombinatoryTest(TaskDispenser):
         except:
             return 1
 
+    def get_stored_submissions(self,taskid):
+        try:
+            stored_submissions = self._data.to_structure()[0]["store_submission"]
+            if taskid in stored_submissions:
+                return stored_submissions[taskid]
+            return 0
+        except:
+            return 0
+
     def get_dispenser_data(self):
         return ""
 

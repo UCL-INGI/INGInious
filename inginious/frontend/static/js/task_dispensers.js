@@ -372,7 +372,10 @@ function dispenser_util_get_sections_list(element) {
         if(Object.keys(weights).length > 0){
             structure["weights"] = weights;
         }
- 
+
+        stored_submission = dispenser_util_get_stored_submission();
+        structure["store_submission"] = stored_submission;
+
         return structure;
     }).get();
 }
@@ -391,9 +394,9 @@ function dispenser_util_get_section_config(element) {
 function dispenser_util_get_weights() {
     const weight_list = {};
     $(".weight").each(function(index){
-        weight = parseFloat(this.value)
+        weight = parseFloat(this.value);
         if(weight > 1){
-            weight_list[this.id] = weight
+            weight_list[this.name] = weight;
         }
         else if(isNaN(weight) && this.value !== ""){
             document.getElementById("main-content").innerHTML = 
@@ -401,17 +404,37 @@ function dispenser_util_get_weights() {
                     '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
                     'The weights must be values' + 
                 '</div>' + document.getElementById("main-content").innerHTML;
-            throw("The weights must be values.")
+            throw("The weights must be values.");
         }else if(weight < 1){
             document.getElementById("main-content").innerHTML = 
                 '<div class="alert alert-danger" role="alert">' + 
                     '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
                     'The weights must be >= 1.' + 
                 '</div>' + document.getElementById("main-content").innerHTML;
-            throw("The weights must be >= 1")
+            throw("The weights must be >= 1");
         }
     })
     return weight_list;
+}
+
+function dispenser_util_get_stored_submission(){
+    const storedSubmission = {};
+    $(".store_submission").each(function(index){
+        taskid = this.name;
+        if(this.checked && this.id === "store_all"){
+            storedSubmission[taskid] = 0;
+        }else if(this.checked && this.id === "store_not_all"){
+            $("#store_submission_value_"+taskid).each(function(index){
+                value = parseInt(this.value);
+                if(!isNaN(value)){
+                    storedSubmission[taskid] = value;
+                }else{
+                    storedSubmission[taskid] = 5
+                }
+            })
+        }
+    });
+    return storedSubmission;
 }
 
 function dispenser_util_get_tasks_list(element) {

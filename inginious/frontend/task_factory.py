@@ -245,6 +245,9 @@ class TaskFactory(object):
                 if dispenser_data != "" and "weights" in dispenser_data[0]:
                     weights = {"weights":dispenser_data[0]["weights"]}
                     task_content.update(weights)
+                if dispenser_data != "" and "store_submission" in dispenser_data[0]:
+                    store_submission = {"store_submission":dispenser_data[0]["store_submission"]}
+                    task_content.update(store_submission)
             except Exception as e:
                 raise TaskUnreadableException(str(e))
             return last_update, task_content
