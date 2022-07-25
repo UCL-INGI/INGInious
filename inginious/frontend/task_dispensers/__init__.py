@@ -13,12 +13,7 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_weight(self, taskid):
-        """Returns the weight of the taskid"""
-        pass
-
-    @abstractmethod
-    def get_course_grade(self, username, course, user_task_list):
+    def get_course_grade(self, username, user_task_list):
         """Returns the current grade of the course for a specific user"""
         pass
 

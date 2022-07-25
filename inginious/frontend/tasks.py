@@ -109,13 +109,6 @@ class Task(object):
         # Default download
         self._evaluate = self._data.get("evaluate", "best")
 
-        # Grade weight
-        try:
-            weights = self._data["weights"]
-            self._weight = float(weights[self._taskid])
-        except:
-            self._weight = 1
-
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
 

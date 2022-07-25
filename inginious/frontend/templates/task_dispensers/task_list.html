@@ -35,6 +35,7 @@
                         </div>
                         <div class="col-xs-12 col-md-5">
                             {% if registered %}
+                                <div type="button" class="fa fa-info" style="float: left; margin-top: 2px; margin-right: 5px;" data-toggle="tooltip" data-placement="bottom" title='{{_("Weight : ")}}{{course.get_task_dispenser().get_weight(taskid)}}'></div>
                                 <div class="progress">
                                     <div class="progress-bar bg-success" aria-valuenow="{{ completion | int }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ completion | int }}%">
                                         {% if completion.is_integer() %}{{ completion | int }}{% else %}{{ completion }}{% endif %} %

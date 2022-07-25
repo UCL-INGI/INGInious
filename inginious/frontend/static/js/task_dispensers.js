@@ -391,24 +391,11 @@ function dispenser_util_get_section_config(element) {
 function dispenser_util_get_weights() {
     const weight_list = {};
     $(".weight").each(function(index){
-        weight = parseFloat(this.value)
-        if(weight > 1){
-            weight_list[this.id] = weight
-        }
-        else if(isNaN(weight) && this.value !== ""){
-            document.getElementById("main-content").innerHTML = 
-                '<div class="alert alert-danger" role="alert">' + 
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
-                    'The weights must be values' + 
-                '</div>' + document.getElementById("main-content").innerHTML;
-            throw("The weights must be values.")
-        }else if(weight < 1){
-            document.getElementById("main-content").innerHTML = 
-                '<div class="alert alert-danger" role="alert">' + 
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
-                    'The weights must be >= 1.' + 
-                '</div>' + document.getElementById("main-content").innerHTML;
-            throw("The weights must be >= 1")
+        if(this.value == ""){
+            weight_list[this.id] = 1;
+        }else{
+            weight = parseFloat(this.value)
+            weight_list[this.id] = weight;
         }
     })
     return weight_list;

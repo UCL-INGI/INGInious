@@ -160,10 +160,15 @@ class TerminalSection(Section):
         if not all(id_checker(id) for id in structure["tasks_list"]):
             raise InvalidTocException(_("One task id contains non alphanumerical characters"))
         self._task_list = [task for task, _ in sorted(structure["tasks_list"].items(), key=lambda x: x[1])]
+        self._weights = {}
         if "weights" in structure:
-            self._weights = structure["weights"]
-        else:
-            self._weights = {}
+            for taskid,weight in structure["weights"].items():
+                if not (type(weight) == float or type(weight) == int):
+                    raise InvalidTocException( ("A weight value must be a numeric >= 0") )
+                elif weight >= 0:
+                    self._weights[taskid] = weight
+                else:
+                    raise InvalidTocException( ("A weight value must be a numeric >= 0") )
 
     def is_terminal(self):
         return True

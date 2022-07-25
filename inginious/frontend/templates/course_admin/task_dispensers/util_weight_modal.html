@@ -10,7 +10,7 @@
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        {% if course.get_task_dispenser().get_weight(taskid) > 1 %}
+        {% if course.get_task_dispenser().get_weight(taskid) >= 0 %}
             <input type="text" value='{{course.get_task_dispenser().get_weight(taskid)}}' placeholder="1" id="{{taskid}}" class="weight"/>
         {% else %}
         <input type="text" placeholder="1" id="{{taskid}}" class="weight"/>
