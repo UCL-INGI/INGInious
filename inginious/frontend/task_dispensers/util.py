@@ -164,11 +164,11 @@ class TerminalSection(Section):
         if "weights" in structure:
             for taskid,weight in structure["weights"].items():
                 if not (type(weight) == float or type(weight) == int):
-                    raise InvalidTocException( ("A weight value must be a numeric >= 0") )
+                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
                 elif weight >= 0:
                     self._weights[taskid] = weight
                 else:
-                    raise InvalidTocException( ("A weight value must be a numeric >= 0") )
+                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
 
     def is_terminal(self):
         return True

@@ -78,7 +78,7 @@ class CoursePage(INGIniousAuthPage):
                 tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
                 tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
 
-            course_grade = course.get_task_dispenser().get_course_grade(username, user_task_list)
+            course_grade = course.get_task_dispenser().get_course_grade(username)
 
             # Get tag list
             tag_list = course.get_tags()

@@ -28,12 +28,13 @@ class TableOfContents(TaskDispenser):
         """ Returns the localized task dispenser name """
         return _("Table of contents")
 
-    def get_course_grade(self, username, user_task_list):
-        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in user_task_list}
-        user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": user_task_list}})
+    def get_course_grade(self, username):
+        task_list = self.get_user_task_list([username])[username]
+        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
+        user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
         tasks_score = [0.0, 0.0]
 
-        for taskid in user_task_list:
+        for taskid in task_list:
             tasks_score[1] += self.get_weight(taskid)
 
         for user_task in user_tasks:

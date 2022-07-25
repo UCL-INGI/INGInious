@@ -13,7 +13,7 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_course_grade(self, username, user_task_list):
+    def get_course_grade(self, username):
         """Returns the current grade of the course for a specific user"""
         pass
 

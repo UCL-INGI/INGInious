@@ -46,7 +46,6 @@ class APITasks(APIAuthenticatedPage):
                         "deadline": "",
                         "status": "success"               # can be "succeeded", "failed" or "notattempted"
                         "grade": 0.0,
-                        "grade_weight": 0.0,
                         "context": ""                     # context of the task, in RST
                         "problems":                       # dict of the subproblems
                         {
@@ -89,7 +88,6 @@ class APITasks(APIAuthenticatedPage):
                 "deadline": task.get_deadline(),
                 "status": "notviewed" if task_cache is None else "notattempted" if task_cache["tried"] == 0 else "succeeded" if task_cache["succeeded"] else "failed",
                 "grade": task_cache.get("grade", 0.0) if task_cache is not None else 0.0,
-                "grade_weight": task.get_grading_weight(),
                 "context": task.get_context(self.user_manager.session_language()).original_content(),
                 "problems": []
             }

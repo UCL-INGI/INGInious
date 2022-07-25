@@ -394,7 +394,7 @@ function dispenser_util_get_weights() {
         if(this.value == ""){
             weight_list[this.id] = 1;
         }else{
-            weight = parseFloat(this.value)
+            weight = parseFloat(this.value);
             weight_list[this.id] = weight;
         }
     })

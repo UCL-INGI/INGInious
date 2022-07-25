@@ -198,10 +198,6 @@ class Task(object):
 
         return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
 
-    def get_grading_weight(self):
-        """ Get the relative weight of this task in the grading """
-        return self._weight
-
     def get_accessible_time(self, plugin_override=True):
         """  Get the accessible time of this task """
         vals = self._plugin_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
