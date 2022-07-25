@@ -363,16 +363,17 @@ function dispenser_util_get_sections_list(element) {
 
         const content = $(this).children(".content");
         if ($(this).hasClass("tasks_list")) {
-            structure["tasks_list"] = dispenser_util_get_tasks_list(content);
+            tasks_id = dispenser_util_get_tasks_list(content);
+            structure["tasks_list"] = tasks_id;
+
+            weights = dispenser_util_get_weights(tasks_id);
+            if(Object.keys(weights).length > 0){
+                structure["weights"] = weights;
+            }
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
-        
-        weights = dispenser_util_get_weights();
-        if(Object.keys(weights).length > 0){
-            structure["weights"] = weights;
-        }
- 
+
         return structure;
     }).get();
 }
@@ -388,14 +389,16 @@ function dispenser_util_get_section_config(element) {
     return config_list;
 }
 
-function dispenser_util_get_weights() {
+function dispenser_util_get_weights(tasks_id) {
     const weight_list = {};
-    $(".weight").each(function(index){
-        if(this.value == ""){
-            weight_list[this.id] = 1;
-        }else{
-            weight = parseFloat(this.value);
-            weight_list[this.id] = weight;
+    $(".weight").each(function(){
+        if(this.id in tasks_id){
+            if(this.value == ""){
+                weight_list[this.id] = 1;
+            }else{
+                weight = parseFloat(this.value);
+                weight_list[this.id] = weight;
+            }
         }
     })
     return weight_list;

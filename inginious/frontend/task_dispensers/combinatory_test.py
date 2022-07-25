@@ -23,6 +23,7 @@ class CombinatoryTest(TaskDispenser):
         return _("Combinatory test")
 
     def get_course_grade(self, username):
+        """ Returns the grade of a user for the current course"""
         task_list = self.get_user_task_list([username])[username]
         tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
         user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
@@ -41,11 +42,31 @@ class CombinatoryTest(TaskDispenser):
         course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
         return course_grade
 
+    def _get_value_rec(self,taskid,structure,key):
+        """
+            Returns the value of key for the taskid in the structure if any or None
+
+            The structure can have mutliples sections_list that countains either sections_list or one tasks_list
+            The key should be inside one of the tasks_list
+        """
+        if "sections_list" in structure:
+            for section in structure["sections_list"]:
+                weight = self._get_value_rec(taskid,section, key)
+                if weight is not None:
+                    return weight
+        elif "tasks_list" in structure:
+            if taskid in structure["tasks_list"]:
+                return structure[key].get(taskid, None)
+        return None
+
     def get_weight(self, taskid):
+        """ Returns the weight of taskid """
         try:
-            weights = self._data.to_structure()[0]["weights"]
-            if taskid in weights:
-                return weights[taskid]
+            struct = self._data.to_structure()
+            for elem in struct:
+                value = self._get_value_rec(taskid,elem,"weights")
+                if value is not None:
+                    return value
             return 1
         except:
             return 1
