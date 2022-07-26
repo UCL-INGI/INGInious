@@ -34,6 +34,17 @@ class CombinatoryTest(TaskDispenser):
         except:
             return 1
 
+    def get_stored_submissions(self,taskid):
+        try:
+            struct = self._data.to_structure()
+            for elem in struct:
+                store_submission = self._data.get_value_rec(taskid,elem,"store_submission")
+                if store_submission is not None:
+                    return store_submission
+            return 0
+        except:
+            return 0
+
     def get_course_grade(self, username):
         """ Returns the grade of a user for the current course"""
         task_list = self.get_user_task_list([username])[username]

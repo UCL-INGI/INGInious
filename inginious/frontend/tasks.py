@@ -104,7 +104,11 @@ class Task(object):
             self._contact_url = ""
 
         # Submission storage
-        self._stored_submissions = int(self._data.get("stored_submissions", 0))
+        try:
+            store_submission = self._data["store_submission"]
+            self._stored_submissions = float(store_submission)
+        except:
+            self._stored_submissions = 0
 
         # Default download
         self._evaluate = self._data.get("evaluate", "best")
