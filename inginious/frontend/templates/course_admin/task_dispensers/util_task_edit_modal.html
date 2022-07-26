@@ -10,7 +10,7 @@
             <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div style="margin-top: 5px;margin-left: 5px;">
+        <div class="col-xs-12 col-lg-10">
             <!--Grade Weight-->
             <div>
                 Grade weight (in comparison to other tasks)
@@ -29,10 +29,10 @@
                     {{_("All submissions")}}
                 </label><br/>
                 <div class="row">
-                    <div class="col-xs-12 col-lg-3">
-                        <label>
+                    <div>
+                        <label class="col-xs-12 col-lg-12">
                             <input type="radio" value="false" class="store_submission" name="{{taskid}}" id="store_not_all" {{ 'checked'|safe if stored_submissions > 0 }} />
-                            {{ _("Only the last {nbr_submissions} submissions").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="stored_submissions" class="form-control input-xs" id="store_submission_value_' + (taskid) + '" style="height:20px;padding: 0 10px;" value="' + (stored_submissions|string if stored_submissions > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
+                            {{ _("Only the last {nbr_submissions} submissions").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><input name="stored_submissions" class="form-control input-xs" id="store_submission_value_' + (taskid) + '" style="height:20px;padding: 0 10px;" value="' + (stored_submissions|string if stored_submissions > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
                         </label>
                     </div>
                 </div>

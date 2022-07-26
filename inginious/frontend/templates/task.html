@@ -65,12 +65,6 @@
                     <span id="task_grade">{{ user_task.get('grade', 0) }}</span>%
                 </td>
             </tr>
-            {% if not is_lti() %}
-                <tr>
-                    <td>{{ _("Grading weight") }}</td>
-                    <td>{{ task.get_grading_weight() }}</td>
-                </tr>
-            {% endif %}
             <tr>
                 <td>{{ _("Attempts") }}</td>
                 <td id="task_tries">

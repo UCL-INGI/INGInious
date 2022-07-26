@@ -106,19 +106,12 @@ class Task(object):
         # Submission storage
         try:
             store_submission = self._data["store_submission"]
-            self._stored_submissions = float(store_submission[self._taskid])
+            self._stored_submissions = float(store_submission)
         except:
             self._stored_submissions = 0
 
         # Default download
         self._evaluate = self._data.get("evaluate", "best")
-
-        # Grade weight
-        try:
-            weights = self._data["weights"]
-            self._weight = float(weights[self._taskid])
-        except:
-            self._weight = 1
 
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
@@ -208,10 +201,6 @@ class Task(object):
             raise Exception("Invalid type for problem " + problemid)
 
         return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
-
-    def get_grading_weight(self):
-        """ Get the relative weight of this task in the grading """
-        return self._weight
 
     def get_accessible_time(self, plugin_override=True):
         """  Get the accessible time of this task """

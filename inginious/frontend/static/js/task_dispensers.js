@@ -363,18 +363,19 @@ function dispenser_util_get_sections_list(element) {
 
         const content = $(this).children(".content");
         if ($(this).hasClass("tasks_list")) {
-            structure["tasks_list"] = dispenser_util_get_tasks_list(content);
+            tasks_id = dispenser_util_get_tasks_list(content);
+            structure["tasks_list"] = tasks_id;
+
+            var weights = dispenser_util_get_weights(tasks_id);
+            if(Object.keys(weights).length > 0){
+                structure["weights"] = weights;
+            }
+
+            stored_submission = dispenser_util_get_stored_submission(tasks_id);
+            structure["store_submission"] = stored_submission;
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
-        
-        weights = dispenser_util_get_weights();
-        if(Object.keys(weights).length > 0){
-            structure["weights"] = weights;
-        }
-
-        stored_submission = dispenser_util_get_stored_submission();
-        structure["store_submission"] = stored_submission;
 
         return structure;
     }).get();
@@ -391,39 +392,27 @@ function dispenser_util_get_section_config(element) {
     return config_list;
 }
 
-function dispenser_util_get_weights() {
+function dispenser_util_get_weights(tasks_id) {
     const weight_list = {};
-    $(".weight").each(function(index){
-        weight = parseFloat(this.value);
-        if(weight > 1){
-            weight_list[this.name] = weight;
+    $(".weight").each(function(){
+        if(this.name in tasks_id){
+            if(this.value === ""){
+                weight_list[this.name] = 1;
+            }else{
+                weight_list[this.name] = parseFloat(this.value);
+            }
         }
-        else if(isNaN(weight) && this.value !== ""){
-            document.getElementById("main-content").innerHTML = 
-                '<div class="alert alert-danger" role="alert">' + 
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
-                    'The weights must be values' + 
-                '</div>' + document.getElementById("main-content").innerHTML;
-            throw("The weights must be values.");
-        }else if(weight < 1){
-            document.getElementById("main-content").innerHTML = 
-                '<div class="alert alert-danger" role="alert">' + 
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + 
-                    'The weights must be >= 1.' + 
-                '</div>' + document.getElementById("main-content").innerHTML;
-            throw("The weights must be >= 1");
-        }
-    })
+    });
     return weight_list;
 }
 
-function dispenser_util_get_stored_submission(){
+function dispenser_util_get_stored_submission(tasks_id){
     const storedSubmission = {};
-    $(".store_submission").each(function(index){
+    $(".store_submission").each(function(){
         taskid = this.name;
-        if(this.checked && this.id === "store_all"){
+        if(taskid in tasks_id && this.checked && this.id === "store_all"){
             storedSubmission[taskid] = 0;
-        }else if(this.checked && this.id === "store_not_all"){
+        }else if(taskid in tasks_id && this.checked && this.id === "store_not_all"){
             $("#store_submission_value_"+taskid).each(function(index){
                 value = parseInt(this.value);
                 if(!isNaN(value)){
