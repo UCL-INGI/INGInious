@@ -22,54 +22,23 @@ class CombinatoryTest(TaskDispenser):
     def get_name(cls, language):
         return _("Combinatory test")
 
-    def get_course_grade(self, username):
-        """ Returns the grade of a user for the current course"""
-        task_list = self.get_user_task_list([username])[username]
-        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
-        user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
-        tasks_score = [0.0, 0.0]
-
-        for taskid in task_list:
-            tasks_score[1] += self.get_weight(taskid)
-
-        for user_task in user_tasks:
-            tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
-            tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
-
-            weighted_score = user_task["grade"]*self.get_weight(user_task["taskid"])
-            tasks_score[0] += weighted_score
-
-        course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
-        return course_grade
-
-    def _get_value_rec(self,taskid,structure,key):
-        """
-            Returns the value of key for the taskid in the structure if any or None
-
-            The structure can have mutliples sections_list that countains either sections_list or one tasks_list
-            The key should be inside one of the tasks_list
-        """
-        if "sections_list" in structure:
-            for section in structure["sections_list"]:
-                weight = self._get_value_rec(taskid,section, key)
-                if weight is not None:
-                    return weight
-        elif "tasks_list" in structure:
-            if taskid in structure["tasks_list"]:
-                return structure[key].get(taskid, None)
-        return None
-
     def get_weight(self, taskid):
         """ Returns the weight of taskid """
         try:
             struct = self._data.to_structure()
             for elem in struct:
-                value = self._get_value_rec(taskid,elem,"weights")
-                if value is not None:
-                    return value
+                weight = self._data.get_value_rec(taskid,elem,"weights")
+                if weight is not None:
+                    return weight
             return 1
         except:
             return 1
+
+    def get_course_grade(self, username):
+        """ Returns the grade of a user for the current course"""
+        task_list = self.get_user_task_list([username])[username]
+        user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
+        return self._data.get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
 
     def get_dispenser_data(self):
         return ""

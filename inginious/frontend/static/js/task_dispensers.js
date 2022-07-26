@@ -366,7 +366,7 @@ function dispenser_util_get_sections_list(element) {
             tasks_id = dispenser_util_get_tasks_list(content);
             structure["tasks_list"] = tasks_id;
 
-            weights = dispenser_util_get_weights(tasks_id);
+            var weights = dispenser_util_get_weights(tasks_id);
             if(Object.keys(weights).length > 0){
                 structure["weights"] = weights;
             }
@@ -393,14 +393,13 @@ function dispenser_util_get_weights(tasks_id) {
     const weight_list = {};
     $(".weight").each(function(){
         if(this.id in tasks_id){
-            if(this.value == ""){
+            if(this.value === ""){
                 weight_list[this.id] = 1;
             }else{
-                weight = parseFloat(this.value);
-                weight_list[this.id] = weight;
+                weight_list[this.id] = parseFloat(this.value);
             }
         }
-    })
+    });
     return weight_list;
 }
 
