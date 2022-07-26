@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 class TaskDispenser(metaclass=ABCMeta):
+
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         """
         Instantiate a new TaskDispenser
@@ -9,6 +10,11 @@ class TaskDispenser(metaclass=ABCMeta):
         :param database: The MongoDB database
         :param course_id: A String that is the id of the course
         """
+        pass
+
+    @abstractmethod
+    def get_course_grade(self, username):
+        """Returns the current grade of the course for a specific user"""
         pass
 
     @classmethod

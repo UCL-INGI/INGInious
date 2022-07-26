@@ -1,0 +1,23 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="modal fade" id="weightModal_{{taskid}}" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel_{{taskid}}">{{_("Grade weight (in comparison to other tasks)")}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% if course.get_task_dispenser().get_weight(taskid) >= 0 %}
+            <input type="text" value='{{course.get_task_dispenser().get_weight(taskid)}}' placeholder="1" id="{{taskid}}" class="weight"/>
+        {% else %}
+        <input type="text" placeholder="1" id="{{taskid}}" class="weight"/>
+        {% endif %}
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>

@@ -67,6 +67,47 @@ class SectionsList(object):
         for section in self._sections:
             section.remove_task(taskid)
 
+    def get_value_rec(self,taskid,structure,key):
+        """
+        Returns the value of key for the taskid in the structure if any or None
+
+        The structure can have mutliples sections_list that countains either sections_list or one tasks_list
+        The key should be inside one of the tasks_list
+        """
+        if "sections_list" in structure:
+            for section in structure["sections_list"]:
+                weight = self.get_value_rec(taskid,section, key)
+                if weight is not None:
+                    return weight
+        elif "tasks_list" in structure:
+            if taskid in structure["tasks_list"]:
+                return structure[key].get(taskid, None)
+        return None
+
+    def get_course_grade_weighted_sum(self, user_tasks, task_list, get_weight):
+        """
+        Returns the course grade following a weighted sum
+        :param user_tasks: the user tasks as in the database
+        :param task_list: the list of tasks for a user
+        :param get_weight: a function that take a taskid as input and returns the weight for that taskid
+        :returns: the value of the grade
+        """
+        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
+        tasks_score = [0.0, 0.0]
+
+        for taskid in task_list:
+            tasks_score[1] += get_weight(taskid)
+
+        for user_task in user_tasks:
+            tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
+            tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
+
+            weighted_score = user_task["grade"]*get_weight(user_task["taskid"])
+            tasks_score[0] += weighted_score
+
+        course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
+        return course_grade
+
     def to_structure(self):
         """
         :return: The structure in YAML format
@@ -160,6 +201,16 @@ class TerminalSection(Section):
         if not all(id_checker(id) for id in structure["tasks_list"]):
             raise InvalidTocException(_("One task id contains non alphanumerical characters"))
         self._task_list = [task for task, _ in sorted(structure["tasks_list"].items(), key=lambda x: x[1])]
+        self._weights = {}
+        if "weights" in structure:
+            for taskid,weight in structure["weights"].items():
+                if not (type(weight) == float or type(weight) == int):
+                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
+                elif weight >= 0:
+                    if taskid in structure['tasks_list']:
+                        self._weights[taskid] = weight
+                else:
+                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
 
     def is_terminal(self):
         return True
@@ -203,7 +254,7 @@ class TerminalSection(Section):
         :return: The structure in YAML format
         """
         return {"id": self._id, "rank": rank, "title": self._title,
-                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}}
+                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights}
 
 
 def check_toc(toc):

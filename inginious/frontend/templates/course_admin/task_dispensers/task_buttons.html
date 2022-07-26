@@ -2,6 +2,9 @@
 {# more information about the licensing of this file. #}
 
 <div class="ml-auto btn-group btn-group-sm" role="group">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#weightModal_{{taskid}}">
+        <i class="fa fa-cogs" aria-hidden="true"></i>
+    </button>
     <a class="btn btn-success" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"
             title="{{ _('View task') }}" data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-eye"></i>

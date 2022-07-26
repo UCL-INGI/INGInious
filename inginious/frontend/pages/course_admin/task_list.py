@@ -64,7 +64,6 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         # don't forget to reload the modified course
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-
         return self.page(course, errors, not errors)
 
     def submission_url_generator(self, taskid):
