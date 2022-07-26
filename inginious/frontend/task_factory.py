@@ -241,8 +241,6 @@ class TaskFactory(object):
         if need_content:
             try:
                 task_content = descriptor_reader.load(task_fs.get(descriptor_name))
-                store_submission = {"store_submission":course.get_task_dispenser().get_stored_submissions(taskid)}
-                task_content.update(store_submission)
             except Exception as e:
                 raise TaskUnreadableException(str(e))
             return last_update, task_content

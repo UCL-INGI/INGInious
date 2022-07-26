@@ -215,7 +215,7 @@ class TerminalSection(Section):
         self._store_submission = {}
         if "store_submission" in structure:
             for taskid,store_submission in structure["store_submission"].items():
-                if not (type(store_submission) == int):
+                if not type(store_submission) == int:
                     raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
                 elif store_submission >= 0:
                     if taskid in structure['tasks_list']:

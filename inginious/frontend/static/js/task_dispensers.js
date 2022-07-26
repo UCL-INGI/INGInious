@@ -371,8 +371,7 @@ function dispenser_util_get_sections_list(element) {
                 structure["weights"] = weights;
             }
 
-            stored_submission = dispenser_util_get_stored_submission(tasks_id);
-            structure["store_submission"] = stored_submission;
+            structure["store_submission"] = dispenser_util_get_stored_submission(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
@@ -409,18 +408,18 @@ function dispenser_util_get_weights(tasks_id) {
 function dispenser_util_get_stored_submission(tasks_id){
     const storedSubmission = {};
     $(".store_submission").each(function(){
-        taskid = this.name;
+        var taskid = this.name;
         if(taskid in tasks_id && this.checked && this.id === "store_all"){
             storedSubmission[taskid] = 0;
         }else if(taskid in tasks_id && this.checked && this.id === "store_not_all"){
             $("#store_submission_value_"+taskid).each(function(index){
-                value = parseInt(this.value);
+                var value = parseInt(this.value);
                 if(!isNaN(value)){
                     storedSubmission[taskid] = value;
                 }else{
-                    storedSubmission[taskid] = 5
+                    storedSubmission[taskid] = 5;
                 }
-            })
+            });
         }
     });
     return storedSubmission;

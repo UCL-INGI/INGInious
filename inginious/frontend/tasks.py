@@ -103,13 +103,6 @@ class Task(object):
         else:
             self._contact_url = ""
 
-        # Submission storage
-        try:
-            store_submission = self._data["store_submission"]
-            self._stored_submissions = float(store_submission)
-        except:
-            self._stored_submissions = 0
-
         # Default download
         self._evaluate = self._data.get("evaluate", "best")
 
@@ -249,10 +242,6 @@ class Task(object):
         for problem in self._problems:
             input_data = problem.adapt_input_for_backend(input_data)
         return input_data
-
-    def get_stored_submissions(self):
-        """ Indicates if only the last submission must be stored for the task """
-        return self._stored_submissions
 
     def get_evaluate(self):
         """ Indicates the default download for the task """
