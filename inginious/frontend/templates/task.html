@@ -172,7 +172,7 @@
         <h3> {{ _("For evaluation") }}</h3>
         <div class="list-group mb-3">
             <div class="list-group-item list-group-item-info"><i class="fa fa-info fa-fw"></i>
-                {% if task.get_evaluate() == "last" %}
+                {% if course.get_task_dispenser().get_evaluation_mode(task.get_id()) == "last" %}
                     {{ _("Last submission") }}
                 {% else %}
                     {{ _("Best submission") }}
@@ -465,7 +465,7 @@
     var taskid = '{{ task.get_id() }}';
 
     $(document).ready(function() {
-        init_task_page("{{ task.get_evaluate() }}");
+        init_task_page("{{ course.get_task_dispenser().get_evaluation_mode(task.get_id()) }}");
     });
 
     var input = {

@@ -18,6 +18,11 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_evaluation_mode(self, taskid):
+        """Returns the evaluation mode specified by the administrator"""
+        pass
+
+    @abstractmethod
     def get_course_grade(self, username):
         """Returns the current grade of the course for a specific user"""
         pass

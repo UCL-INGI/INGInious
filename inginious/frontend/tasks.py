@@ -103,9 +103,6 @@ class Task(object):
         else:
             self._contact_url = ""
 
-        # Default download
-        self._evaluate = self._data.get("evaluate", "best")
-
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
 
@@ -242,10 +239,6 @@ class Task(object):
         for problem in self._problems:
             input_data = problem.adapt_input_for_backend(input_data)
         return input_data
-
-    def get_evaluate(self):
-        """ Indicates the default download for the task """
-        return self._evaluate
 
     def get_categories(self):
         """ Returns the tags id associated to the task """
