@@ -37,6 +37,9 @@ jobs:
 
       - name: Install INGInious
         run: pip3 install .
+        
+      - name: Mitigate MarkupSafe 2.1+ issues
+        run: pip3 install --upgrade markupsafe==2.0.1
 
       - name: Launch nose tests
         run: nosetests -v --with-coverage --cover-package=inginious --cover-branches --cover-html -I "^test_"
