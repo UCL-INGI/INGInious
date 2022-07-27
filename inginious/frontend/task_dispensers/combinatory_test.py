@@ -39,9 +39,9 @@ class CombinatoryTest(TaskDispenser):
         try:
             struct = self._data.to_structure()
             for elem in struct:
-                store_submission = self._data.get_value_rec(taskid,elem,"store_submission")
-                if store_submission is not None:
-                    return store_submission
+                no_stored_submissions = self._data.get_value_rec(taskid,elem,"no_stored_submissions")
+                if no_stored_submissions is not None:
+                    return no_stored_submissions
             return 0
         except:
             return 0

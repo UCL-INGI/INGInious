@@ -371,7 +371,7 @@ function dispenser_util_get_sections_list(element) {
                 structure["weights"] = weights;
             }
 
-            structure["store_submission"] = dispenser_util_get_stored_submission(tasks_id);
+            structure["no_stored_submissions"] = dispenser_util_get_no_stored_submissions(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
@@ -405,24 +405,24 @@ function dispenser_util_get_weights(tasks_id) {
     return weight_list;
 }
 
-function dispenser_util_get_stored_submission(tasks_id){
-    const storedSubmission = {};
-    $(".store_submission").each(function(){
+function dispenser_util_get_no_stored_submissions(tasks_id){
+    const no_stored_submissions = {};
+    $(".no_stored_submissions").each(function(){
         var taskid = this.name;
         if(taskid in tasks_id && this.checked && this.id === "store_all"){
-            storedSubmission[taskid] = 0;
+            no_stored_submissions[taskid] = 0;
         }else if(taskid in tasks_id && this.checked && this.id === "store_not_all"){
-            $("#store_submission_value_"+taskid).each(function(index){
+            $("#no_stored_submissions_value_"+taskid).each(function(index){
                 var value = parseInt(this.value);
                 if(!isNaN(value)){
-                    storedSubmission[taskid] = value;
+                    no_stored_submissions[taskid] = value;
                 }else{
-                    storedSubmission[taskid] = 5;
+                    no_stored_submissions[taskid] = 5;
                 }
             });
         }
     });
-    return storedSubmission;
+    return no_stored_submissions;
 }
 
 function dispenser_util_get_tasks_list(element) {

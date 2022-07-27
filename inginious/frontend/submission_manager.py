@@ -324,13 +324,13 @@ class WebAppSubmissionManager:
     def _delete_exceeding_submissions(self, username, task, task_dispenser):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
         max_submissions_bound = -1
-        stored_submission = task_dispenser.get_no_stored_submissions(task.get_id())
+        no_stored_submissions = task_dispenser.get_no_stored_submissions(task.get_id())
         if max_submissions_bound <= 0:
-            max_submissions = stored_submission
-        elif stored_submission <= 0:
+            max_submissions = no_stored_submissions
+        elif no_stored_submissions <= 0:
             max_submissions = max_submissions_bound
         else:
-            max_submissions = min(max_submissions_bound, stored_submission)
+            max_submissions = min(max_submissions_bound, no_stored_submissions)
 
         if max_submissions <= 0:
             return []
