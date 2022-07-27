@@ -41,7 +41,8 @@ class CombinatoryTest(TaskDispenser):
         return self._data.get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
 
     def get_dispenser_data(self):
-        return ""
+        """ Returns the task dispenser data structure """
+        return self._data
 
     def render_edit(self, template_helper, course, task_data):
         """ Returns the formatted task list edition form """
