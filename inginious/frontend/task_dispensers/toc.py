@@ -26,7 +26,7 @@ class TableOfContents(TaskDispenser):
     @classmethod
     def get_name(cls, language):
         """ Returns the localized task dispenser name """
-        return ("Table of contents")
+        return _("Table of contents")
 
     def get_weight(self, taskid):
         """ Returns the weight of taskid """

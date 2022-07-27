@@ -20,7 +20,7 @@ class CombinatoryTest(TaskDispenser):
 
     @classmethod
     def get_name(cls, language):
-        return ("Combinatory test")
+        return _("Combinatory test")
 
     def get_weight(self, taskid):
         """ Returns the weight of taskid """
