@@ -139,7 +139,7 @@ class WebAppSubmissionManager:
                 inputdata["@username"] = ','.join(group["students"])
                 inputdata["@email"] = ','.join([user["email"] for user in users])
 
-    def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
+    def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid, task_dispenser):
         """
                 Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
                 :param task: Task related to the submission
@@ -149,7 +149,7 @@ class WebAppSubmissionManager:
                 :param submissionid: submission id of the submission
                 """
 
-        return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
+        return self._delete_exceeding_submissions(self._user_manager.session_username(), task, task_dispenser)
 
     def replay_job(self, task, submission, copy=False, debug=False):
         """
@@ -231,7 +231,7 @@ class WebAppSubmissionManager:
             return None
         return sub
 
-    def add_job(self, task, inputdata, debug=False):
+    def add_job(self, task, inputdata, task_dispenser, debug=False):
         """
         Add a job in the queue and returns a submission id.
         :param task:  Task instance
@@ -300,7 +300,7 @@ class WebAppSubmissionManager:
         self._before_submission_insertion(task, inputdata, debug, obj)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
         submissionid = self._database.submissions.insert_one(obj).inserted_id
-        to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+        to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid, task_dispenser)
 
         ssh_callback = lambda host, port, user, password: self._handle_ssh_callback(submissionid, host, port, user, password)
 
@@ -321,15 +321,16 @@ class WebAppSubmissionManager:
 
         return submissionid, to_remove
 
-    def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
+    def _delete_exceeding_submissions(self, username, task, task_dispenser):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
-
+        max_submissions_bound = -1
+        no_stored_submissions = task_dispenser.get_no_stored_submissions(task.get_id())
         if max_submissions_bound <= 0:
-            max_submissions = task.get_stored_submissions()
-        elif task.get_stored_submissions() <= 0:
+            max_submissions = no_stored_submissions
+        elif no_stored_submissions <= 0:
             max_submissions = max_submissions_bound
         else:
-            max_submissions = min(max_submissions_bound, task.get_stored_submissions())
+            max_submissions = min(max_submissions_bound, no_stored_submissions)
 
         if max_submissions <= 0:
             return []

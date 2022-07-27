@@ -163,19 +163,6 @@ class CourseEditTask(INGIniousAdminPage):
             if "groups" in data:
                 data["groups"] = True if data["groups"] == "true" else False
 
-            # Submission storage
-            if "store_all" in data:
-                try:
-                    stored_submissions = data["stored_submissions"]
-                    data["stored_submissions"] = 0 if data["store_all"] == "true" else int(stored_submissions)
-                except:
-                    return json.dumps(
-                        {"status": "error", "message": _("The number of stored submission must be an integer!")})
-
-                if data["store_all"] == "false" and data["stored_submissions"] <= 0:
-                    return json.dumps({"status": "error", "message": _("The number of stored submission must be positive!")})
-                del data['store_all']
-
             # Submission limits
             if "submission_limit" in data:
                 if data["submission_limit"] == "none":

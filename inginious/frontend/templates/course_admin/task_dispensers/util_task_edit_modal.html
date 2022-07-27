@@ -1,0 +1,46 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="modal fade" id="edit_{{taskid}}" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{_("Edit Task")}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="col-xs-12 col-lg-10">
+            <!--Grade Weight-->
+            <div>
+                Grade weight (in comparison to other tasks)
+                {% if course.get_task_dispenser().get_weight(taskid) > 1 %}
+                    <input type="text" value='{{course.get_task_dispenser().get_weight(taskid)}}' placeholder="1" name="{{taskid}}" class="weight"/>
+                {% else %}
+                <input type="text" placeholder="1" name="{{taskid}}" class="weight"/>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 15px;margin-left: 5px;">{{_("Submission Storage")}}</div>
+            <div class="no_stored_submissions">
+                {% set no_stored_submissions = course.get_task_dispenser().get_no_stored_submissions(taskid) %}
+                <label>
+                    <input type="radio" value="true" class="no_stored_submissions" name="{{taskid}}" id="store_all" {{ 'checked'|safe if no_stored_submissions == 0 }} />
+                    {{_("All submissions")}}
+                </label><br/>
+                <div class="row">
+                    <div>
+                        <label class="col-xs-12 col-lg-12">
+                            <input type="radio" value="false" class="no_stored_submissions" name="{{taskid}}" id="store_not_all" {{ 'checked'|safe if no_stored_submissions > 0 }} />
+                            {{ _("Only the last {nbr_submissions} submissions").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><input name="no_stored_submissions" class="form-control input-xs" id="no_stored_submissions_value_' + (taskid) + '" style="height:20px;padding: 0 10px;" value="' + (no_stored_submissions|string if no_stored_submissions > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>

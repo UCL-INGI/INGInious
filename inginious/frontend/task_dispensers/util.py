@@ -212,6 +212,17 @@ class TerminalSection(Section):
                 else:
                     raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
 
+        self._no_stored_submissions = {}
+        if "no_stored_submissions" in structure:
+            for taskid,no_stored_submissions in structure["no_stored_submissions"].items():
+                if not type(no_stored_submissions) == int:
+                    raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
+                elif no_stored_submissions >= 0:
+                    if taskid in structure['tasks_list']:
+                        self._no_stored_submissions = structure["no_stored_submissions"]
+                else:
+                    raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
+
     def is_terminal(self):
         return True
 
@@ -254,7 +265,7 @@ class TerminalSection(Section):
         :return: The structure in YAML format
         """
         return {"id": self._id, "rank": rank, "title": self._title,
-                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights}
+                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights, "no_stored_submissions": self._no_stored_submissions}
 
 
 def check_toc(toc):

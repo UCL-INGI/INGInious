@@ -78,26 +78,6 @@
     </div>
 </div>
 <div class="form-group row">
-    <label for="groups" class="col-sm-2 control-label">{{_("Submission storage")}}</label>
-    <div class="col-sm-10">
-        {% set stored_submissions = task_data.get('stored_submissions', 0) %}
-        <label>
-            <input type="radio" value="true" name="store_all" id="store_all"
-                {{ 'checked="checked"'|safe if stored_submissions == 0 }} />
-            {{_("All submissions")}}
-        </label><br/>
-        <div class="row">
-            <div class="col-xs-12 col-lg-3">
-                <label>
-                    <input type="radio" value="false" name="store_all"
-                        {{ 'checked="checked"'|safe if stored_submissions > 0 }} />
-                    {{ _("Only the last {nbr_submissions} submissions").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="stored_submissions" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (stored_submissions|string if stored_submissions > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="form-group row">
     <label for="groups" class="col-sm-2 control-label">{{ _("Submission limits") }}</label>
     <div class="col-sm-10">
         {% set submission_limit = task_data.get('submission_limit', {"amount":-1, "period":-1}) %}

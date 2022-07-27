@@ -209,7 +209,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         # Start the submission
         try:
-            submissionid, _ = self.submission_manager.add_job(task, user_input, debug)
+            submissionid, _ = self.submission_manager.add_job(task, user_input, course.get_task_dispenser(), debug)
             return 200, {"submissionid": str(submissionid)}
         except Exception as ex:
             raise APIError(500, str(ex))

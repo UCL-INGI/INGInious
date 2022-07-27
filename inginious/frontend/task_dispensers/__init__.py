@@ -13,6 +13,11 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_no_stored_submissions(self, taskid):
+        """Returns the maximum stored submission specified by the administrator"""
+        pass
+
+    @abstractmethod
     def get_course_grade(self, username):
         """Returns the current grade of the course for a specific user"""
         pass
