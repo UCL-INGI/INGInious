@@ -229,7 +229,7 @@ class TerminalSection(Section):
                 if evaluation_mode != "best" and evaluation_mode != "last":
                     raise InvalidTocException( ("The evaluation mode must be either best or last for the task: '" + str(taskid)) +"' but is " + str(evaluation_mode) )
                 else:
-                        self._evaluation_mode = structure["evaluation_mode"]
+                    self._evaluation_mode = structure["evaluation_mode"]
 
     def is_terminal(self):
         return True
