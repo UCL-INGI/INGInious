@@ -20,7 +20,7 @@ class CombinatoryTest(TaskDispenser):
 
     @classmethod
     def get_name(cls, language):
-        return _("Combinatory test")
+        return ("Combinatory test")
 
     def get_weight(self, taskid):
         """ Returns the weight of taskid """
@@ -34,7 +34,8 @@ class CombinatoryTest(TaskDispenser):
         except:
             return 1
 
-    def get_stored_submissions(self,taskid):
+    def get_no_stored_submissions(self,taskid):
+        """Returns the maximum stored submission specified by the administrator"""
         try:
             struct = self._data.to_structure()
             for elem in struct:

@@ -13,7 +13,7 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_stored_submissions(self, taskid):
+    def get_no_stored_submissions(self, taskid):
         """Returns the maximum stored submission specified by the administrator"""
         pass
 

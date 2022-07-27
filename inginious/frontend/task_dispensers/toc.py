@@ -26,13 +26,7 @@ class TableOfContents(TaskDispenser):
     @classmethod
     def get_name(cls, language):
         """ Returns the localized task dispenser name """
-        return _("Table of contents")
-
-    def get_course_grade(self, username):
-        """ Returns the grade of a user for the current course"""
-        task_list = self.get_user_task_list([username])[username]
-        user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
-        return self._toc.get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
+        return ("Table of contents")
 
     def get_weight(self, taskid):
         """ Returns the weight of taskid """
@@ -46,7 +40,8 @@ class TableOfContents(TaskDispenser):
         except:
             return 1
 
-    def get_stored_submissions(self,taskid):
+    def get_no_stored_submissions(self,taskid):
+        """Returns the maximum stored submission specified by the administrator"""
         try:
             struct = self._toc.to_structure()
             for elem in struct:

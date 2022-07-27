@@ -23,7 +23,7 @@
 
             <div style="margin-top: 15px;margin-left: 5px;">{{_("Submission Storage")}}</div>
             <div class="stored_submission">
-                {% set stored_submissions = course.get_task_dispenser().get_stored_submissions(taskid) %}
+                {% set stored_submissions = course.get_task_dispenser().get_no_stored_submissions(taskid) %}
                 <label>
                     <input type="radio" value="true" class="store_submission" name="{{taskid}}" id="store_all" {{ 'checked'|safe if stored_submissions == 0 }} />
                     {{_("All submissions")}}
