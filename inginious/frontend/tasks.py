@@ -240,9 +240,9 @@ class Task(object):
             input_data = problem.adapt_input_for_backend(input_data)
         return input_data
 
-    def get_categories(self):
-        """ Returns the tags id associated to the task """
-        return [category for category in self._categories if category in self._course.get_tags()]
+    #def get_categories(self):
+    #    """ Returns the tags id associated to the task """
+    #    return [category for category in self._categories if category in self._course.get_tags()]
         
     def get_number_input_random(self):
         """ Return the number of random inputs """

@@ -131,12 +131,10 @@
 
                     </div>
                     <ul class="list-group list-group-flush checked-list-box">
-                        {% for key, t in course.get_tags().items() %}
-                            {% if t.get_type() == 2 %}
-                                <li class="list-group-item" data-value="{{ key }}" data-name="org_tags" data-checked="{{ 'true' if key in old_params['org_tags'] else 'false' }}">
-                                    {{ t.get_name(user_manager.session_language()) }}
-                                </li>
-                            {% endif %}
+                        {% for tag in course.get_task_dispenser().get_all_categories() %}
+                            <li class="list-group-item" data-value="{{ key }}" data-name="org_tags" data-checked="{{ 'true' if key in old_params['org_tags'] else 'false' }}">
+                                {{ tag }}
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>

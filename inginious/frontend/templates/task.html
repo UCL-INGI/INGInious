@@ -7,7 +7,6 @@
 
 {% set registered = user_manager.course_is_user_registered(course) %}
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
-{% set course_tags = course.get_tags() %}
 
 {% block column %}
     <h3>{{ _("Information") }}</h3>
@@ -86,17 +85,6 @@
                 {% endif %}
             </td>
         </tr>
-        {% set ns = namespace(tags="") %}
-        {% for tag in course.get_task_dispenser().get_categories(task.get_id()) %}
-                {% set ns.tags = ns.tags + (_(tag) + ", ") %}
-        {% endfor %}
-        {% set ns.tags = ns.tags[:-2] %}
-        {% if ns.tags != "" %}
-            <tr>
-                <td>{{ _("Category tags") }}</td>
-                <td>{{ ns.tags }}</td>
-            </tr>
-        {% endif %}
     </table>
      
     <!-- Tags -->

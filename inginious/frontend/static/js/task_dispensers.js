@@ -440,22 +440,6 @@ function dispenser_util_get_evaluation_mode(tasks_id){
     return evaluation_mode;
 }
 
-$('document').ready(function(){
-    $(".categories").each(function(val){
-        $(this).selectize({
-            delimiter: ",",
-            persist: false,
-            create: function (input) {
-                return {
-                value: input,
-                text: input,
-                };
-            },
-        });
-
-    });
-});
-
 function dispenser_util_get_categories(tasks_id){
     const categories = {};
     $(".categories").each(function(){
