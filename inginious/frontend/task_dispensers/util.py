@@ -223,6 +223,14 @@ class TerminalSection(Section):
                 else:
                     raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
 
+        self._evaluation_mode = {}
+        if "evaluation_mode" in structure:
+            for taskid,evaluation_mode in structure["evaluation_mode"].items():
+                if evaluation_mode != "best" and evaluation_mode != "last":
+                    raise InvalidTocException( ("The evaluation mode must be either best or last for the task: '" + str(taskid)) +"' but is " + str(evaluation_mode) )
+                else:
+                    self._evaluation_mode = structure["evaluation_mode"]
+
     def is_terminal(self):
         return True
 
@@ -265,7 +273,7 @@ class TerminalSection(Section):
         :return: The structure in YAML format
         """
         return {"id": self._id, "rank": rank, "title": self._title,
-                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights, "no_stored_submissions": self._no_stored_submissions}
+                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights, "no_stored_submissions": self._no_stored_submissions, "evaluation_mode": self._evaluation_mode}
 
 
 def check_toc(toc):

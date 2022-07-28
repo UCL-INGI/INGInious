@@ -46,6 +46,18 @@ class CombinatoryTest(TaskDispenser):
         except:
             return 0
 
+    def get_evaluation_mode(self,taskid):
+        """Returns the evaluation mode specified by the administrator"""
+        try:
+            struct = self._data.to_structure()
+            for elem in struct:
+                evaluation_mode = self._data.get_value_rec(taskid,elem,"evaluation_mode")
+                if evaluation_mode is not None:
+                    return evaluation_mode
+            return "best"
+        except:
+            return "best"
+
     def get_course_grade(self, username):
         """ Returns the grade of a user for the current course"""
         task_list = self.get_user_task_list([username])[username]

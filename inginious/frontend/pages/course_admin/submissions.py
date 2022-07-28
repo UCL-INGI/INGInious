@@ -34,7 +34,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             if submission is None:
                 raise NotFound(description=_("This submission doesn't exist."))
 
-            self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission)
+            self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission, course.get_task_dispenser())
             return Response(response=json.dumps({"status": "waiting"}), content_type='application/json')
 
         elif "csv" in user_input or "download" in user_input or "replay" in user_input:
@@ -68,7 +68,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
                 tasks = course.get_tasks()
                 for submission in data:
-                    self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
+                    self.submission_manager.replay_job(tasks[submission["taskid"]], submission, course.get_task_dispenser())
                 msgs.append(_("{0} selected submissions were set for replay.").format(str(len(data))))
                 return self.page(course, params, msgs=msgs)
 
