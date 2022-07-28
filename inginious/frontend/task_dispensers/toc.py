@@ -65,7 +65,7 @@ class TableOfContents(TaskDispenser):
             return "best"
 
     def get_categories(self,taskid):
-        """Returns the categories specified by the administrator"""
+        """Returns the categories specified for the taskid by the administrator"""
         try:
             struct = self._toc.to_structure()
             for elem in struct:
@@ -77,6 +77,7 @@ class TableOfContents(TaskDispenser):
             return ""
 
     def get_all_categories(self):
+        """Returns the categories specified by the administrator"""
         tasks = self._toc.get_tasks()
         all_categories = []
         for task in tasks:

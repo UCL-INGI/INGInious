@@ -454,7 +454,7 @@ $('document').ready(function(){
         });
 
     });
-})
+});
 
 function dispenser_util_get_categories(tasks_id){
     const categories = {};

@@ -59,7 +59,7 @@ class CombinatoryTest(TaskDispenser):
             return "best"
 
     def get_categories(self,taskid):
-        """Returns the categories specified by the administrator"""
+        """Returns the categories specified for the taskid by the administrator"""
         try:
             struct = self._data.to_structure()
             for elem in struct:
@@ -71,6 +71,7 @@ class CombinatoryTest(TaskDispenser):
             return ""
 
     def get_all_categories(self):
+        """Returns the categories specified by the administrator"""
         tasks = self._data.get_tasks()
         all_categories = []
         for task in tasks:
