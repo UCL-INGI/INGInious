@@ -206,30 +206,34 @@ class TerminalSection(Section):
             for taskid,weight in structure["weights"].items():
                 if not (type(weight) == float or type(weight) == int):
                     raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
-                elif weight >= 0:
+                elif weight < 0:
+                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
+                else:
                     if taskid in structure['tasks_list']:
                         self._weights[taskid] = weight
-                else:
-                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
 
         self._no_stored_submissions = {}
         if "no_stored_submissions" in structure:
             for taskid,no_stored_submissions in structure["no_stored_submissions"].items():
                 if not type(no_stored_submissions) == int:
                     raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
-                elif no_stored_submissions >= 0:
-                    if taskid in structure['tasks_list']:
-                        self._no_stored_submissions = structure["no_stored_submissions"]
-                else:
+                elif no_stored_submissions < 0:
                     raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
+            self._no_stored_submissions = structure["no_stored_submissions"]
 
         self._evaluation_mode = {}
         if "evaluation_mode" in structure:
             for taskid,evaluation_mode in structure["evaluation_mode"].items():
                 if evaluation_mode != "best" and evaluation_mode != "last":
                     raise InvalidTocException( ("The evaluation mode must be either best or last for the task: '" + str(taskid)) +"' but is " + str(evaluation_mode) )
-                else:
-                    self._evaluation_mode = structure["evaluation_mode"]
+            self._evaluation_mode = structure["evaluation_mode"]
+
+        self._categories = {}
+        if "categories" in structure:
+            for taskid,categorie in structure["categories"].items():
+                if "" in categorie:
+                    raise InvalidTocException( ("The categorie must have a name for the task: '" + str(taskid)) +"' but is " + str(categorie) )
+            self._categories = structure["categories"]
 
     def is_terminal(self):
         return True
@@ -273,7 +277,9 @@ class TerminalSection(Section):
         :return: The structure in YAML format
         """
         return {"id": self._id, "rank": rank, "title": self._title,
-                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}, "weights": self._weights, "no_stored_submissions": self._no_stored_submissions, "evaluation_mode": self._evaluation_mode}
+                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)},
+                "weights": self._weights, "no_stored_submissions": self._no_stored_submissions,
+                "evaluation_mode": self._evaluation_mode, "categories": self._categories }
 
 
 def check_toc(toc):

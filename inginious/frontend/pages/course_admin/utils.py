@@ -186,7 +186,7 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
         elif only_tasks_with_categories:
             only_tasks_with_categories = set(only_tasks_with_categories)
             more_tasks = {taskid for taskid, task in course.get_tasks().items() if
-                          only_tasks_with_categories.intersection(task.get_categories())}
+                          only_tasks_with_categories.intersection(course.get_task_dispenser().get_all_categories())}
             if only_tasks:
                 self._validate_list(only_tasks)
                 more_tasks.intersection_update(only_tasks)

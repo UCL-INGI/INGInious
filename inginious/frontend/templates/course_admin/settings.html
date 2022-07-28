@@ -401,7 +401,6 @@
                         <select disabled  class="form-control" name="tags[NEW][type]">
                             <option value="0" TYPE_REPLACE_0>{{_("Skill")}}</option>
                             <option value="1" TYPE_REPLACE_1>{{_("Misconception")}}</option>
-                            <option value="2" TYPE_REPLACE_2>{{_("Category")}}</option>
                         </select>
                     </td>
                 </tr>
@@ -420,7 +419,6 @@
                             <select class="form-control" name="tags[{{loop.index}}][type]">
                                 <option value="0" {% if type|int == 0 %} selected="selected" {% endif %}>{{_("Skill")}}</option>
                                 <option value="1" {% if type|int == 1 %} selected="selected" {% endif %}>{{_("Misconception")}}</option>
-                                <option value="2" {% if type|int == 2 %} selected="selected" {% endif %}>{{_("Category")}}</option>
                             </select>
                         </td>
                     </tr>

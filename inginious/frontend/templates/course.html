@@ -108,10 +108,8 @@
         <div class="col-md-4  p-3">
             <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
                 <option value=""> {{ _("Filter tasks by tags") }}</option>
-                {% for key, tag in tag_filter_list.items() %}
-                    {% if tag.get_type() in [0, 2] and tag.is_visible_for_student() %}
-                        <option value="{{ tag.get_id() }}">{{ tag.get_name(user_manager.session_language()) }}</option>
-                    {% endif %}
+                {% for tag in tag_filter_list %}
+                    <option value="{{ tag }}">{{ tag }}</option>
                 {% endfor %}
             </select>
         </div>
