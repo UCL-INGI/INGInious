@@ -106,7 +106,6 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
             user_input["tasks"] = []
         if len(user_input.get("org_categories", [])) == 1 and "," in user_input["org_categories"][0]:
             user_input["org_categories"] = user_input["org_categories"][0].split(',')
-        user_input["org_categories"] = [org_tag for org_tag in user_input["org_categories"] if org_tag in course.get_tags()]
 
         # Sanitise grade
         if "grade_min" in user_input:
@@ -186,7 +185,7 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
         elif only_tasks_with_categories:
             only_tasks_with_categories = set(only_tasks_with_categories)
             more_tasks = {taskid for taskid, task in course.get_tasks().items() if
-                          only_tasks_with_categories.intersection(course.get_task_dispenser().get_all_categories())}
+                          only_tasks_with_categories.intersection(course.get_task_dispenser().get_categories(taskid))}
             if only_tasks:
                 self._validate_list(only_tasks)
                 more_tasks.intersection_update(only_tasks)
