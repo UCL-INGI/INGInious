@@ -143,7 +143,8 @@
                 {% if "show_tags" in old_params %}
                     <td>
                     {% set course_tags = course.get_tags() %}
-                    {% for _,tag in course_tags.items() %}
+                    {% for tag_submission in submission['tests'] %}
+                        {% set tag = course_tags[tag_submission] %}
                         {% if tag.get_type() == 0  %}
                             <span style="line-height: 18px;">
                                 <span class="badge alert-success" id="{{ tag.get_id() }}">{{ tag.get_name(user_manager.session_language()) }}</span>

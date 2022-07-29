@@ -839,6 +839,7 @@ function updateMainTags(data){
                 if(elem.attr('class') == "badge alert-danger"){
                     elem.show();
                 }else{
+                    elem.show();
                     elem.attr('class', 'badge alert-success')
                 }
             }

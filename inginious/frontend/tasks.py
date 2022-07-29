@@ -118,9 +118,6 @@ class Task(object):
         # Regenerate input random
         self._regenerate_input_random = bool(self._data.get("regenerate_input_random", False))
 
-        # Category tags
-        self._categories = self._data.get("categories", [])
-
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 

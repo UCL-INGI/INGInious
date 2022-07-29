@@ -107,7 +107,7 @@
         <div class="mb-3" id="main_tag_group">
         {% for tag in visible_tags %}
             {% if tag.get_type() == 0 %}
-                <span class="badge alert-info" id="{{ tag.get_id() }}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}">{{ tag.get_name(user_manager.session_language()) }}</span>
+                <span class="badge alert-info" id="{{ tag.get_id() }}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}" style="display:none;">{{ tag.get_name(user_manager.session_language()) }}</span>
             {% elif tag.get_type() == 1 %}
                 <span class="badge alert-danger" id="{{ tag.get_id() }}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}" style="display:none;">{{ tag.get_name(user_manager.session_language()) }}</span>
             {% endif %}
