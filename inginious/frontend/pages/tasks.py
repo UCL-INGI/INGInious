@@ -137,7 +137,7 @@ class BaseTaskPage(object):
 
             # Visible tags
             course_tags = course.get_tags()
-            visible_tags = [tags for key,tags in course_tags.items() if
+            visible_tags = [tags for _,tags in course_tags.items() if
                 tags.is_visible_for_student() or self.user_manager.has_staff_rights_on_course(course)]
 
             # Problem dict
