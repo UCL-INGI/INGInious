@@ -223,7 +223,7 @@ The recommended format to indicate the date is `YYYY-MM-DD hh:mm:ss`.
 
 .. code:: rst
 
-    .. hidden-until: 2020-01-01 12:00:03
+    .. hidden-until:: 2020-01-01 12:00:03
 
         This sentence will only be displayed after the 1st January 2020 at 12:00:03.
 
