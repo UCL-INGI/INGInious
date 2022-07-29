@@ -373,6 +373,7 @@ function dispenser_util_get_sections_list(element) {
 
             structure["no_stored_submissions"] = dispenser_util_get_no_stored_submissions(tasks_id);
             structure["evaluation_mode"] = dispenser_util_get_evaluation_mode(tasks_id);
+            structure["categories"] = dispenser_util_get_categories(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
@@ -437,6 +438,17 @@ function dispenser_util_get_evaluation_mode(tasks_id){
         }
     });
     return evaluation_mode;
+}
+
+function dispenser_util_get_categories(tasks_id){
+    const categories = {};
+    $(".categories").each(function(){
+        var taskid = this.id;
+        if(taskid in tasks_id && this.value !== ""){
+            categories[taskid] = this.value.split(",");
+        }
+    });
+    return categories;
 }
 
 function dispenser_util_get_tasks_list(element) {

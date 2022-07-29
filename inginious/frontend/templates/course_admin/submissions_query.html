@@ -119,7 +119,7 @@
                     <div class="card-header">
                         <ul class="nav nav-tabs card-header-tabs" role="tablist">
                             <li class="nav-item">
-                                <span class="nav-link active" href="#" role="tab" data-toggle="tab">{{ _("Select tags") }}</span>
+                                <span class="nav-link active" href="#" role="tab" data-toggle="tab">{{ _("Select category") }}</span>
                             </li>
                             <li class="nav-item">
                                 <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select(true, this)">{{ _("Select all") }}</button>
@@ -131,12 +131,10 @@
 
                     </div>
                     <ul class="list-group list-group-flush checked-list-box">
-                        {% for key, t in course.get_tags().items() %}
-                            {% if t.get_type() == 2 %}
-                                <li class="list-group-item" data-value="{{ key }}" data-name="org_tags" data-checked="{{ 'true' if key in old_params['org_tags'] else 'false' }}">
-                                    {{ t.get_name(user_manager.session_language()) }}
-                                </li>
-                            {% endif %}
+                        {% for category in course.get_task_dispenser().get_all_categories() %}
+                            <li class="list-group-item" data-value="{{ category }}" data-name="org_categories" data-checked="{{ 'true' if category in old_params['org_categories'] else 'false' }}">
+                                {{ category }}
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -155,7 +153,7 @@
                             <!-- Checkboxs -->
                             {% set  list_checkboxes = [("eval", _("Only evaluation submissions")),
                                                 ("crashes_only", _("Only timeouts and crashes")),
-                                                ("show_tags", _("Show tags")),
+                                                ("show_tags", _("Show Tags")),
                                                 ("show_id", _("Show submission id")),
                                                 ("show_task_name", _("Show task name")),
                                                 ("show_stud_name", _("Show student name"))] %}

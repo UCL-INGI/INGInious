@@ -7,8 +7,6 @@
 
 {% set registered = user_manager.course_is_user_registered(course) %}
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
-{% set course_tags = course.get_tags() %}
-{% set task_categories = task.get_categories() %}
 
 {% block column %}
     <h3>{{ _("Information") }}</h3>
@@ -88,11 +86,9 @@
             </td>
         </tr>
         {% set ns = namespace(tags="") %}
+        {% set task_categories = course.get_task_dispenser().get_categories(task.get_id()) %}
         {% for category in task_categories %}
-            {% set tag = course_tags[category] %}
-            {% if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course) %}
-                {% set ns.tags = ns.tags + (_(tag.get_name(user_manager.session_language())) + ", ") %}
-            {% endif %}
+            {% set ns.tags = ns.tags + (category + ", ") %}
         {% endfor %}
         {% set ns.tags = ns.tags[:-2] %}
         {% if ns.tags != "" %}
@@ -111,7 +107,7 @@
         <div class="mb-3" id="main_tag_group">
         {% for tag in visible_tags %}
             {% if tag.get_type() == 0 %}
-                <span class="badge alert-info" id="{{ tag.get_id() }}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}">{{ tag.get_name(user_manager.session_language()) }}</span>
+                <span class="badge alert-info" id="{{ tag.get_id() }}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}" style="display:none;">{{ tag.get_name(user_manager.session_language()) }}</span>
             {% elif tag.get_type() == 1 %}
                 <span class="badge alert-danger" id="{{ tag.get_id() }}" data-placement="right" data-toggle="tooltip" title="{{ tag.get_description(user_manager.session_language()) }}" style="display:none;">{{ tag.get_name(user_manager.session_language()) }}</span>
             {% endif %}
@@ -222,20 +218,15 @@
                             {# The badge is green (success style) if all tags are validated, blue (info style) otherwise. #}
                             {% if visible_tags|length > 0 %}
                                 {% set ns = namespace(tags_ok_counter=0,list_tags_ok=[]) %}
-                                {% for category in task_categories %}
-                                    {% set tag = course_tags[category] %}
-                                    {% if tag.get_type() == 0 and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)) %}
-                                        {% set ns.class_tag = "badge alert-info" %}
-                                        {% if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] %}
-                                            {% set ns.tags_ok_counter = ns.tags_ok_counter + 1 %}
-                                            {% set ns.list_tags_ok = ns.list_tags_ok + tag.get_name(user_manager.session_language()) %}
-                                        {% endif %}
+                                {% for tagid, tag in course.get_tags().items() %}
+                                    {% set ns.class_tag = "badge alert-info" %}
+                                    {% if "tests" in submission and tagid in submission["tests"] and submission["tests"][tagid] %}
+                                        {% set ns.tags_ok_counter = ns.tags_ok_counter + 1 %}
+                                        {% set ns.list_tags_ok = ns.list_tags_ok + [tag.get_name(user_manager.session_language())] %}
                                     {% endif %}
                                 {% endfor %}
-                                {% if ns.tags_ok_counter == visible_tags|length %}
-                                    <span class="badge alert-success" id="tag_counter">{{ tags_ok_counter }}</span>
-                                {% else %}
-                                    <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="{{ ', '.join(list_tags_ok) }}">{{ tags_ok_counter }}</span>
+                                {% if ns.tags_ok_counter %}
+                                    <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="{{ ', '.join(ns.list_tags_ok) }}">{{ ns.tags_ok_counter }}</span>
                                 {% endif %}
                             {% endif %}
                             <!-- End Tags -->

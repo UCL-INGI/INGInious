@@ -81,7 +81,7 @@ class CoursePage(INGIniousAuthPage):
             course_grade = course.get_task_dispenser().get_course_grade(username)
 
             # Get tag list
-            tag_list = course.get_tags()
+            categories = set(course.get_task_dispenser().get_all_categories())
 
             # Get user info
             user_info = self.user_manager.get_user_info(username)
@@ -91,4 +91,4 @@ class CoursePage(INGIniousAuthPage):
                                                submissions=last_submissions,
                                                tasks_data=tasks_data,
                                                grade=course_grade,
-                                               tag_filter_list=tag_list)
+                                               category_filter_list=categories)

@@ -104,14 +104,12 @@
         <h2>{{ course.get_name(user_manager.session_language()) }}</h2>
     </div>
 
-    {%if tag_filter_list %}
+    {%if category_filter_list %}
         <div class="col-md-4  p-3">
             <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
-                <option value=""> {{ _("Filter tasks by tags") }}</option>
-                {% for key, tag in tag_filter_list.items() %}
-                    {% if tag.get_type() in [0, 2] and tag.is_visible_for_student() %}
-                        <option value="{{ tag.get_id() }}">{{ tag.get_name(user_manager.session_language()) }}</option>
-                    {% endif %}
+                <option value=""> {{ _("Filter tasks by category") }}</option>
+                {% for category in category_filter_list %}
+                    <option value="{{ category }}">{{ category }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -175,7 +173,7 @@ function filter_tag(tag) {
     }
 </style>
 
-{{ course.get_task_dispenser().render(template_helper, course, tasks_data, tag_filter_list) | safe }}
+{{ course.get_task_dispenser().render(template_helper, course, tasks_data, category_filter_list) | safe }}
 
 {% include "unregister_modal.html" %}
 

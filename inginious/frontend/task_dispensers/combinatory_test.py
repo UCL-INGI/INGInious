@@ -58,6 +58,33 @@ class CombinatoryTest(TaskDispenser):
         except:
             return "best"
 
+    def get_categories(self,taskid):
+        """Returns the categories specified for the taskid by the administrator"""
+        try:
+            struct = self._data.to_structure()
+            for elem in struct:
+                categories = self._data.get_value_rec(taskid,elem,"categories")
+                if categories is not None:
+                    return categories
+            return []
+        except:
+            return []
+
+    def get_all_categories(self):
+        """Returns the categories specified by the administrator"""
+        tasks = self._data.get_tasks()
+        all_categories = []
+        for task in tasks:
+            try:
+                struct = self._data.to_structure()
+                for elem in struct:
+                    categories = self._data.get_value_rec(task,elem,"categories")
+                    if categories is not None:
+                        all_categories += categories
+            except:
+                return all_categories
+        return all_categories
+
     def get_course_grade(self, username):
         """ Returns the grade of a user for the current course"""
         task_list = self.get_user_task_list([username])[username]

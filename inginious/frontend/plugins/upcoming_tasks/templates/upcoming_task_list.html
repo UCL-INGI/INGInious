@@ -37,11 +37,8 @@
                     </div>
 					
                     <div id="tags_of_task" style="display:none;">
-                        {% for category in task.get_categories() %}
-                            {% set tag = tag_list[category] %}
-                            {% if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course) %}
-                                <div id="tag" data-tag-name="{{tag.get_id()}}"></div>
-                            {% endif %}
+                        {% for category in course.get_task_dispenser().get_categories(task.get_id()) %}
+                            <div id="tag" data-tag-name="{{ category }}"></div>
                         {% endfor %}
                     </div>
                 </a>

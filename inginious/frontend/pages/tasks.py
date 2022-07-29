@@ -137,9 +137,8 @@ class BaseTaskPage(object):
 
             # Visible tags
             course_tags = course.get_tags()
-            task_categories = task.get_categories()
-            visible_tags = [course_tags[category] for category in task_categories if
-                            course_tags[category].is_visible_for_student() or self.user_manager.has_staff_rights_on_course(course)]
+            visible_tags = [tags for _,tags in course_tags.items() if
+                tags.is_visible_for_student() or self.user_manager.has_staff_rights_on_course(course)]
 
             # Problem dict
             pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}

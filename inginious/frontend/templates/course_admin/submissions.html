@@ -143,15 +143,15 @@
                 {% if "show_tags" in old_params %}
                     <td>
                     {% set course_tags = course.get_tags() %}
-                    {% for key in course.get_task(submission['taskid']).get_categories() %}
-                        {% set tag = course_tags[key] %}
+                    {% for tag_submission in submission['tests'] %}
+                        {% set tag = course_tags[tag_submission] %}
                         {% if tag.get_type() == 0  %}
                             <span style="line-height: 18px;">
-                                <span class="badge alert-success" id="{{tag.get_id()}}">{{ tag.get_name(user_manager.session_language()) }}</span>
+                                <span class="badge alert-success" id="{{ tag.get_id() }}">{{ tag.get_name(user_manager.session_language()) }}</span>
                             </span>
                         {% elif tag.get_type() == 1 %}
                             <span style="line-height: 18px;">
-                                <span class="badge alert-danger" id="{{tag.get_id()}}"> {{ tag.get_name(user_manager.session_language()) }}</span>
+                                <span class="badge alert-danger" id="{{ tag.get_id() }}"> {{ tag.get_name(user_manager.session_language()) }}</span>
                             </span>
                         {% endif %}
                     {% endfor %}

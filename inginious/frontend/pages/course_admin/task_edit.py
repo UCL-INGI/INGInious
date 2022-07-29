@@ -149,13 +149,6 @@ class CourseEditTask(INGIniousAdminPage):
                 data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                                 for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
 
-            # Categories
-            course_tags = course.get_tags()
-            data['categories'] = [cat for cat in map(str.strip, data['categories'].split(',')) if cat]
-            for category in data['categories']:
-                if category not in course_tags:
-                    return json.dumps({"status": "error", "message": _("Unknown category tag.")})
-
             # Task environment parameters
             data["environment_parameters"] = environment_parameters
 

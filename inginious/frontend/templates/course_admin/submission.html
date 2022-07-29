@@ -38,7 +38,7 @@
 
 {% set is_admin = user_manager.has_admin_rights_on_course(course) %}
 {% set course_tags = course.get_tags() %}
-{% set task_categories = task.get_categories() %}
+{% set task_categories = course.get_task_dispenser().get_categories(task.get_id()) %}
 
 <h2>{{ _("Submission {}").format(str(submission['_id'])[0:10])}} - "{{ task.get_name(user_manager.session_language()) }}" - {{ user_realname }} ({{username}})</h2>
 <div class="alert alert-info text-center">

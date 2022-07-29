@@ -53,6 +53,24 @@
     {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
 {% endfor %}
 
+<script>
+    $('document').ready(function(){
+        $(".categories").each(function(val){
+            $(this).selectize({
+                delimiter: ",",
+                persist: false,
+                create: function (input) {
+                    return {
+                    value: input,
+                    text: input,
+                    };
+                },
+            });
+
+        });
+    });
+</script>
+
 <div class="modal fade" id="addTaskModal" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
