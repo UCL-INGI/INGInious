@@ -218,17 +218,15 @@
                             {# The badge is green (success style) if all tags are validated, blue (info style) otherwise. #}
                             {% if visible_tags|length > 0 %}
                                 {% set ns = namespace(tags_ok_counter=0,list_tags_ok=[]) %}
-                                {% for tag in course.get_task_dispenser().get_categories(task.get_id()) %}
+                                {% for tagid, tag in course.get_tags().items() %}
                                     {% set ns.class_tag = "badge alert-info" %}
-                                    {% if "tests" in submission and tag in submission["tests"] and submission["tests"][tag] %}
+                                    {% if "tests" in submission and tagid in submission["tests"] and submission["tests"][tagid] %}
                                         {% set ns.tags_ok_counter = ns.tags_ok_counter + 1 %}
-                                        {% set ns.list_tags_ok = ns.list_tags_ok + tag.get_name(user_manager.session_language()) %}
+                                        {% set ns.list_tags_ok = ns.list_tags_ok + [tag.get_name(user_manager.session_language())] %}
                                     {% endif %}
                                 {% endfor %}
-                                {% if ns.tags_ok_counter == visible_tags|length %}
-                                    <span class="badge alert-success" id="tag_counter">{{ tags_ok_counter }}</span>
-                                {% else %}
-                                    <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="{{ ', '.join(list_tags_ok) }}">{{ tags_ok_counter }}</span>
+                                {% if ns.tags_ok_counter %}
+                                    <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="{{ ', '.join(ns.list_tags_ok) }}">{{ ns.tags_ok_counter }}</span>
                                 {% endif %}
                             {% endif %}
                             <!-- End Tags -->
