@@ -26,7 +26,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         user_input["users"] = flask.request.form.getlist("users")
         user_input["audiences"] = flask.request.form.getlist("audiences")
         user_input["tasks"] = flask.request.form.getlist("tasks")
-        user_input["org_tags"] = flask.request.form.getlist("org_tasks")
+        user_input["org_categories"] = flask.request.form.getlist("org_categories")
 
         if "replay_submission" in user_input:
             # Replay a unique submission
@@ -91,7 +91,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         user_input["users"] = flask.request.args.getlist("users")
         user_input["audiences"] = flask.request.args.getlist("audiences")
         user_input["tasks"] = flask.request.args.getlist("tasks")
-        user_input["org_tags"] = flask.request.args.getlist("org_tasks")
+        user_input["org_categories"] = flask.request.args.getlist("org_categories")
 
         if "download_submission" in user_input:
             submission = self.database.submissions.find_one({"_id": ObjectId(user_input["download_submission"]),
@@ -144,7 +144,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             skip = (page-1) * limit
 
         return self.get_selected_submissions(course, only_tasks=user_input["tasks"],
-                                             only_tasks_with_categories=user_input["org_tags"],
+                                             only_tasks_with_categories=user_input["org_categories"],
                                              only_users=user_input["users"],
                                              only_audiences=user_input["audiences"],
                                              grade_between=[

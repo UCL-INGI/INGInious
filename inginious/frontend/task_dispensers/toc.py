@@ -72,9 +72,9 @@ class TableOfContents(TaskDispenser):
                 categories = self._toc.get_value_rec(taskid,elem,"categories")
                 if categories is not None:
                     return categories
-            return ""
+            return []
         except:
-            return ""
+            return []
 
     def get_all_categories(self):
         """Returns the categories specified by the administrator"""

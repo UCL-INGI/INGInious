@@ -85,6 +85,18 @@
                 {% endif %}
             </td>
         </tr>
+        {% set ns = namespace(tags="") %}
+        {% set task_categories = course.get_task_dispenser().get_categories(task.get_id()) %}
+        {% for category in task_categories %}
+            {% set ns.tags = ns.tags + (category + ", ") %}
+        {% endfor %}
+        {% set ns.tags = ns.tags[:-2] %}
+        {% if ns.tags != "" %}
+            <tr>
+                <td>{{ _("Category tags") }}</td>
+                <td>{{ ns.tags }}</td>
+            </tr>
+        {% endif %}
     </table>
      
     <!-- Tags -->

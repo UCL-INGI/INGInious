@@ -135,6 +135,11 @@ class BaseTaskPage(object):
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.user_manager.get_user_info(username)
 
+            # Visible tags
+            course_tags = course.get_tags()
+            visible_tags = [tags for key,tags in course_tags.items() if
+                tags.is_visible_for_student() or self.user_manager.has_staff_rights_on_course(course)]
+
             # Problem dict
             pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
             is_input_list = {problem.get_id():  1 if problem.input_type() == list else 0 for problem in task.get_problems()}
@@ -145,7 +150,7 @@ class BaseTaskPage(object):
                                                eval_submission=eval_submission, user_task=user_task,
                                                previous_taskid=previous_taskid, next_taskid=next_taskid,
                                                webterm_link=self.webterm_link, input_random_list=random_input_list,
-                                               pdict=pdict, is_input_list=is_input_list)
+                                               visible_tags=visible_tags, pdict=pdict, is_input_list=is_input_list)
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """

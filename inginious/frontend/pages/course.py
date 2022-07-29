@@ -91,4 +91,4 @@ class CoursePage(INGIniousAuthPage):
                                                submissions=last_submissions,
                                                tasks_data=tasks_data,
                                                grade=course_grade,
-                                               tag_filter_list=categories)
+                                               category_filter_list=categories)

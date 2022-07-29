@@ -37,8 +37,8 @@
                     </div>
 					
                     <div id="tags_of_task" style="display:none;">
-                        {% for tag in course.get_task_dispenser().get_categories(task.get_id()) %}
-                            <div id="tag" data-tag-name="{{ tag }}"></div>
+                        {% for category in course.get_task_dispenser().get_categories(task.get_id()) %}
+                            <div id="tag" data-tag-name="{{ category }}"></div>
                         {% endfor %}
                     </div>
                 </a>

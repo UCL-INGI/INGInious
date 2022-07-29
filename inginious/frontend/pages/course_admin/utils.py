@@ -104,9 +104,9 @@ class INGIniousSubmissionsAdminPage(INGIniousAdminPage):
         # Sanitise tags
         if not user_input.get("tasks", []):
             user_input["tasks"] = []
-        if len(user_input.get("org_tags", [])) == 1 and "," in user_input["org_tags"][0]:
-            user_input["org_tags"] = user_input["org_tags"][0].split(',')
-        user_input["org_tags"] = [org_tag for org_tag in user_input["org_tags"] if org_tag in course.get_tags()]
+        if len(user_input.get("org_categories", [])) == 1 and "," in user_input["org_categories"][0]:
+            user_input["org_categories"] = user_input["org_categories"][0].split(',')
+        user_input["org_categories"] = [org_tag for org_tag in user_input["org_categories"] if org_tag in course.get_tags()]
 
         # Sanitise grade
         if "grade_min" in user_input:

@@ -162,7 +162,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
         user_input["users"] = flask.request.args.getlist("users")
         user_input["audiences"] = flask.request.args.getlist("audiences")
         user_input["tasks"] = flask.request.args.getlist("tasks")
-        user_input["org_tags"] = flask.request.args.getlist("org_tags")
+        user_input["org_categories"] = flask.request.args.getlist("org_categories")
         params = self.get_input_params(user_input, course, 500)
 
         return self.page(course, params)
@@ -175,7 +175,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
         user_input["users"] = flask.request.form.getlist("users")
         user_input["audiences"] = flask.request.form.getlist("audiences")
         user_input["tasks"] = flask.request.form.getlist("tasks")
-        user_input["org_tags"] = flask.request.form.getlist("org_tags")
+        user_input["org_categories"] = flask.request.form.getlist("org_categories")
         params = self.get_input_params(user_input, course, 500)
 
         return self.page(course, params)
@@ -202,7 +202,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
         filter, best_submissions_list = self.get_submissions_filter(course, only_tasks=params["tasks"],
-                                             only_tasks_with_categories=params["org_tags"],
+                                             only_tasks_with_categories=params["org_categories"],
                                              only_users=params["users"],
                                              only_audiences=params["audiences"],
                                              grade_between=[

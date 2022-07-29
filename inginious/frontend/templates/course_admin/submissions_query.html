@@ -131,9 +131,9 @@
 
                     </div>
                     <ul class="list-group list-group-flush checked-list-box">
-                        {% for tag in course.get_task_dispenser().get_all_categories() %}
-                            <li class="list-group-item" data-value="{{ key }}" data-name="org_tags" data-checked="{{ 'true' if key in old_params['org_tags'] else 'false' }}">
-                                {{ tag }}
+                        {% for categories in course.get_task_dispenser().get_all_categories() %}
+                            <li class="list-group-item" data-value="{{ key }}" data-name="org_categories" data-checked="{{ 'true' if key in old_params['org_categories'] else 'false' }}">
+                                {{ categories }}
                             </li>
                         {% endfor %}
                     </ul>
@@ -153,7 +153,7 @@
                             <!-- Checkboxs -->
                             {% set  list_checkboxes = [("eval", _("Only evaluation submissions")),
                                                 ("crashes_only", _("Only timeouts and crashes")),
-                                                ("show_tags", _("Show tags")),
+                                                ("show_categories", _("Show categories")),
                                                 ("show_id", _("Show submission id")),
                                                 ("show_task_name", _("Show task name")),
                                                 ("show_stud_name", _("Show student name"))] %}
