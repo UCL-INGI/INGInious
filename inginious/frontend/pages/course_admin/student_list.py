@@ -222,12 +222,8 @@ class CourseStudentListPage(INGIniousAdminPage):
                         user_id = user_id.strip()
                         field = field.strip()
                         role = role.strip()
-                        print("LUDO")
-                        print(description)
                         if description != "":
                             description = description.strip()
-                        else:
-                            print("nothing")
                         if field not in ["username", "email", "realname"] + list(auth_method_ids) \
                                 or role not in ["student", "tutor"]:
                             msg["audiences"] = _("Field was not recognized: ") + field
