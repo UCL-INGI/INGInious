@@ -96,10 +96,10 @@ class CourseSettingsPage(INGIniousAdminPage):
         if tag_error is not None:
             errors.append(tag_error)
 
-        additional_fields_error = self.define_additionnal_fields(course, data, course_content)
-        if additional_fields_error is not None:
-            errors.append(additional_fields_error)
-
+        additional_fields = self.define_additionnal_fields(course, data, course_content)
+        if additional_fields is not None and not isinstance(additional_fields, dict):
+            errors.append(additional_fields)
+        course_content["fields"] = additional_fields
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
@@ -144,17 +144,11 @@ class CourseSettingsPage(INGIniousAdminPage):
         # Repair fields
         for key, field in fields.items():
             field["type"] = int(field["type"])
-
-            if (field["id"] == "" and field["type"] != 2):
-                return _("Some fields were missing.")
-
             if not id_checker(field["id"]):
                 return _("Invalid id: {}").format(field["id"])
 
             del field["id"]
-
-        course_content["fields"] = fields
-        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
+        return fields
 
     def prepare_datas(self, data, prefix: str):
         # prepare dict
