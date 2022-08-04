@@ -204,12 +204,13 @@ class CourseStudentListPage(INGIniousAdminPage):
                 # Furthermore, FileStorage.stream seems to inherit ʻio.BufferedIOBase`, so this stream should be boiled.
                 # As reader return an iterator and that we iterate twice, it is faster to cast into a list.
                 csv_data = list(csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8')))
-                auth_method_ids = self.user_manager.get_auth_methods().keys()
+                # Define used variables.
                 students_per_audience = {}
                 tutors_per_audience = {}
                 course_students = []
                 course_tutors = []
                 audiences = []
+                # Check correctness of CSV structure.
                 for line in csv_data:
                     if len(line) != 4:
                         msg["audiences"] = _("File wrongly formatted.")
@@ -217,16 +218,22 @@ class CourseStudentListPage(INGIniousAdminPage):
                 if "audiences" not in error or not error["audiences"]:
                     stud_list, aud_li, oth_stu, u_info = self.get_user_lists(course)
                     courseid = course.get_id()
+                    # Fully remove previous audiences.
                     self.database.audiences.delete_many({"courseid": courseid})
+                    # read datas from CSV.
                     for user_id, field, role, description in csv_data:
                         user_id = user_id.strip()
                         field = field.strip()
                         role = role.strip()
                         if description != "":
                             description = description.strip()
-                        if field not in ["username", "email", "realname"] + list(auth_method_ids) \
-                                or role not in ["student", "tutor"]:
+                        if field not in ["username", "email", "realname"] + \
+                                list(self.user_manager.get_auth_methods().keys()):
                             msg["audiences"] = _("Field was not recognized: ") + field
+                            error["audiences"] = True
+                            continue
+                        if role not in ["student", "tutor"]:
+                            msg["audiences"] = _("Unknown role: ") + role
                             error["audiences"] = True
                             continue
                         if field != "username":
@@ -237,19 +244,31 @@ class CourseStudentListPage(INGIniousAdminPage):
                                 msg["audiences"] = _("User was not found: ") + user_id
                                 error["audiences"] = True
                                 continue
+                        # prepare datas to avoid multiple request to database.
                         if role == "student":
                             students_per_audience.setdefault(description, []).append(user_id)
                             course_students.append(user_id)
                         else:
                             tutors_per_audience.setdefault(description, []).append(user_id)
                             course_tutors.append(user_id)
-                    for key, value in students_per_audience.items():
-                        audiences.append({"description": key, "courseid": courseid,
-                                  "students": value, "tutors": tutors_per_audience[key] if key in tutors_per_audience else []})
+                    # Creation of audiences.
+                    if len(students_per_audience) > 0:
+                        for key, value in students_per_audience.items():
+                            audiences.append({"description": key, "courseid": courseid,
+                                              "students": value,
+                                              "tutors": tutors_per_audience[key] if key in tutors_per_audience else []})
+                    else:
+                        for key, value in tutors_per_audience.items():
+                            audiences.append({"description": key, "courseid": courseid,
+                                              "students": [],
+                                              "tutors": value})
+
+                    # update list of students and tutors of the course.
                     new_students = list(set(stud_list).union(set(course_students)))
                     new_tutors = list(set(course.get_tutors()).union(set(course_tutors)))
+
                     self.database.courses.update_one({"_id": courseid}, {"$set": {"students": new_students,
-                                                                                     "tutors": new_tutors}})
+                                                                                  "tutors": new_tutors}})
 
                     # this is done to avoid removing the audience id and impact the group audience filter.
                     for audience in audiences:
