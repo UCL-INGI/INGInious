@@ -145,18 +145,12 @@ class CourseSettingsPage(INGIniousAdminPage):
 
         # Repair fields
         for key, field in fields.items():
-            field["type"] = int(field["type"])
-
-            if (field["id"] == "" and field["type"] != 2):
-                return _("Some fields were missing.")
-
+            field["type"] = FieldTypes(int(field["type"])).name
             if not id_checker(field["id"]):
                 return _("Invalid id: {}").format(field["id"])
 
             del field["id"]
-
-        course_content["fields"] = fields
-        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
+        return fields
 
     def prepare_datas(self, data, prefix: str):
         # prepare dict
