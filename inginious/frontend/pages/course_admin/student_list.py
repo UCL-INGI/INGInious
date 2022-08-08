@@ -236,14 +236,13 @@ class CourseStudentListPage(INGIniousAdminPage):
                             msg["audiences"] = _("Unknown role: ") + role
                             error["audiences"] = True
                             continue
-                        if field != "username":
-                            user = self.database.users.find_one({field: user_id})
-                            if user is not None:
-                                user_id = user["username"]
-                            else:
-                                msg["audiences"] = _("User was not found: ") + user_id
-                                error["audiences"] = True
-                                continue
+                        user = self.database.users.find_one({field: user_id})
+                        if user is not None:
+                            user_id = user["username"]
+                        else:
+                            msg["audiences"] = _("User was not found: ") + user_id
+                            error["audiences"] = True
+                            continue
                         # prepare datas to avoid multiple request to database.
                         if role == "student":
                             students_per_audience.setdefault(description, []).append(user_id)
