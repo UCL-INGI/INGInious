@@ -27,12 +27,14 @@ class CourseStudentListPage(INGIniousAdminPage):
         course, __ = self.get_course_and_check_rights(courseid)
 
         if "download_audiences" in flask.request.args:
-            audiences = [{"description": audience["description"],
-                          "students": audience["students"],
-                          "tutors": audience["tutors"]} for audience in
-                         self.user_manager.get_course_audiences(course)]
-            response = Response(response=yaml.dump(audiences), content_type='text/x-yaml')
-            response.headers['Content-Disposition'] = 'attachment; filename="audiences.yaml"'
+            audiences = []
+            for audience in self.user_manager.get_course_audiences(course):
+                for student in audience["students"]:
+                    audiences.append(student+",username,student,"+audience["description"])
+                for tutor in audience["tutors"]:
+                    audiences.append(tutor+",username,tutor,"+audience["description"])
+            response = Response(response=audiences, content_type='text/csv')
+            response.headers['Content-Disposition'] = 'attachment; filename="audiences.csv"'
             return response
 
         if "download_groups" in flask.request.args:
