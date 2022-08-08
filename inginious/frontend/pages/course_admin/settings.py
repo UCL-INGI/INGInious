@@ -7,6 +7,7 @@ import re
 import flask
 
 from inginious.common.base import dict_from_prefix, id_checker
+from inginious.common.field_types import FieldTypes
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -109,6 +110,7 @@ class CourseSettingsPage(INGIniousAdminPage):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
+        self.template_helper.add_to_template_globals("field_types", FieldTypes)
         return self.template_helper.render("course_admin/settings.html", course=course, errors=errors, saved=saved)
 
     def define_tags(self, course, data, course_content):
@@ -143,7 +145,7 @@ class CourseSettingsPage(INGIniousAdminPage):
 
         # Repair fields
         for key, field in fields.items():
-            field["type"] = int(field["type"])
+            field["type"] = FieldTypes(int(field["type"])).name
             if not id_checker(field["id"]):
                 return _("Invalid id: {}").format(field["id"])
 
