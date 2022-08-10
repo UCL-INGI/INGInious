@@ -162,6 +162,7 @@ class BackendNewJob:
 class BackendKillJob:
     """ Kills a running job. """
     job_id: BackendJobId  # the backend-side job id that is associated to the job to kill
+    state: str  # submission state in case the job is lost at the agent
 
 
 #################################################################

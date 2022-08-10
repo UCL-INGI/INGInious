@@ -147,15 +147,18 @@ class Backend(object):
         # Check if the job is not in the waiting list
         if message.job_id in self._waiting_jobs:
             # Erase the job in waiting list
-            del self._waiting_jobs[message.job_id]
+            waiting_job = self._waiting_jobs.pop(message.job_id)
+            previous_state = waiting_job.msg.inputdata.get("@state", "")
 
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
-                                                                                           0.0, {}, {}, {}, "", None, "", ""))
+                                                                                           0.0, {}, {}, {}, previous_state, None, "", ""))
         # If the job is running, transmit the info to the agent
         elif message.job_id in self._job_running:
-            agent_addr = self._job_running[message.job_id].agent_addr
-            await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob(message.job_id))
+            running_job = self._job_running[message.job_id]
+            agent_addr = running_job.agent_addr
+            previous_state = running_job.msg.inputdata.get("@state", "")
+            await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob(message.job_id, previous_state))
         else:
             self._logger.warning("Client %s attempted to kill unknown job %s", str(client_addr), str(message.job_id))
 
