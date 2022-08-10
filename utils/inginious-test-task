@@ -1,0 +1,281 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+#
+# Original version at https://github.com/UCL-INGI/INGInious/blob/v0.4/utils/task_tester/inginious-test-task
+
+import difflib
+import argparse
+import glob
+import os
+import sys
+import time
+
+# If INGInious files are not installed in Python path
+sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..'))
+
+import inginious.frontend.tasks
+from inginious.common.base import load_json_or_yaml
+from inginious.frontend.course_factory import create_factories
+from inginious.frontend.parsable_text import ParsableText
+from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.client.client_sync import ClientSync
+
+from inginious.frontend.task_dispensers.toc import TableOfContents
+from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
+from inginious.common.filesystems.local import LocalFSProvider
+from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, FileProblem
+
+def job_done_callback(result, filename, inputfiles, data):
+    print('\x1b[34;1m[' + str(job_done_callback.jobs_done + 1) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m')
+
+    """
+    print(data)
+    print(result)
+    if 'response_type' in data:
+        result['response_type'] = data['response_type']
+    parse_text(task, result)
+    print(result['problems'])
+    print(data['problems'])
+    """
+
+    # Print stdout if verbose
+    if verbose:
+        print('\x1b[1m-> Complete standard output : \033[0m')
+        for line in result['stdout'].splitlines(1):
+            print('\t' + line.strip('\n'))
+
+    # Start the comparison
+    noprob = True
+
+    if 'stderr' in result and result['stderr']:
+        noprob = False
+        print('\x1b[31;1m-> There was some error(s) during execution : \033[0m')
+        for line in result['stderr'].splitlines(1):
+            print('\x1b[31;1m\t' + line.strip('\n') + '\033[0m')
+
+    if 'stdout' in data and data['stdout']:
+        if data['stdout'] != result['stdout']:
+            noprob = False
+            print("\033[1m-> Standard output doesn't match :\033[0m")
+            for line in difflib.unified_diff(data['stdout'].splitlines(1), result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
+                print('\t' + line.strip('\n'))
+
+    if 'result' in data and data['result']:
+        if data['result'] != result['result'][0]:
+            noprob = False
+            print("\033[1m-> Result doesn't match :\033[0m")
+            print("\t Expected result : " + data['result'])
+            print("\t Actual result : " + result['result'][0])
+
+    if 'text' in data and data['text']:
+        if not result['result'][1]:
+            noprob = False
+            print("\033[1m-> No global feedback given \033[0m")
+            print("\t Expected result : " + data['text'])
+        elif data['text'].strip() != result['result'][1].strip():
+            noprob = False
+            print("\033[1m-> Global feedback doesn't match :\033[0m")
+            print("\t Expected result : " + repr(data['text']))
+            print("\t Actual result : " + repr(result['result'][1]))
+
+    if 'problems' in data and data['problems']:
+        if not 'problems' in result:
+            noprob = False
+            print("\033[1m-> No specific problem feedback given as expected \033[0m")
+        else:
+            for problem in data['problems']:
+                if not problem in result['problems']:
+                    noprob = False
+                    print("\033[1m-> No feedback for problem id " + problem + " given \033[0m")
+                    print("\t Expected result : " + data['problems'][problem][0] + "\n\t" + data['problems'][problem][1])
+                elif data['problems'][problem][0].strip() != result['problems'][problem][0].strip():
+                    noprob = False
+                    print("\033[1m-> Result for problem id " + problem + " doesn't match :\033[0m")
+                    print("\t Expected result : " + data['problems'][problem][0])
+                    print("\t Actual result : " + result['problems'][problem][0])
+                #elif repr(data['problems'][problem][1].strip()) != repr(result['problems'][problem][1].strip()):
+                #    noprob = False
+                #    print("\033[1m-> Feedback for problem id <" + problem + "> doesn't match :\033[0m")
+                #    print("\t Expected result : " + repr(data['problems'][problem][1].strip()))
+                #    print("\t Actual result : " + repr(result['problems'][problem][1].strip()))
+
+    if 'tests' in data and data['tests']:
+        if not 'tests' in result:
+            noprob = False
+            print("\033[1m-> No tests results given as expected \033[0m")
+        else:
+            for tag in data['tests']:
+                if not tag in result['tests']:
+                    noprob = False
+                    print("\033[1m-> No test result with tag '" + tag + "' given \033[0m")
+                    print("\t Expected result : " + data['tests'][tag])
+                elif data['tests'][tag] != result['tests'][tag]:
+                    noprob = False
+                    print("\033[1m-> Test with tag '" + tag + "' failed :\033[0m")
+                    print("\t Expected result : " + data['tests'][tag])
+                    print("\t Actual result : " + result['tests'][tag])
+
+    if noprob:
+        print("\033[32;1m-> All tests passed \033[0m")
+    else:
+        job_done_callback.failed.append(filename)
+
+    job_done_callback.jobs_done += 1
+
+
+job_done_callback.jobs_done = 0
+job_done_callback.failed = []
+
+
+def get_config(configfile):
+    if not configfile:
+        if os.path.isfile("./configuration.yaml"):
+            configfile = "./configuration.yaml"
+        elif os.path.isfile("./configuration.json"):
+            configfile = "./configuration.json"
+        else:
+            raise Exception("No configuration file found")
+
+    return load_json_or_yaml(configfile)
+
+
+def launch_job(filename, data, inputfiles, task):
+    result, grade, problems, tests, custom, state, archive, stdout, stderr = job_manager.new_job(0, task, data["input"], "Task tester", True)
+    job_done_callback({"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}, filename, inputfiles, data)
+
+
+def parse_text(task, job_result):
+    print(task.get_response_type())
+    if "text" in job_result:
+        job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()
+    """
+    if "problems" in job_result:
+        for problem in job_result["problems"]:
+            status, log = job_result["problems"][problem]
+            print(ParsableText(log, task.get_response_type()))
+            job_result["problems"][problem] = (status, ParsableText(log, task.get_response_type()).parse())
+    """
+
+def test_task(course, taskid):
+
+    # Get task from its id
+    task = course.get_task(taskid)
+
+    # Build test directory path for current task
+    test_dir = os.path.join(course.get_fs().prefix, taskid, 'test/')
+
+    # List sample submissions for the current task
+    inputfiles = glob.glob(test_dir + '*.test')
+
+    print("\033[32;1m-> Re-running submissions for task <%s> \033[0m" % taskid)
+
+    # For each submission in the test directory, test the task with the specified input
+    for filename in inputfiles:
+        # Open the input file and merge with limits
+        try:
+            inputfile = open(filename, 'r')
+        except IOError as e:
+            print(e)
+            exit(2)
+
+        data = inginious.common.custom_yaml.load(inputfile)
+        launch_job(filename, data, inputfiles, task)
+    
+    result = (job_done_callback.failed, job_done_callback.jobs_done)
+
+    if len(job_done_callback.failed) > 0:
+        print("\033[31;1m-> %i tests failed\n%s\033[0m" % (len(job_done_callback.failed), '\n'.join(job_done_callback.failed)) )
+    else:
+        if job_done_callback.jobs_done == 0:
+            print("\033[32;1m--> No test submission found \033[0m")
+        else:
+            print("\033[32;1m--> All the previous submissions passed \033[0m")
+
+    job_done_callback.failed = []
+    job_done_callback.jobs_done = 0
+
+    return result
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("courseid", help="Course id of the task to test")
+    parser.add_argument("taskids", nargs='*', help="Task id of the task to test")
+    parser.add_argument("-c", "--config", help="Configuration file", default="")
+    parser.add_argument("-v", "--verbose", help="Display more output", action='store_true')
+    args = parser.parse_args()
+
+    # Read input argument
+    verbose = args.verbose
+    courseid = args.courseid
+    taskids = args.taskids
+
+    config = get_config(args.config)
+
+    # Initialize course/task factory
+    task_directory = config["tasks_directory"]
+
+    # TODO: get that somewhere rather than hardcoding that in the test script
+    task_problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
+                          "file": FileProblem, "multiple_choice": MultipleChoiceProblem,
+                          "match": MatchProblem}
+    task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
+
+    # Intialize the LocalFileSystemProvider of the instance
+    local_fsp = LocalFSProvider(task_directory)
+    course_factory, task_factory = create_factories(local_fsp, task_dispensers, task_problem_types)
+
+    # Initialize client
+    zmq_context, asyncio_thread = start_asyncio_and_zmq()
+    client = create_arch(config, local_fsp, zmq_context, course_factory)
+    client.start()
+
+    # Get the client synchronous
+    job_manager = ClientSync(client)
+
+    # Open the taskfile
+    from inginious.frontend.environment_types import register_base_env_types
+    register_base_env_types()
+
+    # Wait for the agent to load containers
+    # TODO: hugly quick fix but no better solution currently
+    print('\x1b[1mWaiting for containers loading \033[0m', end='', flush=True)
+    for i in range(15):
+        time.sleep(1)
+        print('\x1b[1m.\033[0m', end='', flush=True)
+    print()
+
+    course = course_factory.get_course(courseid)
+
+    if len(taskids) == 0:
+        # Take all the available tasks in the course
+        banned = ['.git/', '$common/']
+        course_fs = course.get_fs()
+        taskids = [task_dir[:-1] for task_dir in course_fs.list(files=False) if task_dir not in banned and course_fs.exists(os.path.join(task_dir, 'task.yaml'))]
+
+    total_failed = []
+    total_done = 0
+
+    # Test each specified task
+    for taskid in taskids:
+        failed, done = test_task(course, taskid)
+        total_failed += failed
+        total_done += done
+        print()
+
+    client.close()
+    
+    if len(total_failed) > 0:
+        print("\033[31;1m-> %i tests failed in %i tasks \033[0m" % (len(total_failed), len(taskids)))
+        sys.exit(1)
+    else:
+        if total_done == 0:
+            print("\033[32;1m--> No test submission found for course <%s> \033[0m", courseid)
+            sys.exit(0)
+        else:
+            print("\033[32;1m--> All the previous submissions of the tested tasks passed \033[0m")
+            sys.exit(0)
