@@ -110,8 +110,8 @@ class CourseSettingsPage(INGIniousAdminPage):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
-        self.template_helper.add_to_template_globals("field_types", FieldTypes)
-        return self.template_helper.render("course_admin/settings.html", course=course, errors=errors, saved=saved)
+        return self.template_helper.render("course_admin/settings.html", course=course, errors=errors, saved=saved,
+                                           field_types=FieldTypes)
 
     def define_tags(self, course, data, course_content):
         tags = self.prepare_datas(data, "tags")
