@@ -72,6 +72,7 @@ class MCQAgent(Agent):
 
     async def new_job(self, msg: BackendNewJob):
         language = msg.inputdata.get("@lang", "")
+        previous_state = msg.inputdata.get("@state", "")
         translation = self._translations.get(language, gettext.NullTranslations())
         # TODO: this would probably require a refactor.
         # This may pose problem with apps that start multiple MCQAgents in the same process...
@@ -124,7 +125,7 @@ class MCQAgent(Agent):
         if nb_subproblems == 0:
             grade = 0.0
             text.append("No subproblems defined")
-            await self.send_job_result(msg.job_id, "crashed", "\n".join(text), grade, problems, {}, {}, "", None)
+            await self.send_job_result(msg.job_id, "crashed", "\n".join(text), grade, problems, {}, {}, previous_state, None)
         else:
             grade = 100.0 * float(nb_subproblems - error_count) / float(nb_subproblems)
             await self.send_job_result(msg.job_id, ("success" if result else "failed"), "\n".join(text), grade, problems, {}, {}, state, None)

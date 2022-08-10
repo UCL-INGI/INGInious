@@ -866,7 +866,7 @@ class DockerAgent(Agent):
             custom = {}
             tests = {}
             archive = None
-            state = ""
+            state = info.inputdata.get("@state", "")  # init state to previous state
 
             if killed is not None:
                 result = killed
@@ -959,7 +959,7 @@ class DockerAgent(Agent):
                 self._logger.warning("Cannot kill container for job %s because it is not running", str(message.job_id))
                 # Ensure the backend/frontend receive the info that the job is done. This will be ignored in the worst
                 # case.
-                await self.send_job_result(message.job_id, "killed")
+                await self.send_job_result(message.job_id, "killed", state=message.state)
         except asyncio.CancelledError:
             raise
         except:
