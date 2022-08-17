@@ -5,7 +5,6 @@
 import io
 import csv
 import json
-import re
 
 import yaml
 
@@ -14,7 +13,7 @@ from collections import OrderedDict
 from bson import ObjectId
 from pymongo import ReturnDocument
 from flask import Response
-
+from io import StringIO
 from inginious.common import custom_yaml
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
@@ -25,15 +24,21 @@ class CourseStudentListPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
-
-        if "download_audiences" in flask.request.args:
+        if "preferred_field" in flask.request.args:
+            preferred_field = flask.request.args["preferred_field"]
             audiences = []
+            si = StringIO()
+            cw = csv.writer(si)
             for audience in self.user_manager.get_course_audiences(course):
                 for student in audience["students"]:
-                    audiences.append(student+",username,student,"+audience["description"])
+                    field_value = self.get_requested_field_user_info(student, preferred_field)
+                    audiences.append([field_value, preferred_field, "student", audience["description"]])
                 for tutor in audience["tutors"]:
-                    audiences.append(tutor+",username,tutor,"+audience["description"])
-            response = Response(response=audiences, content_type='text/csv')
+                    field_value = self.get_requested_field_user_info(tutor, preferred_field)
+                    audiences.append([field_value, preferred_field, "tutor", audience["description"]])
+            cw.writerows(audiences)
+
+            response = Response(response=si.getvalue(), content_type='text/csv')
             response.headers['Content-Disposition'] = 'attachment; filename="audiences.csv"'
             return response
 
@@ -289,6 +294,13 @@ class CourseStudentListPage(INGIniousAdminPage):
             error["audiences"] = True
             active_tab = "tab_audiences"
         return active_tab
+
+    def get_requested_field_user_info(self, username, preferred_field):
+        if preferred_field != "username":
+            # query user
+            username = self.database.users.find_one({"username": username})[preferred_field]
+
+        return username
 
     def post_groups(self, course, data, active_tab, msg, error):
         if course.is_lti():
