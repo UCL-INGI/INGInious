@@ -24,7 +24,8 @@ class CourseStudentListPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
-        if "preferred_field" in flask.request.args:
+        if "preferred_field" in flask.request.args and flask.request.args["preferred_field"] in \
+                ['username', 'email', 'realname']:
             preferred_field = flask.request.args["preferred_field"]
             audiences = []
             si = StringIO()
