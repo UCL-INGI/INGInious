@@ -11,6 +11,7 @@ import re
 from typing import List
 from collections import OrderedDict
 
+from inginious.common.additional_field import AdditionalField
 from inginious.common.tags import Tag
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
@@ -80,6 +81,10 @@ class Course(object):
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
+            self._additional_fields = {key: AdditionalField(key,
+                                                            field_dict[key]["description"],
+                                                            field_dict[key]["field_type"])
+                                       for key, field_dict in self._content.get("fields", {}).items()}
             task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'), TableOfContents)
             # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
             # to avoid them to be cached along with the course object. Passing the task factory as argument
@@ -237,6 +242,9 @@ class Course(object):
 
     def get_tags(self):
         return self._tags
+
+    def get_additional_fields(self):
+        return self._additional_fields
 
     def get_task_dispenser(self):
         """
