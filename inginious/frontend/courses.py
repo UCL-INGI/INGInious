@@ -82,8 +82,8 @@ class Course(object):
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
             self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
             self._additional_fields = {key: AdditionalField(key,
-                                                            field_dict["description"],
-                                                            field_dict["type"])
+                                                            field_dict[key]["description"],
+                                                            field_dict[key]["field_type"])
                                        for key, field_dict in self._content.get("fields", {}).items()}
             task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'), TableOfContents)
             # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
