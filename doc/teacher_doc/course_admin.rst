@@ -151,7 +151,7 @@ The file doesn't need any header and is populate based on a person per line stru
 A comma ``,`` is used to separate the items while the quote char is ``"``.
 
 -   *user_id* is a string that identify the user. Based on the id_field this may take several form. Most common is the username but is not the only one. you may, for example, give email to identify the user.
--   *id_field* is a string that corresponds to the type of user_id. It can be values used on user creation (like username, email, realname) but can also be one of the authentication method bindings (for e.g. : bindings.linkedin).
+-   *id_field* is a string that corresponds to the type of user_id. It can be values used on user creation (like username, email).
 -   *user_role* is a string that simply represent the role of the user. it can be ``student`` or ``tutor``
 -   *description* is a string and corresponds to your audience description. Line with the same description will be merged within the same audience.
 

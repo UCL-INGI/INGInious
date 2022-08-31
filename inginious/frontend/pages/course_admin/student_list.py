@@ -25,7 +25,7 @@ class CourseStudentListPage(INGIniousAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
         if "preferred_field" in flask.request.args and flask.request.args["preferred_field"] in \
-                ['username', 'email', 'realname']:
+                ['username', 'email']:
             preferred_field = flask.request.args["preferred_field"]
             audiences = []
             si = StringIO()
@@ -235,8 +235,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                         role = role.strip()
                         if description != "":
                             description = description.strip()
-                        if field not in ["username", "email", "realname"] + \
-                                list(self.user_manager.get_auth_methods().keys()):
+                        if field not in ["username", "email"]:
                             msg["audiences"] = _("Field was not recognized: ") + field
                             error["audiences"] = True
                             continue
