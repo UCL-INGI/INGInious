@@ -12,7 +12,7 @@ class CustomValuePage(INGIniousAuthPage):
         username = self.user_manager.session_username()
         current_user = self.database.users.find_one(
             {"username": username})
-        custom_values_user = current_user["custom"] if "custom" in current_user else {}
+        custom_values_user = current_user.get("custom", {})
         return self.show_page(courseid, custom_values_user)
 
     def POST_AUTH(self, courseid):
@@ -21,9 +21,8 @@ class CustomValuePage(INGIniousAuthPage):
         username = self.user_manager.session_username()
         current_user = self.database.users.find_one(
             {"username": username})
-        custom_values_user = current_user["custom"] if "custom" in current_user else {}
-        for key in user_input:
-            custom_values_user[key] = user_input[key]
+        custom_values_user = current_user.get("custom", {})
+        custom_values_user.update(user_input)
         removed_keys = list(set(custom_values_user.keys()) - set(user_input.keys()))
         for key in removed_keys:
             custom_values_user[key] = "off"
