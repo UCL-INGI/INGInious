@@ -6,12 +6,15 @@
 #
 # Original version at https://github.com/UCL-INGI/INGInious/blob/v0.4/utils/task_tester/inginious-test-task
 
-import difflib
+import importlib
 import argparse
+import difflib
+import inspect
 import glob
-import os
-import sys
 import time
+import sys
+import abc
+import os
 
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..'))
@@ -26,6 +29,7 @@ from inginious.client.client_sync import ClientSync
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 from inginious.common.filesystems.local import LocalFSProvider
+from inginious.common.filesystems import FileSystemProvider
 from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, FileProblem
 
 def job_done_callback(result, filename, inputfiles, data):
@@ -207,23 +211,39 @@ if __name__ == "__main__":
     parser.add_argument("taskids", nargs='*', help="Task id of the task to test")
     parser.add_argument("-c", "--config", help="Configuration file", default="")
     parser.add_argument("-v", "--verbose", help="Display more output", action='store_true')
+    parser.add_argument("-p", "--plugins", nargs="*", help="Additional plugins to load")
     args = parser.parse_args()
 
     # Read input argument
     verbose = args.verbose
     courseid = args.courseid
     taskids = args.taskids
+    plugins = args.plugins
 
+    # Parse course configuration
     config = get_config(args.config)
 
     # Initialize course/task factory
     task_directory = config["tasks_directory"]
 
+    task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
+
+    # Set basic problem types available
     # TODO: get that somewhere rather than hardcoding that in the test script
     task_problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
                           "file": FileProblem, "multiple_choice": MultipleChoiceProblem,
                           "match": MatchProblem}
-    task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
+
+    # Load additional problem types from plugins if any
+    if plugins:
+        for plugin in plugins:
+            plug = importlib.import_module(plugin)
+
+            # Load problem types from plugin
+            for pb_name, pb_class in inspect.getmembers(plug):
+                # A problem type must be a child of the Problem class and have a valid type
+                if type(pb_class) == abc.ABCMeta and inginious.frontend.task_problems.Problem in pb_class.__bases__ and (pb_type := pb_class.get_type()):
+                    task_problem_types[pb_type] = pb_class
 
     # Intialize the LocalFileSystemProvider of the instance
     local_fsp = LocalFSProvider(task_directory)
@@ -242,7 +262,7 @@ if __name__ == "__main__":
     register_base_env_types()
 
     # Wait for the agent to load containers
-    # TODO: hugly quick fix but no better solution currently
+    # TODO: ugly quick fix but no better solution currently
     print('\x1b[1mWaiting for containers loading \033[0m', end='', flush=True)
     for i in range(15):
         time.sleep(1)
@@ -251,11 +271,25 @@ if __name__ == "__main__":
 
     course = course_factory.get_course(courseid)
 
+    def _task_filter(course_fs: FileSystemProvider, task_dir: str) -> bool:
+        """
+        Filter the tasks to be tested
+
+        :param course_fs: The FileSystemProvider abstracting the course content
+        :param task_dir: The name of the task currently considered
+
+        :returns: True if the task has to be tested, else False.
+        """
+
+        banned = ['.git/', '$common/', '.github/']
+        return task_dir not in banned \
+                and course_fs.exists(os.path.join(task_dir, 'task.yaml')) \
+                and not course_fs.exists(os.path.join(task_dir, '.testignore'))
+
     if len(taskids) == 0:
-        # Take all the available tasks in the course
-        banned = ['.git/', '$common/']
+        # No taskid provided, take all the available tasks in the course
         course_fs = course.get_fs()
-        taskids = [task_dir[:-1] for task_dir in course_fs.list(files=False) if task_dir not in banned and course_fs.exists(os.path.join(task_dir, 'task.yaml'))]
+        taskids = [task_dir[:-1] for task_dir in course_fs.list(files=False) if _task_filter(course_fs, task_dir)]
 
     total_failed = []
     total_done = 0
@@ -274,7 +308,7 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         if total_done == 0:
-            print("\033[32;1m--> No test submission found for course <%s> \033[0m", courseid)
+            print("\033[32;1m--> No test submission found for course <%s> \033[0m" % courseid)
             sys.exit(0)
         else:
             print("\033[32;1m--> All the previous submissions of the tested tasks passed \033[0m")
