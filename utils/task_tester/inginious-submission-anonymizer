@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+from hashlib import sha256
+import tempfile
+import tarfile
+import shutil
+import sys
+import os
+import re
+
+def anonymize(path: str):
+    cwd = os.getcwd()
+
+    """
+     10     -e "s/'@email': (.*)$/'@email': test@test/g"\                                                     
+     11     -e "s/'@username': (.*)$/'@username': test/g"\                                                    
+    """
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        #print(tmpdir)
+        with tarfile.open(path, 'r') as tar:
+            while x := tar.next():
+                if x is None: break
+
+                if not x.isfile(): continue
+                filename, extension = os.path.splitext(x.name)
+                if extension != ".test": continue
+
+                task, _, filename = filename.partition('/')
+                new_name = '_'.join(filename.split('/'))
+                a = '{root}/{task}/{h}.test'.format(
+                        root=cwd,
+                        task=task,
+                        h=sha256(new_name.encode('utf-8')).hexdigest()
+                )
+                tar.extract(x, path=tmpdir)
+
+                with open('%s/%s' % (tmpdir, x.name), 'r') as fd:
+                    content = fd.read()
+
+                # remove identifiable fields
+                new_content = re.sub(r'(user_ip|_id|archive|grade|submitted_on):(.*)', '', content)
+
+                # replace number of attempts
+                new_content = re.sub(r'\'@attempts\': \'[0-9]*\'', '\'@attempts\': \'0\'', new_content)
+
+                # replace user email
+                new_content = re.sub(r'\'@email\': (.*)', '\'@email\': test@test', new_content)
+
+                # replace user language
+                new_content = re.sub(r'\'@lang\': (.*)', '\'@lang\': en', new_content)
+
+                # replace user language
+                new_content = re.sub(r'\'@username\': (.*)', '\'@username\': test', new_content)
+
+                # remove usernames
+                #new_content = re.sub(r'username:(\n|\r\n|\r)[-(.*)(\r|\r\n|\n)]*', '', new_content)
+                new_content = re.sub(r'username:(\n|\r\n|\r)-(.*)', '', new_content)
+
+                # remove empty lines
+                new_content = '\n'.join(filter(lambda x: not re.match(r'^\s*$', x), new_content.splitlines()))
+                print(new_content)
+
+                try:
+                    with open(a, 'w') as fd: fd.write(new_content)
+                except FileNotFoundError:
+                    os.mkdir('%s/%s' % (cwd, task))
+                    with open(a, 'w') as fd: fd.write(new_content)
+
+def usage():
+    print("Usage: %s <submission archive>" % sys.arg[0])
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        usage()
+        exit(1)
+
+    # TODO: check path existence
+    anonymize(sys.argv[1])
