@@ -174,7 +174,7 @@ def test_task(course, taskid):
     # List sample submissions for the current task
     inputfiles = glob.glob(test_dir + '*.test')
 
-    print("\033[32;1m-> Re-running submissions for task <%s> \033[0m" % taskid)
+    print("\033[34;1m-> Re-running submissions for task <%s> \033[0m" % taskid)
 
     # For each submission in the test directory, test the task with the specified input
     for filename in inputfiles:
@@ -191,12 +191,12 @@ def test_task(course, taskid):
     result = (job_done_callback.failed, job_done_callback.jobs_done)
 
     if len(job_done_callback.failed) > 0:
-        print("\033[31;1m-> %i tests failed\n%s\033[0m" % (len(job_done_callback.failed), '\n'.join(job_done_callback.failed)) )
+        print("\033[31;1m%i tests failed\n%s\033[0m" % (len(job_done_callback.failed), '\n'.join(['- %s' % i for i in job_done_callback.failed])) )
     else:
         if job_done_callback.jobs_done == 0:
-            print("\033[32;1m--> No test submission found \033[0m")
+            print("\033[36;1mNo test submission found \033[0m")
         else:
-            print("\033[32;1m--> All the previous submissions passed \033[0m")
+            print("\033[32;1mAll the previous submissions passed \033[0m")
 
     job_done_callback.failed = []
     job_done_callback.jobs_done = 0
@@ -270,45 +270,46 @@ if __name__ == "__main__":
     print()
 
     course = course_factory.get_course(courseid)
-
-    def _task_filter(course_fs: FileSystemProvider, task_dir: str) -> bool:
-        """
-        Filter the tasks to be tested
-
-        :param course_fs: The FileSystemProvider abstracting the course content
-        :param task_dir: The name of the task currently considered
-
-        :returns: True if the task has to be tested, else False.
-        """
-
-        banned = ['.git/', '$common/', '.github/']
-        return task_dir not in banned \
-                and course_fs.exists(os.path.join(task_dir, 'task.yaml')) \
-                and not course_fs.exists(os.path.join(task_dir, '.testignore'))
-
-    if len(taskids) == 0:
-        # No taskid provided, take all the available tasks in the course
-        course_fs = course.get_fs()
-        taskids = [task_dir[:-1] for task_dir in course_fs.list(files=False) if _task_filter(course_fs, task_dir)]
+    course_fs = course.get_fs()
 
     total_failed = []
+    total_ignored = []
     total_done = 0
+    banned = ['.git/', '$common/', '.github/']
+    taskn = 0
 
     # Test each specified task
-    for taskid in taskids:
-        failed, done = test_task(course, taskid)
-        total_failed += failed
-        total_done += done
+    for taskid in taskids if len(taskids) > 0 else [task_dir[:-1] for task_dir in course_fs.list(files=False)]:
+        if taskid in banned or not course_fs.exists(os.path.join(taskid, 'task.yaml')):
+            continue
+        elif course_fs.exists(os.path.join(taskid, '.testignore')):
+            print("\033[36;1m-> Task <%s> explicitely ignored \033[0m" % taskid)
+            total_ignored.append(taskid)
+        else:
+            failed, done = test_task(course, taskid)
+            total_failed += failed
+            total_done += done
         print()
+        taskn += 1
 
     client.close()
     
+
+    print("\033[36;1m### Tests Summary ###\033[0m")
+    print("\033[36;1m> %i tasks considered\033[0m" % taskn)
+
+    if (ignored := len(total_ignored)) > 0:
+        print("\033[36;1m> %i tasks ignored\n%s\033[0m" % (ignored, '\n'.join(['- %s' % i for i in total_ignored])))
+
+
     if len(total_failed) > 0:
-        print("\033[31;1m-> %i tests failed in %i tasks \033[0m" % (len(total_failed), len(taskids)))
+        print("\033[31;1m> %i tests failed in %i tasks \033[0m" % (len(total_failed), taskn))
         sys.exit(1)
     else:
+
+
         if total_done == 0:
-            print("\033[32;1m--> No test submission found for course <%s> \033[0m" % courseid)
+            print("\033[36;1m--> No test submission found for course <%s> \033[0m" % courseid)
             sys.exit(0)
         else:
             print("\033[32;1m--> All the previous submissions of the tested tasks passed \033[0m")
