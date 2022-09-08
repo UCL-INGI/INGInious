@@ -12,7 +12,9 @@ import sys
 import os
 import re
 
-def anonymize(path: str):
+#from inginious.common.filesystems.local import LocalFSProvider
+
+def anonymize(courseid:str, path: str):
     cwd = os.getcwd()
 
     """
@@ -21,7 +23,6 @@ def anonymize(path: str):
     """
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        #print(tmpdir)
         with tarfile.open(path, 'r') as tar:
             while x := tar.next():
                 if x is None: break
@@ -32,8 +33,9 @@ def anonymize(path: str):
 
                 task, _, filename = filename.partition('/')
                 new_name = '_'.join(filename.split('/'))
-                a = '{root}/{task}/{h}.test'.format(
+                a = '{root}/{courseid}/{task}/test/{h}.test'.format(
                         root=cwd,
+                        courseid=courseid,
                         task=task,
                         h=sha256(new_name.encode('utf-8')).hexdigest()
                 )
@@ -43,7 +45,7 @@ def anonymize(path: str):
                     content = fd.read()
 
                 # remove identifiable fields
-                new_content = re.sub(r'(user_ip|_id|archive|grade|submitted_on):(.*)', '', content)
+                new_content = re.sub(r'(user_ip|_id|archive|grade|submitted_on|time):(.*)', '', content)
 
                 # replace number of attempts
                 new_content = re.sub(r'\'@attempts\': \'[0-9]*\'', '\'@attempts\': \'0\'', new_content)
@@ -66,19 +68,27 @@ def anonymize(path: str):
                 print(new_content)
 
                 try:
+                    # Write the anonymised submission
                     with open(a, 'w') as fd: fd.write(new_content)
                 except FileNotFoundError:
-                    os.mkdir('%s/%s' % (cwd, task))
+                    # This is the first submission we write for a given task, we have to create the associated
+                    # task directory
+                    os.makedirs('%s/%s/%s/test/' % (cwd, courseid, task))
                     with open(a, 'w') as fd: fd.write(new_content)
 
-def usage():
-    print("Usage: %s <submission archive>" % sys.arg[0])
-
 if __name__ == '__main__':
+    import argparse
 
-    if len(sys.argv) != 2:
-        usage()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('courseid', type=str, help='The courseid corresponding to the submissions')
+    parser.add_argument('archive', type=str, help='The path to the submissions archive')
+    args = parser.parse_args()
+
+    archive = args.archive
+    courseid = args.courseid
+
+    if not os.path.exists(archive):
+        print('Archive path does not exist, nothing to do.')
         exit(1)
-
-    # TODO: check path existence
-    anonymize(sys.argv[1])
+    
+    anonymize(courseid, archive)
