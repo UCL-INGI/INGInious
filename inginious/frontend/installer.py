@@ -36,8 +36,9 @@ BACKGROUND_RED = '\033[101m'
 class Installer:
     """ Custom installer for the WebApp frontend """
 
-    def __init__(self, config_path=None):
+    def __init__(self, config_path=None, default=False):
         self._config_path = config_path
+        self._default = default
 
     #######################################
     #          Display functions          #
@@ -73,9 +74,12 @@ class Installer:
 
     def _ask_with_default(self, question, default=""):
         default = str(default)
-        answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
-        if answer == "":
+        if self._default:
             answer = default
+        else:
+            answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
+            if answer == "":
+                answer = default
         return answer
 
     def _ask_boolean(self, question, default):
