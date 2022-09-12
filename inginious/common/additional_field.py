@@ -5,6 +5,10 @@
 
 from inginious.common.field_types import FieldTypes
 
+"""
+Module definition for AdditionalField class
+"""
+
 
 class AdditionalField:
     """
@@ -23,13 +27,25 @@ class AdditionalField:
         return hash(self._id)
 
     def get_id(self):
+        """
+        :return: id of the additional field
+        """
         return self._id
 
     def get_description(self):
+        """
+        :return: description of the additional field
+        """
         return self._description
 
     def get_type_name(self):
+        """"
+        :return: type name of the additional field
+        """
         return FieldTypes(self._type).name
 
     def get_type(self):
+        """
+        :return: type of the additional field
+        """
         return self._type

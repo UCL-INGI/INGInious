@@ -244,6 +244,9 @@ class Course(object):
         return self._tags
 
     def get_additional_fields(self):
+        """
+        :return: The additional fields dictionary for a course.
+        """
         return self._additional_fields
 
     def get_task_dispenser(self):

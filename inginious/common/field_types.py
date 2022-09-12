@@ -4,8 +4,15 @@
 # more information about the licensing of this file.
 from enum import Enum
 
+"""
+Module definition for FieldTypes class
+"""
+
 
 class FieldTypes(Enum):
+    """
+    A class used to represent a field type. Based on Enums.
+    """
     INTEGER = 1
     STRING = 2
     BOOLEAN = 3
