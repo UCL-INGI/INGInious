@@ -97,7 +97,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         if tag_error is not None:
             errors.append(tag_error)
 
-        additional_fields = self.define_additional_fields(course, data, course_content)
+        additional_fields = self.define_additional_fields(data)
         if additional_fields is not None and not isinstance(additional_fields, dict):
             errors.append(additional_fields)
         course_content["fields"] = additional_fields
