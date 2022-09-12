@@ -12,83 +12,147 @@ import sys
 import os
 import re
 
-#from inginious.common.filesystems.local import LocalFSProvider
+try:
+    from inginious.common.filesystems.local import LocalFSProvider
+    from inginious.common.base import load_json_or_yaml
+    inginious_modules = True
+except ModuleNotFoundError:
+    inginious_modules = False
 
-def anonymize(courseid:str, path: str):
-    cwd = os.getcwd()
+def anonymize(prefix: str, archive: str):
+    """ Anonymize all the submissions contained in an archive generated via the Webapp interface
+        This script removes the fields allowing the identification of the original author in each
+        submission.
+
+        :param prefix: The FileSystemProvider prefix of the current INGInious installation.
+        :param archive: The path toward the archive containing the provided submissions.
+    """
+
 
     """
      10     -e "s/'@email': (.*)$/'@email': test@test/g"\                                                     
      11     -e "s/'@username': (.*)$/'@username': test/g"\                                                    
     """
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with tarfile.open(path, 'r') as tar:
-            while x := tar.next():
-                if x is None: break
+    if inginious_modules:
+        fs = LocalFSProvider(prefix)
 
-                if not x.isfile(): continue
-                filename, extension = os.path.splitext(x.name)
+    """ The submission files are treated in a temporary directory in a ramfs before being written
+        on the filesystem.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with tarfile.open(archive, 'r') as tar:
+            """ Explore each entry of the archive """
+            while entry := tar.next():
+
+                """ Sanity checks """
+                if entry is None: break
+                if not entry.isfile(): continue
+
+                filename, extension = os.path.splitext(entry.name)
                 if extension != ".test": continue
 
+                """ The submission format is 'taskid/username' """
                 task, _, filename = filename.partition('/')
-                new_name = '_'.join(filename.split('/'))
-                a = '{root}/{courseid}/{task}/test/{h}.test'.format(
-                        root=cwd,
-                        courseid=courseid,
-                        task=task,
-                        h=sha256(new_name.encode('utf-8')).hexdigest()
-                )
-                tar.extract(x, path=tmpdir)
 
-                with open('%s/%s' % (tmpdir, x.name), 'r') as fd:
+                """ Get submission file content """
+                tar.extract(entry, path=tmpdir)
+                with open(os.path.join(tmpdir, entry.name), 'r') as fd:
                     content = fd.read()
 
-                # remove identifiable fields
+                """ Remove identifiable fields """
                 new_content = re.sub(r'(user_ip|_id|archive|grade|submitted_on|time):(.*)', '', content)
 
-                # replace number of attempts
+                """ Replace number of attempts """
                 new_content = re.sub(r'\'@attempts\': \'[0-9]*\'', '\'@attempts\': \'0\'', new_content)
 
-                # replace user email
+                """ Replace user email """
                 new_content = re.sub(r'\'@email\': (.*)', '\'@email\': test@test', new_content)
 
-                # replace user language
-                new_content = re.sub(r'\'@lang\': (.*)', '\'@lang\': en', new_content)
+                """ Replace user language """
+                #new_content = re.sub(r'\'@lang\': (.*)', '\'@lang\': en', new_content)
 
-                # replace user language
+                """ Replace user language """
                 new_content = re.sub(r'\'@username\': (.*)', '\'@username\': test', new_content)
 
-                # remove usernames
+                """ Remove usernames """
                 #new_content = re.sub(r'username:(\n|\r\n|\r)[-(.*)(\r|\r\n|\n)]*', '', new_content)
                 new_content = re.sub(r'username:(\n|\r\n|\r)-(.*)', '', new_content)
 
-                # remove empty lines
+                """ Remove empty lines """
                 new_content = '\n'.join(filter(lambda x: not re.match(r'^\s*$', x), new_content.splitlines()))
-                print(new_content)
 
-                try:
-                    # Write the anonymised submission
-                    with open(a, 'w') as fd: fd.write(new_content)
-                except FileNotFoundError:
-                    # This is the first submission we write for a given task, we have to create the associated
-                    # task directory
-                    os.makedirs('%s/%s/%s/test/' % (cwd, courseid, task))
-                    with open(a, 'w') as fd: fd.write(new_content)
+                new_name = '_'.join(filename.split('/'))
+                new_name_hash = sha256(new_name.encode('utf-8')).hexdigest()
+                new_submission_filename = '%s.test' % new_name_hash
+                new_submission_file = os.path.join(task, 'test', new_submission_filename)
+
+                if inginious_modules:
+                    fs.put(new_submission_file, new_content)
+                else:
+                    new_submission_file = os.path.join(prefix, new_submission_file)
+                    try:
+                        """ Write the anonymized submission """
+                        with open(new_submission_file, 'w') as fd: fd.write(new_content)
+                    except FileNotFoundError:
+                        """ This is the first submission we write for a given task, we have to create the associated 
+                            task directory
+                        """
+                        os.makedirs(os.path.dirname(new_submission_file))
+                        with open(new_submission_file, 'w') as fd: fd.write(new_content)
 
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Anonymize INGInious submissions and install them in an INGInious instance\
+        if possible (see -c and -p). If this script is run outside of an INGInious installation, it will output a directory\
+        in the current directory.')
     parser.add_argument('courseid', type=str, help='The courseid corresponding to the submissions')
     parser.add_argument('archive', type=str, help='The path to the submissions archive')
+    parser.add_argument('-c', '--configuration', type=str, help='The path towards an INGInious instance configuration file.\
+        This is the preferred method to directly install the anonymized submissions within an existing instance.')
+    parser.add_argument('-p', '--prefix', type=str, help='The path towards the tasks directory of an existing INGInious instance.\
+        It will be used if this script is run outside of a valid INGInious installation')
     args = parser.parse_args()
 
     archive = args.archive
     courseid = args.courseid
+    prefix = args.prefix
+    config_path = args.configuration
 
+    """ Configuration file safety checks """
+    if config_path and (not os.path.exists(config_path) or not os.path.isfile(config_path)):
+        print('Config file does not exist, nothing to do.')
+        exit(1)
+
+    """ Prefix path safetyy checks """
+    if prefix and not os.path.exists(prefix):
+        print('Prefix path does not exist, nothing to do.')
+        exit(1)
+
+    """ Achive path safety check """
     if not os.path.exists(archive):
         print('Archive path does not exist, nothing to do.')
         exit(1)
-    
-    anonymize(courseid, archive)
+
+    if config_path:
+        if inginious_modules:
+            """ If a configuration file is provided and INGInious modules are present, we use the 'tasks_directory' entry from
+                the configuration as prefix.
+            """
+            config = load_json_or_yaml(config_path)
+            if prefix: print('Ignoring provided prefix')
+            prefix = config['tasks_directory']
+        else:
+            """ If INGInious modules are not present, we fallback on the prefix argument. If it is present we use it else we
+                create an output directory in the current working directory.
+            """
+            print('You asked to use the INGInious modules but they are not installed. Fallback on --prefix if provided.')
+
+    if not prefix:
+        print('No prefix available. Impossible to directly install the submissions within the course directory. Fallback to\
+            current directory.')
+        prefix = os.getcwd()
+
+    prefix = os.path.join(os.path.abspath(prefix), courseid)
+    anonymize(prefix, archive)
