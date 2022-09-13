@@ -54,13 +54,13 @@ class CustomAdmonition(CustomBaseAdmonition):
 class HiddenUntilDirective(Directive, object):
     required_arguments = 1
     has_content = True
-    optional_arguments = 0
+    optional_arguments = 1
     option_spec = {}
 
     def run(self):
         self.assert_has_content()
 
-        hidden_until = self.arguments[0]
+        hidden_until = " ".join(self.arguments)  #join date and optional time argument
         try:
             hidden_until = parse_date(hidden_until)
         except:
