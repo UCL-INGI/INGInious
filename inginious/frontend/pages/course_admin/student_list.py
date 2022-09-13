@@ -2,7 +2,10 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+import io
+import csv
 import json
+
 import yaml
 
 import flask
@@ -10,7 +13,7 @@ from collections import OrderedDict
 from bson import ObjectId
 from pymongo import ReturnDocument
 from flask import Response
-
+from io import StringIO
 from inginious.common import custom_yaml
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
@@ -21,22 +24,31 @@ class CourseStudentListPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
+        if "preferred_field" in flask.request.args and flask.request.args["preferred_field"] in \
+                ['username', 'email']:
+            preferred_field = flask.request.args["preferred_field"]
+            audiences = []
+            si = StringIO()
+            cw = csv.writer(si)
+            for audience in self.user_manager.get_course_audiences(course):
+                for student in audience["students"]:
+                    field_value = self.get_requested_field_user_info(student, preferred_field)
+                    audiences.append([field_value, preferred_field, "student", audience["description"]])
+                for tutor in audience["tutors"]:
+                    field_value = self.get_requested_field_user_info(tutor, preferred_field)
+                    audiences.append([field_value, preferred_field, "tutor", audience["description"]])
+            cw.writerows(audiences)
 
-        if "download_audiences" in flask.request.args:
-            audiences = [{"description": audience["description"],
-                           "students": audience["students"],
-                           "tutors": audience["tutors"]} for audience in
-                          self.user_manager.get_course_audiences(course)]
-            response = Response(response=yaml.dump(audiences), content_type='text/x-yaml')
-            response.headers['Content-Disposition'] = 'attachment; filename="audiences.yaml"'
+            response = Response(response=si.getvalue(), content_type='text/csv')
+            response.headers['Content-Disposition'] = 'attachment; filename="audiences.csv"'
             return response
 
         if "download_groups" in flask.request.args:
             groups = [{"description": group["description"],
-                           "students": group["students"],
-                           "size": group["size"],
-                            "audiences": [str(c) for c in group["audiences"]]} for group in
-                          self.user_manager.get_course_groups(course)]
+                       "students": group["students"],
+                       "size": group["size"],
+                       "audiences": [str(c) for c in group["audiences"]]} for group in
+                      self.user_manager.get_course_groups(course)]
             response = Response(response=yaml.dump(groups), content_type='text/x-yaml')
             response.headers['Content-Disposition'] = 'attachment; filename="groups.yaml"'
             return response
@@ -85,15 +97,17 @@ class CourseStudentListPage(INGIniousAdminPage):
         if "csv_student" in flask.request.args:
             return make_csv(user_data)
 
-        return self.template_helper.render("course_admin/student_list.html",course=course,
+        return self.template_helper.render("course_admin/student_list.html", course=course,
                                            user_data=list(user_data.values()), audiences=split_audiences,
-                                           active_tab=active_tab, student_list=student_list, audience_list=audience_list,
+                                           active_tab=active_tab, student_list=student_list,
+                                           audience_list=audience_list,
                                            other_students=other_students, users_info=users_info, groups=groups,
                                            error=error, msg=msg)
 
     def get_student_list_params(self, course):
-        users = sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
-                       key=lambda k: k[1].realname if k[1] is not None else "")
+        users = sorted(list(
+            self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
+            key=lambda k: k[1].realname if k[1] is not None else "")
 
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(course.get_staff()).items()),
                                    key=lambda k: k[1].realname if k[1] is not None else "") + users)
@@ -192,39 +206,101 @@ class CourseStudentListPage(INGIniousAdminPage):
             active_tab = "tab_audiences"
 
         try:
-            if "upload_audiences" in data or "audiences" in data:
-                errored_students = []
-                if "upload_audiences" in data:
-                    self.database.audiences.delete_many({"courseid": course.get_id()})
-                    audiences = custom_yaml.load(data["audiencefile"].read())
-                else:
-                    audiences = json.loads(data["audiences"])
+            if "audiencefile" in data and 'upload_audiences_creation' in data:
+                # get the Werkzeug datastructures.FileStorage object.
+                # The stream of this object is the stream body of the uploaded file.
+                # Furthermore, FileStorage.stream seems to inherit ʻio.BufferedIOBase`, so this stream should be boiled.
+                # As reader return an iterator and that we iterate twice, it is faster to cast into a list.
+                csv_data = list(csv.reader(io.TextIOWrapper(data["audiencefile"], encoding='utf-8')))
+                # Define used variables.
+                students_per_audience = {}
+                tutors_per_audience = {}
+                course_students = []
+                course_tutors = []
+                audiences = []
+                # Check correctness of CSV structure.
+                for line in csv_data:
+                    if len(line) != 4:
+                        msg["audiences"] = _("File wrongly formatted.")
+                        error["audiences"] = True
+                if "audiences" not in error or not error["audiences"]:
+                    stud_list, aud_li, oth_stu, u_info = self.get_user_lists(course)
+                    courseid = course.get_id()
+                    # Fully remove previous audiences.
+                    self.database.audiences.delete_many({"courseid": courseid})
+                    # read datas from CSV.
+                    for user_id, field, role, description in csv_data:
+                        user_id = user_id.strip()
+                        field = field.strip()
+                        role = role.strip()
+                        if description != "":
+                            description = description.strip()
+                        if field not in ["username", "email"]:
+                            msg["audiences"] = _("Field was not recognized: ") + field
+                            error["audiences"] = True
+                            continue
+                        if role not in ["student", "tutor"]:
+                            msg["audiences"] = _("Unknown role: ") + role
+                            error["audiences"] = True
+                            continue
+                        user = self.database.users.find_one({field: user_id})
+                        if user is not None:
+                            user_id = user["username"]
+                        else:
+                            msg["audiences"] = _("User was not found: ") + user_id
+                            error["audiences"] = True
+                            continue
+                        # prepare datas to avoid multiple request to database.
+                        if role == "student":
+                            students_per_audience.setdefault(description, []).append(user_id)
+                            course_students.append(user_id)
+                        else:
+                            tutors_per_audience.setdefault(description, []).append(user_id)
+                            course_tutors.append(user_id)
+                    # Creation of audiences.
+                    if len(students_per_audience) > 0:
+                        for key, value in students_per_audience.items():
+                            audiences.append({"description": key, "courseid": courseid,
+                                              "students": value,
+                                              "tutors": tutors_per_audience[key] if key in tutors_per_audience else []})
+                    else:
+                        for key, value in tutors_per_audience.items():
+                            audiences.append({"description": key, "courseid": courseid,
+                                              "students": [],
+                                              "tutors": value})
 
-                for index, new_audience in enumerate(audiences):
-                    # In case of file upload, no id specified
-                    new_audience['_id'] = new_audience['_id'] if '_id' in new_audience else 'None'
+                    # update list of students and tutors of the course.
+                    new_students = list(set(stud_list).union(set(course_students)))
+                    new_tutors = list(set(course.get_tutors()).union(set(course_tutors)))
 
-                    # Update the audience
-                    audience, errors = self.update_audience(course, new_audience['_id'], new_audience)
+                    self.database.courses.update_one({"_id": courseid}, {"$set": {"students": new_students,
+                                                                                  "tutors": new_tutors}})
 
-                    # If file upload was done, get the default audience id
-                    audienceid = audience['_id']
-                    errored_students += errors
+                    # this is done to avoid removing the audience id and impact the group audience filter.
+                    for audience in audiences:
+                        existing_audience = self.database.audiences.find_one(
+                            {"courseid": courseid, "description": audience["description"]})
+                        if not existing_audience:
+                            self.database.audiences.insert_one(audience)
+                        else:
+                            self.database.audiences.update_one({"courseid": courseid,
+                                                                "description": audience["description"]},
+                                                               {"$set": {"students": audience["students"],
+                                                                         "tutors": audience["tutors"]}})
 
-                if len(errored_students) > 0:
-                    msg["audiences"] = _("Changes couldn't be applied for following students :") + "<ul>"
-                    for student in errored_students:
-                        msg["audiences"] += "<li>" + student + "</li>"
-                    msg["audiences"] += "</ul>"
-                    error["audiences"] = True
-                elif not error:
-                    msg["audiences"] = _("Audience updated.")
-                active_tab = "tab_audiences"
-        except Exception:
+            active_tab = "tab_audiences"
+        except Exception as e:
             msg["audiences"] = _('An error occurred while parsing the data.')
             error["audiences"] = True
             active_tab = "tab_audiences"
         return active_tab
+
+    def get_requested_field_user_info(self, username, preferred_field):
+        if preferred_field != "username":
+            # query user
+            username = self.database.users.find_one({"username": username})[preferred_field]
+
+        return username
 
     def post_groups(self, course, data, active_tab, msg, error):
         if course.is_lti():
@@ -241,16 +317,17 @@ class CourseStudentListPage(INGIniousAdminPage):
 
             for classid in data["delete"]:
                 # Get the group
-                group = self.database.groups.find_one({"_id": ObjectId(classid), "courseid": course.get_id()}) if ObjectId.is_valid(classid) else None
+                group = self.database.groups.find_one(
+                    {"_id": ObjectId(classid), "courseid": course.get_id()}) if ObjectId.is_valid(classid) else None
 
                 if group is None:
                     msg["groups"] = ("group with id {} not found.").format(classid)
                     error["groups"] = True
                 else:
                     self.database.groups.find_one_and_update({"courseid": course.get_id()},
-                                                                 {"$push": {
-                                                                     "students": {"$each": group["students"]}
-                                                                 }})
+                                                             {"$push": {
+                                                                 "students": {"$each": group["students"]}
+                                                             }})
 
                     self.database.groups.delete_one({"_id": ObjectId(classid)})
                     msg["groups"] = _("Audience updated.")
@@ -276,6 +353,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                     msg["groups"] = _("Changes couldn't be applied for following students :") + "<ul>"
                     for student in errored_students:
                         msg["groups"] += "<li>" + student + "</li>"
+
                     msg["groups"] += "</ul>"
                     error["groups"] = True
                 elif not error:
@@ -305,7 +383,8 @@ class CourseStudentListPage(INGIniousAdminPage):
         groups_list = {d["students"]: d["group"] for d in groups_list}
 
         other_students = [entry for entry in student_list if entry not in groups_list]
-        other_students = sorted(other_students, key=lambda val: (("0"+users_info[val].realname) if users_info[val] else ("1"+val)))
+        other_students = sorted(other_students,
+                                key=lambda val: (("0" + users_info[val].realname) if users_info[val] else ("1" + val)))
 
         return student_list, audience_list, other_students, users_info
 
@@ -338,10 +417,12 @@ class CourseStudentListPage(INGIniousAdminPage):
         if len(new_data["students"]) <= new_data["size"]:
             # Check the students
             for student in new_data["students"]:
-                student_allowed_in_group = any(set(audience_students.get(student, [])).intersection(new_data["audiences"]))
+                student_allowed_in_group = any(
+                    set(audience_students.get(student, [])).intersection(new_data["audiences"]))
                 if student in student_list and (student_allowed_in_group or not new_data["audiences"]):
                     # Remove user from the other group
-                    self.database.groups.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
+                    self.database.groups.find_one_and_update({"courseid": course.get_id(), "students": student},
+                                                             {"$pull": {"students": student}})
                     students.append(student)
                 else:
                     errored_students.append(student)
@@ -350,7 +431,8 @@ class CourseStudentListPage(INGIniousAdminPage):
 
         group = self.database.groups.find_one_and_update(
             {"_id": ObjectId(groupid)},
-            {"$set": {"description": new_data["description"], "audiences": new_data["audiences"], "size": new_data["size"],
+            {"$set": {"description": new_data["description"], "audiences": new_data["audiences"],
+                      "size": new_data["size"],
                       "students": students}}, return_document=ReturnDocument.AFTER)
 
         return group, errored_students
@@ -396,7 +478,7 @@ class CourseStudentListPage(INGIniousAdminPage):
 
         removed_students = [student for student in audience["students"] if student not in new_data["students"]]
         self.database.audiences.find_one_and_update({"courseid": course.get_id()},
-                                                     {"$push": {"students": {"$each": removed_students}}})
+                                                    {"$push": {"students": {"$each": removed_students}}})
 
         new_data["students"] = students
 

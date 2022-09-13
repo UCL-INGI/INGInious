@@ -135,35 +135,27 @@ The student list is entirely managed by drag-and-drop.
 Course structure upload
 ```````````````````````
 
-You can generate the course audience structure with an external tool and then upload
-it on INGInious. This is done with a YAML file, which structure is described below.
-The course structure can be uploaded on the audience list view in the course administration.
+You can generate the course audience structure and populate it with a csv file upload
+on INGInious. The structure of the attented file is described below.
+The file can be uploaded on the audience list view in the course administration.
 
-Audiences YAML structure
-*************************
+CSV file structure
+******************
+
+The file doesn't need any header and is populate based on a person per line structure:
 
 ::
 
-    -    description: Audience 1
-         tutors:
-                 - tutor1
-                 - tutor2
-         students:
-                 - user1
-                 - user2
-    -    description: Audience 2
-         tutors:
-                 - tutor1
-                 - tutor2
-         students:
-                 - user3
-                 - user4
+    user_id , id_field , user_role , description
 
--   *description* is a string and corresponds to your audience description
--   *tutors* is a list of strings representing the usernames of the
-    assigned audience tutors.
--   *students* is a list of strings representing the usernames of the
-    audience students.
+A comma ``,`` is used to separate the items while the quote char is ``"``.
+
+-   *user_id* is a string that identify the user. Based on the id_field this may take several form. Most common is the username but is not the only one. you may, for example, give email to identify the user.
+-   *id_field* is a string that corresponds to the type of user_id. It can be values used on user creation (like username, email).
+-   *user_role* is a string that simply represent the role of the user. it can be ``student`` or ``tutor``
+-   *description* is a string and corresponds to your audience description. Line with the same description will be merged within the same audience.
+
+
 
 Groups
 ------

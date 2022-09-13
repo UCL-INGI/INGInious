@@ -34,5 +34,5 @@ Internals
    dev_doc/internals_doc/architectures
    dev_doc/internals_doc/submissions
    dev_doc/internals_doc/frontend
-   dev_doc/internals_doc/groupes_audiences
+   dev_doc/internals_doc/groups_audiences
    dev_doc/internals_doc/exercises
