@@ -496,7 +496,7 @@ function displayRemoteDebug(submissionid, submission_wait_data)
     var ssh_user = submission_wait_data["ssh_user"];
     var ssh_password = submission_wait_data["ssh_password"];
 
-    var pre_content = "ssh " + ssh_user + "@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
+    var pre_content = "ssh " + ssh_user + "@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password";
     var task_alert = $('#task_alert');
     var title = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
     var content = submission_wait_data["text"];
