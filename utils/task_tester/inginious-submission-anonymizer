@@ -19,6 +19,16 @@ try:
 except ModuleNotFoundError:
     inginious_modules = False
 
+
+FIELDS_TO_REPLACE = [
+    ('user_ip', ''), ('_id', ''), ('archive', ''), ('grade', ''), ('submitted_on', ''),
+    ('time', ''), ('@email', 'anonymized@anonymized'), ('@username', 'anonymized')
+]
+
+_EMPTY_FIELDS = []
+_OTHER_FIELDS = []
+
+
 def anonymize(prefix: str, archive: str):
     """ Anonymize all the submissions contained in an archive generated via the Webapp interface
         This script removes the fields allowing the identification of the original author in each
@@ -26,12 +36,6 @@ def anonymize(prefix: str, archive: str):
 
         :param prefix: The FileSystemProvider prefix of the current INGInious installation.
         :param archive: The path toward the archive containing the provided submissions.
-    """
-
-
-    """
-     10     -e "s/'@email': (.*)$/'@email': test@test/g"\                                                     
-     11     -e "s/'@username': (.*)$/'@username': test/g"\                                                    
     """
 
     if inginious_modules:
@@ -61,21 +65,13 @@ def anonymize(prefix: str, archive: str):
                     content = fd.read()
 
                 """ Remove identifiable fields """
-                new_content = re.sub(r'(user_ip|_id|archive|grade|submitted_on|time):(.*)', '', content)
+                new_content = re.sub(r'(%s):(.*)' % '|'.join(_EMPTY_FIELDS), '', content)
 
-                """ Replace number of attempts """
-                new_content = re.sub(r'\'@attempts\': \'[0-9]*\'', '\'@attempts\': \'0\'', new_content)
-
-                """ Replace user email """
-                new_content = re.sub(r'\'@email\': (.*)', '\'@email\': test@test', new_content)
-
-                """ Replace user language """
-                #new_content = re.sub(r'\'@lang\': (.*)', '\'@lang\': en', new_content)
-
-                """ Replace user language """
-                new_content = re.sub(r'\'@username\': (.*)', '\'@username\': test', new_content)
+                for field, new_value in _OTHER_FIELDS:
+                    new_content = re.sub(r'\'%s\':(.*)' % field, '\'{field}\': {new_value}'.format(field=field, new_value=new_value), new_content)
 
                 """ Remove usernames """
+                # TODO test this if multiple users 
                 #new_content = re.sub(r'username:(\n|\r\n|\r)[-(.*)(\r|\r\n|\n)]*', '', new_content)
                 new_content = re.sub(r'username:(\n|\r\n|\r)-(.*)', '', new_content)
 
@@ -101,12 +97,13 @@ def anonymize(prefix: str, archive: str):
                         os.makedirs(os.path.dirname(new_submission_file))
                         with open(new_submission_file, 'w') as fd: fd.write(new_content)
 
+
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Anonymize INGInious submissions and install them in an INGInious instance\
         if possible (see -c and -p). If this script is run outside of an INGInious installation, it will output a directory\
-        in the current directory.')
+        reproducing the course structure in the current directory.')
     parser.add_argument('courseid', type=str, help='The courseid corresponding to the submissions')
     parser.add_argument('archive', type=str, help='The path to the submissions archive')
     parser.add_argument('-c', '--configuration', type=str, help='The path towards an INGInious instance configuration file.\
@@ -125,7 +122,7 @@ if __name__ == '__main__':
         print('Config file does not exist, nothing to do.')
         exit(1)
 
-    """ Prefix path safetyy checks """
+    """ Prefix path safety checks """
     if prefix and not os.path.exists(prefix):
         print('Prefix path does not exist, nothing to do.')
         exit(1)
@@ -155,4 +152,11 @@ if __name__ == '__main__':
         prefix = os.getcwd()
 
     prefix = os.path.join(os.path.abspath(prefix), courseid)
+
+    for field, new_value in FIELDS_TO_REPLACE:
+        if new_value == '':
+            _EMPTY_FIELDS.append(field)
+        else:
+            _OTHER_FIELDS.append((field, new_value))
+
     anonymize(prefix, archive)
