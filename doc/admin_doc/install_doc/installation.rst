@@ -77,29 +77,51 @@ You can now start and enable the ``mongod`` and ``docker`` services:
     # systemctl start docker
     # systemctl enable docker
     
-Ubuntu 18.04+
+Ubuntu 22.04+
 `````````````
 
-The previously mentioned dependencies can be installed, for Ubuntu 18.04+:
+To keep a clean distribution, we recommend to work with a virtualenv:
 
 .. code-block:: bash
 
-    # apt-get update
-    # apt-get install git gcc tidy python3 python3-pip python3-dev libzmq3-dev mongodb apt-transport-https curl gnupg lsb-release
-    # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    # echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-    # apt-get update
-    # apt-get install docker-ce docker-ce-cli
+    sudo apt update
+    sudo apt install python3.10-venv
+    python3 -m venv /path/to/venv/INGInious
+    source /path/to/venv/INGInious/bin/activate
 
-You may also add ``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin
+The previously mentioned dependencies can be installed, for Ubuntu 22.04+:
+
+.. code-block:: bash
+
+    sudo apt install git gcc tidy python3-pip python3-dev libzmq3-dev apt-transport-https curl gnupg lsb-release
+    wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+    sudo apt update
+    wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+    dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+    sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+    sudo apt install -y mongodb-org
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt update
+    sudo apt install docker-ce docker-ce-cli
 
 You can now start and enable the ``mongod`` and ``docker`` services:
 ::
 
-    # systemctl start mongodb
-    # systemctl enable mongodb
+    # systemctl daemon-reload
+    # systemctl start mongod
+    # systemctl enable mongod
     # systemctl start docker
     # systemctl enable docker
+
+And make docker available for non-root user:
+
+.. code-block:: bash
+
+    sudo usermod -aG docker user
+    sudo chmod 666 /var/run/docker.sock
+
 
 macOS
 `````
@@ -131,9 +153,8 @@ The recommended setup is to install INGInious via pip and the master branch of t
 This allows you to use the latest development version. This version is currently the supported one for issues.
 ::
 
-    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@inginious-0.7
+    $ pip3 install INGInious
 
-This will automatically upgrade an existing version.
 
 .. note::
 
