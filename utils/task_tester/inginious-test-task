@@ -111,16 +111,17 @@ def job_done_callback(result, filename, inputfiles, data):
             noprob = False
             print("\033[1m-> No tests results given as expected \033[0m")
         else:
+            """ Check each tag of the submission """
             for tag in data['tests']:
                 if not tag in result['tests']:
                     noprob = False
                     print("\033[1m-> No test result with tag '" + tag + "' given \033[0m")
-                    print("\t Expected result : " + data['tests'][tag])
+                    print("\t Expected result : " + str(data['tests'][tag]))
                 elif data['tests'][tag] != result['tests'][tag]:
                     noprob = False
                     print("\033[1m-> Test with tag '" + tag + "' failed :\033[0m")
-                    print("\t Expected result : " + data['tests'][tag])
-                    print("\t Actual result : " + result['tests'][tag])
+                    print("\t Expected result : " + str(data['tests'][tag]))
+                    print("\t Actual result : " + str(result['tests'][tag]))
 
     if noprob:
         print("\033[32;1m-> All tests passed \033[0m")
