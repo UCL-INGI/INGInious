@@ -1388,7 +1388,7 @@ msgid ""
 "You are going to bind your INGInious account <strong>{realname} "
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
-"Você vinculará sua conta do INGInious <strong>{realname} [{nomedeusuário}]</"
+"Você vinculará sua conta do INGInious <strong>{realname} [{username}]</"
 "strong> com a seguinte ferramenta e contexto da LTI:"
 
 #: inginious/frontend/templates/lti_bind.html:20
