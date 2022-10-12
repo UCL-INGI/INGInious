@@ -101,9 +101,15 @@ def anonymize(prefix: str, archive: str):
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description='Anonymize INGInious submissions and install them in an INGInious instance\
-        if possible (see -c and -p). If this script is run outside of an INGInious installation, it will output a directory\
-        reproducing the course structure in the current directory.')
+    parser = argparse.ArgumentParser(
+        'Anonymize INGInious submissions and install them in an INGInious instance if possible '
+        '(see -c and -p). If this script is run outside of an INGInious installation, it will '
+        'output a directory reproducing the course structure in the current directory.\n'
+        'Users should note that anonymizing a submission is a possibly destructive operation for '
+        'tasks graders since they may rely on some of the cleared fields to produce their '
+        'feedback. Here is an exhaustive list of cleared fields [%s].' 
+        % ', '.join([name for name, _ in FIELDS_TO_REPLACE])
+    )
     parser.add_argument('courseid', type=str, help='The courseid corresponding to the submissions')
     parser.add_argument('archive', type=str, help='The path to the submissions archive')
     parser.add_argument('-c', '--configuration', type=str, help='The path towards an INGInious instance configuration file.\
