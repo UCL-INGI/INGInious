@@ -9,6 +9,7 @@
 import importlib
 import argparse
 import difflib
+import logging
 import inspect
 import glob
 import time
@@ -19,60 +20,117 @@ import os
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..'))
 
-import inginious.frontend.tasks
-from inginious.common.base import load_json_or_yaml
-from inginious.frontend.course_factory import create_factories
-from inginious.frontend.parsable_text import ParsableText
-from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
-from inginious.client.client_sync import ClientSync
-
-from inginious.frontend.task_dispensers.toc import TableOfContents
-from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
-from inginious.common.filesystems.local import LocalFSProvider
-from inginious.common.filesystems import FileSystemProvider
 from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, FileProblem
+from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
+from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.frontend.task_dispensers.toc import TableOfContents
+from inginious.common.filesystems.local import LocalFSProvider
+from inginious.frontend.course_factory import create_factories
+from inginious.common.filesystems import FileSystemProvider
+from inginious.frontend.parsable_text import ParsableText
+from inginious.client.client_sync import ClientSync
+from inginious.common.base import load_json_or_yaml
+import inginious.frontend.tasks
+
+
+class TaskTesterLogger(logging.Logger):
+    """ A simple logger providing colored output according to the logging level. """
+
+    class _MyFormat(logging.Formatter):
+        fmt = '\033[%i;1m{msg}\033[0m'
+        def format(self, record):
+            if record.levelno <= logging.INFO:
+                s = self.fmt % record.color
+            elif record.levelno <= logging.WARNING:
+                s = self.fmt % 33
+            elif record.levelno <= logging.ERROR:
+                s = self.fmt % 31
+            else:
+                s = '{msg}'
+            return s.format(msg=record.msg)
+
+    def __init__(self):
+        name = 'inginious.utils.task-tester'
+        super().__init__(name)
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(self._MyFormat())
+        self.setLevel(logging.INFO)
+        self.addHandler(handler)
+
+    def info(self, msg, extra:dict = {}):
+        default_extra = {'color': 34}
+        default_extra.update(extra)
+        super().info(msg, extra=default_extra)
+
+    def success(self, msg):
+        self.info(msg, {'color': 32})
+
+logger = TaskTesterLogger()
 
 def job_done_callback(result, filename, inputfiles, data):
-    print('\x1b[34;1m[' + str(job_done_callback.jobs_done + 1) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m')
-
+    """ Compare a given submission with the result of its replay.
     """
-    print(data)
-    print(result)
-    if 'response_type' in data:
-        result['response_type'] = data['response_type']
-    parse_text(task, result)
-    print(result['problems'])
-    print(data['problems'])
-    """
+    logger.info('-- [%i/%i] Testing input file <%s>' % (
+        (job_done_callback.jobs_done + 1), len(inputfiles), filename
+    ))
 
-    # Print stdout if verbose
+    """ Print stdout if verbose """
     if verbose:
         print('\x1b[1m-> Complete standard output : \033[0m')
         for line in result['stdout'].splitlines(1):
             print('\t' + line.strip('\n'))
 
-    # Start the comparison
+    """ Start the comparison """
     noprob = True
 
+    """ Step 1. Compare the submission results. """
+    if 'result' in data and data['result']:
+        if data['result'] != result['result'][0]:
+            noprob = False
+            logger.error('-> Result doesn\'t match.')
+            logger.error("\tExpected <%s>\n\tGot <%s>" % (data['result'], result['result'][0]))
+
+
+    """ Step 2. Compare the tags values. """
+    if 'tests' in data and data['tests']:
+
+        if not 'tests' in result:
+            """ We expect some tags in the re-run result. """
+            noprob = False
+            logger.error('-> No tags found in the re-run.')
+
+        else:
+            """ Compare each tag of the submission """
+            for tag in data['tests']:
+                if not tag in result['tests']:
+                    noprob = False
+                    logger.error('-> No test result with tag <%s> given' % tag)
+                    logger.error('\tExpected <%s>' % str(data['tests'][tag]))
+                elif data['tests'][tag] != result['tests'][tag]:
+                    noprob = False
+                    logger.error('-> Tag values doesn\'t match.')
+                    logger.error('\t Expected <%s>\n\tGot <%s>' % 
+                                 (str(data['tests'][tag]), str(result['tests'][tag])))
+
+
+    # TODO : This will be reworked with the new tagging system
+    # See https://github.com/UCL-INGI/INGInious/issues/874
+
+    """
     if 'stderr' in result and result['stderr']:
         noprob = False
         print('\x1b[31;1m-> There was some error(s) during execution : \033[0m')
+        logger.error('-> There was some error(s) during execution :')
         for line in result['stderr'].splitlines(1):
             print('\x1b[31;1m\t' + line.strip('\n') + '\033[0m')
 
     if 'stdout' in data and data['stdout']:
         if data['stdout'] != result['stdout']:
             noprob = False
-            print("\033[1m-> Standard output doesn't match :\033[0m")
+            logger.warning('-> Standard output doesn\'t match.')
             for line in difflib.unified_diff(data['stdout'].splitlines(1), result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
                 print('\t' + line.strip('\n'))
-
-    if 'result' in data and data['result']:
-        if data['result'] != result['result'][0]:
-            noprob = False
-            print("\033[1m-> Result doesn't match :\033[0m")
-            print("\t Expected result : " + data['result'])
-            print("\t Actual result : " + result['result'][0])
 
     if 'text' in data and data['text']:
         if not result['result'][1]:
@@ -105,26 +163,10 @@ def job_done_callback(result, filename, inputfiles, data):
                 #    print("\033[1m-> Feedback for problem id <" + problem + "> doesn't match :\033[0m")
                 #    print("\t Expected result : " + repr(data['problems'][problem][1].strip()))
                 #    print("\t Actual result : " + repr(result['problems'][problem][1].strip()))
-
-    if 'tests' in data and data['tests']:
-        if not 'tests' in result:
-            noprob = False
-            print("\033[1m-> No tests results given as expected \033[0m")
-        else:
-            """ Check each tag of the submission """
-            for tag in data['tests']:
-                if not tag in result['tests']:
-                    noprob = False
-                    print("\033[1m-> No test result with tag '" + tag + "' given \033[0m")
-                    print("\t Expected result : " + str(data['tests'][tag]))
-                elif data['tests'][tag] != result['tests'][tag]:
-                    noprob = False
-                    print("\033[1m-> Test with tag '" + tag + "' failed :\033[0m")
-                    print("\t Expected result : " + str(data['tests'][tag]))
-                    print("\t Actual result : " + str(result['tests'][tag]))
+    """
 
     if noprob:
-        print("\033[32;1m-> All tests passed \033[0m")
+        logger.success('--> All tests passed')
     else:
         job_done_callback.failed.append(filename)
 
@@ -135,6 +177,7 @@ job_done_callback.jobs_done = 0
 job_done_callback.failed = []
 
 
+# TODO : Move this in the __init__.py of utils since it is also used in inginious-database-update util
 def get_config(configfile):
     if not configfile:
         if os.path.isfile("./configuration.yaml"):
@@ -146,59 +189,67 @@ def get_config(configfile):
 
     return load_json_or_yaml(configfile)
 
-
 def launch_job(filename, data, inputfiles, task):
+    """ Re-run a submission and compare the results.
+        :param filename:    The path towards the submission.
+        :param data:        The submission content.
+        :param inputfiles:  All the submissions to re-execute for a given task.
+        :param task:        The task to test.
+        :post:              The list of failed submission test and the number of re-runned 
+                            submission have been updated.
+    """
     result, grade, problems, tests, custom, state, archive, stdout, stderr = job_manager.new_job(0, task, data["input"], "Task tester", True)
     job_done_callback({"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}, filename, inputfiles, data)
 
-
-def parse_text(task, job_result):
-    print(task.get_response_type())
-    if "text" in job_result:
-        job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()
-    """
-    if "problems" in job_result:
-        for problem in job_result["problems"]:
-            status, log = job_result["problems"][problem]
-            print(ParsableText(log, task.get_response_type()))
-            job_result["problems"][problem] = (status, ParsableText(log, task.get_response_type()).parse())
+def test_task(course, taskid) -> tuple[list, int]:
+    """ Re-run submissions for a specific task.
+        :param course:  The course containing the task to test.
+        :param taskid:  The ID of the task to test.
+        :return:        The list of failed submissions and the number of submissions re-executed.
+        :post:          The containers for the list of failed submissions and the number of 
+                        re-executed submissions have been reset.
     """
 
-def test_task(course, taskid):
+    logger.info('-> Re-running submissions for task <%s>' % taskid)
 
-    # Get task from its id
+    """ Get task from its id """
     task = course.get_task(taskid)
 
-    # Build test directory path for current task
+    """ Build test directory path for current task """
     test_dir = os.path.join(course.get_fs().prefix, taskid, 'test/')
 
-    # List sample submissions for the current task
+    """ List sample submissions for the current task """
     inputfiles = glob.glob(test_dir + '*.test')
 
-    print("\033[34;1m-> Re-running submissions for task <%s> \033[0m" % taskid)
-
-    # For each submission in the test directory, test the task with the specified input
+    """ For each submission in the test directory, test the task with the specified input """
+    # TODO : create thread pool to parallelize the testing
     for filename in inputfiles:
-        # Open the input file and merge with limits
-        try:
-            inputfile = open(filename, 'r')
-        except IOError as e:
-            print(e)
-            exit(2)
-
-        data = inginious.common.custom_yaml.load(inputfile)
-        launch_job(filename, data, inputfiles, task)
+        """ Open the input file and merge with limits """
+        if not os.path.exists(filename):
+            logger.warning('Submission file <%s> skipped because it does not seem to be reachable.')
+            continue
+            
+        with open(filename, 'r') as fd:
+            submission = inginious.common.custom_yaml.load(fd)
+        launch_job(filename, submission, inputfiles, task)
     
     result = (job_done_callback.failed, job_done_callback.jobs_done)
 
-    if len(job_done_callback.failed) > 0:
-        print("\033[31;1m%i tests failed\n%s\033[0m" % (len(job_done_callback.failed), '\n'.join(['- %s' % i for i in job_done_callback.failed])) )
+    """ Simple reporting """
+    failed = len(job_done_callback.failed)
+    if  failed > 0:
+        logger.error('%i/%i tests failed\n%s' % (
+            failed,
+            job_done_callback.jobs_done,
+            '\n'.join(['- %s' % i for i in job_done_callback.failed])
+        ))
     else:
         if job_done_callback.jobs_done == 0:
-            print("\033[36;1mNo test submission found \033[0m")
+            logger.warning('No test submission found.')
         else:
-            print("\033[32;1mAll the previous submissions passed \033[0m")
+            logger.success('-> All the previous submissions passed.')
 
+    """ Reset results containers """
     job_done_callback.failed = []
     job_done_callback.jobs_done = 0
 
@@ -207,7 +258,12 @@ def test_task(course, taskid):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        'This tool replays submissions of a given course to ensure that its task\'s grading '
+        'processes are consistent over time. The verification of a specific task may be skipped by '
+        'adding a ".testignore" file in the task directory.'
+
+    )
     parser.add_argument("courseid", help="Course id of the task to test")
     parser.add_argument("taskids", nargs='*', help="Task id of the task to test")
     parser.add_argument("-c", "--config", help="Configuration file", default="")
@@ -215,27 +271,29 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--plugins", nargs="*", help="Additional plugins to load")
     args = parser.parse_args()
 
-    # Read input argument
+    """ Read input argument """
     verbose = args.verbose
     courseid = args.courseid
     taskids = args.taskids
     plugins = args.plugins
 
-    # Parse course configuration
+    logger.info('Hello from the task tester utility!')
+
+    """ Parse course configuration """
     config = get_config(args.config)
 
-    # Initialize course/task factory
+    """ Initialize course/task factory """
     task_directory = config["tasks_directory"]
-
     task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
 
-    # Set basic problem types available
+    """ Set basic problem types available """
     # TODO: get that somewhere rather than hardcoding that in the test script
+    # See https://github.com/UCL-INGI/INGInious/issues/864i
     task_problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
                           "file": FileProblem, "multiple_choice": MultipleChoiceProblem,
                           "match": MatchProblem}
 
-    # Load additional problem types from plugins if any
+    """ Load additional problem types from plugins if any """
     if plugins:
         for plugin in plugins:
             plug = importlib.import_module(plugin)
@@ -246,23 +304,23 @@ if __name__ == "__main__":
                 if type(pb_class) == abc.ABCMeta and inginious.frontend.task_problems.Problem in pb_class.__bases__ and (pb_type := pb_class.get_type()):
                     task_problem_types[pb_type] = pb_class
 
-    # Intialize the LocalFileSystemProvider of the instance
+    """ Intialize the LocalFileSystemProvider of the instance """
     local_fsp = LocalFSProvider(task_directory)
     course_factory, task_factory = create_factories(local_fsp, task_dispensers, task_problem_types)
 
-    # Initialize client
+    """ Initialize client """
     zmq_context, asyncio_thread = start_asyncio_and_zmq()
     client = create_arch(config, local_fsp, zmq_context, course_factory)
     client.start()
 
-    # Get the client synchronous
+    """ Get the client synchronous """
     job_manager = ClientSync(client)
 
-    # Open the taskfile
+    """ Open the taskfile """
     from inginious.frontend.environment_types import register_base_env_types
     register_base_env_types()
 
-    # Wait for the agent to load containers
+    """ Wait for the agent to load containers """
     # TODO: ugly quick fix but no better solution currently
     print('\x1b[1mWaiting for containers loading \033[0m', end='', flush=True)
     for i in range(15):
@@ -273,18 +331,18 @@ if __name__ == "__main__":
     course = course_factory.get_course(courseid)
     course_fs = course.get_fs()
 
-    total_failed = []
-    total_ignored = []
-    total_done = 0
     banned = ['.git/', '$common/', '.github/']
+    total_ignored = []
+    total_failed = []
+    total_done = 0
     taskn = 0
 
-    # Test each specified task
+    """ Test each specified task """
     for taskid in taskids if len(taskids) > 0 else [task_dir[:-1] for task_dir in course_fs.list(files=False)]:
         if taskid in banned or not course_fs.exists(os.path.join(taskid, 'task.yaml')):
             continue
         elif course_fs.exists(os.path.join(taskid, '.testignore')):
-            print("\033[36;1m-> Task <%s> explicitely ignored \033[0m" % taskid)
+            logger.warning('-> Task <%s> explicitely ignored' % taskid)
             total_ignored.append(taskid)
         else:
             failed, done = test_task(course, taskid)
@@ -294,24 +352,23 @@ if __name__ == "__main__":
         taskn += 1
 
     client.close()
-    
 
-    print("\033[36;1m### Tests Summary ###\033[0m")
-    print("\033[36;1m> %i tasks considered\033[0m" % taskn)
+    """ Output simple report """
+    logger.warning('### Tests Summary ###')
+    logger.warning('> %i tasks considered' % taskn)
 
     if (ignored := len(total_ignored)) > 0:
-        print("\033[36;1m> %i tasks ignored\n%s\033[0m" % (ignored, '\n'.join(['- %s' % i for i in total_ignored])))
-
+        logger.warning('> %i tasks ignored\n%s' %
+            (ignored, '\n'.join(['- %s' % i for i in total_ignored]))
+        )
 
     if len(total_failed) > 0:
-        print("\033[31;1m> %i tests failed in %i tasks \033[0m" % (len(total_failed), taskn))
+        logger.error('> %i tests failed in %i tasks' % (len(total_failed), taskn))
         sys.exit(1)
     else:
-
-
         if total_done == 0:
-            print("\033[36;1m--> No test submission found for course <%s> \033[0m" % courseid)
+            logger.warning('--> No test submission found for course <%s>' % courseid)
             sys.exit(0)
         else:
-            print("\033[32;1m--> All the previous submissions of the tested tasks passed \033[0m")
+            logger.success('--> All the previous submissions of the tested tasks passed')
             sys.exit(0)
