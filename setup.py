@@ -35,7 +35,8 @@ install_requires = [
 ]
 
 test_requires = [
-    "selenium == 3.141.0",
+    "pytest",
+    "coverage"
 ]
 
 doc_requires = [
