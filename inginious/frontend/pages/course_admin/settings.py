@@ -7,6 +7,7 @@ import re
 import flask
 
 from inginious.common.base import dict_from_prefix, id_checker
+from inginious.common.field_types import FieldTypes
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -96,7 +97,10 @@ class CourseSettingsPage(INGIniousAdminPage):
         if tag_error is not None:
             errors.append(tag_error)
 
-
+        additional_fields = self.define_additional_fields(data)
+        if additional_fields is not None and not isinstance(additional_fields, dict):
+            errors.append(additional_fields)
+        course_content["fields"] = additional_fields
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
@@ -106,7 +110,8 @@ class CourseSettingsPage(INGIniousAdminPage):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
-        return self.template_helper.render("course_admin/settings.html", course=course, errors=errors, saved=saved)
+        return self.template_helper.render("course_admin/settings.html", course=course, errors=errors, saved=saved,
+                                           field_types=FieldTypes)
 
     def define_tags(self, course, data, course_content):
         tags = self.prepare_datas(data, "tags")
@@ -130,6 +135,25 @@ class CourseSettingsPage(INGIniousAdminPage):
 
         course_content["tags"] = tags
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
+
+    def define_additional_fields(self, data):
+        """Additional field definition method"""
+        fields = self.prepare_datas(data, "field")
+        if not isinstance(fields, dict):
+            # prepare_datas returned an error
+            return fields
+
+        # Repair fields
+        for field in fields.values():
+            try:
+                field["type"] = FieldTypes(int(field["type"])).value
+            except:
+                return _("Invalid type value: {}").format(field["type"])
+            if not id_checker(field["id"]):
+                return _("Invalid id: {}").format(field["id"])
+
+            del field["id"]
+        return fields
 
     def prepare_datas(self, data, prefix: str):
         # prepare dict
