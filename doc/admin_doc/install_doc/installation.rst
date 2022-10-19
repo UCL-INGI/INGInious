@@ -80,14 +80,7 @@ You can now start and enable the ``mongod`` and ``docker`` services:
 Ubuntu 22.04+
 `````````````
 
-To keep a clean distribution, we recommend to work with a virtualenv:
 
-.. code-block:: bash
-
-    sudo apt update
-    sudo apt install python3.10-venv
-    python3 -m venv /path/to/venv/INGInious
-    source /path/to/venv/INGInious/bin/activate
 The previously mentioned dependencies can be installed, for Ubuntu 22.04+:
 
 .. code-block:: bash
@@ -148,13 +141,22 @@ The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-
 Installing INGInious
 --------------------
 
-The recommended setup is to install INGInious via pip and the master branch of the INGInious git repository.
-This allows you to use the latest development version. This version is currently the supported one for issues.
+To keep a clean distribution, we recommend to work with a virtualenv:
+
+.. code-block:: bash
+
+    sudo apt update
+    sudo apt install python3.10-venv
+    python3 -m venv /path/to/venv/INGInious
+    source /path/to/venv/INGInious/bin/activate
+
+The recommended setup is to install INGInious via pip.
+This allows you to use the latest released version. This version is currently the supported one for issues.
+
 ::
 
-    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@inginious-0.7
+    $ pip install INGInious
 
-This will automatically upgrade an existing version.
 
 .. note::
 
@@ -163,7 +165,7 @@ This will automatically upgrade an existing version.
 
    ::
 
-       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@inginious-0.7#egg=INGInious[cgi,ldap]
+       $ pip INGInious[cgi,ldap]
 
 .. _config:
 
