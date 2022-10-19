@@ -14,7 +14,7 @@ class AdditionalField:
     This class represent extra field that can be added to a course.
     """
 
-    def __init__(self, field_id: str, description, field_type):
+    def __init__(self, field_id, description, field_type):
         self._id = field_id
         self._description = description
         if field_type in [field.name for field in FieldTypes]:
