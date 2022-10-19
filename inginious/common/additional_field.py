@@ -17,7 +17,7 @@ class AdditionalField:
     def __init__(self, field_id, description, field_type):
         self._id = field_id
         self._description = description
-        if field_type in [field.name for field in FieldTypes]:
+        if field_type in [field.value for field in FieldTypes]:
             self._type = field_type
         else:
             raise Exception("Field type not correct")
