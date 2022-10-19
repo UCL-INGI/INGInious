@@ -16,9 +16,23 @@ from inginious.common.tasks_problems import Problem, CodeProblem, CodeSingleLine
 
 from inginious.frontend.parsable_text import ParsableText
 
-def get_problem_types():
-    """ Get a mapping of DisplayableProblem names and their associated class by inspecting the module """
-    return _get_problem_types(__name__, DisplayableProblem)
+
+def get_displayable_problem_types(name: str) -> dict:
+    """ Get the mapping of DisplayableProblem types available by inspecting a given module.
+
+        :param  name:   The name of the module to inspect.
+        :return:        The mapping of problem name and problem class.
+    """
+    raw = _get_problem_types(name, DisplayableProblem)
+    return {pbl_name: pbl_cls for pbl_name, pbl_cls in raw.items() if pbl_name is not None}
+
+def get_default_displayable_problem_types() -> dict:
+    """ Get the mapping of default DisplayableProblem types available by inspecting the current 
+        module.
+
+        :return:    The mapping of problem name and problem class.
+    """
+    return get_displayable_problem_types(__name__)
 
 
 class DisplayableProblem(Problem, metaclass=ABCMeta):

@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Tasks' problems """
+import importlib
 import gettext
 import inspect
 import sys
@@ -12,18 +13,48 @@ from abc import ABCMeta, abstractmethod
 
 from inginious.common.base import id_checker
 
-def _get_problem_types(name, base_class):
+
+def _get_problem_types(name: str, base_class) -> dict:
     """ Generic function to get a mapping of Problem names and their associated class by 
-        inspecting the module 
+        inspecting a given module.
+
+        :param  name:       The name of the module to explore.
+        :param  base_class: The parent Problem class.
+        :return:            The mapping of problem name and problem class.
     """
-    myself = sys.modules[name]
+    try:
+        """ Get the module by name """
+        myself = sys.modules[name]
+    except KeyError:
+        try:
+            """ If the module is not loaded, we try to load it """
+            myself = importlib.import_module(name)
+        except ModuleNotFoundError:
+            """ There is nothing much to do """
+            return None
+    
+    """ Search for child classes of `base_class` """
     members = [member for (_, member) in inspect.getmembers(myself, inspect.isclass) 
                if base_class in inspect.getmro(member) and member != base_class]
+
+    """ Return the mapping """
     return {member.get_type(): member for member in members}
 
-def get_problem_types():
-    """ Get a mapping of Problem names and their associated class by inspecting the module """
-    return _get_problem_types(__name__, Problem)
+def get_problem_types(name: str) -> dict:
+    """ Get the mapping of Problem types available by inspecting a given module.
+
+        :param  name:   The name of the module to inspect.
+        :return:        The mapping of problem name and problem class.
+    """
+    raw = _get_problem_types(name, Problem)
+    return {pbl_name: pbl_cls for pbl_name, pbl_cls in raw.items() if pbl_name is not None}
+
+def get_default_problem_types() -> dict:
+    """ Get the mapping of default Problem types available by inspecting the current module.
+
+        :return:    The mapping of problem name and problem class.
+    """
+    return get_problem_types(__name__)
 
 
 class Problem(object, metaclass=ABCMeta):
