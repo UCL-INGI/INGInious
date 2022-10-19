@@ -48,3 +48,5 @@ Utilities
     admin_doc/commands_doc/inginious-synchronize
     admin_doc/commands_doc/inginious-container-update
     admin_doc/commands_doc/inginious-database-update
+    admin_doc/commands_doc/inginious-task-test
+    admin_doc/commands_doc/inginious-submission-anonymizer

@@ -259,16 +259,17 @@ def test_task(course, taskid) -> tuple[list, int]:
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
-        'This tool replays submissions of a given course to ensure that its task\'s grading '
-        'processes are consistent over time. The verification of a specific task may be skipped by '
-        'adding a ".testignore" file in the task directory.'
+        'Replay submissions of a given course to ensure that its task\'s grading processes are '
+        'consistent over time.'
 
     )
-    parser.add_argument("courseid", help="Course id of the task to test")
-    parser.add_argument("taskids", nargs='*', help="Task id of the task to test")
-    parser.add_argument("-c", "--config", help="Configuration file", default="")
+    parser.add_argument("courseid", help="Course ID of the course to test.")
+    parser.add_argument("taskids", nargs='*', help="Task ID(s) of the task to test.")
+    parser.add_argument("-c", "--config", help="Path towards the INGInious instance configuration"
+                                                "file.", default="")
     parser.add_argument("-v", "--verbose", help="Display more output", action='store_true')
-    parser.add_argument("-p", "--plugins", nargs="*", help="Additional plugins to load")
+    parser.add_argument("-p", "--plugins", nargs="*", help="Additional plugins required to replay"
+                                                            "the course's tasks.")
     args = parser.parse_args()
 
     """ Read input argument """
