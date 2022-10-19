@@ -11,7 +11,7 @@ from inginious.common.additional_field import AdditionalField
 
 @pytest.fixture()
 def init():
-    af = AdditionalField("test", "a description", "STRING")
+    af = AdditionalField("test", "a description", 1)
     yield af
 
 
@@ -21,9 +21,9 @@ class TestAdditionalField(object):
     def test_additional_field_init(self, init):
         af = init
         assert af is not None
-        af = AdditionalField(0, "a description", "STRING")
+        af = AdditionalField(0, "a description", 1)
         try:
-            af = AdditionalField("fail", "a description", "NOTCORRECT")
+            af = AdditionalField("fail", "a description", 99)
         except Exception:
             assert True
 
@@ -35,6 +35,10 @@ class TestAdditionalField(object):
         af = init
         assert af.get_description() == "a description"
 
+    def test_additional_field_get_type_name(self, init):
+        af = init
+        assert af.get_type_name() == "INTEGER"
+
     def test_additional_field_get_type(self, init):
         af = init
-        assert af.get_type() == "STRING"
+        assert af.get_type() == 1

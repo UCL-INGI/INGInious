@@ -40,6 +40,12 @@ class AdditionalField:
         """
         return self._description
 
+    def get_type_name(self):
+        """"
+        :return: type name of the additional field
+        """
+        return FieldTypes(self._type).name
+
     def get_type(self):
         """
         :return: type of the additional field
