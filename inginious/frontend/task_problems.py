@@ -3,17 +3,22 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-""" Displyable problems """
+""" Displayable problems """
 
-import gettext
-import json
 from abc import ABCMeta, abstractmethod
 from random import Random
+import gettext
+import json
 
 from inginious.common.tasks_problems import Problem, CodeProblem, CodeSingleLineProblem, \
-    MatchProblem, MultipleChoiceProblem, FileProblem
+    MatchProblem, MultipleChoiceProblem, FileProblem,  _get_problem_types
+
 
 from inginious.frontend.parsable_text import ParsableText
+
+def get_problem_types():
+    """ Get a mapping of DisplayableProblem names and their associated class by inspecting the module """
+    return _get_problem_types(__name__, DisplayableProblem)
 
 
 class DisplayableProblem(Problem, metaclass=ABCMeta):

@@ -5,19 +5,25 @@
 
 """ Tasks' problems """
 import gettext
+import inspect
 import sys
 import re
 from abc import ABCMeta, abstractmethod
 
 from inginious.common.base import id_checker
 
+def _get_problem_types(name, base_class):
+    """ Generic function to get a mapping of Problem names and their associated class by 
+        inspecting the module 
+    """
+    myself = sys.modules[name]
+    members = [member for (_, member) in inspect.getmembers(myself, inspect.isclass) 
+               if base_class in inspect.getmro(member) and member != base_class]
+    return {member.get_type(): member for member in members}
 
 def get_problem_types():
-    import inspect
     """ Get a mapping of Problem names and their associated class by inspecting the module """
-    myself = sys.modules[__name__]
-    members = [member for (_, member) in inspect.getmembers(myself, inspect.isclass) if Problem in inspect.getmro(member) and member != Problem]
-    return {member.get_type(): member for member in members}
+    return _get_problem_types(__name__, Problem)
 
 
 class Problem(object, metaclass=ABCMeta):
