@@ -24,7 +24,7 @@ from inginious.client.client_sync import ClientSync
 from inginious.frontend.arch_helper import start_asyncio_and_zmq, create_arch
 from yaml import load
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.frontend.task_problems import *
+from inginious.frontend.task_problems import get_default_displayable_problem_types
 
 
 def import_class(name):
@@ -266,13 +266,7 @@ if __name__ == "__main__":
         task_dispenser.get_id(): task_dispenser for task_dispenser in [TableOfContents]
     }
 
-    problem_types = {
-        problem_type.get_type(): problem_type for problem_type in [DisplayableCodeProblem,
-                                                                   DisplayableCodeSingleLineProblem,
-                                                                   DisplayableFileProblem,
-                                                                   DisplayableMultipleChoiceProblem,
-                                                                   DisplayableMatchProblem]
-    }
+    problem_types = get_default_displayable_problem_types()
 
     if args.tdisp:
         for tdisp_loc in args.tdisp:
