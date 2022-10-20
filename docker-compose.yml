@@ -23,5 +23,16 @@ services:
     networks:
       - inginious
 
+  inginious-agent-mcq:
+    image: inginious-agent-mcq
+    deploy:
+      replicas: 1
+    build:
+      dockerfile: agent-mcq.containerfile
+    environment:
+      BACKEND: "tcp://inginious-backend:2001"
+    networks:
+      - inginious
+
 networks:
   inginious:
