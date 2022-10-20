@@ -1,5 +1,10 @@
 services:
 
+  inginious-db:
+    image: mongo:6.0.2
+    networks:
+      - inginious
+
   inginious-backend:
     image: inginious-backend
     build:
@@ -12,6 +17,8 @@ services:
 
   inginious-agent-docker:
     image: inginious-agent-docker
+    depends_on:
+      - inginious-backend
     deploy:
       replicas: 1
     build:
@@ -25,6 +32,8 @@ services:
 
   inginious-agent-mcq:
     image: inginious-agent-mcq
+    depends_on:
+      - inginious-backend
     deploy:
       replicas: 1
     build:
