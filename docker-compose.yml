@@ -1,11 +1,27 @@
 services:
-    inginious-backend:
-        image: inginious-backend
-        build:
-            dockerfile: backend.containerfile
-        environment:
-          AGENT: "tcp://127.0.0.1:2001"
-          CLIENT: "tcp://127.0.0.1:2000"
-        expose:
-          - 2000
-          - 2001
+
+  inginious-backend:
+    image: inginious-backend
+    build:
+      dockerfile: backend.containerfile
+    environment:
+      AGENT: "tcp://0.0.0.0:2001"
+      CLIENT: "tcp://0.0.0.0:2000"
+    networks:
+      - inginious
+
+  inginious-agent-docker:
+    image: inginious-agent-docker
+    deploy:
+      replicas: 1
+    build:
+      dockerfile: agent-docker.containerfile
+    environment:
+      BACKEND: "tcp://inginious-backend:2001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - inginious
+
+networks:
+  inginious:
