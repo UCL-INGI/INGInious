@@ -1,0 +1,11 @@
+services:
+    inginious-backend:
+        image: inginious-backend
+        build:
+            dockerfile: backend.containerfile
+        environment:
+          AGENT: "tcp://127.0.0.1:2001"
+          CLIENT: "tcp://127.0.0.1:2000"
+        expose:
+          - 2000
+          - 2001
