@@ -6,9 +6,9 @@ services:
       - inginious
 
   inginious-backend:
-    image: inginious-backend
+    image: inginious/inginious-backend
     build:
-      dockerfile: backend.containerfile
+      dockerfile: deploy/backend.containerfile
     environment:
       AGENT: "tcp://0.0.0.0:2001"
       CLIENT: "tcp://0.0.0.0:2000"
@@ -16,13 +16,13 @@ services:
       - inginious
 
   inginious-agent-docker:
-    image: inginious-agent-docker
+    image: inginious/inginious-agent-docker
     depends_on:
       - inginious-backend
     deploy:
       replicas: 1
     build:
-      dockerfile: agent-docker.containerfile
+      dockerfile: deploy/agent-docker.containerfile
     environment:
       BACKEND: "tcp://inginious-backend:2001"
     volumes:
@@ -31,13 +31,13 @@ services:
       - inginious
 
   inginious-agent-mcq:
-    image: inginious-agent-mcq
+    image: inginious/inginious-agent-mcq
     depends_on:
       - inginious-backend
     deploy:
       replicas: 1
     build:
-      dockerfile: agent-mcq.containerfile
+      dockerfile: deploy/agent-mcq.containerfile
     environment:
       BACKEND: "tcp://inginious-backend:2001"
     networks:
