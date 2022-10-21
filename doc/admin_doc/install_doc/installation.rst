@@ -209,7 +209,7 @@ This allows you to use the latest released version. This version is currently th
 
    ::
 
-       $ pip INGInious[cgi,ldap]
+       $ pip install INGInious[cgi,ldap]
 
 .. _config:
 
