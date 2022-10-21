@@ -83,7 +83,7 @@ Ubuntu 22.04+
 
 The previously mentioned dependencies can be installed, for Ubuntu 22.04+:
 
-As previously said, INGInious needs some specific packages. Those can simply be add by installing some packages:
+As previously said, INGInious needs some specific packages. Those can simply be add by running this command:
 
 .. code-block:: bash
 
@@ -91,7 +91,7 @@ As previously said, INGInious needs some specific packages. Those can simply be 
 
 For Docker and MongoDB, some specific steps are needed:
 
-First Docker:
+First, Docker:
 
 .. code-block:: bash
 
@@ -101,7 +101,7 @@ First Docker:
     sudo apt update
     sudo apt install docker-ce docker-ce-cli
 
-Then Mongo:
+Then, Mongo:
 
 .. code-block:: bash
 
