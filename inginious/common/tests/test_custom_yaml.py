@@ -12,21 +12,20 @@ import os
 from collections import OrderedDict
 
 import inginious.common.custom_yaml as yaml
-from inginious.common.filesystems.local import LocalFSProvider
 
 
-@pytest.fixture(params=[LocalFSProvider])
+@pytest.fixture()
 def init_tmp_dir(request):
     """ Create a temporary folder """
     dir_path = tempfile.mkdtemp()
-    yield (request.param, dir_path)
+    yield (dir_path)
     """ Some FUT could create content in the prefix """
     shutil.rmtree(dir_path)
 
 
 class TestCustomLoad(object):
     def test_load_ordereddict(self, init_tmp_dir):
-        provider, tmp_dir = init_tmp_dir
+        tmp_dir = init_tmp_dir
         with open(os.path.join(tmp_dir, "input.yaml"), "w") as f:
             f.write("""
             the: a
@@ -59,7 +58,7 @@ class TestCustomLoad(object):
 class TestCustomWrite(object):
 
     def test_write_ordereddict(self, init_tmp_dir):
-        provider, tmp_dir = init_tmp_dir
+        tmp_dir = init_tmp_dir
         d = OrderedDict([("the", "a"), ("order", "z"), ("is", "b"), ("important", "y")])
         with open(os.path.join(tmp_dir, "output.yaml"), "w") as f:
             yaml.dump(d, f)

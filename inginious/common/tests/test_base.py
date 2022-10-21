@@ -14,14 +14,13 @@ import copy
 from inginious.common.base import directory_compare_from_hash, directory_content_with_hash, hash_file, id_checker, \
     load_json_or_yaml, \
     write_json_or_yaml
-from inginious.common.filesystems.local import LocalFSProvider
 
 
-@pytest.fixture(params=[LocalFSProvider])
+@pytest.fixture()
 def init_tmp_dir(request):
     """ Create a temporary folder """
     dir_path = tempfile.mkdtemp()
-    yield (request.param, dir_path)
+    yield (dir_path)
     """ Some FUT could create content in the prefix """
     shutil.rmtree(dir_path)
 
@@ -45,20 +44,20 @@ class TestJSONYAMLReaderWriter(object):
     """ Test the functions load_json_or_yaml and write_json_or_yaml """
 
     def test_json_read(self, init_tmp_dir):
-        provider, tmp_dir = init_tmp_dir
+        tmp_dir = init_tmp_dir
         with open(os.path.join(tmp_dir, "input.json"), "w") as f:
             f.write('{"key1":"data1","key2":{"key3":[1,2]}}')
         assert load_json_or_yaml(os.path.join(tmp_dir, "input.json")) == {'key1': 'data1',
                                                                                 'key2': {'key3': [1, 2]}}
 
     def test_json_write(self, init_tmp_dir):
-        provider, tmp_dir = init_tmp_dir
+        tmp_dir = init_tmp_dir
         write_json_or_yaml(os.path.join(tmp_dir, "output.json"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
         assert load_json_or_yaml(os.path.join(tmp_dir, "output.json")) == {'key1': 'data1',
                                                                                  'key2': {'key3': [1, 2]}}
 
     def test_yaml_read(self, init_tmp_dir):
-        provider, tmp_dir = init_tmp_dir
+        tmp_dir = init_tmp_dir
         with open(os.path.join(tmp_dir, "input.yaml"), "w") as f:
             f.write("""
             key1: data1
@@ -71,7 +70,7 @@ class TestJSONYAMLReaderWriter(object):
                                                                                 'key2': {'key3': [1, 2]}}
 
     def test_yaml_write(self,init_tmp_dir):
-        provider, tmp_dir = init_tmp_dir
+        tmp_dir = init_tmp_dir
         write_json_or_yaml(os.path.join(tmp_dir, "output.yaml"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
         assert load_json_or_yaml(os.path.join(tmp_dir, "output.yaml")) == {'key1': 'data1',
                                                                                  'key2': {'key3': [1, 2]}}
@@ -89,7 +88,7 @@ class TestDirectoryHash(object):
         assert the_hash == "07671a038c0eb43723d421693b073c3b"
 
     def test_directory_content_with_hash(self, init_tmp_dir):
-        provider, temp_dir = init_tmp_dir
+        temp_dir = init_tmp_dir
         test_dir = os.path.join(temp_dir, "test1")
 
         # Create data
@@ -115,7 +114,7 @@ class TestDirectoryHash(object):
         assert directory_content_with_hash(test_dir) == goal
 
     def test_directory_compare_from_hash(self, init_tmp_dir):
-        prov, temp_dir = init_tmp_dir
+        temp_dir = init_tmp_dir
         test_dir = os.path.join(temp_dir, "test2")
 
         # Create data

@@ -22,13 +22,13 @@ problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
 
-@pytest.fixture(params=[LocalFSProvider])
+@pytest.fixture()
 def ressource(request):
     register_base_env_types()
     dir_path = tempfile.mkdtemp()
     fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
     course_factory, _ = create_factories(fs, task_dispensers, problem_types)
-    yield (request.param, course_factory, dir_path)
+    yield (course_factory, dir_path)
     course_factory.update_course_descriptor_content("test", {"name": "Unit test 1", "admins": ["testadmin1","testadmin2"],
                                                              "accessible": True})
     shutil.rmtree(dir_path)
@@ -38,7 +38,7 @@ class TestCourse(object):
 
     def test_course_loading(self, ressource):
         """Tests if a course file loads correctly"""
-        provider, course_factory, temp_dir = ressource
+        course_factory, temp_dir = ressource
         print("\033[1m-> common-courses: course loading\033[0m")
         c = course_factory.get_course('test')
         assert c.get_id() == 'test'
@@ -61,7 +61,7 @@ class TestCourse(object):
 
     def test_invalid_coursename(self, ressource):
         try:
-            provider, course_factory, temp_dir = ressource
+            course_factory, temp_dir = ressource
             course_factory.get_course('invalid/name')
         except:
             return
@@ -69,7 +69,7 @@ class TestCourse(object):
 
     def test_unreadable_course(self, ressource):
         try:
-            provider, course_factory, temp_dir = ressource
+            course_factory, temp_dir = ressource
             course_factory.get_course('invalid_course')
         except:
             return
@@ -78,7 +78,7 @@ class TestCourse(object):
     def test_all_courses_loading(self, ressource):
         '''Tests if all courses are loaded by Course.get_all_courses()'''
         print("\033[1m-> common-courses: all courses loading\033[0m")
-        provider, course_factory, temp_dir = ressource
+        course_factory, temp_dir = ressource
         c = course_factory.get_all_courses()
         assert 'test' in c
         assert 'test2' in c
@@ -87,7 +87,7 @@ class TestCourse(object):
     def test_tasks_loading(self, ressource):
         '''Tests loading tasks from the get_tasks method'''
         print("\033[1m-> common-courses: course tasks loading\033[0m")
-        provider, course_factory, temp_dir = ressource
+        course_factory, temp_dir = ressource
         c = course_factory.get_course('test')
         t = c.get_tasks()
         assert 'task1' in t
@@ -96,7 +96,7 @@ class TestCourse(object):
         assert 'task4' in t
 
     def test_tasks_loading_invalid(self, ressource):
-        provider, course_factory, temp_dir = ressource
+        course_factory, temp_dir = ressource
         c = course_factory.get_course('test3')
         t = c.get_tasks()
         assert t == {}
@@ -106,7 +106,7 @@ class TestCourseWrite(object):
     """ Test the course update function """
 
     def test_course_update(self, ressource):
-        provider, course_factory, temp_dir = ressource
+        course_factory, temp_dir = ressource
         os.mkdir(os.path.join(temp_dir, "test"))
         with open(os.path.join(temp_dir, "test", "course.yaml"), "w") as f:
             f.write("""
