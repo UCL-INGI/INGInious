@@ -83,21 +83,41 @@ Ubuntu 22.04+
 
 The previously mentioned dependencies can be installed, for Ubuntu 22.04+:
 
+As previously said, INGInious needs some specific packages. Those can simply be add by installing some packages:
+
 .. code-block:: bash
 
-    sudo apt install git gcc tidy python3-pip python3-dev libzmq3-dev apt-transport-https curl gnupg lsb-release
+    sudo apt install git gcc tidy python3-pip python3-dev libzmq3-dev apt-transport-https
+
+For Docker and MongoDB, some specific steps are needed:
+
+First Docker:
+
+.. code-block:: bash
+
+    sudo apt install curl gnupg lsb-release
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt update
+    sudo apt install docker-ce docker-ce-cli
+
+Then Mongo:
+
+.. code-block:: bash
+
     wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
     echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
     sudo apt update
     wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
     sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
     sudo apt install -y mongodb-org
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt update
-    sudo apt install docker-ce docker-ce-cli
 
-You may also add ``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin
+.. NOTE::
+
+    Libssl installation is a temporary fix that is not required for all versions.
+    It may not work anymore (or may not be necessary) for future versions.
+
+You may also add ``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin.
 
 You can now start and enable the ``mongod`` and ``docker`` services:
 ::
@@ -110,10 +130,34 @@ You can now start and enable the ``mongod`` and ``docker`` services:
 
 And make docker available for non-root user:
 
+1. Run the groupadd command below to create a new group called docker. Enter your password to continue running the command.
+
+.. code-block:: bash
+
+    sudo groupadd docker
+
+If the docker group exists in the user group, you will get a message like "group already exists".
+
+2. Next, run the usermod command below where the -aG options tell the command to add your user account (user) to the (docker) group.
+This command causes your user account to have non-user access.
+
 .. code-block:: bash
 
     sudo usermod -aG docker user
-    sudo chmod 666 /var/run/docker.sock
+
+3. Run the newgrp command below to change the current real group ID to the docker group.
+
+.. code-block:: bash
+
+    sudo newgrp docker
+
+If, at this point, you’re still getting a permission error, then consider giving more access to the docker.sock file.
+
+Run the chmod command below to grant all users access to the /var/run/docker.sock file.
+
+.. code-block:: bash
+
+    sudo chmod xx6 /var/run/docker.sock
 
 macOS
 `````
