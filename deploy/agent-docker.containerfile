@@ -7,4 +7,4 @@ COPY inginious-agent-docker .
 COPY deploy/agent-docker.setup setup.py
 RUN pip3 install .
 
-CMD ["sh", "-c", "python3 inginious-agent-docker ${BACKEND}"]
+CMD ["sh", "-c", "python3 inginious-agent-docker ${BACKEND} --tmpdir=/tmp/agent_data/"]

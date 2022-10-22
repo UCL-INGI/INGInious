@@ -10,9 +10,6 @@ import threading
 
 from zmq.asyncio import ZMQEventLoop, Context
 
-from inginious.agent.docker_agent import DockerAgent
-from inginious.agent.mcq_agent import MCQAgent
-from inginious.backend.backend import Backend
 from inginious.client.client import Client
 
 def start_asyncio_and_zmq(debug_asyncio=False):
@@ -87,6 +84,10 @@ def create_arch(configuration, tasks_fs, context, course_factory):
                 exit(1)
         else:
             debug_ports = range(64100, 64111)
+
+        from inginious.agent.docker_agent import DockerAgent
+        from inginious.agent.mcq_agent import MCQAgent
+        from inginious.backend.backend import Backend
 
         client = Client(context, "inproc://backend_client")
         backend = Backend(context, "inproc://backend_agent", "inproc://backend_client")

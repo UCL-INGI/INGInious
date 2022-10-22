@@ -26,7 +26,12 @@ services:
     environment:
       BACKEND: "tcp://inginious-backend:2001"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+     - /var/run/docker.sock:/var/run/docker.sock
+     # See https://github.com/UCL-INGI/INGInious/issues/352
+     - ./tasks/:/inginious/tasks
+     - ./backups/:/inginious/backups
+     # See https://github.com/UCL-INGI/INGInious/issues/799
+     - /tmp/agent_data/:/tmp/agent_data/
     networks:
       - inginious
 
@@ -40,6 +45,31 @@ services:
       dockerfile: deploy/agent-mcq.containerfile
     environment:
       BACKEND: "tcp://inginious-backend:2001"
+    volumes:
+     # See https://github.com/UCL-INGI/INGInious/issues/352
+     - ./tasks/:/inginious/tasks
+     - ./backups/:/inginious/backups
+     # See https://github.com/UCL-INGI/INGInious/issues/799
+     - /tmp/agent_data/:/tmp/agent_data/
+    networks:
+      - inginious
+
+  inginious-frontend:
+    image: inginious/inginious-frontend
+    build:
+      dockerfile: deploy/frontend.containerfile
+    depends_on:
+      - inginious-backend
+      - inginious-agent-docker
+      - inginious-agent-mcq
+    environment:
+      - INGINIOUS_WEBAPP_HOST=0.0.0.0
+    volumes:
+      - ./configuration.deploy.yaml:/inginious/configuration.yaml
+      - ./tasks/:/inginious/tasks
+      - ./backups/:/inginious/backups
+    ports:
+      - 9000:8080
     networks:
       - inginious
 
