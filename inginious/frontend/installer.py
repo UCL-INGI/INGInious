@@ -12,7 +12,6 @@ import tempfile
 import re
 import urllib.request
 from binascii import hexlify
-
 import docker
 from docker.errors import BuildError
 from gridfs import GridFS
