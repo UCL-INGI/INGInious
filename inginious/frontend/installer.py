@@ -487,14 +487,12 @@ class Installer:
                         self._display_info("Ok, I'll build container {}".format(answer))
                         __add_container(answer)
 
-                done = ["ingi/inginious-c-base", "ingi/inginious-c-default"]
                 todo.remove("ingi/inginious-c-base")
                 todo.remove("ingi/inginious-c-default")
                 for container in todo:
                     try:
                         self._build_container(container,
                                               os.path.join(tmpdirname, 'grading', container[17:]))
-                        done.append(container)
                     except BuildError:
                         self._display_error(
                             "An error occured while building the container. Please retry manually.")
