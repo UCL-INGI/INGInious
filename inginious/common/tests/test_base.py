@@ -1,16 +1,28 @@
+# pylint: disable=redefined-outer-name
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+
+import pytest
 
 import os
 import tempfile
 import shutil
 import copy
 
-from inginious.common.base import directory_compare_from_hash, directory_content_with_hash, hash_file, id_checker, load_json_or_yaml, \
+from inginious.common.base import directory_compare_from_hash, directory_content_with_hash, hash_file, id_checker, \
+    load_json_or_yaml, \
     write_json_or_yaml
 
+
+@pytest.fixture()
+def init_tmp_dir(request):
+    """ Create a temporary folder """
+    dir_path = tempfile.mkdtemp()
+    yield (dir_path)
+    """ Some FUT could create content in the prefix """
+    shutil.rmtree(dir_path)
 
 class TestIdChecker(object):
     """ Test the id checker """
@@ -31,23 +43,22 @@ class TestIdChecker(object):
 class TestJSONYAMLReaderWriter(object):
     """ Test the functions load_json_or_yaml and write_json_or_yaml """
 
-    def setUp(self):
-        self.dir_path = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.dir_path)
-
-    def test_json_read(self):
-        with open(os.path.join(self.dir_path, "input.json"), "w") as f:
+    def test_json_read(self, init_tmp_dir):
+        tmp_dir = init_tmp_dir
+        with open(os.path.join(tmp_dir, "input.json"), "w") as f:
             f.write('{"key1":"data1","key2":{"key3":[1,2]}}')
-        assert load_json_or_yaml(os.path.join(self.dir_path, "input.json")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
+        assert load_json_or_yaml(os.path.join(tmp_dir, "input.json")) == {'key1': 'data1',
+                                                                                'key2': {'key3': [1, 2]}}
 
-    def test_json_write(self):
-        write_json_or_yaml(os.path.join(self.dir_path, "output.json"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
-        assert load_json_or_yaml(os.path.join(self.dir_path, "output.json")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
+    def test_json_write(self, init_tmp_dir):
+        tmp_dir = init_tmp_dir
+        write_json_or_yaml(os.path.join(tmp_dir, "output.json"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
+        assert load_json_or_yaml(os.path.join(tmp_dir, "output.json")) == {'key1': 'data1',
+                                                                                 'key2': {'key3': [1, 2]}}
 
-    def test_yaml_read(self):
-        with open(os.path.join(self.dir_path, "input.yaml"), "w") as f:
+    def test_yaml_read(self, init_tmp_dir):
+        tmp_dir = init_tmp_dir
+        with open(os.path.join(tmp_dir, "input.yaml"), "w") as f:
             f.write("""
             key1: data1
             key2:
@@ -55,21 +66,18 @@ class TestJSONYAMLReaderWriter(object):
                     - 1
                     - 2
             """)
-        assert load_json_or_yaml(os.path.join(self.dir_path, "input.yaml")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
+        assert load_json_or_yaml(os.path.join(tmp_dir, "input.yaml")) == {'key1': 'data1',
+                                                                                'key2': {'key3': [1, 2]}}
 
-    def test_yaml_write(self):
-        write_json_or_yaml(os.path.join(self.dir_path, "output.yaml"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
-        assert load_json_or_yaml(os.path.join(self.dir_path, "output.yaml")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
+    def test_yaml_write(self,init_tmp_dir):
+        tmp_dir = init_tmp_dir
+        write_json_or_yaml(os.path.join(tmp_dir, "output.yaml"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
+        assert load_json_or_yaml(os.path.join(tmp_dir, "output.yaml")) == {'key1': 'data1',
+                                                                                 'key2': {'key3': [1, 2]}}
 
 
 class TestDirectoryHash(object):
     """ Test all the functions that involves file hash """
-
-    def setUp(self):
-        self.dir_path = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.dir_path)
 
     def test_hash_file(self):
         with tempfile.TemporaryFile() as tmp:
@@ -79,8 +87,9 @@ class TestDirectoryHash(object):
             the_hash = hash_file(tmp)
         assert the_hash == "07671a038c0eb43723d421693b073c3b"
 
-    def test_directory_content_with_hash(self):
-        test_dir = os.path.join(self.dir_path, "test1")
+    def test_directory_content_with_hash(self, init_tmp_dir):
+        temp_dir = init_tmp_dir
+        test_dir = os.path.join(temp_dir, "test1")
 
         # Create data
         os.mkdir(test_dir)
@@ -98,13 +107,15 @@ class TestDirectoryHash(object):
 
         with open(os.path.join(test_dir, "subdir", "file3"), "w") as f:
             f.write("random text 3")
-        goal["subdir/file3"] = ("312aa75e0816015cdb5ef1989de7bf3f", os.stat(os.path.join(test_dir, "subdir", "file3")).st_mode)
+        goal["subdir/file3"] = (
+        "312aa75e0816015cdb5ef1989de7bf3f", os.stat(os.path.join(test_dir, "subdir", "file3")).st_mode)
 
         # Test the function
         assert directory_content_with_hash(test_dir) == goal
 
-    def test_directory_compare_from_hash(self):
-        test_dir = os.path.join(self.dir_path, "test2")
+    def test_directory_compare_from_hash(self, init_tmp_dir):
+        temp_dir = init_tmp_dir
+        test_dir = os.path.join(temp_dir, "test2")
 
         # Create data
         os.mkdir(test_dir)

@@ -1,8 +1,11 @@
+# pylint: disable=redefined-outer-name
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+from collections import OrderedDict
 
+import pytest
 import os
 
 from inginious.common.filesystems.local import LocalFSProvider
@@ -21,16 +24,21 @@ problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
                  "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
 
-class test_tasks_basic(object):
-    def setUp(self):
-        register_base_env_types()
-        fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs, task_dispensers, problem_types)
+@pytest.fixture()
+def ressource(request):
+    register_base_env_types()
+    fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
+    course_factory, _ = create_factories(fs, task_dispensers, problem_types)
+    yield ( course_factory)
 
-    def test_task_loading(self):
+
+class TestTaskBasic(object):
+
+    def test_task_loading(self, ressource):
         '''Tests if a course file loads correctly'''
+        course_factory = ressource
         print("\033[1m-> common-tasks: task loading\033[0m")
-        t = self.course_factory.get_task('test', 'task1')
+        t = course_factory.get_task('test', 'task1')
         assert t.get_environment_id() == 'default'
         assert t.get_id() == 'task1'
         assert t.get_course_id() == 'test'
@@ -44,77 +52,81 @@ class test_tasks_basic(object):
 
         assert t.get_problems()[0].get_type() == 'multiple_choice'
 
-    def test_task_invalid_name(self):
+    def test_task_invalid_name(self, ressource):
+        course_factory = ressource
         try:
-            self.course_factory.get_task('test', 'invalid/name')
+            course_factory.get_task('test', 'invalid/name')
         except InvalidNameException:
             return
         assert False
 
-    def test_task_invalid(self):
+    def test_task_invalid(self, ressource):
+        course_factory = ressource
         try:
-            self.course_factory.get_task('test3', 'invalid_task')
+            course_factory.get_task('test3', 'invalid_task')
         except TaskUnreadableException:
             return
         assert False
 
-    def test_no_problems(self):
+    def test_no_problems(self, ressource):
+        course_factory = ressource
         try:
-            Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                        {"environment_id": "default",
-                                         "environment_type": "docker",
-                                         "environment_parameters": {
-                                             "run_cmd": '',
-                                             "limits": '0',
-                                             "time": '30',
-                                             "memory": '100',
-                                             "hard_time": '',
-                                         }
-                                         }, 'fake_path', PluginManager(), problem_types)
+            Task(course_factory.get_course('test3'), 'invalid_task',
+                 {"environment_id": "default",
+                  "environment_type": "docker",
+                  "environment_parameters": {
+                      "run_cmd": '',
+                      "limits": '0',
+                      "time": '30',
+                      "memory": '100',
+                      "hard_time": '',
+                  }
+                  }, 'fake_path', PluginManager(), problem_types)
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return
         assert False
 
-    def test_course(self):
+    def test_course(self, ressource):
+        course_factory = ressource
         # yeah, trivial. But we want 100% code coverage ;-)
-        c = self.course_factory.get_course("test")
+        c = course_factory.get_course("test")
         t = c.get_task("task1")
         assert t.get_course() == c
         assert t.get_course_id() == "test"
 
-    def test_input_consistent_valid(self):
-        c = self.course_factory.get_course("test")
+    def test_input_consistent_valid(self, ressource):
+        course_factory = ressource
+        c = course_factory.get_course("test")
         t = c.get_task("task3")
         assert t.input_is_consistent({"unittest": "10"}, [], 0) is True
 
-    def test_input_consistent_invalid(self):
-        c = self.course_factory.get_course("test")
+    def test_input_consistent_invalid(self, ressource):
+        course_factory = ressource
+        c = course_factory.get_course("test")
         t = c.get_task("task3")
         assert t.input_is_consistent({"unittest": 10}, [], 0) is False
 
-class test_tasks_problems(object):
-    def setUp(self):
-        register_base_env_types()
-        fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs, task_dispensers, problem_types)
 
-    def test_problem_types(self):
+class TestTaskProblem(object):
+    def test_problem_types(self, ressource):
         '''Tests if problem types are correctly recognized'''
+        course_factory = ressource
         print("\033[1m-> common-tasks: problem types parsing\033[0m")
-        t = self.course_factory.get_task('test2', 'task1')
+        t = course_factory.get_task('test2', 'task1')
         assert t.get_problems()[0].get_type() == 'match'
 
-        t = self.course_factory.get_task('test2', 'task2')
+        t = course_factory.get_task('test2', 'task2')
         assert t.get_problems()[0].get_type() == 'match'
 
-        t = self.course_factory.get_task('test2', 'task3')
+        t = course_factory.get_task('test2', 'task3')
         assert t.get_problems()[0].get_type() == 'multiple_choice'
 
-    def test_multiple_choice(self):
+    def test_multiple_choice(self, ressource):
         '''Tests multiple choice problems methods'''
+        course_factory = ressource
         print("\033[1m-> common-tasks: multiple_choice parsing\033[0m")
-        p = self.course_factory.get_task('test2', 'task3').get_problems()[0]
+        p = course_factory.get_task('test2', 'task3').get_problems()[0]
         assert p.allow_multiple()
 
         # Check correct and incorrect answer
@@ -126,10 +138,11 @@ class test_tasks_problems(object):
         assert not p.input_is_consistent('test', [], 0)
         assert not p.input_is_consistent((10, 42), [], 0)
 
-    def test_match(self):
+    def test_match(self, ressource):
         '''Tests match problems methods'''
+        course_factory = ressource
         print("\033[1m-> common-tasks: match-problem loading\033[0m")
-        p = self.course_factory.get_task('test2', 'task1').get_problems()[0]
+        p = course_factory.get_task('test2', 'task1').get_problems()[0]
 
         # Check correct and incorrect answer
         assert p.check_answer({'unittest': 'Answer 1'}, "")[0]
@@ -140,10 +153,11 @@ class test_tasks_problems(object):
         assert not p.input_is_consistent('test', [], 0)
         assert not p.input_is_consistent((10, 42), [], 0)
 
-    def test_code(self):
+    def test_code(self, ressource):
         '''Tests code problems methods'''
+        course_factory = ressource
         print("\033[1m-> common-tasks: code problem parsing\033[0m")
-        p = self.course_factory.get_task('test', 'task3').get_problems()[0]
+        p = course_factory.get_task('test', 'task3').get_problems()[0]
 
         # Check random form input
         assert p.input_is_consistent({'unittest': '10'}, [], 0)
@@ -152,10 +166,11 @@ class test_tasks_problems(object):
         assert not p.input_is_consistent("ddd", [], 0)
         assert not p.input_is_consistent(42, [], 0)
 
-    def test_file(self):
-        '''Tests file problems methods'''
+    def test_file(self, ressource):
+        """Tests file problems methods"""
+        course_factory = ressource
         print("\033[1m-> common-tasks: file problem type\033[0m")
-        p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
+        p = course_factory.get_task('test2', 'task4').get_problems()[0]
         assert p.get_type() == 'file'
 
         # Check random form input

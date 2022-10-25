@@ -1,3 +1,5 @@
-name: "Unit test 1"
-admins: ["testadmin1","testadmin2"]
 accessible: true
+admins:
+- testadmin1
+- testadmin2
+name: Unit test 1

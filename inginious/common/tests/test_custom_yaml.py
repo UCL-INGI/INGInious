@@ -1,7 +1,10 @@
+# pylint: disable=redefined-outer-name
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+
+import pytest
 
 import tempfile
 import shutil
@@ -11,15 +14,19 @@ from collections import OrderedDict
 import inginious.common.custom_yaml as yaml
 
 
+@pytest.fixture()
+def init_tmp_dir(request):
+    """ Create a temporary folder """
+    dir_path = tempfile.mkdtemp()
+    yield (dir_path)
+    """ Some FUT could create content in the prefix """
+    shutil.rmtree(dir_path)
+
+
 class TestCustomLoad(object):
-    def setUp(self):
-        self.dir_path = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.dir_path)
-
-    def test_load_ordereddict(self):
-        with open(os.path.join(self.dir_path, "input.yaml"), "w") as f:
+    def test_load_ordereddict(self, init_tmp_dir):
+        tmp_dir = init_tmp_dir
+        with open(os.path.join(tmp_dir, "input.yaml"), "w") as f:
             f.write("""
             the: a
             order: z
@@ -29,7 +36,7 @@ class TestCustomLoad(object):
             is: x
             important: d
             """)
-        with open(os.path.join(self.dir_path, "input.yaml"), "r") as f:
+        with open(os.path.join(tmp_dir, "input.yaml"), "r") as f:
             loaded = yaml.load(f)
         assert type(loaded) == OrderedDict
         assert list(loaded.keys()) == ["the", "order", "of", "the_", "keys", "is", "important"]
@@ -49,18 +56,14 @@ class TestCustomLoad(object):
 
 
 class TestCustomWrite(object):
-    def setUp(self):
-        self.dir_path = tempfile.mkdtemp()
 
-    def tearDown(self):
-        shutil.rmtree(self.dir_path)
-
-    def test_write_ordereddict(self):
+    def test_write_ordereddict(self, init_tmp_dir):
+        tmp_dir = init_tmp_dir
         d = OrderedDict([("the", "a"), ("order", "z"), ("is", "b"), ("important", "y")])
-        with open(os.path.join(self.dir_path, "output.yaml"), "w") as f:
+        with open(os.path.join(tmp_dir, "output.yaml"), "w") as f:
             yaml.dump(d, f)
 
-        with open(os.path.join(self.dir_path, "output.yaml"), "r") as f:
+        with open(os.path.join(tmp_dir, "output.yaml"), "r") as f:
             loaded = yaml.load(f)
         assert type(loaded) == OrderedDict
         assert list(loaded.keys()) == ["the", "order", "is", "important"]

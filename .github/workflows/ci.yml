@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install nose==1.3.7 selenium==3.141.0 coverage pyvirtualdisplay pytest
+          pip3 install coverage pytest
 
       - name: Start services
         run: |
@@ -40,9 +40,6 @@ jobs:
         
       - name: Mitigate MarkupSafe 2.1+ issues
         run: pip3 install --upgrade markupsafe==2.0.1
-
-      - name: Launch nose tests
-        run: nosetests -v --with-coverage --cover-package=inginious --cover-branches --cover-html -I "^test_"
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
