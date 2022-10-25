@@ -393,8 +393,8 @@ class Installer:
         self._display_info("done.".format(name))
 
     def select_containers_to_build(self):
-        #If on a dev branch, download from github master branch (then manually rebuild if needed)
-        #If on an pip installed version, download with the correct tag
+        # If on a dev branch, download from github master branch (then manually rebuild if needed)
+        # If on an pip installed version, download with the correct tag
         if not self._ask_boolean("Build the default containers? This is highly recommended, and is required to build other containers.", True):
             self._display_info("Skipping container building.")
             return
@@ -438,23 +438,31 @@ class Installer:
                 if dev:
                     self._display_info("If you modified files in base-containers folder, don't forget to rebuild manually to make these changes effective !")
 
-
             # Other non-mandatory containers:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 self._display_info("Downloading the other containers source directory...")
                 self._retrieve_and_extract_tarball(
                     "https://api.github.com/repos/UCL-INGI/INGInious-containers/tarball", tmpdirname)
-
-                todo = {"ingi/inginious-c-base": None, "ingi/inginious-c-default": "ingi/inginious-c-base"}
+                # As the add_container function recursively calls itself before adding the entry,
+                # the wanted build order.
+                todo = ["ingi/inginious-c-base", "ingi/inginious-c-default"]
                 available_containers = set(os.listdir(os.path.join(tmpdirname, 'grading')))
                 self._display_info("Done.")
 
-                def add_container(container):
+                def __add_container(container):
+                    """
+                        Add container to the dict of container to build.
+                        :param: container : The prefixed name of the container.
+                    """
+                    if not container.startswith("ingi/inginious-c-"):
+                        container = "ingi/inginious-c-" + container
+
                     if container in todo:
                         return
+                    # getting name of supercontainer to see if need to build
                     line_from = \
                         [l for l in
-                         open(os.path.join(tmpdirname, 'grading', container, 'Dockerfile')).read().split("\n")
+                         open(os.path.join(tmpdirname, 'grading', container[17:], 'Dockerfile')).read().split("\n")
                          if
                          l.startswith("FROM")][0]
                     supercontainer = line_from.strip()[4:].strip().split(":")[0]
@@ -462,8 +470,8 @@ class Installer:
                         self._display_info(
                             "Container {} requires container {}, I'll build it too.".format(container,
                                                                                             supercontainer))
-                        add_container(supercontainer)
-                    todo[container] = supercontainer if supercontainer.startswith("ingi/") else None
+                        __add_container(supercontainer)
+                    todo.append(container)
 
                 self._display_info("The following containers can be built:")
                 for container in available_containers:
@@ -477,28 +485,19 @@ class Installer:
                         self._display_warning("Unknown container. Please retry")
                     else:
                         self._display_info("Ok, I'll build container {}".format(answer))
-                        add_container(answer)
+                        __add_container(answer)
 
-                done = {"ingi/inginious-c-base", "ingi/inginious-c-default"}
-                del todo["ingi/inginious-c-base"]
-                del todo["ingi/inginious-c-default"]
-                while len(todo) != 0:
-                    todo_now = [x for x, y in todo.items() if y is None or y in done]
-                    for x in todo_now:
-                        del todo[x]
-                    for container in todo_now:
-                        try:
-                            self._build_container("ingi/inginious-c-{}".format(container),
-                                                  os.path.join(tmpdirname, 'grading', container))
-                        except BuildError:
-                            self._display_error(
-                                "An error occured while building the container. Please retry manually.")
+                todo.remove("ingi/inginious-c-base")
+                todo.remove("ingi/inginious-c-default")
+                for container in todo:
+                    try:
+                        self._build_container(container,
+                                              os.path.join(tmpdirname, 'grading', container[17:]))
+                    except BuildError:
+                        self._display_error(
+                            "An error occured while building the container. Please retry manually.")
         except Exception as e:
             self._display_error("An error occurred while copying the directory: {}".format(e))
-
-
-
-
 
     #######################################
     #                MISC                 #
