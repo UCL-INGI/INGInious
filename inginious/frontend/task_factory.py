@@ -26,11 +26,18 @@ class TaskFactory(object):
         self._task_problem_types = task_problem_types
         self.add_custom_task_file_manager(TaskYAMLFileReader())
 
+    def set_problem_types(self, problem_types):
+        """ Set the problem types for the current TaskFactory.
+
+            :param problem_types: A mapping of problem types and their associated name.
+        """
+        self._task_problem_types.update(problem_types)
+
     def add_problem_type(self, problem_type):
         """
         :param problem_type: Problem class
         """
-        self._task_problem_types.update({problem_type.get_type(): problem_type})
+        pass
 
     def get_task(self, course, taskid):
         """
