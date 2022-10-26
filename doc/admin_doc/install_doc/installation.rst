@@ -37,7 +37,7 @@ The previously mentioned dependencies can be installed, for Cent OS 7+ :
 .. code-block:: bash
 
     # yum install -y epel-release
-    # yum install -y git gcc libtidy python38 python38-devel python38-pip zeromq-devel yum-utils
+    # yum install -y git gcc libtidy python38 python38-devel python38-pip python3-venv zeromq-devel yum-utils
     # yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     # yum install -y docker-ce docker-ce-cli
     # cat <<EOF > /etc/yum.repos.d/mongodb-org-4.4.repo
@@ -54,7 +54,7 @@ Or, for Fedora 32+:
 
 .. code-block:: bash
 
-    # yum install -y git gcc libtidy python3 python3-devel python3-pip zeromq-devel dnf-plugins-core
+    # yum install -y git gcc libtidy python3 python3-devel python3-pip python3-venv zeromq-devel dnf-plugins-core
     # dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
     # dnf install -y docker-ce docker-ce-cli
     # cat <<EOF > /etc/yum.repos.d/mongodb-org-4.4.repo
@@ -87,7 +87,7 @@ As previously said, INGInious needs some specific packages. Those can simply be 
 
 .. code-block:: bash
 
-    sudo apt install git gcc tidy python3-pip python3-dev libzmq3-dev apt-transport-https
+    sudo apt install git gcc tidy python3-pip python3-dev python3-venv libzmq3-dev apt-transport-https
 
 For Docker and MongoDB, some specific steps are needed:
 
@@ -128,36 +128,7 @@ You can now start and enable the ``mongod`` and ``docker`` services:
     # systemctl start docker
     # systemctl enable docker
 
-And make docker available for non-root user:
 
-1. Run the groupadd command below to create a new group called docker. Enter your password to continue running the command.
-
-.. code-block:: bash
-
-    sudo groupadd docker
-
-If the docker group exists in the user group, you will get a message like "group already exists".
-
-2. Next, run the usermod command below where the -aG options tell the command to add the INGInious running user (<user>) to the (docker) group.
-This command causes your user account to have non-user access.
-
-.. code-block:: bash
-
-    sudo usermod -aG docker user
-
-3. Run the newgrp command below to change the current real group ID to the docker group.
-
-.. code-block:: bash
-
-    sudo newgrp docker
-
-If, at this point, you’re still getting a permission error, then consider giving more access to the docker.sock file.
-
-Run the chmod command below to grant all users access to the /var/run/docker.sock file.
-
-.. code-block:: bash
-
-    sudo chmod xx6 /var/run/docker.sock
 
 macOS
 `````
@@ -182,6 +153,29 @@ The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-
 
 .. _Installpip:
 
+**Whatever the distribution, you should make docker available for non-root user:**
+
+1. Run the groupadd command below to create a new group called docker. Enter your password to continue running the command.
+
+.. code-block:: bash
+
+    sudo groupadd docker
+
+If the docker group exists in the user group, you will get a message like "group already exists".
+
+2. Next, run the usermod command below where the -aG options tell the command to add the INGInious running user (<user>) to the (docker) group.
+This command causes your user account to have non-user access.
+
+.. code-block:: bash
+
+    sudo usermod -aG docker user
+
+3. Run the newgrp command below to change the current real group ID to the docker group.
+
+.. code-block:: bash
+
+    sudo newgrp docker
+
 Installing INGInious
 --------------------
 
@@ -189,8 +183,6 @@ To keep a clean distribution, we recommend to work with a virtualenv:
 
 .. code-block:: bash
 
-    sudo apt update
-    sudo apt install python3.10-venv
     python3 -m venv /path/to/venv/INGInious
     source /path/to/venv/INGInious/bin/activate
 
