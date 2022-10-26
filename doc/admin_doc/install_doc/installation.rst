@@ -138,7 +138,7 @@ And make docker available for non-root user:
 
 If the docker group exists in the user group, you will get a message like "group already exists".
 
-2. Next, run the usermod command below where the -aG options tell the command to add your user account (user) to the (docker) group.
+2. Next, run the usermod command below where the -aG options tell the command to add the INGInious running user (<user>) to the (docker) group.
 This command causes your user account to have non-user access.
 
 .. code-block:: bash
