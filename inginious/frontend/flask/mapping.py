@@ -7,7 +7,7 @@ from werkzeug.routing import BaseConverter
 
 from inginious.frontend.pages.admin.admin import AdministrationUsersPage, \
     AdministrationUserActionPage
-from inginious.frontend.pages.course_custom_values import CustomValuePage
+from inginious.frontend.pages.course_user_settings import CourseUserSettingPage
 from inginious.frontend.pages.maintenance import MaintenancePage
 from inginious.frontend.pages.utils import INGIniousStaticPage
 from inginious.frontend.pages.index import IndexPage
@@ -85,7 +85,7 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>/<path:path>',
                            view_func=TaskPageStaticDownload.as_view('taskpagestaticdownload'))
     flask_app.add_url_rule('/<cookieless:sessionid>group/<courseid>', view_func=GroupPage.as_view('grouppage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>custom/<courseid>', view_func=CustomValuePage.as_view('customvaluespage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>user_settings/<courseid>', view_func=CourseUserSettingPage.as_view('courseusersettingpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>auth/signin/<auth_id>',
                            view_func=AuthenticationPage.as_view('authenticationpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>auth/callback/<auth_id>',

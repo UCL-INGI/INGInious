@@ -29,26 +29,8 @@
                     {{ _("Group management") }}
                 {% endif %}
             </a>
-            {% if course.allow_unregister() %}
-                <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-action list-group-item-info">
-                    <i class="fa fa-user-times fa-fw"></i>&nbsp; {{ _("Unregister from this course") }}
-                </a>
-            {% endif %}
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/custom/{{ course.get_id() }}">
-                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Custom fields") }}
-            </a>
-        </div>
-    {% elif not user_manager.session_logged_in() %}
-        {% include "signin_button.html" %}
-    {% elif course.is_registration_possible(user_info) %}
-        <h3>{{ _("Enroll in the course") }}</h3>
-
-        <div class="alert alert-warning" role="alert">
-            {{ _("Please enroll in the course to be able to submit answers to problems.") }}
-        </div>
-        <div class="list-group">
-            <a href="{{ get_homepath() }}/register/{{ course.get_id() }}" class="list-group-item list-group-item-action list-group-item-info">
-                <i class="fa fa-sign-in fa-fw"></i>&nbsp; {{ _("Enroll in the course") }}
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
+                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
             </a>
         </div>
     {%endif %}
@@ -62,26 +44,31 @@
                 <li class="breadcrumb-item"><a href="{{get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
             {% endif %}
             <li class="breadcrumb-item"><a href="{{get_homepath() }}/course/{{ course.get_id() }}">{{ course.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cogs"></i> {{ _("Custom fields") }}</a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cogs"></i> {{ _("Course settings") }}</a></li>
         </ol>
     </nav>
 {% endblock %}
 {% block content %}
-    <h2>{{_("Custom values")}}</h2>
+    {%  if "error" in course_user_settings %}
+        <div class="alert alert-danger" role="alert">
+            {{ _("Something went wrong with given data.") }}
+        </div>
+    {% endif %}
+    <h2>{{_("Course settings")}}</h2>
     <form method="post" action="">
-    {% for key in custom_fields %}
+    {% for key in course_user_setting_fields %}
         <div class="form-group row">
             <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ key }}</label>
-            {% if  fieldtypes[custom_fields[key].get_type()] == fieldtypes['BOOLEAN'] %}
-                <label><input class="" type="checkbox" id="{{ key }}" name="{{ key }}" {% if custom_values_user[key]=="on" %} checked {% endif %}>{{ custom_fields[key].get_description() }}</label>
+            {% if  course_user_setting_fields[key].get_type_name() == 'BOOLEAN' %}
+                <label><input class="" type="checkbox" id="{{ key }}" name="{{ key }}" {% if course_user_settings[key]%} checked {% endif %}>{{ course_user_setting_fields[key].get_description() }}</label>
             {% else %}
-                <input id="{{ key }}" name="{{ key }}" placeholder="{{ custom_fields[key].get_description() }}"
-                        {% if fieldtypes[custom_fields[key].get_type()] == fieldtypes['INTEGER'] %}
+                <input id="{{ key }}" name="{{ key }}" placeholder="{{ course_user_setting_fields[key].get_description() }}"
+                        {% if course_user_setting_fields[key].get_type_name() == 'INTEGER' %}
                             type="number"
                         {% else %}
                             type="text"
                         {% endif %}
-                       class="form-control col-sm-10 " value="{{ custom_values_user[key] }}">
+                       class="form-control col-sm-10 " value="{{ course_user_settings[key] }}">
             {% endif %}
         </div>
     {% endfor %}

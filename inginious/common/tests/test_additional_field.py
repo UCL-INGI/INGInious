@@ -1,5 +1,5 @@
-# pylint: disable=redefined-outer-name
 # -*- coding: utf-8 -*-
+# pylint: disable=redefined-outer-name
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
