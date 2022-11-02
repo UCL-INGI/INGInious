@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-07-06 09:39+0200\n"
-"PO-Revision-Date: 2022-09-01 14:29+0000\n"
-"Last-Translator: Anthony Gego <anthony.gego@uclouvain.be>\n"
+"PO-Revision-Date: 2022-11-03 14:30+0000\n"
+"Last-Translator: Noa Quenon <noa.quenon@student.uclouvain.be>\n"
 "Language-Team: French <https://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/fr/>\n"
 "Language: fr\n"
@@ -144,9 +144,8 @@ msgid "Your account is already bound with this context."
 msgstr "Votre compte est déjà lié à ce contexte."
 
 #: inginious/frontend/pages/lti.py:197
-#, fuzzy
 msgid "Error while parsing the LTI request"
-msgstr "Une erreur s'est produite lors de la validation de la requête LTI."
+msgstr "Une erreur s'est produite lors de la validation de la requête LTI"
 
 #: inginious/frontend/pages/lti.py:212
 msgid ""
@@ -936,9 +935,8 @@ msgid "Incorrect password"
 msgstr "Mot de passe incorrect"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:5
-#, fuzzy
 msgid "Urgent tasks"
-msgstr "Exercices à terminer urgemment"
+msgstr "Exercices urgents"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:10
 msgid "Upcoming Tasks"
@@ -1285,15 +1283,13 @@ msgid "My group : {}"
 msgstr "Mon groupe : {}"
 
 #: inginious/frontend/templates/group.html:87
-#, fuzzy
 msgid "Quit group"
-msgstr "\"Quitter le groupe\""
+msgstr "Quitter le groupe"
 
 #: inginious/frontend/templates/group.html:100
 #: inginious/frontend/templates/group.html:163
-#, fuzzy
 msgid "Send an email"
-msgstr "\"Envoyer un email\""
+msgstr "Envoyer un email"
 
 #: inginious/frontend/templates/group.html:114
 msgid ""
@@ -1343,9 +1339,8 @@ msgid "(available : {})"
 msgstr "({} places disponible(s))"
 
 #: inginious/frontend/templates/group.html:147
-#, fuzzy
 msgid "Join in"
-msgstr "Se connecter"
+msgstr "Rejoindre"
 
 #: inginious/frontend/templates/group.html:156
 msgid "No registered member."
@@ -1524,9 +1519,8 @@ msgstr ""
 "contiendra la structure et les exercices du cours sélectionné."
 
 #: inginious/frontend/templates/marketplace.html:90
-#, fuzzy
 msgid "Course ID"
-msgstr "Identifiant de cours incorrect."
+msgstr "Identifiant du cours"
 
 #: inginious/frontend/templates/marketplace.html:94
 msgid "Create course"
@@ -1560,9 +1554,8 @@ msgstr "Lien"
 
 #: inginious/frontend/templates/marketplace_course.html:65
 #: inginious/frontend/templates/mycourses.html:110
-#, fuzzy
 msgid "New course id"
-msgstr "Identifiant de cours incorrect."
+msgstr "Nouvel identifiant de cours"
 
 #: inginious/frontend/templates/mycourses.html:20
 msgid ""
@@ -1921,28 +1914,24 @@ msgid "Submission history"
 msgstr "Historique des soumissions"
 
 #: inginious/frontend/templates/task.html:300
-#, fuzzy
 msgid "Load my work from memory"
-msgstr "\"Charger mon trvail de la mémoire du navigateur\""
+msgstr "Charger mon travail sauvegardé"
 
 #: inginious/frontend/templates/task.html:301
-#, fuzzy
 msgid "Save my work in memory"
-msgstr "\"Sauver mon travail dans la mémoire du navigateur\""
+msgstr "Sauver mon travail"
 
 #: inginious/frontend/templates/task.html:302
 msgid "Collapse context"
 msgstr "Masquer l'énoncé"
 
 #: inginious/frontend/templates/task.html:304
-#, fuzzy
 msgid "Previous task"
-msgstr "\"Exercice précédent\""
+msgstr "Exercice précédent"
 
 #: inginious/frontend/templates/task.html:307
-#, fuzzy
 msgid "Next task"
-msgstr "\"Exercice suivant\""
+msgstr "Exercice suivant"
 
 #: inginious/frontend/templates/task.html:336
 msgid "Alternatively, you can also paste this command into your terminal:"
@@ -1993,9 +1982,8 @@ msgid "Submit"
 msgstr "Soumettre"
 
 #: inginious/frontend/templates/task.html:421
-#, fuzzy
 msgid "Start remote SSH console with this input"
-msgstr "\"Démarrer une console SSH avec ces réponses\""
+msgstr "Démarrer une console SSH avec cette saisie"
 
 #: inginious/frontend/templates/task.html:430
 msgid "The deadline is over, you cannot submit anymore"
@@ -2081,9 +2069,8 @@ msgstr "Nom d'utilisateur de l'étudiant (sera incrit) :"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:87
 #: inginious/frontend/templates/course_admin/student_list.html:239
-#, fuzzy
 msgid "Student username"
-msgstr "nom de l'étudiant"
+msgstr "Nom d'utilisateur de l'étudiant"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:108
 #: inginious/frontend/templates/course_admin/task_edit.html:46
@@ -2112,9 +2099,8 @@ msgid "Student list"
 msgstr "Liste des étudiants"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:187
-#, fuzzy
 msgid "Remove student"
-msgstr "\"Supprimer l'étudiant\""
+msgstr "Supprimer l'étudiant"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:198
 #: inginious/frontend/templates/course_admin/student_list.html:406
@@ -2177,9 +2163,8 @@ msgid "download"
 msgstr "télécharger"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:114
-#, fuzzy
 msgid "Download backup"
-msgstr "\"Télécharger la sauvegarde\""
+msgstr "Télécharger la sauvegarde"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:141
 msgid ""
@@ -2329,13 +2314,12 @@ msgid "Registration password"
 msgstr "Mot de passe d'inscription"
 
 #: inginious/frontend/templates/course_admin/settings.html:254
-#, fuzzy
 msgid ""
 "Password needed for registration. Leave blank if you don't want to set a "
 "password."
 msgstr ""
-"\"Mot de passe requis pour l'inscription. Laissez vide si vous ne souhaitez "
-"pas configurer de mot de passe.\""
+"Mot de passe requis pour l'inscription. Laissez vide si vous ne souhaitez "
+"pas configurer de mot de passe."
 
 #: inginious/frontend/templates/course_admin/settings.html:259
 msgid "Access control"
@@ -2362,11 +2346,10 @@ msgid "Access control list"
 msgstr "Liste de contrôle d'accès"
 
 #: inginious/frontend/templates/course_admin/settings.html:294
-#, fuzzy
 msgid "Only used if access control is activated. Separate users by new lines."
 msgstr ""
-"\"Utilisé uniquement si le contrôle d'accès est activé. Séparez les "
-"utilisateurs par de nouvelles lignes.\""
+"Utilisé uniquement si le contrôle d'accès est activé. Séparez les "
+"utilisateurs par de nouvelles lignes."
 
 #: inginious/frontend/templates/course_admin/settings.html:298
 #: inginious/frontend/templates/course_admin/settings.html:300
@@ -2378,13 +2361,12 @@ msgid "LTI keys"
 msgstr "Clés LTI"
 
 #: inginious/frontend/templates/course_admin/settings.html:306
-#, fuzzy
 msgid ""
 "LTI keys in the form name:key, separated by newlines. Please ensure keys are "
 "long enough and random."
 msgstr ""
-"\"Clés LTI sous la forme clé:secret, séparées par de nouvelles lignes. "
-"Assurez vous que les secrets soient assez long et aléatoires.\""
+"Clés LTI sous la forme clé:secret, séparées par de nouvelles lignes. Assurez-"
+"vous que les secrets soient assez long et aléatoires."
 
 #: inginious/frontend/templates/course_admin/settings.html:311
 msgid "Send back grades"
@@ -2432,17 +2414,15 @@ msgstr "# essais"
 #: inginious/frontend/templates/course_admin/student_list.html:131
 #: inginious/frontend/templates/course_admin/student_list_table.html:25
 #: inginious/frontend/templates/course_admin/submissions.html:74
-#, fuzzy
 msgid "Download CSV"
-msgstr "télécharger"
+msgstr "Télécharger sous format CSV"
 
 #: inginious/frontend/templates/course_admin/stats.html:63
 #: inginious/frontend/templates/course_admin/student_info.html:42
 #: inginious/frontend/templates/course_admin/student_info.html:82
 #: inginious/frontend/templates/course_admin/student_list.html:133
-#, fuzzy
 msgid "View all submissions"
-msgstr "\"Voir toutes les soumissions\""
+msgstr "Voir toutes les soumissions"
 
 #: inginious/frontend/templates/course_admin/stats.html:102
 msgid "Global statistics"
@@ -2474,7 +2454,6 @@ msgid "Users"
 msgstr "Utilisateurs"
 
 #: inginious/frontend/templates/course_admin/stats.html:259
-#, fuzzy
 msgid "user"
 msgstr "Utilisateur"
 
@@ -2484,9 +2463,8 @@ msgid "# submissions"
 msgstr "# soumissions"
 
 #: inginious/frontend/templates/course_admin/stats.html:259
-#, fuzzy
 msgid "# valid submissions"
-msgstr "# soumissions"
+msgstr "# soumissions valides"
 
 #: inginious/frontend/templates/course_admin/student_info.html:20
 #: inginious/frontend/templates/course_admin/student_list.html:35
@@ -2522,9 +2500,8 @@ msgstr "Non essayé (consulté)"
 
 #: inginious/frontend/templates/course_admin/student_info.html:72
 #: inginious/frontend/templates/course_admin/student_info.html:75
-#, fuzzy
 msgid "View evaluation submission"
-msgstr "Soumission pour évaluation"
+msgstr "Voir la soumission rendue pour évaluation"
 
 #: inginious/frontend/templates/course_admin/student_info.html:85
 #, fuzzy
