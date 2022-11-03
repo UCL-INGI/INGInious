@@ -155,22 +155,22 @@ The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-
 
 **Whatever the distribution, you should make docker available for non-root user:**
 
-1. Run the groupadd command below to create a new group called docker. Enter your password to continue running the command.
+1. Run the ``groupadd`` command below to create a new group called ``docker``. Enter your password to continue running the command.
 
 .. code-block:: bash
 
     sudo groupadd docker
 
-If the docker group exists in the user group, you will get a message like "group already exists".
+If the ``docker`` group exists in the user group, you will get a message like "group already exists".
 
-2. Next, run the usermod command below where the -aG options tell the command to add the INGInious running user (<user>) to the (docker) group.
+2. Next, run the ``usermod`` command below where the ``-aG`` options tell the command to add the INGInious running user ``<user>`` to the ``docker`` group.
 This command causes your user account to have non-user access.
 
 .. code-block:: bash
 
     sudo usermod -aG docker user
 
-3. Run the newgrp command below to change the current real group ID to the docker group.
+3. Run the ``newgrp`` command below to change the current real group ID to the ``docker`` group.
 
 .. code-block:: bash
 
