@@ -37,7 +37,13 @@ The documentation is available on Read the Docs:
 
 On Linux, run ``make html`` in the directory ``/doc`` to create a html version of the documentation.
 
+Roadmap
+-------
 
+INGInious is continuously improved. The various Work In Progress tasks are described in the Roadmap_ of the project.
+ 
+ .. _Roadmap: https://github.com/UCL-INGI/INGInious/wiki/Roadmap
+ 
 Notes on security
 -----------------
 
