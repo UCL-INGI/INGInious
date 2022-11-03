@@ -97,10 +97,10 @@ class CourseSettingsPage(INGIniousAdminPage):
         if tag_error is not None:
             errors.append(tag_error)
 
-        additional_fields = self.define_additional_fields(data)
-        if additional_fields is not None and not isinstance(additional_fields, dict):
-            errors.append(additional_fields)
-        course_content["fields"] = additional_fields
+        course_user_settings = self.define_course_user_settings(data)
+        if course_user_settings is not None and not isinstance(course_user_settings, dict):
+            errors.append(course_user_settings)
+        course_content["fields"] = course_user_settings
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
@@ -136,8 +136,8 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content["tags"] = tags
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
-    def define_additional_fields(self, data):
-        """Additional field definition method"""
+    def define_course_user_settings(self, data):
+        """Course user settings definition method"""
         fields = self.prepare_datas(data, "field")
         if not isinstance(fields, dict):
             # prepare_datas returned an error

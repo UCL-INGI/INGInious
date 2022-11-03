@@ -6,39 +6,39 @@
 
 import pytest
 
-from inginious.common.additional_field import AdditionalField
+from inginious.common.course_user_setting import CourseUserSetting
 
 
 @pytest.fixture()
 def init():
-    af = AdditionalField("test", "a description", 1)
+    af = CourseUserSetting("test", "a description", 1)
     yield af
 
 
-class TestAdditionalField(object):
-    """Test for additional field class"""
+class TestCourseUserSetting(object):
+    """Test for course user settings class"""
 
-    def test_additional_field_init(self, init):
+    def test_course_user_settings_init(self, init):
         af = init
         assert af is not None
-        af = AdditionalField(0, "a description", 1)
+        af = CourseUserSetting(0, "a description", 1)
         try:
-            af = AdditionalField("fail", "a description", 99)
+            af = CourseUserSetting("fail", "a description", 99)
         except Exception:
             assert True
 
-    def test_additional_field_get_id(self, init):
+    def test_course_user_settings_get_id(self, init):
         af = init
         assert af.get_id() == "test"
 
-    def test_additional_field_get_description(self, init):
+    def test_course_user_settings_get_description(self, init):
         af = init
         assert af.get_description() == "a description"
 
-    def test_additional_field_get_type_name(self, init):
+    def test_course_user_settings_get_type_name(self, init):
         af = init
         assert af.get_type_name() == "INTEGER"
 
-    def test_additional_field_get_type(self, init):
+    def test_course_user_settings_get_type(self, init):
         af = init
         assert af.get_type() == 1

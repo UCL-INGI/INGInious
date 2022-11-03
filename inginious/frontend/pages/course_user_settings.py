@@ -42,7 +42,7 @@ class CourseUserSettingPage(INGIniousAuthPage):
         """Definition of the show page method."""
         try:
             course = self.course_factory.get_course(courseid)
-            course_user_setting_fields = course.get_additional_fields()
+            course_user_setting_fields = course.get_course_user_settings()
             return self.template_helper.render("course_user_settings.html", course=course,
                                                course_user_setting_fields=course_user_setting_fields,
                                                course_user_settings=course_user_settings, fieldtypes=FieldTypes)
@@ -75,7 +75,7 @@ class CourseUserSettingPage(INGIniousAuthPage):
             return {}
         copied_data = data.copy()
         course = self.course_factory.get_course(courseid)
-        add_fields = course.get_additional_fields()
+        add_fields = course.get_course_user_settings()
         for setting in data:
             error = False
             if setting not in add_fields:

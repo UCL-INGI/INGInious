@@ -1,5 +1,5 @@
 """
-Module definition for AdditionalField class
+Module definition for CourseUserSetting class
 
 -*- coding: utf-8 -*-
 
@@ -9,9 +9,9 @@ more information about the licensing of this file.
 from inginious.common.field_types import FieldTypes
 
 
-class AdditionalField:
+class CourseUserSetting:
     """
-    This class represent extra field that can be added to a course.
+    This class represent settings for user in a course.
     """
 
     def __init__(self, field_id, description, field_type):
@@ -30,24 +30,24 @@ class AdditionalField:
 
     def get_id(self):
         """
-        :return: id of the additional field
+        :return: id of the setting
         """
         return self._id
 
     def get_description(self):
         """
-        :return: description of the additional field
+        :return: description of the setting
         """
         return self._description
 
     def get_type_name(self):
         """"
-        :return: type name of the additional field
+        :return: type name of the setting
         """
         return FieldTypes(self._type).name
 
     def get_type(self):
         """
-        :return: type of the additional field
+        :return: type of the setting
         """
         return self._type
