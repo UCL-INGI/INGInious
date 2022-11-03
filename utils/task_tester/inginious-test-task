@@ -20,7 +20,7 @@ import os
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..'))
 
-from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, FileProblem
+from inginious.common.tasks_problems import get_default_problem_types, get_problem_types
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.task_dispensers.toc import TableOfContents
@@ -288,22 +288,13 @@ if __name__ == "__main__":
     task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
 
     """ Set basic problem types available """
-    # TODO: get that somewhere rather than hardcoding that in the test script
-    # See https://github.com/UCL-INGI/INGInious/issues/864i
-    task_problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
-                          "file": FileProblem, "multiple_choice": MultipleChoiceProblem,
-                          "match": MatchProblem}
+    task_problem_types = get_default_problem_types()
 
     """ Load additional problem types from plugins if any """
     if plugins:
         for plugin in plugins:
-            plug = importlib.import_module(plugin)
-
-            # Load problem types from plugin
-            for pb_name, pb_class in inspect.getmembers(plug):
-                # A problem type must be a child of the Problem class and have a valid type
-                if type(pb_class) == abc.ABCMeta and inginious.frontend.task_problems.Problem in pb_class.__bases__ and (pb_type := pb_class.get_type()):
-                    task_problem_types[pb_type] = pb_class
+            pbl_types = get_problem_types(plugin)
+            task_problem_types.update(pbl_types)
 
     """ Intialize the LocalFileSystemProvider of the instance """
     local_fsp = LocalFSProvider(task_directory)
