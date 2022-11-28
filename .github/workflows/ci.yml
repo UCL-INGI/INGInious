@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install coverage pytest
+          pip3 install coverage pytest virtualenv
 
       - name: Start services
         run: |
@@ -43,6 +43,12 @@ jobs:
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
+
+      - name: Launch pytest tests not requiring INGInious modules
+        run: |
+          virtualenv env
+          env/bin/pip3 install jinja2 pytest coverage
+          env/bin/coverage run --branch -m pytest -v utils
 
       - name: Generate coverage report
         if: always()
