@@ -4,9 +4,12 @@
 # more information about the licensing of this file.
 
 """ Plugin Manager """
-import bisect
-import logging
 import importlib
+import logging
+import bisect
+
+from inginious.frontend.task_problems import get_displayable_problem_types
+from inginious.common.tasks_problems import get_problem_types
 
 
 class PluginManagerNotLoadedException(Exception):
@@ -71,7 +74,18 @@ class PluginManager(object):
         self._submission_manager = submission_manager
         self._loaded = True
         for entry in config:
-            module = importlib.import_module(entry["plugin_module"])
+            module_name = entry["plugin_module"]
+            module = importlib.import_module(module_name)
+
+            """ Load Problem sub-classes """
+            pbl_types = get_problem_types(module_name)
+            self._task_factory.set_problem_types(pbl_types)
+
+            """ Load DisplayableProblem sub-classes """
+            displayable_pbl_types = get_displayable_problem_types(module_name)
+            self._task_factory.set_problem_types(displayable_pbl_types)
+
+            """ Initialize the module """
             module.init(self, course_factory, client, entry)
 
     def add_page(self, pattern, classname_or_viewfunc):

@@ -10,6 +10,7 @@ import sys
 import flask
 import pymongo
 import oauthlib
+import gettext
 
 from gridfs import GridFS
 from binascii import hexlify
@@ -32,7 +33,7 @@ from inginious.frontend.course_factory import create_factories
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
-from inginious.frontend.task_problems import *
+from inginious.frontend.task_problems import get_default_displayable_problem_types
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 from inginious.frontend.flask.mapping import init_flask_mapping, init_flask_maintenance_mapping
@@ -214,13 +215,7 @@ def get_app(config):
         task_dispenser.get_id(): task_dispenser for task_dispenser in [TableOfContents, CombinatoryTest]
     }
 
-    default_problem_types = {
-        problem_type.get_type(): problem_type for problem_type in [DisplayableCodeProblem,
-                                                                   DisplayableCodeSingleLineProblem,
-                                                                   DisplayableFileProblem,
-                                                                   DisplayableMultipleChoiceProblem,
-                                                                   DisplayableMatchProblem]
-    }
+    default_problem_types = get_default_displayable_problem_types()
 
     course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager, database)
 

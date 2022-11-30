@@ -3,17 +3,36 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-""" Displyable problems """
+""" Displayable problems """
 
-import gettext
-import json
 from abc import ABCMeta, abstractmethod
 from random import Random
+import gettext
+import json
 
 from inginious.common.tasks_problems import Problem, CodeProblem, CodeSingleLineProblem, \
-    MatchProblem, MultipleChoiceProblem, FileProblem
+    MatchProblem, MultipleChoiceProblem, FileProblem,  _get_problem_types
+
 
 from inginious.frontend.parsable_text import ParsableText
+
+
+def get_displayable_problem_types(name: str) -> dict:
+    """ Get the mapping of DisplayableProblem types available by inspecting a given module.
+
+        :param  name:   The name of the module to inspect.
+        :return:        The mapping of problem name and problem class.
+    """
+    raw = _get_problem_types(name, DisplayableProblem)
+    return {pbl_name: pbl_cls for pbl_name, pbl_cls in raw.items() if pbl_name is not None}
+
+def get_default_displayable_problem_types() -> dict:
+    """ Get the mapping of default DisplayableProblem types available by inspecting the current 
+        module.
+
+        :return:    The mapping of problem name and problem class.
+    """
+    return get_displayable_problem_types(__name__)
 
 
 class DisplayableProblem(Problem, metaclass=ABCMeta):
