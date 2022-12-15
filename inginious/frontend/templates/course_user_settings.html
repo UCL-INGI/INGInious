@@ -51,7 +51,7 @@
 {% block content %}
     {%  if "error" in course_user_settings %}
         <div class="alert alert-danger" role="alert">
-            {{ _("Something went wrong with given data.") }}
+            {{ _(course_user_settings["error"]) }}
         </div>
     {% endif %}
     <h2>{{_("Course settings")}}</h2>

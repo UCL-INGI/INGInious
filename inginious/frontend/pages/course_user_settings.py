@@ -32,8 +32,8 @@ class CourseUserSettingPage(INGIniousAuthPage):
         if not self._is_accessible(courseid, username):
             return self.template_helper.render("course_unavailable.html")
         course_user_settings = self._sanitize_content(flask.request.form, courseid)
-        if course_user_settings == {}:
-            return self.show_page(courseid, {"error": ""})
+        if "error" in course_user_settings:
+            return self.show_page(courseid, course_user_settings)
         self.database.users.update_one({"username": username}, {"$set": {"course_settings." + courseid: course_user_settings}})
 
         return self.show_page(courseid, course_user_settings)
@@ -72,30 +72,24 @@ class CourseUserSettingPage(INGIniousAuthPage):
             :return: A sanitized dict, an empty dict if something went wrong.
         """
         if not isinstance(data, dict):
-            return {}
-        copied_data = data.copy()
+            return {"error":"Incorrect type of data."}
+        copied_data = {}
         course = self.course_factory.get_course(courseid)
         add_fields = course.get_course_user_settings()
         for setting in data:
-            error = False
             if setting not in add_fields:
                 # if setting is not expected in the course definition. There is no reason to treat it.
-                error = True
-            if not error:
-                try:
-                    # we try to cast given value to be sure that we match expected type.
-                    if add_fields[setting].get_type_name() == "STRING":
-                        copied_data[setting] = str(data[setting])
-                    elif add_fields[setting].get_type_name() == "INTEGER":
-                        copied_data[setting] = int(data[setting])
-                    else:
-                        copied_data[setting] = bool(data[setting])
-                except ValueError:
-                    error = True
-            if error:
-                try:
-                    copied_data.pop(setting)
-                except Exception:
-                    # should not happen as we are working on copy of iterated dict.
-                    pass
-        return copied_data.to_dict()
+                return {"error":"Unknown field: "+str(setting)}
+            casted_value = None
+            try:
+                # we try to cast given value to be sure that we match expected type.
+                if add_fields[setting].get_type_name() == "STRING":
+                    casted_value= str(data[setting])
+                elif add_fields[setting].get_type_name() == "INTEGER":
+                    casted_value = int(data[setting])
+                else:
+                    casted_value = bool(data[setting])
+            except ValueError:
+                return {"error": "Wrong value for field: " + str(setting)}
+            copied_data[setting] = casted_value
+        return copied_data
