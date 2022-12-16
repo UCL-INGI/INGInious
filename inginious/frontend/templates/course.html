@@ -40,6 +40,12 @@
                 <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>
             {% endif %}
         </div>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
+                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
+            </a>
+        </div>
+
     {% endif %}
     {%if staff %}
         {% if not course.is_open_to_non_staff() %}
@@ -68,9 +74,6 @@
                     <i class="fa fa-user-times fa-fw"></i>&nbsp; {{ _("Unregister from this course") }}
                 </a>
             {% endif %}
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
-                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
-            </a>
         </div>
     {% elif not user_manager.session_logged_in() %}
         {% include "signin_button.html" %}
