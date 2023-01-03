@@ -37,6 +37,11 @@ class TaskDispenser(metaclass=ABCMeta):
         """Returns the current grade of the course for a specific user"""
         pass
 
+    @abstractmethod
+    def get_submission_limit(self, taskid):
+        """ Returns the submission limits et for the task"""
+        pass
+
     @classmethod
     @abstractmethod
     def get_id(cls):

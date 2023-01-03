@@ -71,33 +71,6 @@
     </div>
 </div>
 <div class="form-group row">
-    <label for="groups" class="col-sm-2 control-label">{{ _("Submission limits") }}</label>
-    <div class="col-sm-10">
-        {% set submission_limit = task_data.get('submission_limit', {"amount":-1, "period":-1}) %}
-        <label>
-            <input type="radio" value="none" name="submission_limit" id="submission_limit" {% if submission_limit == {'amount':-1, 'period':-1} %} checked="checked" {% endif %}/> {{ _("No limitation") }}
-        </label><br/>
-        <div class="row">
-            <div class="col-xs-12 col-lg-3">
-                <label>
-                    <input type="radio" value="hard" name="submission_limit"
-                        {{ 'checked="checked"'|safe if submission_limit["period"] == -1 and submission_limit['amount'] >= 0 }} />
-                    {{ _("Hard limit: {nbr_submissions} submission(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] >= 0 else '')|string + '" placeholder="5"  type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
-                </label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-lg-3">
-                <label>
-                    <input type="radio" value="soft" name="submission_limit"
-                        {{ 'checked="checked"'|safe if submission_limit['period'] >= 0 }} />
-                    {{ _("Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['amount'] >= 0 and submission_limit['period'] > 0 else '')|string + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>', nbr_hours='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['period'] if submission_limit['period'] > 0 else '')|string + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>') | safe }}
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="form-group row">
     <label class="col-sm-2 control-label">{{_("Accessible")}}</label>
     <div class="col-sm-10">
         <label>

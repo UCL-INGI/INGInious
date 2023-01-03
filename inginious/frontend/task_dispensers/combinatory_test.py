@@ -58,6 +58,18 @@ class CombinatoryTest(TaskDispenser):
         except:
             return "best"
 
+    def get_submission_limit(self, taskid):
+        """ Returns the submission limits et for the task"""
+        try:
+            struct = self._toc.to_structure()
+            for elem in struct:
+                submission_limit = self._toc.get_value_rec(taskid, elem, "submission_limit")
+                if submission_limit is not None:
+                    return submission_limit
+            return {"amount": -1, "period": -1}
+        except:
+            return {"amount": -1, "period": -1}
+
     def get_categories(self,taskid):
         """Returns the categories specified for the taskid by the administrator"""
         try:

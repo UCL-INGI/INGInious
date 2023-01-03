@@ -108,9 +108,6 @@ class Task(object):
 
         # Group task
         self._groups = bool(self._data.get("groups", False))
-
-        # Submission limits
-        self._submission_limit = self._data.get("submission_limit", {"amount": -1, "period": -1})
         
         # Input random
         self._input_random = int(self._data.get("input_random", 0))
@@ -207,10 +204,6 @@ class Task(object):
     def is_group_task(self):
         """ Indicates if the task submission mode is per groups """
         return self._groups
-
-    def get_submission_limit(self):
-        """ Returns the submission limits et for the task"""
-        return self._submission_limit
 
     def get_name(self, language):
         """ Returns the name of this task """

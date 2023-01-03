@@ -156,32 +156,6 @@ class CourseEditTask(INGIniousAdminPage):
             if "groups" in data:
                 data["groups"] = True if data["groups"] == "true" else False
 
-            # Submission limits
-            if "submission_limit" in data:
-                if data["submission_limit"] == "none":
-                    result = {"amount": -1, "period": -1}
-                elif data["submission_limit"] == "hard":
-                    try:
-                        result = {"amount": int(data["submission_limit_hard"]), "period": -1}
-                    except:
-                        return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
-
-                else:
-                    try:
-                        result = {"amount": int(data["submission_limit_soft_0"]), "period": int(data["submission_limit_soft_1"])}
-                        if result['period'] < 0:
-                            return json.dumps({"status": "error", "message": _("The soft limit period must be positive!")})
-                    except:
-                        return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
-
-                if data['submission_limit'] != 'none' and result['amount'] < 0:
-                    return json.dumps({"status": "error", "message": _("The submission limit must be positive!")})
-
-                del data["submission_limit_hard"]
-                del data["submission_limit_soft_0"]
-                del data["submission_limit_soft_1"]
-                data["submission_limit"] = result
-
             # Accessible
             if data["accessible"] == "custom":
                 data["accessible"] = "{}/{}/{}".format(data["accessible_start"], data["accessible_soft_end"], data["accessible_end"])

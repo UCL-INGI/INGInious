@@ -752,15 +752,16 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
+        course = task.get_course()
         # Check if course access is ok
-        course_registered = self.course_is_open_to_user(task.get_course(), username, lti)
+        course_registered = self.course_is_open_to_user(course, username, lti)
         # Check if task accessible to user
         task_accessible = task.get_accessible_time().is_open()
         # User has staff rights ?
-        staff_right = self.has_staff_rights_on_course(task.get_course(), username)
+        staff_right = self.has_staff_rights_on_course(course, username)
 
         # Check for group
-        group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
+        group = self._database.groups.find_one({"courseid": course.get_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
             group_filter = (group is not None and task.is_group_task()) or not task.is_group_task()
@@ -772,7 +773,7 @@ class UserManager:
         # Check for token availability
         enough_tokens = True
         timenow = datetime.now()
-        submission_limit = task.get_submission_limit()
+        submission_limit = course.get_task_dispenser().get_submission_limit(task.get_id())
         if not only_check or only_check == 'tokens':
             if submission_limit == {"amount": -1, "period": -1}:
                 # no token limits

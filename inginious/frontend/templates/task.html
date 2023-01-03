@@ -73,7 +73,7 @@
         <tr>
             <td>{{ _("Submission limit") }}</td>
             <td>
-                {% set submission_limit = task.get_submission_limit() %}
+                {% set submission_limit = course.get_task_dispenser().get_submission_limit(task.get_id()) %}
                 {% if submission_limit == {"amount":-1, "period":-1} %}
                     {{ _("No limitation") }}
                 {% else %}
@@ -418,8 +418,8 @@
     {% elif not tokens_ok %}
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
             {{ _('You have reached the submission limit.') if not task.is_group_task() else _('Your group have reached the submission limit.') }}
-        {% if task.get_submission_limit()["period"] > 0 %}
-            <br/> {{ _("It will be refilled within the next {} hour(s)").format(task.get_submission_limit()["period"]) }}
+        {% if course.get_task_dispenser().get_submission_limit(task.get_id())["period"] > 0 %}
+            <br/> {{ _("It will be refilled within the next {} hour(s)").format(course.get_task_dispenser().get_submission_limit(task.get_id())["period"]) }}
         {% endif %}
         </button>
     {% else %}

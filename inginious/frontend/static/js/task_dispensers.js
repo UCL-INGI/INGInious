@@ -373,6 +373,7 @@ function dispenser_util_get_sections_list(element) {
 
             structure["no_stored_submissions"] = dispenser_util_get_no_stored_submissions(tasks_id);
             structure["evaluation_mode"] = dispenser_util_get_evaluation_mode(tasks_id);
+            structure["submission_limit"] = dispenser_util_get_submission_limit(tasks_id);
             structure["categories"] = dispenser_util_get_categories(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
@@ -438,6 +439,34 @@ function dispenser_util_get_evaluation_mode(tasks_id){
         }
     });
     return evaluation_mode;
+}
+
+function dispenser_util_get_submission_limit(tasks_id){
+    const submission_limit = {};
+    $(".submission_limit").each(function (){
+        var taskid = this.id;
+        if(taskid in tasks_id && $(this).prop("checked")) {
+            if(this.value === "none") {
+                submission_limit[taskid] = {"amount": -1, "period": -1};
+            } else if(this.value === "hard") {
+                $("#submission_limit_hard_" + taskid).each(function(){
+                    var value = parseInt(this.value);
+                    submission_limit[taskid] = {"amount": !isNaN(value) ? value: -1, "period": -1};
+                });
+            } else if(this.value === "soft") {
+                submission_limit[taskid] = {}
+                $("#submission_limit_soft_0_" + taskid).each(function(){
+                    var value = parseInt(this.value);
+                    submission_limit[taskid]["amount"] = !isNaN(value) ? value: -1;
+                });
+                $("#submission_limit_soft_1_" + taskid).each(function(){
+                    var value = parseInt(this.value);
+                    submission_limit[taskid]["period"] = !isNaN(value) ? value: -1;
+                });
+            }
+        }
+    });
+    return submission_limit;
 }
 
 function dispenser_util_get_categories(tasks_id){

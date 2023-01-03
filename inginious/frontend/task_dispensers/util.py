@@ -228,6 +228,15 @@ class TerminalSection(Section):
                     raise InvalidTocException( ("The evaluation mode must be either best or last for the task: '" + str(taskid)) +"' but is " + str(evaluation_mode) )
             self._evaluation_mode = structure["evaluation_mode"]
 
+        self._submission_limit = {}
+        if "submission_limit" in structure:
+            for taskid,submission_limit in structure["submission_limit"].items():
+                if not type(submission_limit["amount"]) == int or not type(submission_limit["period"]) == int:
+                    raise InvalidTocException("Invalid submission limit for task: " + str(taskid))
+                elif submission_limit["amount"] < -1 or submission_limit["period"] < -1:
+                    raise InvalidTocException("Submission limit values must be higher than or equal to -1 for task: " + str(taskid))
+            self._submission_limit = structure["submission_limit"]
+
         self._categories = {}
         if "categories" in structure:
             for taskid,categorie in structure["categories"].items():
@@ -279,6 +288,7 @@ class TerminalSection(Section):
         return {"id": self._id, "rank": rank, "title": self._title,
                 "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)},
                 "weights": self._weights, "no_stored_submissions": self._no_stored_submissions,
+                "submission_limit": self._submission_limit,
                 "evaluation_mode": self._evaluation_mode, "categories": self._categories }
 
 
