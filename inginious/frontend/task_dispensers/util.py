@@ -237,6 +237,13 @@ class TerminalSection(Section):
                     raise InvalidTocException("Submission limit values must be higher than or equal to -1 for task: " + str(taskid))
             self._submission_limit = structure["submission_limit"]
 
+        self._group_submission = {}
+        if "group_submission" in structure:
+            for taskid, group_submisson in structure["group_submission"].items():
+                if not type(group_submisson) == bool:
+                    raise InvalidTocException("Invalid submission mode for task: " + str(taskid))
+            self._group_submission = structure["group_submission"]
+
         self._categories = {}
         if "categories" in structure:
             for taskid,categorie in structure["categories"].items():
@@ -288,7 +295,7 @@ class TerminalSection(Section):
         return {"id": self._id, "rank": rank, "title": self._title,
                 "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)},
                 "weights": self._weights, "no_stored_submissions": self._no_stored_submissions,
-                "submission_limit": self._submission_limit,
+                "submission_limit": self._submission_limit, "group_submission": self._group_submission,
                 "evaluation_mode": self._evaluation_mode, "categories": self._categories }
 
 

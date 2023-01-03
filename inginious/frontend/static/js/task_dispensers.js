@@ -375,6 +375,7 @@ function dispenser_util_get_sections_list(element) {
             structure["evaluation_mode"] = dispenser_util_get_evaluation_mode(tasks_id);
             structure["submission_limit"] = dispenser_util_get_submission_limit(tasks_id);
             structure["categories"] = dispenser_util_get_categories(tasks_id);
+            structure["group_submission"] = dispenser_util_get_group_submission(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
@@ -467,6 +468,16 @@ function dispenser_util_get_submission_limit(tasks_id){
         }
     });
     return submission_limit;
+}
+
+function dispenser_util_get_group_submission(tasks_id){
+    const group_submission = {};
+    $(".group_submission").each(function (){
+        var taskid = this.id;
+        if(taskid in tasks_id && $(this).prop("checked"))
+            group_submission[taskid] = this.value === "true";
+    });
+    return group_submission;
 }
 
 function dispenser_util_get_categories(tasks_id){

@@ -23,6 +23,11 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_group_submission(self):
+        """ Indicates if the task submission mode is per groups """
+        pass
+
+    @abstractmethod
     def get_categories(self,taskid):
         """Returns the categories specified for the taskid by the administrator"""
         pass

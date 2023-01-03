@@ -70,6 +70,18 @@ class CombinatoryTest(TaskDispenser):
         except:
             return {"amount": -1, "period": -1}
 
+    def get_group_submission(self, taskid):
+        """ Indicates if the task submission mode is per groups """
+        try:
+            struct = self._toc.to_structure()
+            for elem in struct:
+                group_submission = self._toc.get_value_rec(taskid, elem, "group_submission")
+                if group_submission is not None:
+                    return group_submission
+            return False
+        except:
+            return False
+
     def get_categories(self,taskid):
         """Returns the categories specified for the taskid by the administrator"""
         try:

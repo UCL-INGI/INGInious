@@ -152,10 +152,6 @@ class CourseEditTask(INGIniousAdminPage):
             # Task environment parameters
             data["environment_parameters"] = environment_parameters
 
-            # Groups
-            if "groups" in data:
-                data["groups"] = True if data["groups"] == "true" else False
-
             # Accessible
             if data["accessible"] == "custom":
                 data["accessible"] = "{}/{}/{}".format(data["accessible_start"], data["accessible_soft_end"], data["accessible_end"])

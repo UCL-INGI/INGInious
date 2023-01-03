@@ -105,9 +105,6 @@ class Task(object):
 
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
-
-        # Group task
-        self._groups = bool(self._data.get("groups", False))
         
         # Input random
         self._input_random = int(self._data.get("input_random", 0))
@@ -201,9 +198,7 @@ class Task(object):
             # Prefer to show the soft deadline rather than the hard one
             return self.get_accessible_time().get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
 
-    def is_group_task(self):
-        """ Indicates if the task submission mode is per groups """
-        return self._groups
+
 
     def get_name(self, language):
         """ Returns the name of this task """

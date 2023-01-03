@@ -7,6 +7,7 @@
 
 {% set registered = user_manager.course_is_user_registered(course) %}
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
+{% set task_dispenser = course.get_task_dispenser() %}
 
 {% block column %}
     <h3>{{ _("Information") }}</h3>
@@ -145,7 +146,7 @@
         <h3>{{ _("Submitting as") }}</h3>
         <div class="list-group mb-3">
             <div class="list-group-item list-group-item-action list-group-item-info">
-                {% if task.is_group_task() %}
+                {% if task_dispenser.get_group_submission(task.get_id()) %}
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>{{ _('Group') }}</b>
                 {% else %}
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>{{ user_manager.session_realname() }}</b>
@@ -413,11 +414,11 @@
         {% endif %}
     {% elif not task.get_accessible_time().is_open() %}
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _("The deadline is over, you cannot submit anymore") }}</button>
-    {% elif task.is_group_task() and not groups_ok %}
+    {% elif task_dispenser.get_group_submission(task.get_id()) and not groups_ok %}
         <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _('Please register in a group') }}</button>
     {% elif not tokens_ok %}
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
-            {{ _('You have reached the submission limit.') if not task.is_group_task() else _('Your group have reached the submission limit.') }}
+            {{ _('You have reached the submission limit.') if not task_dispenser.get_group_submission(task.get_id()) else _('Your group have reached the submission limit.') }}
         {% if course.get_task_dispenser().get_submission_limit(task.get_id())["period"] > 0 %}
             <br/> {{ _("It will be refilled within the next {} hour(s)").format(course.get_task_dispenser().get_submission_limit(task.get_id())["period"]) }}
         {% endif %}

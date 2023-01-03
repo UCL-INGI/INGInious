@@ -759,16 +759,18 @@ class UserManager:
         task_accessible = task.get_accessible_time().is_open()
         # User has staff rights ?
         staff_right = self.has_staff_rights_on_course(course, username)
+        # Is this task a group task .
+        is_group_task = course.get_task_dispenser().get_group_submission(task.get_id())
 
         # Check for group
         group = self._database.groups.find_one({"courseid": course.get_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
-            group_filter = (group is not None and task.is_group_task()) or not task.is_group_task()
+            group_filter = (group is not None and is_group_task) or not is_group_task
         else:
             group_filter = True
 
-        students = group["students"] if (group is not None and task.is_group_task()) else [self.session_username()]
+        students = group["students"] if (group is not None and is_group_task) else [self.session_username()]
 
         # Check for token availability
         enough_tokens = True
