@@ -376,6 +376,7 @@ function dispenser_util_get_sections_list(element) {
             structure["submission_limit"] = dispenser_util_get_submission_limit(tasks_id);
             structure["categories"] = dispenser_util_get_categories(tasks_id);
             structure["group_submission"] = dispenser_util_get_group_submission(tasks_id);
+            structure["accessible"] = dispenser_util_get_accessibility(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
@@ -478,6 +479,26 @@ function dispenser_util_get_group_submission(tasks_id){
             group_submission[taskid] = this.value === "true";
     });
     return group_submission;
+}
+
+function dispenser_util_get_accessibility(tasks_id) {
+    const accessible = {};
+    $(".accessible").each(function (){
+        const taskid = this.id;
+        if(taskid in tasks_id && $(this).prop("checked")) {
+            if(this.value === "true")
+                accessible[taskid] = true;
+            else if(this.value === "false")
+                accessible[taskid] = false;
+            else {
+                const accessible_start = $("#accessible_start_" + taskid).val();
+                const accessible_end = $("#accessible_end_" + taskid).val();
+                const accessible_soft_end = $("#accessible_soft_end_" + taskid).val();
+                accessible[taskid] = accessible_start + '/' + accessible_soft_end + '/' + accessible_end;
+            }
+        }
+    });
+    return accessible;
 }
 
 function dispenser_util_get_categories(tasks_id){

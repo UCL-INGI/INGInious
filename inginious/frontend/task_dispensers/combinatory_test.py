@@ -4,6 +4,7 @@ from collections import OrderedDict
 from random import Random
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.task_dispensers.util import SectionsList, check_toc, SectionConfigItem
+from inginious.frontend.accessible_time import AccessibleTime
 
 
 class CombinatoryTest(TaskDispenser):
@@ -82,6 +83,29 @@ class CombinatoryTest(TaskDispenser):
         except:
             return False
 
+    def get_accessibility(self, taskid):
+        """  Get the accessible time of this task """
+        try:
+            struct = self._toc.to_structure()
+            for elem in struct:
+                accessible = self._toc.get_value_rec(taskid, elem, "accessible")
+                if accessible is not None:
+                    return AccessibleTime(accessible)
+            return AccessibleTime(False)
+        except:
+            return AccessibleTime(False)
+
+    def get_deadline(self, taskid):
+        """ Returns a string containing the deadline for this task """
+        accessible_time = self.get_accessibility(taskid)
+        if accessible_time.is_always_accessible():
+            return _("No deadline")
+        elif accessible_time.is_never_accessible():
+            return _("It's too late")
+        else:
+            # Prefer to show the soft deadline rather than the hard one
+            return accessible_time.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
+
     def get_categories(self,taskid):
         """Returns the categories specified for the taskid by the administrator"""
         try:
@@ -149,7 +173,7 @@ class CombinatoryTest(TaskDispenser):
         for section in self._data:
             task_list = section.get_tasks()
             task_list = [taskid for taskid in task_list if
-                         taskid in tasks and tasks[taskid].get_accessible_time().after_start()]
+                         taskid in tasks and self.get_accessibility(taskid).after_start()]
             amount_questions = int(section.get_config().get("amount", 0))
             for username in usernames:
                 rand = Random("{}#{}#{}".format(username, section.get_id(), section.get_title()))

@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 from inginious.frontend.task_dispensers.util import check_toc, SectionsList, SectionConfigItem
 from inginious.frontend.task_dispensers import TaskDispenser
+from inginious.frontend.accessible_time import AccessibleTime
 
 
 class TableOfContents(TaskDispenser):
@@ -88,6 +89,29 @@ class TableOfContents(TaskDispenser):
         except:
             return False
 
+    def get_accessibility(self, taskid):
+        """  Get the accessible time of this task """
+        try:
+            struct = self._toc.to_structure()
+            for elem in struct:
+                accessible = self._toc.get_value_rec(taskid, elem, "accessible")
+                if accessible is not None:
+                    return AccessibleTime(accessible)
+            return AccessibleTime(False)
+        except:
+            return AccessibleTime(False)
+
+    def get_deadline(self, taskid):
+        """ Returns a string containing the deadline for this task """
+        accessible_time = self.get_accessibility(taskid)
+        if accessible_time.is_always_accessible():
+            return _("No deadline")
+        elif accessible_time.is_never_accessible():
+            return _("It's too late")
+        else:
+            # Prefer to show the soft deadline rather than the hard one
+            return accessible_time.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
+
     def get_categories(self,taskid):
         """Returns the categories specified for the taskid by the administrator"""
         try:
@@ -150,7 +174,7 @@ class TableOfContents(TaskDispenser):
         """ Returns a dictionary with username as key and the user task list as value """
         tasks = self._task_list_func()
         task_list = [taskid for taskid in self._toc.get_tasks() if
-                     taskid in tasks and tasks[taskid].get_accessible_time().after_start()]
+                     taskid in tasks and self.get_accessibility(taskid).after_start()]
         return {username: task_list for username in usernames}
 
     def get_ordered_tasks(self):

@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 from collections import namedtuple
 from inginious.common.base import id_checker
+from inginious.frontend.accessible_time import AccessibleTime
 
 SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type', 'default'])
 
@@ -251,6 +252,15 @@ class TerminalSection(Section):
                     raise InvalidTocException( ("The categorie must have a name for the task: '" + str(taskid)) +"' but is " + str(categorie) )
             self._categories = structure["categories"]
 
+        self._accessible = {}
+        if "accessible" in structure:
+            for taskid, accessible in structure["accessible"].items():
+                try:
+                    AccessibleTime(accessible)
+                except Exception as message:
+                    raise InvalidTocException("Invalid task accessibility ({}) for the task: {}".format(message, taskid))
+            self._accessible = structure["accessible"]
+
     def is_terminal(self):
         return True
 
@@ -296,7 +306,8 @@ class TerminalSection(Section):
                 "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)},
                 "weights": self._weights, "no_stored_submissions": self._no_stored_submissions,
                 "submission_limit": self._submission_limit, "group_submission": self._group_submission,
-                "evaluation_mode": self._evaluation_mode, "categories": self._categories }
+                "evaluation_mode": self._evaluation_mode, "categories": self._categories,
+                "accessible": self._accessible}
 
 
 def check_toc(toc):

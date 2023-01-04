@@ -183,23 +183,6 @@ class Task(object):
 
         return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
 
-    def get_accessible_time(self, plugin_override=True):
-        """  Get the accessible time of this task """
-        vals = self._plugin_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
-        return vals[0] if len(vals) and plugin_override else self._accessible
-
-    def get_deadline(self):
-        """ Returns a string containing the deadline for this task """
-        if self.get_accessible_time().is_always_accessible():
-            return _("No deadline")
-        elif self.get_accessible_time().is_never_accessible():
-            return _("It's too late")
-        else:
-            # Prefer to show the soft deadline rather than the hard one
-            return self.get_accessible_time().get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
-
-
-
     def get_name(self, language):
         """ Returns the name of this task """
         return self.gettext(language, self._name) if self._name else ""

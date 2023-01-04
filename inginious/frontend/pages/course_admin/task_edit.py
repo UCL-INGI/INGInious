@@ -16,7 +16,6 @@ from flask import redirect
 from werkzeug.exceptions import NotFound
 
 from inginious.frontend.tasks import _migrate_from_v_0_6
-from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 from inginious.common.base import dict_from_prefix, id_checker
@@ -63,7 +62,7 @@ class CourseEditTask(INGIniousAdminPage):
                                            problemdata=json.dumps(task_data.get('problems', {})),
                                            contains_is_html=self.contains_is_html(task_data),
                                            current_filetype=current_filetype,
-                                           available_filetypes=available_filetypes, AccessibleTime=AccessibleTime,
+                                           available_filetypes=available_filetypes,
                                            file_list=CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
                                            additional_tabs=additional_tabs)
 
@@ -151,21 +150,6 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Task environment parameters
             data["environment_parameters"] = environment_parameters
-
-            # Accessible
-            if data["accessible"] == "custom":
-                data["accessible"] = "{}/{}/{}".format(data["accessible_start"], data["accessible_soft_end"], data["accessible_end"])
-            elif data["accessible"] == "true":
-                data["accessible"] = True
-            else:
-                data["accessible"] = False
-            del data["accessible_start"]
-            del data["accessible_end"]
-            del data["accessible_soft_end"]
-            try:
-                AccessibleTime(data["accessible"])
-            except Exception as message:
-                return json.dumps({"status": "error", "message": _("Invalid task accessibility ({})").format(message)})
 
             # Random inputs
             try:

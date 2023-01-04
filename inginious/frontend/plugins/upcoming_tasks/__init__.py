@@ -75,8 +75,9 @@ class UpComingTasksBoard(INGIniousAuthPage):
         succeeded_courses = []
         for courseid, course in open_courses.items():
             tasks = course.get_tasks()
-            outdated_tasks = [taskid for taskid, task in tasks.items() if (not task.get_accessible_time().is_open()) or ((task.get_accessible_time().get_soft_end_date()) > (datetime.now()+timedelta(days=time_planner)))]
-            new_user_task_list = course.get_task_dispenser().get_user_task_list([username])[username]
+            task_dispenser = course.get_task_dispenser()
+            outdated_tasks = [taskid for taskid, task in tasks.items() if (not task_dispenser.get_accessibility(taskid).is_open()) or ((task_dispenser.get_accessibility(taskid).get_soft_end_date()) > (datetime.now()+timedelta(days=time_planner)))]
+            new_user_task_list = task_dispenser.get_user_task_list([username])[username]
             new_user_task_list = [task_id for task_id in new_user_task_list if task_id not in outdated_tasks]
             tasks_data[courseid] = {taskid: {"succeeded": False, "grade": 0.0} for taskid in new_user_task_list}
             user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": new_user_task_list}})
@@ -95,7 +96,7 @@ class UpComingTasksBoard(INGIniousAuthPage):
             del open_courses[succeeded_course]
 
         # Sort the courses based on the most urgent task for each course
-        open_courses = OrderedDict( sorted(iter(open_courses.items()), key=lambda x: (sort_by_deadline(x[1], tasks_data[x[0]].keys())[0]).get_accessible_time().get_soft_end_date() ))
+        open_courses = OrderedDict( sorted(iter(open_courses.items()), key=lambda x: x[1].get_task_dispenser().get_accessibility((sort_by_deadline(x[1], tasks_data[x[0]].keys())[0]).get_id()).get_soft_end_date() ))
 
         return self.template_helper.render("coming_tasks.html",
                                            template_folder=PATH_TO_PLUGIN + "/templates/",
@@ -111,7 +112,7 @@ def sort_by_deadline(course, user_urgent_task_list):
     returns the list of urgent tasks (objects) for that course ordered based on deadline """
     course_tasks = course.get_tasks()
     course_user_urgent_task_list = list(set(course_tasks).intersection(user_urgent_task_list))
-    ordered_tasks = sorted(course_user_urgent_task_list, key=lambda x: course.get_task(x).get_accessible_time().get_soft_end_date())
+    ordered_tasks = sorted(course_user_urgent_task_list, key=lambda x: course.get_task_dispenser.get_accessibility(x).get_soft_end_date())
     return [course_tasks[taskid] for taskid in ordered_tasks]
 
 

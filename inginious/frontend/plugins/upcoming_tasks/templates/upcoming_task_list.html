@@ -2,6 +2,7 @@
 {# more information about the licensing of this file. #}
 
 {% set registered = user_manager.course_is_user_registered(course) %}
+{% set task_dispenser = course.get_task_dispenser() %}
 
 <div id="course" class="section tasks_list card mb-4">
 
@@ -12,18 +13,18 @@
                 {% set succeeded = tasks_data[taskid]["succeeded"] %}
                 {% set completion = tasks_data[taskid]["grade"] %}
                 <a href="{{ get_homepath() }}/course/{{course.get_id()}}/{{taskid}}" class="list-group-item list-group-item-action
-                    {% if not task.get_accessible_time().is_open() %} disabled {% endif %}">
+                    {% if not task_dispenser.get_accessibility(task.get_id()).is_open() %} disabled {% endif %}">
                     <div class="row">
                         <div class="col-xs-12 col-md-7 pl-1">
                             <i style="color: {% if succeeded %}#468847{% else %}transparent{% endif %};" class="fa fa-check"></i>
                             {{ task.get_name(user_manager.session_language()) }}
-                            {% if not task.get_accessible_time().is_open() %}
+                            {% if not task_dispenser.get_accessibility(taskid).is_open() %}
                                 - <b> {{ _("deadline reached") }} </b>
                             {% endif %}
                             </div>
                         <div class="col-xs-12 col-md-5">
                             {{ "DEADLINE: "}}
-                            <b> {{ task.get_deadline() }} </b>
+                            <b> {{ task_dispenser.get_deadline(taskid) }} </b>
                         </div>
                         <div class="col-xs-12 col-md-5">
                             {% if registered %}
