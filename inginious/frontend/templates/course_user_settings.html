@@ -49,9 +49,9 @@
     </nav>
 {% endblock %}
 {% block content %}
-    {%  if "error" in course_user_settings %}
-        <div class="alert alert-danger" role="alert">
-            {{ _(course_user_settings["error"]) }}
+    {%  if feedback is not none %}
+        <div class="alert alert-{{ feedback[0] }}" role="alert">
+            {{ _(feedback[1] ) }}
         </div>
     {% endif %}
     <h2>{{_("Course settings")}}</h2>
