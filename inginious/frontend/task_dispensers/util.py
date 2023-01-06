@@ -45,29 +45,6 @@ class SectionsList(object):
             tasks += section.get_tasks()
         return tasks
 
-    def add_task(self, taskid, sectionid):
-        """
-        Add the task in its corresponding section
-        :param taskid: the task id of the task
-        :param sectionid: the section id of the section
-        :return: True is the task has been added false otherwise
-        """
-        for i, section in enumerate(self._sections):
-            if section.get_id() == sectionid and section.is_empty() and not section.is_terminal():
-                self._sections[i] = TerminalSection({"id": section.get_id(), "title": section.get_title(),  "tasks_list": {taskid: 0}})
-                return True
-            elif section.add_task(taskid, sectionid):
-                return True
-        return False
-
-    def remove_task(self, taskid):
-        """
-        Remve the task from the structure
-        :param taskid: the task id of the task
-        """
-        for section in self._sections:
-            section.remove_task(taskid)
-
     def get_value_rec(self,taskid,structure,key):
         """
         Returns the value of key for the taskid in the structure if any or None
@@ -173,22 +150,6 @@ class NonTerminalSection(Section):
         """
         return self._sections_list.get_tasks()
 
-    def add_task(self, taskid, sectionid):
-        """
-        Add the task in its corresponding section
-        :param taskid: the task id of the task
-        :param sectionid: the section id of the section
-        :return: True is the task has been added false otherwise
-        """
-        return self._sections_list.add_task(taskid, sectionid)
-
-    def remove_task(self, taskid):
-        """
-        Remve the task from the structure
-        :param taskid: the task id of the task
-        """
-        self._sections_list.remove_task(taskid)
-
     def to_structure(self, rank):
         """
         :return: The structure in YAML format
@@ -275,28 +236,6 @@ class TerminalSection(Section):
         :return: True if the section is empty false otherwise
         """
         return len(self._task_list) == 0
-
-    def add_task(self, taskid, sectionid):
-        """
-        Add the task in its corresponding section
-        :param taskid: the task id of the task
-        :param sectionid: the section id of the section
-        :return: True is the task has been added false otherwise
-        """
-        if not id_checker(taskid):
-            return False
-        if self._id == sectionid and taskid not in self._task_list:
-            self._task_list.append(taskid)
-            return True
-        return False
-
-    def remove_task(self, taskid):
-        """
-        Remve the task from the list of tasks if present
-        :param taskid: the task id of the task
-        """
-        if taskid in self._task_list:
-            self._task_list.remove(taskid)
 
     def to_structure(self, rank):
         """
