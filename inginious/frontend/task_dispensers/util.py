@@ -17,9 +17,7 @@ class SectionsList(object):
 
     def __init__(self, structure):
         self._sections = []
-        if not all("rank" in section for section in structure):
-            raise InvalidTocException(_("No rank for one section"))
-        for section in sorted(structure,key=lambda k: k['rank']):
+        for section in structure:
             if "sections_list" in section:
                 self._sections.append(NonTerminalSection(section))
             elif "tasks_list" in section:
@@ -62,54 +60,20 @@ class SectionsList(object):
                 return structure[key].get(taskid, None)
         return None
 
-    def get_course_grade_weighted_sum(self, user_tasks, task_list, get_weight):
-        """
-        Returns the course grade following a weighted sum
-        :param user_tasks: the user tasks as in the database
-        :param task_list: the list of tasks for a user
-        :param get_weight: a function that take a taskid as input and returns the weight for that taskid
-        :returns: the value of the grade
-        """
-        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
-        tasks_score = [0.0, 0.0]
-
-        for taskid in task_list:
-            tasks_score[1] += get_weight(taskid)
-
-        for user_task in user_tasks:
-            tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
-            tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
-
-            weighted_score = user_task["grade"]*get_weight(user_task["taskid"])
-            tasks_score[0] += weighted_score
-
-        course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
-        return course_grade
-
     def to_structure(self):
         """
         :return: The structure in YAML format
         """
-        return [section.to_structure(rank) for rank, section in enumerate(self._sections)]
+        return [section.to_structure() for section in self._sections]
 
 
 class Section(object):
     def __init__(self, structure):
-        if "id" in structure and structure["id"] != "":
-            self._id = structure["id"]
-        else:
-            raise InvalidTocException(_("No id for one section"))
         if "title" in structure and structure["title"] != "":
             self._title = structure["title"]
         else:
             raise InvalidTocException(_("No title for one section"))
         self._config = structure["config"] if "config" in structure else {}
-
-    def get_id(self):
-        """
-        :return: the id of this section
-        """
-        return self._id
 
     def get_title(self):
         """
@@ -150,11 +114,11 @@ class NonTerminalSection(Section):
         """
         return self._sections_list.get_tasks()
 
-    def to_structure(self, rank):
+    def to_structure(self):
         """
         :return: The structure in YAML format
         """
-        return {"id": self._id, "rank": rank, "title": self._title, "sections_list": self._sections_list.to_structure()}
+        return {"title": self._title, "sections_list": self._sections_list.to_structure()}
 
 
 class TerminalSection(Section):
@@ -237,11 +201,11 @@ class TerminalSection(Section):
         """
         return len(self._task_list) == 0
 
-    def to_structure(self, rank):
+    def to_structure(self):
         """
         :return: The structure in YAML format
         """
-        return {"id": self._id, "rank": rank, "title": self._title,
+        return {"title": self._title,
                 "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)},
                 "weights": self._weights, "no_stored_submissions": self._no_stored_submissions,
                 "submission_limit": self._submission_limit, "group_submission": self._group_submission,
@@ -259,3 +223,27 @@ def check_toc(toc):
     except Exception as ex:
         return False, str(ex)
     return True, "Valid TOC"
+
+
+def get_course_grade_weighted_sum(user_tasks, task_list, get_weight):
+    """
+    Returns the course grade following a weighted sum
+    :param user_tasks: the user tasks as in the database
+    :param task_list: the list of tasks for a user
+    :param get_weight: a function that take a taskid as input and returns the weight for that taskid
+    :returns: the value of the grade
+    """
+    tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
+    tasks_score = [0.0, 0.0]
+
+    for taskid in task_list:
+        tasks_score[1] += get_weight(taskid)
+
+    for user_task in user_tasks:
+        tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
+        tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
+
+        weighted_score = user_task["grade"]*get_weight(user_task["taskid"])
+        tasks_score[0] += weighted_score
+
+    return round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0

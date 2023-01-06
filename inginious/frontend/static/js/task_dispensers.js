@@ -352,7 +352,6 @@ function dispenser_util_make_sections_list_sortable(element) {
 function dispenser_util_get_sections_list(element) {
     return element.children(".section").map(function (index) {
         const structure = {
-            "id": this.id.to_section_id(), "rank": index,
             "title": $(this).find(".title").first().text().trim(),
         };
 

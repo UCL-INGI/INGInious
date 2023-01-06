@@ -3,7 +3,7 @@
 
 {# Prints a terminal section and the tasks it contains #}
 
-<div id="section_{{ section.get_id() }}" class="section tasks_list card mb-4" data-level="{{level}}" >
+<div id="{{id}}" class="section tasks_list card mb-4" data-level="{{level}}" >
     <div class="section_header handle card-header d-flex justify-content-between pr-3">
         <span class="title">
             {{ section.get_title() }}

@@ -11,11 +11,11 @@
         {% for taskid in section.get_tasks() if taskid in tasks %}
             {% set ns.section_tasks = ns.section_tasks + [tasks[taskid]] %}
         {% endfor %}
-        {% with tasks=ns.section_tasks, tag_list=tag_filter_list, list_id=section.get_id(), title=section.get_title(), config=section.get_config() %}
+        {% with tasks=ns.section_tasks, tag_list=tag_filter_list, title=section.get_title(), config=section.get_config() %}
             {% include "task_dispensers/task_list.html" %}
         {% endwith %}
     {% else %}
-        <div id="section_{{ section.get_id() }}" class="section sections-list mb-4">
+        <div class="section sections-list mb-4">
             <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
                 <span class="title h{{level}} mr-3">
                     {{ _(section.get_title()) }}

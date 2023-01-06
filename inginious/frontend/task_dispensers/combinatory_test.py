@@ -3,7 +3,7 @@ import json
 from collections import OrderedDict
 from random import Random
 from inginious.frontend.task_dispensers import TaskDispenser
-from inginious.frontend.task_dispensers.util import SectionsList, check_toc, SectionConfigItem
+from inginious.frontend.task_dispensers.util import SectionsList, check_toc, SectionConfigItem, get_course_grade_weighted_sum
 from inginious.frontend.accessible_time import AccessibleTime
 
 
@@ -98,12 +98,12 @@ class CombinatoryTest(TaskDispenser):
         # TODO: kept as in previous code, should refactor the way accessibility is computed for a list of users
         tasks = self._task_list_func()
         result = {username: [] for username in [username]}
-        for section in self._data:
+        for index, section in enumerate(self._data):
             task_list = section.get_tasks()
             task_list = [taskid for taskid in task_list if taskid in tasks]
             amount_questions = int(section.get_config().get("amount", 0))
             for username in [username]:
-                rand = Random("{}#{}#{}".format(username, section.get_id(), section.get_title()))
+                rand = Random("{}#{}#{}".format(username, index, section.get_title()))
                 random_order_choices = list(task_list)
                 rand.shuffle(random_order_choices)
                 result[username] += random_order_choices[0:amount_questions]
@@ -152,7 +152,7 @@ class CombinatoryTest(TaskDispenser):
         """ Returns the grade of a user for the current course"""
         task_list = self.get_user_task_list([username])[username]
         user_tasks = self._database.user_tasks.find({"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
-        return self._data.get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
+        return get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
 
     def get_dispenser_data(self):
         """ Returns the task dispenser data structure """

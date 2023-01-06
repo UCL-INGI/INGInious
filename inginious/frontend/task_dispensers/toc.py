@@ -6,7 +6,7 @@
 import json
 from collections import OrderedDict
 
-from inginious.frontend.task_dispensers.util import check_toc, SectionsList, SectionConfigItem
+from inginious.frontend.task_dispensers.util import check_toc, SectionsList, SectionConfigItem, get_course_grade_weighted_sum
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
 
@@ -144,7 +144,7 @@ class TableOfContents(TaskDispenser):
         task_list = self.get_user_task_list([username])[username]
         user_tasks = self._database.user_tasks.find(
             {"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
-        return self._toc.get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
+        return get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
 
     def get_dispenser_data(self):
         """ Returns the task dispenser data structure """
