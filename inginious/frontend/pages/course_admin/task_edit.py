@@ -81,37 +81,14 @@ class CourseEditTask(INGIniousAdminPage):
         del problem_content["@order"]
         return self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
 
-    def wipe_task(self, courseid, taskid):
-        """ Wipe the data associated to the taskid from DB"""
-        submissions = self.database.submissions.find({"courseid": courseid, "taskid": taskid})
-        for submission in submissions:
-            for key in ["input", "archive"]:
-                if key in submission and type(submission[key]) == bson.objectid.ObjectId:
-                    self.submission_manager.get_gridfs().delete(submission[key])
-
-        self.database.user_tasks.delete_many({"courseid": courseid, "taskid": taskid})
-        self.database.submissions.delete_many({"courseid": courseid, "taskid": taskid})
-
-        self._logger.info("Task %s/%s wiped.", courseid, taskid)
-
     def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid) or not id_checker(courseid):
             raise NotFound(description=_("Invalid course/task id"))
 
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        __, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         data = flask.request.form.copy()
         data["task_file"] = flask.request.files.get("task_file")
-
-        # Delete task ?
-        if "delete" in data:
-            toc = course.get_task_dispenser().get_dispenser_data()
-            toc.remove_task(taskid)
-            self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
-            self.task_factory.delete_task(courseid, taskid)
-            if data.get("wipe", False):
-                self.wipe_task(courseid, taskid)
-            return  redirect(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
 
         # Else, parse content
         try:

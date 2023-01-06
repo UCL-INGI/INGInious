@@ -3,15 +3,9 @@
 
 <div class="form-group row">
     <label for="name" class="col-sm-2 control-label">{{ _("Name") }}</label>
-    <div class="col-sm-7">
+    <div class="col-sm-10">
         <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="{{task_data.get('name','')}}">
     </div>
-    <div class="col-sm-3">
-        <button type="button" data-toggle="modal" data-target="#delete_modal" class="btn btn-block btn-danger">
-            <i class="fa fa-trash"></i> {{ _("Delete task") }}
-        </button>
-    </div>
-
 </div>
 
 {% if available_filetypes|length != 1 %}
