@@ -186,14 +186,6 @@ Each hook available in INGInious is described here, starting with its name and p
     ``default`` : Default value as specified in the configuration
 
     Overrides the course accessibility.
-``task_accessibility`` (``course``, ``taskid``, ``default``)
-    Returns: inginious.frontend.accessible_time.AccessibleTime
-
-    ``course`` : inginious.frontend.courses.Course
-
-    ``task`` : inginious.frontend.tasks.Task
-
-    ``default`` : Default value as specified in the configuration
 
     Overrides the task accessibility
 ``task_limits`` (``course``, ``taskid``, ``default``)

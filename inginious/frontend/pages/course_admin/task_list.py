@@ -30,7 +30,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             task_dispenser_class = self.course_factory.get_task_dispensers().get(selected_task_dispenser, None)
             if task_dispenser_class:
                 self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser', task_dispenser_class.get_id())
-                self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', "")
+                self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', {})
             else:
                 errors.append(_("Invalid task dispenser"))
         else:

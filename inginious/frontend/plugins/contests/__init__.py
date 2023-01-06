@@ -16,19 +16,56 @@ from werkzeug.exceptions import NotFound
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.task_dispensers.toc import TableOfContents
 
 
 def add_admin_menu(course): # pylint: disable=unused-argument
     """ Add a menu for the contest settings in the administration """
-    return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest')
-
-
-def task_accessibility(course, task, default): # pylint: disable=unused-argument
-    contest_data = get_contest_data(course)
-    if contest_data['enabled']:
-        return AccessibleTime(contest_data['start'] + '/')
+    task_dispenser = course.get_task_dispenser()
+    if task_dispenser.get_id() == Contest.get_id():
+        return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest')
     else:
-        return default
+        return None
+
+
+class Contest(TableOfContents):
+
+    def __init__(self, task_list_func, dispenser_data, database, course_id):
+        TableOfContents.__init__(self, task_list_func, dispenser_data.get("toc", {}), database, course_id)
+        dispenser_data = dispenser_data or {}
+        self._contest_settings = dispenser_data.get(
+            'contest_settings',
+            {"enabled": False,
+             "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+             "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
+             "blackout": 0,
+             "penalty": 20}
+        )
+
+    @classmethod
+    def get_id(cls):
+        return "contest"
+
+    @classmethod
+    def get_name(cls, language):
+        return "Contest"
+
+    def check_dispenser_data(self, dispenser_data):
+        """ Checks the dispenser data as formatted by the form from render_edit function """
+        data, errors = TableOfContents.check_dispenser_data(self, dispenser_data)
+        return {"toc": data, "contest_settings": self._contest_settings} if data else None, errors
+
+    def get_accessibility(self, taskid, username): # pylint: disable=unused-argument
+        default = TableOfContents.get_accessibility(self, taskid, username)
+        contest_data = self.get_contest_data()
+        if contest_data['enabled']:
+            return AccessibleTime(contest_data['start'] + '/')
+        else:
+            return default
+
+    def get_contest_data(self):
+        """ Returns the settings of the contest for this course """
+        return self._contest_settings
 
 
 def additional_headers():
@@ -39,19 +76,13 @@ def additional_headers():
              '<script src="' + flask.request.url_root + '/static/plugins/contests/contests.js"></script>'
 
 
-def get_contest_data(course):
-    """ Returns the settings of the contest for this course """
-    return course.get_descriptor().get('contest_settings', {"enabled": False,
-                                                            "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                                            "end": (datetime.now() + timedelta(hours=1)).strftime(
-                                                                "%Y-%m-%d %H:%M:%S"),
-                                                            "blackout": 0,
-                                                            "penalty": 20})
-
-
 def course_menu(course, template_helper):
     """ Displays some informations about the contest on the course page"""
-    contest_data = get_contest_data(course)
+    task_dispenser = course.get_task_dispenser()
+    if not task_dispenser.get_id() == Contest.get_id():
+        return None
+
+    contest_data = task_dispenser.get_contest_data()
     if contest_data['enabled']:
         start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
         end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
@@ -67,7 +98,10 @@ class ContestScoreboard(INGIniousAuthPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         course = self.course_factory.get_course(courseid)
-        contest_data = get_contest_data(course)
+        task_dispenser = course.get_task_dispenser()
+        if not task_dispenser.get_id() == Contest.get_id():
+            raise NotFound()
+        contest_data = task_dispenser.get_contest_data()
         if not contest_data['enabled']:
             raise NotFound()
         start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
@@ -160,20 +194,26 @@ class ContestAdmin(INGIniousAdminPage):
     def save_contest_data(self, course, contest_data):
         """ Saves updated contest data for the course """
         course_content = self.course_factory.get_course_descriptor_content(course.get_id())
-        course_content["contest_settings"] = contest_data
+        course_content["dispenser_data"]["contest_settings"] = contest_data
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        contest_data = get_contest_data(course)
+        task_dispenser = course.get_task_dispenser()
+        if not task_dispenser.get_id() == Contest.get_id():
+            raise NotFound()
+        contest_data = task_dispenser.get_contest_data()
         return self.template_helper.render("admin.html", template_folder="frontend/plugins/contests", course=course,
                                            data=contest_data, errors=None, saved=False)
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request: update the settings """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        contest_data = get_contest_data(course)
+        task_dispenser = course.get_task_dispenser()
+        if not task_dispenser.get_id() == Contest.get_id():
+            raise NotFound()
+        contest_data = task_dispenser.get_contest_data()
 
         new_data = flask.request.form
         errors = []
@@ -235,6 +275,6 @@ def init(plugin_manager, course_factory, client, config):  # pylint: disable=unu
     plugin_manager.add_page('/contest/<courseid>', ContestScoreboard.as_view('contestscoreboard'))
     plugin_manager.add_page('/admin/<courseid>/contest', ContestAdmin.as_view('contestadmin'))
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
-    plugin_manager.add_hook('task_accessibility', task_accessibility)
     plugin_manager.add_hook('header_html', additional_headers)
     plugin_manager.add_hook('course_menu', course_menu)
+    course_factory.add_task_dispenser(Contest)

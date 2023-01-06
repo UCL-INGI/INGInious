@@ -736,7 +736,7 @@ class UserManager:
             username = self.session_username()
 
         course = task.get_course()
-        dispenser_filter = course.get_task_dispenser().filter_accessibility(task.get_id(), username)
+        dispenser_filter = course.get_task_dispenser().get_accessibility(task.get_id(), username).after_start()
         return (self.course_is_open_to_user(course, username, lti) and dispenser_filter) \
                or self.has_staff_rights_on_course(task.get_course(), username)
 
@@ -756,7 +756,7 @@ class UserManager:
         # Check if course access is ok
         course_registered = self.course_is_open_to_user(course, username, lti)
         # Check if task accessible to user
-        task_accessible = course.get_task_dispenser().get_accessibility(task.get_id()).is_open()
+        task_accessible = course.get_task_dispenser().get_accessibility(task.get_id(), username).is_open()
         # User has staff rights ?
         staff_right = self.has_staff_rights_on_course(course, username)
         # Is this task a group task .

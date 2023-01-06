@@ -83,21 +83,36 @@ class CombinatoryTest(TaskDispenser):
         except:
             return False
 
-    def get_accessibility(self, taskid):
+    def get_accessibility(self, taskid, username):
         """  Get the accessible time of this task """
+        toc_accessibility = AccessibleTime(False)
         try:
             struct = self._toc.to_structure()
             for elem in struct:
                 accessible = self._toc.get_value_rec(taskid, elem, "accessible")
                 if accessible is not None:
-                    return AccessibleTime(accessible)
-            return AccessibleTime(False)
+                    toc_accessibility = AccessibleTime(accessible)
         except:
-            return AccessibleTime(False)
+            toc_accessibility = AccessibleTime(False)
 
-    def get_deadline(self, taskid):
+        # TODO: kept as in previous code, should refactor the way accessibility is computed for a list of users
+        tasks = self._task_list_func()
+        result = {username: [] for username in [username]}
+        for section in self._data:
+            task_list = section.get_tasks()
+            task_list = [taskid for taskid in task_list if taskid in tasks]
+            amount_questions = int(section.get_config().get("amount", 0))
+            for username in [username]:
+                rand = Random("{}#{}#{}".format(username, section.get_id(), section.get_title()))
+                random_order_choices = list(task_list)
+                rand.shuffle(random_order_choices)
+                result[username] += random_order_choices[0:amount_questions]
+
+        return toc_accessibility if taskid in result[username] else AccessibleTime(False)
+
+    def get_deadline(self, taskid, username):
         """ Returns a string containing the deadline for this task """
-        accessible_time = self.get_accessibility(taskid)
+        accessible_time = self.get_accessibility(taskid, username)
         if accessible_time.is_always_accessible():
             return _("No deadline")
         elif accessible_time.is_never_accessible():
@@ -156,8 +171,7 @@ class CombinatoryTest(TaskDispenser):
         return template_helper.render("task_dispensers/toc.html", course=course, tasks=self._task_list_func(),
                                       tasks_data=tasks_data, tag_filter_list=tag_list, sections=self._data)
 
-    @classmethod
-    def check_dispenser_data(cls, dispenser_data):
+    def check_dispenser_data(self, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
         new_toc = json.loads(dispenser_data)
         for section in new_toc:
@@ -165,22 +179,6 @@ class CombinatoryTest(TaskDispenser):
             config["amount"] = int(config.get("amount", 0))
         valid, errors = check_toc(new_toc)
         return new_toc if valid else None, errors
-
-    def get_user_task_list(self, usernames):
-        """ Returns a dictionary with username as key and the user task list as value """
-        tasks = self._task_list_func()
-        result = {username: [] for username in usernames}
-        for section in self._data:
-            task_list = section.get_tasks()
-            task_list = [taskid for taskid in task_list if
-                         taskid in tasks and self.get_accessibility(taskid).after_start()]
-            amount_questions = int(section.get_config().get("amount", 0))
-            for username in usernames:
-                rand = Random("{}#{}#{}".format(username, section.get_id(), section.get_title()))
-                random_order_choices = list(task_list)
-                rand.shuffle(random_order_choices)
-                result[username] += random_order_choices[0:amount_questions]
-        return result
 
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""

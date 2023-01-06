@@ -26,12 +26,12 @@
         {% endif %}
         {% if not is_lti() %}
             <tr class="
-            {% if task_dispenser.get_accessibility(task.get_id()).is_open() and not task_dispenser.get_accessibility(task.get_id()).is_open_with_soft_deadline() %}
+            {% if task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open() and not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open_with_soft_deadline() %}
                 list-group-item-danger
             {% endif %}">
                 <td>{{ _("Deadline") }}</td>
                 <td>
-                    {{ task_dispenser.get_deadline(task.get_id()) }}
+                    {{ task_dispenser.get_deadline(task.get_id(), user_manager.session_username()) }}
                 </td>
             </tr>
         {% endif %}
@@ -124,7 +124,7 @@
                 {{ _("This course is currently invisible for students.  You can change this by modifying the \"accessible\" option in the configuration of the course.") }}
             </div>
         {% endif %}
-        {% if not task_dispenser.get_accessibility(task.get_id()).after_start() %}
+        {% if not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).after_start() %}
             <div class="alert alert-warning" role="alert">
                 {{ _("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.") }}
             </div>
@@ -412,7 +412,7 @@
         {% else %}
             <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">{{ _("Submit") }}</button>
         {% endif %}
-    {% elif not task_dispenser.get_accessibility(task.get_id()).is_open() %}
+    {% elif not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open() %}
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _("The deadline is over, you cannot submit anymore") }}</button>
     {% elif task_dispenser.get_group_submission(task.get_id()) and not groups_ok %}
         <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _('Please register in a group') }}</button>

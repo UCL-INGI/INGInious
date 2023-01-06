@@ -75,24 +75,28 @@ class TaskDispenser(metaclass=ABCMeta):
         """ Returns the formatted task list"""
         pass
 
-    @classmethod
     @abstractmethod
-    def check_dispenser_data(cls, dispenser_data):
+    def check_dispenser_data(self, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
         pass
 
-    def filter_accessibility(self, taskid, username):
-        """ Returns true if the task is accessible by all students that are not administrator of the course """
-        user_task_list = self.get_user_task_list([username])
-        return taskid in user_task_list[username]
-
     @abstractmethod
+    def get_accessibility(self, taskid, username):
+        """ Returns the AccessibleTime instance for a specific taskid and username """
+
     def get_user_task_list(self, usernames):
         """
         Returns the user task list that are eligible for grade computation
         :param usernames: List of usernames for which get the user task list
         :return: Returns a dictionary with username as key and the user task list as value
         """
+        tasks = self._task_list_func()
+
+        def task_list(username):
+            return [taskid for taskid in self._toc.get_tasks() if
+                    taskid in tasks and self.get_accessibility(taskid, username).after_start()]
+
+        return {username: task_list(username) for username in usernames}
 
     @abstractmethod
     def get_ordered_tasks(self):
