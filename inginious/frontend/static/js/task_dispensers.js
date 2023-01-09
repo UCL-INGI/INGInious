@@ -365,17 +365,6 @@ function dispenser_util_get_sections_list(element) {
             tasks_id = dispenser_util_get_tasks_list(content);
             structure["tasks_list"] = tasks_id;
 
-            var weights = dispenser_util_get_weights(tasks_id);
-            if(Object.keys(weights).length > 0){
-                structure["weights"] = weights;
-            }
-
-            structure["no_stored_submissions"] = dispenser_util_get_no_stored_submissions(tasks_id);
-            structure["evaluation_mode"] = dispenser_util_get_evaluation_mode(tasks_id);
-            structure["submission_limit"] = dispenser_util_get_submission_limit(tasks_id);
-            structure["categories"] = dispenser_util_get_categories(tasks_id);
-            structure["group_submission"] = dispenser_util_get_group_submission(tasks_id);
-            structure["accessible"] = dispenser_util_get_accessibility(tasks_id);
         } else if ($(this).hasClass("sections_list")) {
             structure["sections_list"] = dispenser_util_get_sections_list(content);
         }
@@ -396,125 +385,110 @@ function dispenser_util_get_section_config(element) {
 }
 
 function dispenser_util_get_weights(tasks_id) {
-    const weight_list = {};
     $(".weight").each(function(){
         if(this.name in tasks_id){
             if(this.value === ""){
-                weight_list[this.name] = 1;
+                tasks_id[this.name]["weight"] = 1;
             }else{
-                weight_list[this.name] = parseFloat(this.value);
+                tasks_id[this.name]["weight"] = parseFloat(this.value);
             }
         }
     });
-    return weight_list;
 }
 
 function dispenser_util_get_no_stored_submissions(tasks_id){
-    const no_stored_submissions = {};
     $(".no_stored_submissions").each(function(){
         var taskid = this.id;
         if(taskid in tasks_id && this.checked && this.value === "store_all"){
-            no_stored_submissions[taskid] = 0;
+            tasks_id[taskid]["no_stored_submissions"] = 0;
         }else if(taskid in tasks_id && this.checked && this.value === "store_not_all"){
             $("#no_stored_submissions_value_"+taskid).each(function(){
                 var value = parseInt(this.value);
                 if(!isNaN(value)){
-                    no_stored_submissions[taskid] = value;
+                    tasks_id[taskid]["no_stored_submissions"] = value;
                 }else{
-                    no_stored_submissions[taskid] = 5;
+                    tasks_id[taskid]["no_stored_submissions"] = 5;
                 }
             });
         }
     });
-    return no_stored_submissions;
 }
 
 function dispenser_util_get_evaluation_mode(tasks_id){
-    const evaluation_mode = {};
     $(".evaluation_submission").each(function(){
         var taskid = this.id;
         if(taskid in tasks_id && this.checked && this.value === "best"){
-            evaluation_mode[taskid] = "best";
+            tasks_id[taskid]["evaluation_mode"] = "best";
         }else if(taskid in tasks_id && this.checked && this.value === "last"){
-            evaluation_mode[taskid] = "last"
+            tasks_id[taskid]["evaluation_mode"] = "last"
         }
     });
-    return evaluation_mode;
 }
 
 function dispenser_util_get_submission_limit(tasks_id){
-    const submission_limit = {};
     $(".submission_limit").each(function (){
         var taskid = this.id;
         if(taskid in tasks_id && $(this).prop("checked")) {
             if(this.value === "none") {
-                submission_limit[taskid] = {"amount": -1, "period": -1};
+                tasks_id[taskid]["submission_limit"] = {"amount": -1, "period": -1};
             } else if(this.value === "hard") {
                 $("#submission_limit_hard_" + taskid).each(function(){
                     var value = parseInt(this.value);
-                    submission_limit[taskid] = {"amount": !isNaN(value) ? value: -1, "period": -1};
+                    tasks_id[taskid]["submission_limit"] = {"amount": !isNaN(value) ? value: -1, "period": -1};
                 });
             } else if(this.value === "soft") {
-                submission_limit[taskid] = {}
+                tasks_id[taskid]["submission_limit"] = {}
                 $("#submission_limit_soft_0_" + taskid).each(function(){
                     var value = parseInt(this.value);
-                    submission_limit[taskid]["amount"] = !isNaN(value) ? value: -1;
+                    tasks_id[taskid]["submission_limit"]["amount"] = !isNaN(value) ? value: -1;
                 });
                 $("#submission_limit_soft_1_" + taskid).each(function(){
                     var value = parseInt(this.value);
-                    submission_limit[taskid]["period"] = !isNaN(value) ? value: -1;
+                    tasks_id[taskid]["submission_limit"]["period"] = !isNaN(value) ? value: -1;
                 });
             }
         }
     });
-    return submission_limit;
 }
 
 function dispenser_util_get_group_submission(tasks_id){
-    const group_submission = {};
     $(".group_submission").each(function (){
         var taskid = this.id;
         if(taskid in tasks_id && $(this).prop("checked"))
-            group_submission[taskid] = this.value === "true";
-    });
-    return group_submission;
-}
+            tasks_id[taskid]["group_submission"] = this.value === "true";
+    });}
 
 function dispenser_util_get_accessibility(tasks_id) {
-    const accessible = {};
     $(".accessible").each(function (){
         const taskid = this.id;
         if(taskid in tasks_id && $(this).prop("checked")) {
             if(this.value === "true")
-                accessible[taskid] = true;
+                tasks_id[taskid]["accessible"] = true;
             else if(this.value === "false")
-                accessible[taskid] = false;
+                tasks_id[taskid]["accessible"] = false;
             else {
                 const accessible_start = $("#accessible_start_" + taskid).val();
                 const accessible_end = $("#accessible_end_" + taskid).val();
                 const accessible_soft_end = $("#accessible_soft_end_" + taskid).val();
-                accessible[taskid] = accessible_start + '/' + accessible_soft_end + '/' + accessible_end;
+                tasks_id[taskid]["accessible"] = accessible_start + '/' + accessible_soft_end + '/' + accessible_end;
             }
         }
     });
-    return accessible;
 }
 
 function dispenser_util_get_categories(tasks_id){
-    const categories = {};
     $(".categories").each(function(){
         var taskid = this.id;
-        if(taskid in tasks_id && this.value !== ""){
-            categories[taskid] = this.value.split(",");
+        if(taskid in tasks_id){
+            tasks_id[taskid]["categories"] = this.value !== "" ? this.value.split(",") : [];
         }
     });
-    return categories;
 }
 
 function dispenser_util_get_tasks_list(element) {
-    const tasks_list = {};
-    element.children(".task").each(function (index) {
-        tasks_list[this.id.to_taskid()] = index;
+    const tasks_list = [];
+    element.children(".task").each(function () {
+        tasks_list.push(this.id.to_taskid());
     });
     return tasks_list;
 }
@@ -535,12 +509,35 @@ function dispenser_add_task(taskid) {
     dispenser_new_tasks.push(taskid);
 }
 
+function dispenser_util_get_task_config() {
+    var tasks_config = {};
+    dispenser_util_get_tasks_list($('#course_structure .content')).forEach(function (elem) {
+        tasks_config[elem] = {};
+    });
+
+    dispenser_util_get_weights(tasks_config);
+    dispenser_util_get_no_stored_submissions(tasks_config);
+    dispenser_util_get_evaluation_mode(tasks_config);
+    dispenser_util_get_submission_limit(tasks_config);
+    dispenser_util_get_categories(tasks_config);
+    dispenser_util_get_group_submission(tasks_config);
+    dispenser_util_get_accessibility(tasks_config);
+
+    return tasks_config;
+}
+
 function dispenser_structure_toc() {
-    return JSON.stringify(dispenser_util_get_sections_list($('#course_structure').children(".content")));
+    return JSON.stringify({
+        "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
+        "config": dispenser_util_get_task_config()
+    });
 }
 
 function dispenser_structure_combinatory_test() {
-    return JSON.stringify(dispenser_util_get_sections_list($('#course_structure').children(".content")));
+    return JSON.stringify({
+        "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
+        "config": dispenser_util_get_task_config()
+    });
 }
 
 function dispenser_submit(dispenser_id) {

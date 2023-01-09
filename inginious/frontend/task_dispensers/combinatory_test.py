@@ -3,7 +3,7 @@ import json
 from collections import OrderedDict
 from random import Random
 from inginious.frontend.task_dispensers import TaskDispenser
-from inginious.frontend.task_dispensers.util import SectionsList, check_toc, SectionConfigItem, get_course_grade_weighted_sum
+from inginious.frontend.task_dispensers.util import SectionsList, check_toc, parse_tasks_config, SectionConfigItem, get_course_grade_weighted_sum
 from inginious.frontend.accessible_time import AccessibleTime
 
 
@@ -11,7 +11,9 @@ class CombinatoryTest(TaskDispenser):
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         self._task_list_func = task_list_func
-        self._data = SectionsList(dispenser_data)
+        self._data = SectionsList(dispenser_data.get("toc", {}))
+        self._task_config = dispenser_data.get("config", {})
+        parse_tasks_config(self._task_config)
         self._database = database
         self._course_id = course_id
 
@@ -25,75 +27,27 @@ class CombinatoryTest(TaskDispenser):
 
     def get_weight(self, taskid):
         """ Returns the weight of taskid """
-        try:
-            struct = self._data.to_structure()
-            for elem in struct:
-                weight = self._data.get_value_rec(taskid,elem,"weights")
-                if weight is not None:
-                    return weight
-            return 1
-        except:
-            return 1
+        return self._task_config.get(taskid, {}).get("weight", 1)
 
-    def get_no_stored_submissions(self,taskid):
+    def get_no_stored_submissions(self, taskid):
         """Returns the maximum stored submission specified by the administrator"""
-        try:
-            struct = self._data.to_structure()
-            for elem in struct:
-                no_stored_submissions = self._data.get_value_rec(taskid,elem,"no_stored_submissions")
-                if no_stored_submissions is not None:
-                    return no_stored_submissions
-            return 0
-        except:
-            return 0
+        return self._task_config.get(taskid, {}).get("no_stored_submissions", 0)
 
-    def get_evaluation_mode(self,taskid):
+    def get_evaluation_mode(self, taskid):
         """Returns the evaluation mode specified by the administrator"""
-        try:
-            struct = self._data.to_structure()
-            for elem in struct:
-                evaluation_mode = self._data.get_value_rec(taskid,elem,"evaluation_mode")
-                if evaluation_mode is not None:
-                    return evaluation_mode
-            return "best"
-        except:
-            return "best"
+        return self._task_config.get(taskid, {}).get("evaluation_mode", "best")
 
     def get_submission_limit(self, taskid):
         """ Returns the submission limits et for the task"""
-        try:
-            struct = self._toc.to_structure()
-            for elem in struct:
-                submission_limit = self._toc.get_value_rec(taskid, elem, "submission_limit")
-                if submission_limit is not None:
-                    return submission_limit
-            return {"amount": -1, "period": -1}
-        except:
-            return {"amount": -1, "period": -1}
+        return self._task_config.get(taskid, {}).get("submission_limit",  {"amount": -1, "period": -1})
 
     def get_group_submission(self, taskid):
         """ Indicates if the task submission mode is per groups """
-        try:
-            struct = self._toc.to_structure()
-            for elem in struct:
-                group_submission = self._toc.get_value_rec(taskid, elem, "group_submission")
-                if group_submission is not None:
-                    return group_submission
-            return False
-        except:
-            return False
+        return self._task_config.get(taskid, {}).get("group_submission", False)
 
     def get_accessibility(self, taskid, username):
         """  Get the accessible time of this task """
-        toc_accessibility = AccessibleTime(False)
-        try:
-            struct = self._toc.to_structure()
-            for elem in struct:
-                accessible = self._toc.get_value_rec(taskid, elem, "accessible")
-                if accessible is not None:
-                    toc_accessibility = AccessibleTime(accessible)
-        except:
-            toc_accessibility = AccessibleTime(False)
+        toc_accessibility = AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
 
         # TODO: kept as in previous code, should refactor the way accessibility is computed for a list of users
         tasks = self._task_list_func()
@@ -121,17 +75,9 @@ class CombinatoryTest(TaskDispenser):
             # Prefer to show the soft deadline rather than the hard one
             return accessible_time.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
 
-    def get_categories(self,taskid):
+    def get_categories(self, taskid):
         """Returns the categories specified for the taskid by the administrator"""
-        try:
-            struct = self._data.to_structure()
-            for elem in struct:
-                categories = self._data.get_value_rec(taskid,elem,"categories")
-                if categories is not None:
-                    return categories
-            return []
-        except:
-            return []
+        return self._task_config.get(taskid, {}).get("categories", [])
 
     def get_all_categories(self):
         """Returns the categories specified by the administrator"""
@@ -174,10 +120,15 @@ class CombinatoryTest(TaskDispenser):
     def check_dispenser_data(self, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
         new_toc = json.loads(dispenser_data)
-        for section in new_toc:
+        for section in new_toc.get("toc", {}):
             config = section.setdefault("config", {})
             config["amount"] = int(config.get("amount", 0))
-        valid, errors = check_toc(new_toc)
+        valid, errors = check_toc(new_toc.get("toc", {}))
+        if valid:
+            try:
+                parse_tasks_config(new_toc.get("config", {}))
+            except Exception as ex:
+                valid, errors = False, str(ex)
         return new_toc if valid else None, errors
 
     def get_ordered_tasks(self):
