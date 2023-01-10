@@ -149,6 +149,10 @@ def check_toc(toc):
 
 
 def parse_tasks_config(data):
+    """
+    Parse the task settings and modify data to set default values if needed
+    :param data: the raw content of the task settings
+    """
     for taskid, structure in data.items():
 
         # Weight
@@ -200,6 +204,18 @@ def parse_tasks_config(data):
             raise InvalidTocException(
                 "Invalid task accessibility ({}) for the task: {}".format(message, taskid))
         structure["accessible"] = accessible
+
+def check_task_config(data):
+    """
+
+    :param data: the raw content of the task settings
+    :return:  (True, '') if the settings are valid or (False, The error message) otherwise
+    """
+    try:
+        parse_tasks_config(data)
+        return True, ''
+    except Exception as ex:
+        return False, str(ex)
 
 
 def get_course_grade_weighted_sum(user_tasks, task_list, get_weight):

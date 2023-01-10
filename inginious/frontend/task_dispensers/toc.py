@@ -6,7 +6,8 @@
 import json
 from collections import OrderedDict
 
-from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_config, SectionsList, SectionConfigItem, get_course_grade_weighted_sum
+from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_config, check_task_config,\
+    SectionsList, SectionConfigItem, get_course_grade_weighted_sum
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
 
@@ -14,12 +15,15 @@ from inginious.frontend.accessible_time import AccessibleTime
 class TableOfContents(TaskDispenser):
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
-        self._task_list_func = task_list_func
+        # Check dispenser data structure
+        dispenser_data = dispenser_data or {"toc": {}, "config": {}}
+        if not isinstance(dispenser_data, dict) or "toc" not in dispenser_data or "config" not in dispenser_data:
+            raise Exception("Invalid dispenser data structure")
+
+        TaskDispenser.__init__(self, task_list_func, dispenser_data, database, course_id)
         self._toc = SectionsList(dispenser_data.get("toc", {}))
         self._task_config = dispenser_data.get("config", {})
         parse_tasks_config(self._task_config)
-        self._database = database
-        self._course_id = course_id
 
     @classmethod
     def get_id(cls):
@@ -51,9 +55,10 @@ class TableOfContents(TaskDispenser):
         """ Indicates if the task submission mode is per groups """
         return self._task_config.get(taskid, {}).get("group_submission", False)
 
-    def get_accessibility(self, taskid, username):
+    def get_accessibilities(self, taskids, usernames):
         """  Get the accessible time of this task """
-        return AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
+        return {username: {taskid: AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
+                             for taskid in taskids } for username in usernames}
 
     def get_deadline(self, taskid, username):
         """ Returns a string containing the deadline for this task """
@@ -114,21 +119,10 @@ class TableOfContents(TaskDispenser):
         new_toc = json.loads(dispenser_data)
         valid, errors = check_toc(new_toc.get("toc", {}))
         if valid:
-            try:
-                parse_tasks_config(new_toc.get("config", {}))
-            except Exception as ex:
-                valid, errors = False, str(ex)
+            valid, errors = check_task_config(new_toc.get("config", {}))
         return new_toc if valid else None, errors
 
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
         tasks = self._task_list_func()
         return OrderedDict([(taskid, tasks[taskid]) for taskid in self._toc.get_tasks() if taskid in tasks])
-
-    def get_task_order(self, taskid):
-        """ Get the position of this task in the course """
-        tasks_id = self._toc.get_tasks()
-        if taskid in tasks_id:
-            return tasks_id.index(taskid)
-        else:
-            return len(tasks_id)

@@ -31,8 +31,7 @@ def add_admin_menu(course): # pylint: disable=unused-argument
 class Contest(TableOfContents):
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
-        TableOfContents.__init__(self, task_list_func, dispenser_data.get("toc", {}), database, course_id)
-        dispenser_data = dispenser_data or {}
+        TableOfContents.__init__(self, task_list_func, dispenser_data.get("toc_data", {}), database, course_id)
         self._contest_settings = dispenser_data.get(
             'contest_settings',
             {"enabled": False,
@@ -53,15 +52,14 @@ class Contest(TableOfContents):
     def check_dispenser_data(self, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
         data, errors = TableOfContents.check_dispenser_data(self, dispenser_data)
-        return {"toc": data, "contest_settings": self._contest_settings} if data else None, errors
+        return {"toc_data": data, "contest_settings": self._contest_settings} if data else None, errors
 
-    def get_accessibility(self, taskid, username): # pylint: disable=unused-argument
-        default = TableOfContents.get_accessibility(self, taskid, username)
+    def get_accessibilities(self, taskids, usernames): # pylint: disable=unused-argument
         contest_data = self.get_contest_data()
         if contest_data['enabled']:
-            return AccessibleTime(contest_data['start'] + '/')
+            return {username: {taskid: AccessibleTime(contest_data['start'] + '/') for taskid in taskids} for username in usernames}
         else:
-            return default
+            return TableOfContents.get_accessibilities(self, taskids, usernames)
 
     def get_contest_data(self):
         """ Returns the settings of the contest for this course """

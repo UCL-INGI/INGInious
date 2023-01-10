@@ -89,15 +89,14 @@ class CourseTaskListPage(INGIniousAdminPage):
         # Load tasks and verify exceptions
         files = self.task_factory.get_readable_tasks(course)
 
-        output = {}
+        tasks = {}
         if errors is None:
             errors = []
-        for task in files:
+        for taskid in files:
             try:
-                output[task] = course.get_task(task)
+                tasks[taskid] = course.get_task(taskid)
             except Exception as inst:
-                errors.append({"taskid": task, "error": str(inst)})
-        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (course.get_task_dispenser().get_task_order(t[1].get_id()), t[1].get_id())))
+                errors.append({"taskid": taskid, "error": str(inst)})
 
         tasks_data = OrderedDict()
         for taskid in tasks:

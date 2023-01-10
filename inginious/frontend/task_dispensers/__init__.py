@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
+
 class TaskDispenser(metaclass=ABCMeta):
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
@@ -10,7 +11,9 @@ class TaskDispenser(metaclass=ABCMeta):
         :param database: The MongoDB database
         :param course_id: A String that is the id of the course
         """
-        pass
+        self._task_list_func = task_list_func
+        self._database = database
+        self._course_id = course_id
 
     @abstractmethod
     def get_no_stored_submissions(self, taskid):
@@ -81,8 +84,14 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_accessibilities(self, taskids, usernames):
+        """ Returns the AccessibleTime instance for a set of taskids and usernames """
+        pass
+
     def get_accessibility(self, taskid, username):
-        """ Returns the AccessibleTime instance for a specific taskid and username """
+        """ Returns the AccessibleTime instance for a taskid and username """
+        result = self.get_accessibilities([taskid], [username])
+        return result[username][taskid]
 
     def get_user_task_list(self, usernames):
         """
@@ -90,20 +99,12 @@ class TaskDispenser(metaclass=ABCMeta):
         :param usernames: List of usernames for which get the user task list
         :return: Returns a dictionary with username as key and the user task list as value
         """
-        tasks = self._task_list_func()
+        taskids = self._task_list_func()
+        result = self.get_accessibilities(taskids, usernames)
 
-        def task_list(username):
-            return [taskid for taskid in self._toc.get_tasks() if
-                    taskid in tasks and self.get_accessibility(taskid, username).after_start()]
-
-        return {username: task_list(username) for username in usernames}
+        return {username: [taskid for taskid in result[username].keys() if result[username][taskid].after_start()] for username in result}
 
     @abstractmethod
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
-        pass
-
-    @abstractmethod
-    def get_task_order(self, taskid):
-        """ Get the position of this task in the course """
         pass

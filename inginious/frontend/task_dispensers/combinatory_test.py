@@ -3,19 +3,23 @@ import json
 from collections import OrderedDict
 from random import Random
 from inginious.frontend.task_dispensers import TaskDispenser
-from inginious.frontend.task_dispensers.util import SectionsList, check_toc, parse_tasks_config, SectionConfigItem, get_course_grade_weighted_sum
+from inginious.frontend.task_dispensers.util import SectionsList, check_toc, parse_tasks_config, check_task_config,\
+    SectionConfigItem, get_course_grade_weighted_sum
 from inginious.frontend.accessible_time import AccessibleTime
 
 
 class CombinatoryTest(TaskDispenser):
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
-        self._task_list_func = task_list_func
+        # Check dispenser data structure
+        dispenser_data = dispenser_data or {"toc": {}, "config": {}}
+        if not isinstance(dispenser_data, dict) or "toc" not in dispenser_data or "config" not in dispenser_data:
+            raise Exception("Invalid dispenser data structure")
+
+        TaskDispenser.__init__(self, task_list_func, dispenser_data, database, course_id)
         self._data = SectionsList(dispenser_data.get("toc", {}))
         self._task_config = dispenser_data.get("config", {})
         parse_tasks_config(self._task_config)
-        self._database = database
-        self._course_id = course_id
 
     @classmethod
     def get_id(cls):
@@ -45,24 +49,20 @@ class CombinatoryTest(TaskDispenser):
         """ Indicates if the task submission mode is per groups """
         return self._task_config.get(taskid, {}).get("group_submission", False)
 
-    def get_accessibility(self, taskid, username):
-        """  Get the accessible time of this task """
-        toc_accessibility = AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
-
-        # TODO: kept as in previous code, should refactor the way accessibility is computed for a list of users
-        tasks = self._task_list_func()
-        result = {username: [] for username in [username]}
+    def get_accessibilities(self, taskids, usernames):
+        result = {username: {taskid: AccessibleTime(False) for taskid in taskids} for username in usernames}
         for index, section in enumerate(self._data):
-            task_list = section.get_tasks()
-            task_list = [taskid for taskid in task_list if taskid in tasks]
+            task_list = [taskid for taskid in section.get_tasks()
+                         if AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False)).after_start()]
             amount_questions = int(section.get_config().get("amount", 0))
-            for username in [username]:
+            for username in usernames:
                 rand = Random("{}#{}#{}".format(username, index, section.get_title()))
-                random_order_choices = list(task_list)
+                random_order_choices = list(task_list.keys())
                 rand.shuffle(random_order_choices)
-                result[username] += random_order_choices[0:amount_questions]
+                for taskid in random_order_choices[0:amount_questions]:
+                    result[username][taskid] = AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
 
-        return toc_accessibility if taskid in result[username] else AccessibleTime(False)
+        return result
 
     def get_deadline(self, taskid, username):
         """ Returns a string containing the deadline for this task """
@@ -125,21 +125,10 @@ class CombinatoryTest(TaskDispenser):
             config["amount"] = int(config.get("amount", 0))
         valid, errors = check_toc(new_toc.get("toc", {}))
         if valid:
-            try:
-                parse_tasks_config(new_toc.get("config", {}))
-            except Exception as ex:
-                valid, errors = False, str(ex)
+            valid, errors = check_task_config(new_toc.get("config", {}))
         return new_toc if valid else None, errors
 
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
         tasks = self._task_list_func()
         return OrderedDict([(taskid, tasks[taskid]) for taskid in self._data.get_tasks() if taskid in tasks])
-
-    def get_task_order(self, taskid):
-        """ Get the position of this task in the course """
-        tasks_id = self._data.get_tasks()
-        if taskid in tasks_id:
-            return tasks_id.index(taskid)
-        else:
-            return len(tasks_id)
