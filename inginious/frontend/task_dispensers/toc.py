@@ -7,7 +7,7 @@ import json
 from collections import OrderedDict
 
 from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_config, check_task_config,\
-    SectionsList, SectionConfigItem, get_course_grade_weighted_sum
+    SectionsList, SectionConfigItem
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
 
@@ -90,12 +90,25 @@ class TableOfContents(TaskDispenser):
                 return all_categories
         return all_categories
 
-    def get_course_grade(self, username):
+    def get_course_grades(self, usernames):
         """ Returns the grade of a user for the current course"""
-        task_list = self.get_user_task_list([username])[username]
+        taskids = list(self._task_list_func().keys())
+        task_list = self.get_accessibilities(taskids, usernames)
         user_tasks = self._database.user_tasks.find(
-            {"username": username, "courseid": self._course_id, "taskid": {"$in": task_list}})
-        return get_course_grade_weighted_sum(user_tasks, task_list, self.get_weight)
+            {"username": {"$in": usernames}, "courseid": self._course_id, "taskid": {"$in": taskids}})
+
+        tasks_weight = {taskid: self.get_weight(taskid) for taskid in taskids}
+        tasks_scores = {username: [0.0, 0.0] for username in usernames}
+
+        for user_task in user_tasks:
+            username = user_task["username"]
+            if task_list[username][user_task["taskid"]].after_start():
+                weighted_score = user_task["grade"] * tasks_weight[user_task["taskid"]]
+                tasks_scores[username][0] += weighted_score
+                tasks_scores[username][1] += tasks_weight[user_task["taskid"]]
+
+        return {username: round(tasks_scores[username][0]/tasks_scores[username][1])
+                if tasks_scores[username][1] > 0 else 0 for username in usernames}
 
     def get_dispenser_data(self):
         """ Returns the task dispenser data structure """

@@ -216,27 +216,3 @@ def check_task_config(data):
         return True, ''
     except Exception as ex:
         return False, str(ex)
-
-
-def get_course_grade_weighted_sum(user_tasks, task_list, get_weight):
-    """
-    Returns the course grade following a weighted sum
-    :param user_tasks: the user tasks as in the database
-    :param task_list: the list of tasks for a user
-    :param get_weight: a function that take a taskid as input and returns the weight for that taskid
-    :returns: the value of the grade
-    """
-    tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
-    tasks_score = [0.0, 0.0]
-
-    for taskid in task_list:
-        tasks_score[1] += get_weight(taskid)
-
-    for user_task in user_tasks:
-        tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
-        tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
-
-        weighted_score = user_task["grade"]*get_weight(user_task["taskid"])
-        tasks_score[0] += weighted_score
-
-    return round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0

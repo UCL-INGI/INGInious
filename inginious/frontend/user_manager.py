@@ -609,6 +609,7 @@ class UserManager:
         retval = {username: {"task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
 
         users_tasks_list = course.get_task_dispenser().get_user_task_list(usernames)
+        users_grade = course.get_task_dispenser().get_course_grades(usernames)
 
         for result in data:
             username = result["_id"]
@@ -617,7 +618,7 @@ class UserManager:
             result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if
                                      dg["taskid"] in visible_tasks}
 
-            result["grade"] = course.get_task_dispenser().get_course_grade(username)
+            result["grade"] = users_grade[username]
             retval[username] = result
 
         return retval
