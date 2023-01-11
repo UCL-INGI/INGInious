@@ -1,6 +1,7 @@
-FROM ubuntu:22.04
+FROM rockylinux:8
 
-RUN apt-get update && apt-get -y install python3 python3-pip
+RUN dnf update -y && dnf install -y python39 python39-pip
+RUN pip3 install importlib-metadata
 
 WORKDIR /inginious
 COPY inginious/common/ inginious/common/
