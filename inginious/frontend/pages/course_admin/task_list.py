@@ -7,6 +7,7 @@ import json
 import logging
 import flask
 from collections import OrderedDict
+from natsort import natsorted
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -98,10 +99,10 @@ class CourseTaskListPage(INGIniousAdminPage):
             except Exception as inst:
                 errors.append({"taskid": taskid, "error": str(inst)})
 
-        tasks_data = OrderedDict()
-        for taskid in tasks:
-            tasks_data[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()),
-                              "url": self.submission_url_generator(taskid)}
+        tasks_data = natsorted([(taskid, {"name": tasks[taskid].get_name(self.user_manager.session_language()),
+                                       "url": self.submission_url_generator(taskid)}) for taskid in tasks],
+                            key=lambda x: x[1]["name"])
+        tasks_data = OrderedDict(tasks_data)
 
         task_dispensers = self.course_factory.get_task_dispensers()
 
