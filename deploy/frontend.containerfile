@@ -9,4 +9,6 @@ RUN dnf install -y git gcc python39-devel
 COPY deploy/frontend.setup setup.py
 RUN pip3 install .
 
-CMD ["sh", "-c", "python3 inginious-webapp"]
+COPY deploy/db_setup.py /tmp/db_setup.py
+
+CMD ["sh", "-c", "python3 /tmp/db_setup.py; python3 inginious-webapp"]
