@@ -38,6 +38,23 @@ Simply run:
 
 And access http://localhost:9000 in your browser.
 
+*The default user and login are "superadmin".*
+
+You can add new courses to your fresh INGInious instance by installing them in the "tasks" folder.
+
+For example, the INGInious tutorial course is installed with the following commands:
+
+.. code-block::
+
+   $ git clone https://github.com/UCL-INGI/INGInious-demo-tasks.git
+   $ mv INGInious-demo-tasks/tutorial tasks/
+
+*If you encounter permission errors, you should run the following command:*
+
+.. code-block::
+
+   $ sudo chown -R <your_user>:<your_user> tasks
+
 Documentation
 -------------
 
