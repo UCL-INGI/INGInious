@@ -27,6 +27,17 @@ INGInious can be used as an external grader for EDX. The course `Paradigms of Co
 .. _Docker: https://www.docker.com/
 .. _Paradigms of Computer Programming - Fundamentals: https://www.edx.org/course/louvainx/louvainx-louv1-1x-paradigms-computer-2751
 
+How to install?
+---------------
+
+Simply run:
+
+.. code-block::
+
+   $ docker-compose up --build
+
+And access http://localhost:9000 in your browser.
+
 Documentation
 -------------
 
