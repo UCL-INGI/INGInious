@@ -5,11 +5,13 @@
 
 from random import Random
 from inginious.frontend.task_dispensers.toc import TableOfContents
-from inginious.frontend.task_dispensers.util import SectionConfigItem
+from inginious.frontend.task_dispensers.util import SectionConfigItem, Weight, SubmissionStorage, EvaluationMode, \
+    Categories, SubmissionLimit, Accessibility
 from inginious.frontend.accessible_time import AccessibleTime
 
 
 class CombinatoryTest(TableOfContents):
+    config_items = [Weight, SubmissionStorage, EvaluationMode, Categories, SubmissionLimit, Accessibility]
 
     @classmethod
     def get_id(cls):
@@ -19,18 +21,21 @@ class CombinatoryTest(TableOfContents):
     def get_name(cls, language):
         return _("Combinatory test")
 
+    def get_group_submission(self, taskid):
+        return False
+
     def get_accessibilities(self, taskids, usernames):
         result = {username: {taskid: AccessibleTime(False) for taskid in taskids} for username in usernames}
         for index, section in enumerate(self._toc):
             task_list = [taskid for taskid in section.get_tasks()
-                         if AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False)).after_start()]
+                         if AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {}))).after_start()]
             amount_questions = int(section.get_config().get("amount", 0))
             for username in usernames:
                 rand = Random("{}#{}#{}".format(username, index, section.get_title()))
                 random_order_choices = task_list.copy()
                 rand.shuffle(random_order_choices)
                 for taskid in random_order_choices[0:amount_questions]:
-                    result[username][taskid] = AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
+                    result[username][taskid] = AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {})))
 
         return result
 
@@ -40,7 +45,8 @@ class CombinatoryTest(TableOfContents):
             "amount": SectionConfigItem(_("Amount of tasks to be displayed"), "number", 0)
         }
         return template_helper.render("course_admin/task_dispensers/combinatory_test.html", course=course,
-                                      course_structure=self._toc, tasks=task_data, config_fields=config_fields)
+                                      course_structure=self._toc, tasks=task_data, config_fields=config_fields,
+                                      config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""

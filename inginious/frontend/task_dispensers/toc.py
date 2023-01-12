@@ -6,13 +6,17 @@
 import json
 from collections import OrderedDict
 
+from functools import reduce
+from operator import concat
 from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_config, check_task_config,\
-    SectionsList, SectionConfigItem
+    SectionsList, SectionConfigItem, GroupSubmission, Weight, SubmissionStorage, EvaluationMode, Categories, \
+    SubmissionLimit, Accessibility
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
 
 
 class TableOfContents(TaskDispenser):
+    config_items = [Weight, SubmissionStorage, EvaluationMode, GroupSubmission, Categories, SubmissionLimit, Accessibility]
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         # Check dispenser data structure
@@ -23,7 +27,7 @@ class TableOfContents(TaskDispenser):
         TaskDispenser.__init__(self, task_list_func, dispenser_data, database, course_id)
         self._toc = SectionsList(dispenser_data.get("toc", {}))
         self._task_config = dispenser_data.get("config", {})
-        parse_tasks_config(self._task_config)
+        parse_tasks_config(self.config_items, self._task_config)
 
     @classmethod
     def get_id(cls):
@@ -37,28 +41,28 @@ class TableOfContents(TaskDispenser):
 
     def get_weight(self, taskid):
         """ Returns the weight of taskid """
-        return self._task_config.get(taskid, {}).get("weight", 1)
+        return Weight.get_value(self._task_config.get(taskid, {}))
 
     def get_no_stored_submissions(self,taskid):
         """Returns the maximum stored submission specified by the administrator"""
-        return self._task_config.get(taskid, {}).get("no_stored_submissions", 0)
+        return SubmissionStorage.get_value(self._task_config.get(taskid, {}))
 
     def get_evaluation_mode(self,taskid):
         """Returns the evaluation mode specified by the administrator"""
-        return self._task_config.get(taskid, {}).get("evaluation_mode", "best")
+        return EvaluationMode.get_value(self._task_config.get(taskid, {}))
 
     def get_submission_limit(self, taskid):
         """ Returns the submission limits et for the task"""
-        return self._task_config.get(taskid, {}).get("submission_limit",  {"amount": -1, "period": -1})
+        return SubmissionLimit.get_value(self._task_config.get(taskid, {}))
 
     def get_group_submission(self, taskid):
         """ Indicates if the task submission mode is per groups """
-        return self._task_config.get(taskid, {}).get("group_submission", False)
+        return GroupSubmission.get_value(self._task_config.get(taskid, {}))
 
     def get_accessibilities(self, taskids, usernames):
         """  Get the accessible time of this task """
-        return {username: {taskid: AccessibleTime(self._task_config.get(taskid, {}).get("accessible", False))
-                             for taskid in taskids } for username in usernames}
+        return {username: {taskid: AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {})))
+                           for taskid in taskids } for username in usernames}
 
     def get_deadline(self, taskid, username):
         """ Returns a string containing the deadline for this task """
@@ -73,22 +77,12 @@ class TableOfContents(TaskDispenser):
 
     def get_categories(self, taskid):
         """Returns the categories specified for the taskid by the administrator"""
-        return self._task_config.get(taskid, {}).get("categories", [])
+        return Categories.get_value(self._task_config.get(taskid, {}))
 
     def get_all_categories(self):
         """Returns the categories specified by the administrator"""
-        tasks = self._toc.get_tasks()
-        all_categories = []
-        for task in tasks:
-            try:
-                struct = self._toc.to_structure()
-                for elem in struct:
-                    categories = self._toc.get_value_rec(task, elem, "categories")
-                    if categories is not None:
-                        all_categories += categories
-            except:
-                return all_categories
-        return all_categories
+        taskids = self._toc.get_tasks()
+        return set(reduce(concat, [self.get_categories(taskid) for taskid in taskids]))
 
     def get_course_grades(self, usernames):
         """ Returns the grade of a user for the current course"""
@@ -120,7 +114,8 @@ class TableOfContents(TaskDispenser):
             "closed": SectionConfigItem(_("Closed by default"), "checkbox", False)
         }
         return template_helper.render("course_admin/task_dispensers/toc.html", course=course,
-                                      course_structure=self._toc, tasks=task_data, config_fields=config_fields)
+                                      course_structure=self._toc, tasks=task_data, config_fields=config_fields,
+                                      config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
@@ -132,7 +127,7 @@ class TableOfContents(TaskDispenser):
         new_toc = json.loads(dispenser_data)
         valid, errors = check_toc(new_toc.get("toc", {}))
         if valid:
-            valid, errors = check_task_config(new_toc.get("config", {}))
+            valid, errors = check_task_config(self.config_items, new_toc.get("config", {}))
         return new_toc if valid else None, errors
 
     def get_ordered_tasks(self):

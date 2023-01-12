@@ -1,0 +1,19 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="mt-3">{{_("Evaluation submission")}}</div>
+<div class="evaluation_submission">
+    {% set evaluation_value = course.get_task_dispenser().get_evaluation_mode(taskid) %}
+    <label>
+        <input type="radio" value="best" class="evaluation_submission" name="evaluation_submission_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if evaluation_value == "best" }} />
+        {{ _("Best submission") }}
+    </label><br/>
+    <div class="row">
+        <div>
+            <label class="col-xs-12 col-lg-12">
+                <input type="radio" value="last" class="evaluation_submission" name="evaluation_submission_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if evaluation_value == "last" }} />
+                {{ _("Last submission") }}
+            </label>
+        </div>
+    </div>
+</div>

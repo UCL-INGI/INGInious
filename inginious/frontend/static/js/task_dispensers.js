@@ -384,7 +384,7 @@ function dispenser_util_get_section_config(element) {
     return config_list;
 }
 
-function dispenser_util_get_weights(tasks_id) {
+function dispenser_util_get_weight(tasks_id) {
     $(".weight").each(function(){
         if(this.name in tasks_id){
             if(this.value === ""){
@@ -459,18 +459,18 @@ function dispenser_util_get_group_submission(tasks_id){
     });}
 
 function dispenser_util_get_accessibility(tasks_id) {
-    $(".accessible").each(function (){
+    $(".accessibility").each(function (){
         const taskid = this.id;
         if(taskid in tasks_id && $(this).prop("checked")) {
             if(this.value === "true")
-                tasks_id[taskid]["accessible"] = true;
+                tasks_id[taskid]["accessibility"] = true;
             else if(this.value === "false")
-                tasks_id[taskid]["accessible"] = false;
+                tasks_id[taskid]["accessibility"] = false;
             else {
-                const accessible_start = $("#accessible_start_" + taskid).val();
-                const accessible_end = $("#accessible_end_" + taskid).val();
-                const accessible_soft_end = $("#accessible_soft_end_" + taskid).val();
-                tasks_id[taskid]["accessible"] = accessible_start + '/' + accessible_soft_end + '/' + accessible_end;
+                const accessibility_start = $("#accessibility_start_" + taskid).val();
+                const accessibility_end = $("#accessibility_end_" + taskid).val();
+                const accessibility_soft_end = $("#accessibility_soft_end_" + taskid).val();
+                tasks_id[taskid]["accessibility"] = accessibility_start + '/' + accessibility_soft_end + '/' + accessibility_end;
             }
         }
     });
@@ -510,18 +510,14 @@ function dispenser_add_task(taskid) {
 }
 
 function dispenser_util_get_task_config() {
-    var tasks_config = {};
+    let tasks_config = {};
     dispenser_util_get_tasks_list($('#course_structure .content')).forEach(function (elem) {
         tasks_config[elem] = {};
     });
 
-    dispenser_util_get_weights(tasks_config);
-    dispenser_util_get_no_stored_submissions(tasks_config);
-    dispenser_util_get_evaluation_mode(tasks_config);
-    dispenser_util_get_submission_limit(tasks_config);
-    dispenser_util_get_categories(tasks_config);
-    dispenser_util_get_group_submission(tasks_config);
-    dispenser_util_get_accessibility(tasks_config);
+    for(const config_func of task_config_funcs) {
+        config_func(tasks_config);
+    }
 
     return tasks_config;
 }

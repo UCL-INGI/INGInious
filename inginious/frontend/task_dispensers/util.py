@@ -2,15 +2,208 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from inginious.common.base import id_checker
 from inginious.frontend.accessible_time import AccessibleTime
 
 SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type', 'default'])
 
+
+class TaskConfigItem(metaclass=ABCMeta):
+
+    @classmethod
+    @abstractmethod
+    def get_template(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_id(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_name(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_value(cls, task_config):
+        pass
+
+
+class GroupSubmission(TaskConfigItem):
+    default = False
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/groups.html"
+
+    @classmethod
+    def get_id(cls):
+        return "group_submission"
+
+    @classmethod
+    def get_name(cls):
+        return _("Submission mode")
+
+    @classmethod
+    def get_value(cls, task_config):
+        group_submission = task_config.get(cls.get_id(), cls.default)
+        if not type(group_submission) == bool:
+            raise InvalidTocException("Invalid submission mode")
+        return group_submission
+
+
+class Weight(TaskConfigItem):
+    default = 1
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/weight.html"
+
+    @classmethod
+    def get_id(cls):
+        return "weight"
+
+    @classmethod
+    def get_name(cls):
+        return _("Weight")
+
+    @classmethod
+    def get_value(cls, task_config):
+        weight = task_config.get(cls.get_id(), cls.default)
+        if not (type(weight) == float or type(weight) == int):
+            raise InvalidTocException("The weight value must be a numeric >= 0 ")
+        elif weight < 0:
+            raise InvalidTocException("The weight value must be a numeric >= 0")
+        return weight
+
+
+class SubmissionStorage(TaskConfigItem):
+    default = 0
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/submission_storage.html"
+
+    @classmethod
+    def get_id(cls):
+        return "no_stored_submissions"
+
+    @classmethod
+    def get_name(cls):
+        return _("Submission storage")
+
+    @classmethod
+    def get_value(cls, task_config):
+        no_stored_submissions = task_config.get(cls.get_id(), cls.default)
+        if not type(no_stored_submissions) == int:
+            raise InvalidTocException("The store submission must be an integer > 1 ")
+        elif no_stored_submissions < 0:
+            raise InvalidTocException("The store submission must be an integer > 1")
+        return no_stored_submissions
+
+
+class EvaluationMode(TaskConfigItem):
+    default = "best"
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/evaluation_mode.html"
+
+    @classmethod
+    def get_id(cls):
+        return "evaluation_mode"
+
+    @classmethod
+    def get_name(cls):
+        return _("Evaluation mode")
+
+    @classmethod
+    def get_value(cls, task_config):
+        evaluation_mode = task_config.get(cls.get_id(), cls.default)
+        if evaluation_mode != "best" and evaluation_mode != "last":
+            raise InvalidTocException("The evaluation mode must be either best or last but is " + str(evaluation_mode))
+        return evaluation_mode
+
+
+class Categories(TaskConfigItem):
+    default = []
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/categories.html"
+
+    @classmethod
+    def get_id(cls):
+        return "categories"
+
+    @classmethod
+    def get_name(cls):
+        return _("Categories")
+
+    @classmethod
+    def get_value(cls, task_config):
+        categories = task_config.get(cls.get_id(), cls.default)
+        if "" in categories:
+            raise InvalidTocException("All categories must have a name but are :" + str(categories))
+        return categories
+
+
+class SubmissionLimit(TaskConfigItem):
+    default = {"amount": -1, "period": -1}
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/submission_limit.html"
+
+    @classmethod
+    def get_id(cls):
+        return "submission_limit"
+
+    @classmethod
+    def get_name(cls):
+        return _("Submission limit")
+
+    @classmethod
+    def get_value(cls, task_config):
+        submission_limit = task_config.get(cls.get_id(), cls.default)
+        if not type(submission_limit["amount"]) == int or not type(submission_limit["period"]) == int:
+            raise InvalidTocException("Invalid submission limit")
+        elif submission_limit["amount"] < -1 or submission_limit["period"] < -1:
+            raise InvalidTocException("Submission limit values must be higher than or equal to -1")
+        return submission_limit
+
+
+class Accessibility(TaskConfigItem):
+    default = False
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/accessibility.html"
+
+    @classmethod
+    def get_id(cls):
+        return "accessibility"
+
+    @classmethod
+    def get_name(cls):
+        return _("Accessibility")
+
+    @classmethod
+    def get_value(cls, task_config):
+        accessibility = task_config.get(cls.get_id(), cls.default)
+        try:
+            AccessibleTime(accessibility)
+        except Exception as message:
+            raise InvalidTocException("Invalid task accessibility : {}".format(message))
+        return accessibility
+
+
 class InvalidTocException(Exception):
     pass
-
 
 class SectionsList(object):
     """ A list of section for a course structure """
@@ -148,71 +341,29 @@ def check_toc(toc):
     return True, "Valid TOC"
 
 
-def parse_tasks_config(data):
+def parse_tasks_config(config_items, data):
     """
     Parse the task settings and modify data to set default values if needed
     :param data: the raw content of the task settings
     """
     for taskid, structure in data.items():
 
-        # Weight
-        weight = structure.get("weight", 1)
-        if not (type(weight) == float or type(weight) == int):
-            raise InvalidTocException("The weight value must be a numeric >= 0 for the task: " + str(taskid))
-        elif weight < 0:
-            raise InvalidTocException("The weight value must be a numeric >= 0 for the task: " + str(taskid))
-        else:
-            structure["weight"] = weight
-
-        # Number of stored submission
-        no_stored_submissions = structure.get("no_stored_submissions", 0)
-        if not type(no_stored_submissions) == int:
-            raise InvalidTocException("The store submission must be an integer > 1 for the task: " + str(taskid))
-        elif no_stored_submissions < 0:
-            raise InvalidTocException("The store submission must be an integer > 1 for the task: " + str(taskid))
-        else:
-            structure["no_stored_submissions"] = no_stored_submissions
-
-        evaluation_mode = structure.get("evaluation_mode", "best")
-        if evaluation_mode != "best" and evaluation_mode != "last":
-            raise InvalidTocException("The evaluation mode must be either best or last for the task: '"
-                                      + str(taskid)) + "' but is " + str(evaluation_mode)
-        structure["evaluation_mode"] = evaluation_mode
-
-        submission_limit = structure.get("submission_limit", {"amount": -1, "period": -1})
-        if not type(submission_limit["amount"]) == int or not type(submission_limit["period"]) == int:
-            raise InvalidTocException("Invalid submission limit for task: " + str(taskid))
-        elif submission_limit["amount"] < -1 or submission_limit["period"] < -1:
-            raise InvalidTocException("Submission limit values must be higher than or equal to -1 for task: " + str(taskid))
-        structure["submission_limit"] = submission_limit
-
-        group_submission = structure.get("group_submission", False)
-        if not type(group_submission) == bool:
-            raise InvalidTocException("Invalid submission mode for task: " + str(taskid))
-        structure["group_submission"] = group_submission
-
-        categories = structure.get("categories", [])
-        if "" in categories:
-            raise InvalidTocException("The category must have a name for the task: '"
-                                      + str(taskid) + "' but is " + str(categories))
-        structure["categories"] = categories
-
-        accessible = structure.get("accessible", False)
         try:
-            AccessibleTime(accessible)
-        except Exception as message:
-            raise InvalidTocException(
-                "Invalid task accessibility ({}) for the task: {}".format(message, taskid))
-        structure["accessible"] = accessible
+            for config_item in config_items:
+                id = config_item.get_id()
+                structure[id] = config_item.get_value(structure)
+        except Exception as ex:
+            raise InvalidTocException("In taskid {} : {}".format(taskid, str(ex)))
 
-def check_task_config(data):
+
+def check_task_config(config_items, data):
     """
 
     :param data: the raw content of the task settings
     :return:  (True, '') if the settings are valid or (False, The error message) otherwise
     """
     try:
-        parse_tasks_config(data)
+        parse_tasks_config(config_items, data)
         return True, ''
     except Exception as ex:
         return False, str(ex)
