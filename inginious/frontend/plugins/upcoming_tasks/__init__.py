@@ -15,9 +15,11 @@ from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 
 PATH_TO_PLUGIN = os.path.abspath(os.path.dirname(__file__))
 
+
 def menu(template_helper):
     """ Displays the link to the board on the main page, if the plugin is activated """
     return template_helper.render("main_menu.html", template_folder=PATH_TO_PLUGIN + '/templates/')
+
 
 class StaticMockPage(INGIniousPage):
     """ MockPage based on auto-evaluation plugin structure """
@@ -58,7 +60,6 @@ class UpComingTasksBoard(INGIniousAuthPage):
         open_courses = {courseid: course for courseid, course in all_courses.items()
                         if self.user_manager.course_is_open_to_user(course, username, False) and
                         self.user_manager.course_is_user_registered(course, username)}
-        open_courses = OrderedDict(sorted(iter(open_courses.items()), key=lambda x: x[1].get_name(self.user_manager.session_language())))
 
         # Get last submissions for left panel
         last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": {"$in": list(open_courses.keys())}})
@@ -73,18 +74,25 @@ class UpComingTasksBoard(INGIniousAuthPage):
         # Get the courses tasks, remove finished ones and courses that have no available unfinished tasks with upcoming deadline in range
         tasks_data = {}
         succeeded_courses = []
+        all_accessibilities = {}
+        all_tasks = {courseid: course.get_tasks() for courseid, course in open_courses.items()}
+
         for courseid, course in open_courses.items():
-            tasks = course.get_tasks()
-            task_dispenser = course.get_task_dispenser()
-            outdated_tasks = [taskid for taskid, task in tasks.items() if (not task_dispenser.get_accessibility(taskid, username).is_open()) or ((task_dispenser.get_accessibility(taskid, username).get_soft_end_date()) > (datetime.now()+timedelta(days=time_planner)))]
-            new_user_task_list = task_dispenser.get_user_task_list([username])[username]
-            new_user_task_list = [task_id for task_id in new_user_task_list if task_id not in outdated_tasks]
+            tasks = all_tasks[courseid]
+            accessibilities = course.get_task_dispenser().get_accessibilities(tasks.keys(), [username])[username]
+            accessibilities = OrderedDict(sorted(accessibilities.items(), key=lambda x: x[1].get_soft_end_date()))
+            all_accessibilities[courseid] = accessibilities
+
+            outdated_tasks = [taskid for taskid, accessibility in accessibilities.items() if (not accessibility.is_open()) or ((accessibility.get_soft_end_date()) > (datetime.now()+timedelta(days=time_planner)))]
+            new_user_task_list = [taskid for taskid, accessibility in accessibilities.items() if accessibility.after_start() and taskid not in outdated_tasks]
+
             tasks_data[courseid] = {taskid: {"succeeded": False, "grade": 0.0} for taskid in new_user_task_list}
             user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": new_user_task_list}})
             for user_task in user_tasks:
                 if not user_task["succeeded"]:
                     tasks_data[courseid][user_task["taskid"]]["succeeded"] = user_task["succeeded"]
                     tasks_data[courseid][user_task["taskid"]]["grade"] = user_task["grade"]
+
                 else:
                     del tasks_data[courseid][user_task["taskid"]]
             # Remove courses with no unfinished available tasks with deadline and lti courses
@@ -95,25 +103,20 @@ class UpComingTasksBoard(INGIniousAuthPage):
         for succeeded_course in succeeded_courses:
             del open_courses[succeeded_course]
 
+        sorted_tasks = {courseid: OrderedDict(
+            [(taskid, all_tasks[courseid][taskid]) for taskid, accessibility in all_accessibilities[courseid].items() if
+             taskid in tasks_data[courseid]]) for courseid in open_courses}
+
         # Sort the courses based on the most urgent task for each course
-        open_courses = OrderedDict( sorted(iter(open_courses.items()), key=lambda x: x[1].get_task_dispenser().get_accessibility((sort_by_deadline(x[1], tasks_data[x[0]].keys())[0], username).get_id(), username).get_soft_end_date() ))
+        open_courses = OrderedDict(sorted(list(open_courses.items()), key=lambda x: all_accessibilities[x[0]][list(sorted_tasks[x[0]].keys())[0]].get_soft_end_date()))
 
         return self.template_helper.render("coming_tasks.html",
                                            template_folder=PATH_TO_PLUGIN + "/templates/",
                                            open_courses=open_courses,
                                            tasks_data=tasks_data,
-                                           sorting_method=sort_by_deadline,
+                                           sorted_tasks=sorted_tasks,
                                            time_planner=["7", "14", "30", "unlimited"],
                                            submissions=except_free_last_submissions)
-
-
-def sort_by_deadline(course, user_urgent_task_list, username):
-    """ Given a course (object) and a list of user urgent tasksid,
-    returns the list of urgent tasks (objects) for that course ordered based on deadline """
-    course_tasks = course.get_tasks()
-    course_user_urgent_task_list = list(set(course_tasks).intersection(user_urgent_task_list))
-    ordered_tasks = sorted(course_user_urgent_task_list, key=lambda x: course.get_task_dispenser.get_accessibility(x, username).get_soft_end_date())
-    return [course_tasks[taskid] for taskid in ordered_tasks]
 
 
 def init(plugin_manager, _, _2, config):

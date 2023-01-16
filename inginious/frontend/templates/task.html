@@ -31,7 +31,14 @@
             {% endif %}">
                 <td>{{ _("Deadline") }}</td>
                 <td>
-                    {{ task_dispenser.get_deadline(task.get_id(), user_manager.session_username()) }}
+                    {% set accessibility = task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()) %}
+                    {% if accessibility.is_always_accessible() %}
+                        {{ _("No deadline") }}
+                    {% elif accessibility.is_never_accessible() %}
+                        {{ _("It's too late") }}
+                    {% else %}
+                        {{ accessibility.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S") }}
+                    {% endif %}
                 </td>
             </tr>
         {% endif %}

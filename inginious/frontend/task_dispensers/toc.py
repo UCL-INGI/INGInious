@@ -64,17 +64,6 @@ class TableOfContents(TaskDispenser):
         return {username: {taskid: AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {})))
                            for taskid in taskids } for username in usernames}
 
-    def get_deadline(self, taskid, username):
-        """ Returns a string containing the deadline for this task """
-        accessible_time = self.get_accessibility(taskid, username)
-        if accessible_time.is_always_accessible():
-            return _("No deadline")
-        elif accessible_time.is_never_accessible():
-            return _("It's too late")
-        else:
-            # Prefer to show the soft deadline rather than the hard one
-            return accessible_time.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
-
     def get_categories(self, taskid):
         """Returns the categories specified for the taskid by the administrator"""
         return Categories.get_value(self._task_config.get(taskid, {}))

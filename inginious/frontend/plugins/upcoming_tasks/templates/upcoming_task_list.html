@@ -5,9 +5,11 @@
 {% set task_dispenser = course.get_task_dispenser() %}
 
 <div id="course" class="section tasks_list card mb-4">
-
+    <div class="card-header">
+        {{ course.get_name(user_manager.session_language()) }}
+    </div>
     <div class="content list-group list-group-flush tasks-list">
-        {% for task in tasks %}
+        {% for taskid, task in tasks.items() %}
             {% set taskid = task.get_id() %}
             {% if taskid in tasks_data %}
                 {% set succeeded = tasks_data[taskid]["succeeded"] %}
@@ -15,16 +17,15 @@
                 <a href="{{ get_homepath() }}/course/{{course.get_id()}}/{{taskid}}" class="list-group-item list-group-item-action
                     {% if not task_dispenser.get_accessibility(task.get_id(),user_manager.session_username()).is_open() %} disabled {% endif %}">
                     <div class="row">
-                        <div class="col-xs-12 col-md-7 pl-1">
-                            <i style="color: {% if succeeded %}#468847{% else %}transparent{% endif %};" class="fa fa-check"></i>
+                        <div class="col-xs-12 col-md-7">
                             {{ task.get_name(user_manager.session_language()) }}
-                            {% if not task_dispenser.get_accessibility(taskid).is_open() %}
-                                - <b> {{ _("deadline reached") }} </b>
-                            {% endif %}
-                            </div>
+                        </div>
                         <div class="col-xs-12 col-md-5">
                             {{ "DEADLINE: "}}
-                            <b> {{ task_dispenser.get_deadline(taskid, user_manager.session_username()) }} </b>
+                            <b>
+                                {% set accessibility = task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()) %}
+                                {{ accessibility.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S") }}
+                            </b>
                         </div>
                         <div class="col-xs-12 col-md-5">
                             {% if registered %}
@@ -35,12 +36,6 @@
                                 </div>
                             {% endif %}
                         </div>
-                    </div>
-					
-                    <div id="tags_of_task" style="display:none;">
-                        {% for category in course.get_task_dispenser().get_categories(task.get_id()) %}
-                            <div id="tag" data-tag-name="{{ category }}"></div>
-                        {% endfor %}
                     </div>
                 </a>
             {% endif %}
