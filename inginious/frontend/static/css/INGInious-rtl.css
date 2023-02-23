@@ -393,7 +393,7 @@ body {
 }
 .breadcrumb .breadcrumb-item:before {
   font: normal normal normal 24px/1 FontAwesome;
-  content: "\f105";
+  content: "\f104";
   color: #333;
   position: absolute;
   font-size: 2em;
@@ -406,7 +406,7 @@ body {
   color: #333;
   padding-left: 1rem;
   font-size: 1.1em;
-  margin-right: 0px;
+  margin-right: 10px;
 }
 .breadcrumb .breadcrumb-item a:hover {
   text-decoration: none;

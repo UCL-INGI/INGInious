@@ -7,6 +7,9 @@
 @sidebar-open-state-medium: 1;
 @sidebar-open-state-small: 1;
 
+@breadcrumb-content : "\f105";
+@breadcrumb-a-right-m: 0px;
+
 @import "common.less";
 
 /*Task debug modal*/
@@ -60,7 +63,7 @@
 
         &:before {
             font: normal normal normal 24px/1 FontAwesome;
-            content: "\f105";
+            content: @breadcrumb-content;
             color: #333;
             position: absolute;
             font-size: 2em;
@@ -75,6 +78,7 @@
             color: #333;
             padding-left: 1rem;
             font-size: 1.1em;
+            margin-right: @breadcrumb-a-right-m;
 
             &:hover {
                 text-decoration: none;
