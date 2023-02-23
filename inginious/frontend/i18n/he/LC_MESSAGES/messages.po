@@ -3503,3 +3503,6 @@ msgstr "גודל קבצים מרבי:"
 #: inginious/frontend/templates/tasks/file.html:23
 msgid "Allowed extensions:"
 msgstr "הרחבות מורשות:"
+
+msgid "__is_rtl"
+msgstr "true"
