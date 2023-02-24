@@ -58,7 +58,7 @@
     <form method="post" action="">
     {% for key in course_user_setting_fields %}
         <div class="form-group row">
-            <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ key }}</label>
+            <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ course_user_setting_fields[key].get_description() }}</label>
             {% if  course_user_setting_fields[key].get_type_name() == 'BOOLEAN' %}
                 <label><input class="" type="checkbox" id="{{ key }}" name="{{ key }}" {% if course_user_settings[key]%} checked {% endif %}>{{ course_user_setting_fields[key].get_description() }}</label>
             {% else %}
