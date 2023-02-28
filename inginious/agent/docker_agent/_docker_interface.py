@@ -57,7 +57,7 @@ class DockerInterface(object):  # pragma: no cover
             title = None
             try:
                 title = x.labels["org.inginious.grading.name"]
-                created = datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
+                created = x.history()[0]['Created']
                 ports = [int(y) for y in x.labels["org.inginious.grading.ports"].split(
                     ",")] if "org.inginious.grading.ports" in x.labels else []
 
