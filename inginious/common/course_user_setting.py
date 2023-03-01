@@ -51,3 +51,14 @@ class CourseUserSetting:
         :return: type of the setting
         """
         return self._type
+
+    def render(self,value):
+        content = "<input id='" + self.get_id() + "' name='" + self.get_id() + "'"
+        if self.get_type_name() == 'BOOLEAN':
+            content += " type='checkbox'"
+            if value:
+                content +=" checked"
+        else:
+            content += " class='form-control' value='{}' type='{}'"\
+                .format(value,'text' if self.get_type_name() != 'INTEGER' else 'number')
+        return content + ">"
