@@ -24,8 +24,11 @@ class TestCourseUserSetting(object):
         af = CourseUserSetting(0, "a description", 1)
         try:
             af = CourseUserSetting("fail", "a description", 99)
+            # if the test arrives here, it is a failure.
+            assert False
         except Exception:
-            assert True
+            # Should pass here everytime after the bad constructor call.
+            pass
 
     def test_course_user_settings_get_id(self, init):
         af = init
