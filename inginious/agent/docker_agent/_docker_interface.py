@@ -62,21 +62,25 @@ class DockerInterface(object):  # pragma: no cover
                     ",")] if "org.inginious.grading.ports" in x.labels else []
 
                 for docker_runtime in runtimes:
-                    if docker_runtime.run_as_root or "org.inginious.grading.need_root" not in x.labels:
-                        logger.info("Envtype %s (%s) can use container %s", docker_runtime.envtype, docker_runtime.runtime, title)
-                        if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
-                            logger.warning(
-                                "Container %s is made for an old/newer version of the agent (container version is "
-                                "%s, but it should be %i). INGInious will ignore the container.", title,
-                                str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
-                            continue
+                    if "org.inginious.grading.need_root" in x.labels and not docker_runtime.run_as_root:
+                        continue
+                    if "org.inginious.grading.need_gpu" in x.labels and not docker_runtime.enables_gpu:
+                        continue
 
-                        images[docker_runtime.envtype][x.attrs['Id']] = {
-                            "title": title,
-                            "created": created,
-                            "ports": ports,
-                            "runtime": docker_runtime.runtime
-                        }
+                    logger.info("Envtype %s (%s) can use container %s", docker_runtime.envtype, docker_runtime.runtime, title)
+                    if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
+                        logger.warning(
+                            "Container %s is made for an old/newer version of the agent (container version is "
+                            "%s, but it should be %i). INGInious will ignore the container.", title,
+                            str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
+                        continue
+
+                    images[docker_runtime.envtype][x.attrs['Id']] = {
+                        "title": title,
+                        "created": created,
+                        "ports": ports,
+                        "runtime": docker_runtime.runtime
+                    }
             except:
                 logging.getLogger("inginious.agent").exception("Container %s is badly formatted", title or "[cannot load title]")
 

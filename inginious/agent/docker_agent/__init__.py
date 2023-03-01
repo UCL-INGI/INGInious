@@ -980,9 +980,10 @@ class DockerAgent(Agent):
 
     def _detect_runtimes(self) -> Dict[str, DockerRuntime]:
         heuristic = [
-            ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, shared_kernel=True, envtype="docker")),
-            ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, shared_kernel=True, envtype="docker")),
-            ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, shared_kernel=False, envtype="kata")),
+            ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=False, shared_kernel=True, envtype="docker")),
+            ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=False, shared_kernel=True, envtype="docker")),
+            ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, enables_gpu=False, shared_kernel=False, envtype="kata")),
+            ("nvidia", lambda x: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=True, shared_kernel=True, envtype="nvidia"))
         ]
         retval = {}
 
