@@ -40,11 +40,6 @@
                 <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>
             {% endif %}
         </div>
-        <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
-                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
-            </a>
-        </div>
 
     {% endif %}
     {%if staff %}
@@ -68,6 +63,9 @@
                 {% else %}
                     {{ _("Group management") }}
                 {% endif %}
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
+                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
             </a>
             {% if course.allow_unregister() %}
                 <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-action list-group-item-info">
