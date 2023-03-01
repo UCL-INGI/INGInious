@@ -72,7 +72,8 @@ class CourseUserSettingPage(INGIniousAuthPage):
         """
         try:
             course = self.course_factory.get_course(courseid)
-            return self.user_manager.course_is_user_registered(course, username)
+            return self.user_manager.course_is_user_registered(course, username) \
+                and self.user_manager.course_is_open_to_user(course, lti=False)
         except Exception:
             return False
 
