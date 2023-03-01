@@ -31,17 +31,19 @@ class CourseUserSettingPage(INGIniousAuthPage):
         username = self.user_manager.session_username()
         if not self._is_accessible(courseid, username):
             return self.template_helper.render("course_unavailable.html")
-        course_user_settings = self._sanitize_content(flask.request.form, courseid)
-        if type(course_user_settings)==str:
-            feedback = ("danger",course_user_settings)
+        try:
+            course_user_settings = self._sanitize_content(flask.request.form, courseid)
+        except Exception as e:
+            feedback = ("danger", e)
             current_user = self.database.users.find_one(
                 {"username": username})
             course_user_settings = current_user.get("course_settings", {})
             return self.show_page(courseid, course_user_settings.get(courseid, {}), feedback)
 
-        self.database.users.update_one({"username": username}, {"$set": {"course_settings." + courseid: course_user_settings}})
+        self.database.users.update_one({"username": username},
+                                       {"$set": {"course_settings." + courseid: course_user_settings}})
 
-        return self.show_page(courseid, course_user_settings, ("success","Course settings successfully updated."))
+        return self.show_page(courseid, course_user_settings, ("success", "Course settings successfully updated."))
 
     def show_page(self, courseid, course_user_settings, feedback):
         """
@@ -79,26 +81,26 @@ class CourseUserSettingPage(INGIniousAuthPage):
             Sanitize received data
             :param: data  - A dictionary that normally contains user settings for a course.
             :param: courseid - Id of the course.
-            :return: A sanitized dict or a str feedback if something went wrong.
+            :return: A sanitized dict.
         """
         if not isinstance(data, dict):
-            return "Incorrect type of data."
+            raise TypeError("Incorrect type of data.")
         copied_data = {}
         course = self.course_factory.get_course(courseid)
         add_fields = course.get_course_user_settings()
         for setting in data:
             if setting not in add_fields:
                 # if setting is not expected in the course definition. There is no reason to treat it.
-                return "Unknown field: "+str(setting)
+                raise Exception("Unknown field: " + str(setting))
             try:
                 # try to cast given value to be sure that we match expected type.
                 if add_fields[setting].get_type_name() == "STRING":
-                    casted_value= str(data[setting])
+                    casted_value = str(data[setting])
                 elif add_fields[setting].get_type_name() == "INTEGER":
                     casted_value = int(data[setting])
                 else:
                     casted_value = bool(data[setting])
             except ValueError:
-                return "Wrong value for field: " + str(setting)
+                raise ValueError("Wrong value for field: " + str(setting))
             copied_data[setting] = casted_value
         return copied_data
