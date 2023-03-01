@@ -89,19 +89,14 @@ class CourseUserSettingPage(INGIniousAuthPage):
         copied_data = {}
         course = self.course_factory.get_course(courseid)
         add_fields = course.get_course_user_settings()
-        for setting in data:
-            if setting not in add_fields:
-                # if setting is not expected in the course definition. There is no reason to treat it.
-                raise Exception("Unknown field: " + str(setting))
-            try:
-                # try to cast given value to be sure that we match expected type.
-                if add_fields[setting].get_type_name() == "STRING":
-                    casted_value = str(data[setting])
-                elif add_fields[setting].get_type_name() == "INTEGER":
-                    casted_value = int(data[setting])
-                else:
-                    casted_value = bool(data[setting])
-            except ValueError:
-                raise ValueError("Wrong value for field: " + str(setting))
-            copied_data[setting] = casted_value
+        for field in add_fields:
+            if field not in data:
+                # setup default value.
+                copied_data[field] = add_fields[field].get_cast_type()()
+            else:
+                try:
+                    # try to cast given value to be sure that we match expected type.
+                    copied_data[field] = add_fields[field].get_cast_type()(data[field])
+                except ValueError:
+                    raise ValueError("Wrong value for field: " + str(field))
         return copied_data

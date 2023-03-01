@@ -16,3 +16,7 @@ class FieldTypes(Enum):
     INTEGER = 1
     STRING = 2
     BOOLEAN = 3
+
+    def get_cast_type(self):
+        cast = [None, int, str, bool]
+        return cast[self.value]

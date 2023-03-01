@@ -52,6 +52,9 @@ class CourseUserSetting:
         """
         return self._type
 
+    def get_cast_type(self):
+        return FieldTypes(self._type).get_cast_type()
+
     def render(self,value):
         content = "<input id='" + self.get_id() + "' name='" + self.get_id() + "'"
         if self.get_type_name() == 'BOOLEAN':
