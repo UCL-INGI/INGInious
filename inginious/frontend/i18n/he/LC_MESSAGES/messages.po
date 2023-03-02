@@ -877,7 +877,7 @@ msgstr "‫INGInious‬ | {course}‫ - {task}"
 #: inginious/frontend/plugins/auth/twitter_auth.py:55
 #, python-format
 msgid ""
-"Check out INGInious course {course} and beat my score of {score}% on task "
+"Check out INGInious course {course} and beat my score of {score}%% on task "
 "{task} !"
 msgstr ""
 "הוזמנת לקורס {course} ב־INGInious כדי לנסות לנצח את הניקוד שלי {score}% "
