@@ -366,6 +366,7 @@ class MatchProblem(Problem):
         if not "answer" in content:
             raise Exception("There is no answer in this problem with type==match")
         self._answer = str(content["answer"])
+        self._centralize = content.get("centralize", False)
 
     @classmethod
     def get_type(cls):
@@ -379,12 +380,14 @@ class MatchProblem(Problem):
 
     def check_answer(self, task_input, language):
         if task_input[self.get_id()].strip() == self._answer:
-            return True, None, ["_correct_answer"], 0, ""
+            return True, None, ["_correct_answer"] if not self._centralize else None, 0, ""
         else:
-            return False, None, ["_wrong_answer"], 0, ""
+            return False, None, ["_wrong_answer"]  if not self._centralize else None, 0, ""
 
     @classmethod
     def parse_problem(self, problem_content):
+        if "centralize" in problem_content:
+            problem_content["centralize"] = True
         return Problem.parse_problem(problem_content)
 
     @classmethod
