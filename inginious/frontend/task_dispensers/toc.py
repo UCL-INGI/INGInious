@@ -100,7 +100,8 @@ class TableOfContents(TaskDispenser):
     def render_edit(self, template_helper, course, task_data):
         """ Returns the formatted task list edition form """
         config_fields = {
-            "closed": SectionConfigItem(_("Closed by default"), "checkbox", False)
+            "closed": SectionConfigItem(_("Closed by default"), "checkbox", False),
+            "hidden": SectionConfigItem(_("Hidden by default"),"checkbox",False)
         }
         return template_helper.render("course_admin/task_dispensers/toc.html", course=course,
                                       course_structure=self._toc, tasks=task_data, config_fields=config_fields,
