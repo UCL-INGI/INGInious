@@ -18,9 +18,11 @@ class CourseAdminSearchUserPage(INGIniousAdminPage):
         self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
         request = re.escape(request) # escape for safety. Maybe this is not needed...
-        users = list(self.database.users.find({"$or": [{"username": {"$regex": ".*" + request + ".*", "$options": "i"}},
+        users = list(self.database.users.find({"$and":[{ "activate": { "$exists": False } },
+                                                       {"username":{ "$ne": "" }},
+                                                       {"$or": [{"username": {"$regex": ".*" + request + ".*", "$options": "i"}},
                                                        {"realname": {"$regex": ".*" + request + ".*", "$options": "i"}}
-                                                      ]}, {"username": 1, "realname": 1}).limit(10))
+                                                      ]}]}, {"username": 1, "realname": 1}).limit(10))
         return Response(content_type='text/json; charset=utf-8',response=json.dumps([[
             {'username': entry['username'], 'realname': entry['realname']}
             for entry in users
