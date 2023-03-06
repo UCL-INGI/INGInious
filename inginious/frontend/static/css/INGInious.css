@@ -401,12 +401,13 @@ body {
 }
 .breadcrumb .breadcrumb-item span {
   padding-left: 1rem;
+  padding-right: 0rem;
 }
 .breadcrumb .breadcrumb-item a {
   color: #333;
   padding-left: 1rem;
+  padding-right: 0rem;
   font-size: 1.1em;
-  margin-right: 0px;
 }
 .breadcrumb .breadcrumb-item a:hover {
   text-decoration: none;

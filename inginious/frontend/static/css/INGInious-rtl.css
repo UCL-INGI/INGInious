@@ -400,13 +400,14 @@ body {
   line-height: 23px;
 }
 .breadcrumb .breadcrumb-item span {
-  padding-left: 1rem;
+  padding-left: 0rem;
+  padding-right: 1rem;
 }
 .breadcrumb .breadcrumb-item a {
   color: #333;
-  padding-left: 1rem;
+  padding-left: 0rem;
+  padding-right: 1rem;
   font-size: 1.1em;
-  margin-right: 10px;
 }
 .breadcrumb .breadcrumb-item a:hover {
   text-decoration: none;

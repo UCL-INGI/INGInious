@@ -8,7 +8,8 @@
 @sidebar-open-state-small: 1;
 
 @breadcrumb-content : "\f105";
-@breadcrumb-a-right-m: 0px;
+@breadcrumb-padding-left : 1rem;
+@breadcrumb-padding-right : 0rem;
 
 @import "common.less";
 
@@ -71,14 +72,15 @@
         }
 
         span {
-            padding-left: 1rem;
+            padding-left: @breadcrumb-padding-left;
+            padding-right: @breadcrumb-padding-right;
         }
 
         a {
             color: #333;
-            padding-left: 1rem;
+            padding-left: @breadcrumb-padding-left;
+            padding-right: @breadcrumb-padding-right;
             font-size: 1.1em;
-            margin-right: @breadcrumb-a-right-m;
 
             &:hover {
                 text-decoration: none;
