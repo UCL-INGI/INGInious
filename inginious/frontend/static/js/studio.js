@@ -446,6 +446,8 @@ function studio_init_template_file(well, pid, problem)
  */
 function studio_init_template_match(well, pid, problem)
 {
+    if("centralize" in problem && problem["centralize"])
+        $('#centralize-' + pid, well).attr('checked', true);
     if("answer" in problem)
         $('#answer-' + pid, well).val(problem["answer"]);
 }
