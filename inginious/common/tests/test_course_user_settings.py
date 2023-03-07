@@ -40,7 +40,7 @@ class TestCourseUserSetting(object):
 
     def test_course_user_settings_get_type_name(self, init):
         af = init
-        assert af.get_type_name() == "INTEGER"
+        assert af.get_type_name() == "integer"
 
     def test_course_user_settings_get_type(self, init):
         af = init

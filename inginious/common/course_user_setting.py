@@ -44,7 +44,7 @@ class CourseUserSetting:
         """"
         :return: type name of the setting
         """
-        return FieldTypes(self._type).name
+        return FieldTypes(self._type).name.lower()
 
     def get_type(self):
         """
@@ -55,13 +55,5 @@ class CourseUserSetting:
     def get_cast_type(self):
         return FieldTypes(self._type).get_cast_type()
 
-    def render(self,value):
-        content = "<input id='" + self.get_id() + "' name='" + self.get_id() + "'"
-        if self.get_type_name() == 'BOOLEAN':
-            content += " type='checkbox'"
-            if value:
-                content +=" checked"
-        else:
-            content += " class='form-control' value='{}' type='{}'"\
-                .format(value,'text' if self.get_type_name() != 'INTEGER' else 'number')
-        return content + ">"
+    def render(self,template_helper,value):
+        return template_helper.render("user_settings/"+self.get_type_name()+".html",input_id=self.get_id(),value=value)
