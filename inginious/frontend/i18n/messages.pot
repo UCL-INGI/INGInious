@@ -3412,3 +3412,6 @@ msgstr ""
 msgid "Allowed extensions:"
 msgstr ""
 
+msgid "__is_rtl"
+msgstr ""
+

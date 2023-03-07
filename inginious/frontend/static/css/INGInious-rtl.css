@@ -393,20 +393,20 @@ body {
 }
 .breadcrumb .breadcrumb-item:before {
   font: normal normal normal 24px/1 FontAwesome;
-  content: "\f105";
+  content: "\f104";
   color: #333;
   position: absolute;
   font-size: 2em;
   line-height: 23px;
 }
 .breadcrumb .breadcrumb-item span {
-  padding-left: 1rem;
-  padding-right: 0rem;
+  padding-left: 0rem;
+  padding-right: 1rem;
 }
 .breadcrumb .breadcrumb-item a {
   color: #333;
-  padding-left: 1rem;
-  padding-right: 0rem;
+  padding-left: 0rem;
+  padding-right: 1rem;
   font-size: 1.1em;
 }
 .breadcrumb .breadcrumb-item a:hover {

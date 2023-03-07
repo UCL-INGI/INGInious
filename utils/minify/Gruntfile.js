@@ -31,7 +31,29 @@ module.exports = function(grunt)
                         '../../inginious/frontend/static/js/checked-list-group.js',
                         '../../inginious/frontend/static/js/task_dispensers.js',
                         '../../inginious/frontend/static/js/admin.js'
-                    ]
+                    ],
+                    '../../inginious/frontend/static/js/all-minified-rtl.js': [
+                        '../../inginious/frontend/static/js/libs/jquery.min.js',
+                        '../../inginious/frontend/static/js/libs/jquery.form.min.js',
+                        '../../inginious/frontend/static/js/libs/popper.min.js',
+                        '../../inginious/frontend/static/js/libs/bootstrap-rtl.min.js',
+                        '../../inginious/frontend/static/js/libs/moment.min.js',
+                        '../../inginious/frontend/static/js/libs/bootstrap-datetimepicker.min.js',
+                        '../../inginious/frontend/static/js/libs/Sortable.min.js',
+                        '../../inginious/frontend/static/js/libs/jquery.twbsPagination.min.js',
+                        '../../inginious/frontend/static/js/libs/selectize.min.js',
+                        '../../inginious/frontend/static/js/codemirror/codemirror.js',
+                        '../../inginious/frontend/static/js/codemirror/mode/meta.js',
+                        '../../inginious/frontend/static/js/common.js',
+                        '../../inginious/frontend/static/js/task.js',
+                        '../../inginious/frontend/static/js/webapp.js',
+                        '../../inginious/frontend/static/js/studio.js',
+                        '../../inginious/frontend/static/js/audiences.js',
+                        '../../inginious/frontend/static/js/groups.js',
+                        '../../inginious/frontend/static/js/checked-list-group.js',
+                        '../../inginious/frontend/static/js/task_dispensers.js',
+                        '../../inginious/frontend/static/js/admin.js'
+                     ]
                 }
             }
         },
@@ -42,6 +64,7 @@ module.exports = function(grunt)
             dist: {
                 files: {
                     '../../inginious/frontend/static/js/all-minified.js': ['../../inginious/frontend/static/js/all-minified.js'],
+                    '../../inginious/frontend/static/js/all-minified-rtl.js': ['../../inginious/frontend/static/js/all-minified-rtl.js'],
                 }
             }
         }
