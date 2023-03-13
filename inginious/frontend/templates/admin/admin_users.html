@@ -25,6 +25,13 @@
 {% if feedback %}
     <p>{{feedback}}</p>
 {% endif %}
+<div class="mt-2">
+    <form method="POST">
+        {% with target="users" %}
+            {% include "admin/users_query.html" %}
+        {% endwith %}
+    </form>
+</div>
 <div class="card-deck m-0">
     <table class="table">
         <thead class="table-borderless">

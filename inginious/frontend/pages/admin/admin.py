@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Admin index page"""
+import json
 
 from flask import request, jsonify
 
@@ -23,15 +24,34 @@ class AdministrationUsersPage(INGIniousAdministratorPage):
 
     def show_page(self):
         """Display page"""
-
-        page = int(request.form.get("page")) if request.form.get("page") is not None else 1
-        user_per_page = 10  # TODO probably better to let user define user_per_page
-        all_users = self.user_manager.get_users_info(usernames=None, limit=user_per_page, skip=(page-1)*user_per_page)
-        size_users = self.user_manager.get_users_count()
-        pages = size_users // user_per_page + (size_users % user_per_page > 0) if user_per_page > 0 else 1
-
+        user_input = request.form
+        query = {}
+        if "displayed_selection" in user_input:
+            # Mostly happened when changing page
+            params = json.loads(user_input.get("displayed_selection", ""))
+        else:
+            params={"limit":10,"sort_by":"username","order":1}
+            params.setdefault("username", user_input["username"] if "username" in user_input else "")
+            params.setdefault("membername", user_input["membername"] if "membername" in user_input else "")
+            params.setdefault("email", user_input["email"] if "email" in user_input else "")
+            if "activated" in user_input:
+                params["activated"] = user_input["activated"]
+                query["activate"] = {'$exists': not params["activated"]}
+            if "sort_by" in user_input and "order" in user_input:
+                params["sort_by"]=user_input["sort_by"]
+                params["order"]= int(user_input["order"])
+            if "limit" in user_input:
+                params["limit"] = int(user_input["limit"])
+        query.setdefault("username",{'$regex': f".*{params['username']}.*"})
+        query.setdefault("realname",{'$regex': f".*{params['membername']}.*"})
+        query.setdefault("email",{'$regex': f".*{params['email']}.*"})
+        page = int(user_input.get("page")) if user_input.get("page") is not None else 1
+        usernames = [x['username'] for x in
+                     self.database.users.find(query)]
+        all_users = self.user_manager.get_users_info(usernames=usernames, limit=params["limit"], skip=(page-1)*params["limit"],sort_key=params["sort_by"],order=params["order"])
+        pages = len(usernames) // params["limit"] + (len(usernames) % params["limit"] > 0) if params["limit"] > 0 else 1
         return self.template_helper.render("admin/admin_users.html", all_users=all_users,
-                                           number_of_pages=pages, page_number=page)
+                                           number_of_pages=pages, page_number=page, old_params=params, displayed_selection=json.dumps(params))
 
 
 class AdministrationUserActionPage(INGIniousAdministratorPage):

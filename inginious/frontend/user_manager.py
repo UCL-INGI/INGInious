@@ -340,17 +340,20 @@ class UserManager:
     def get_users_count(self):
         return self._database.users.estimated_document_count()
 
-    def get_users_info(self, usernames, limit=0, skip=0) -> Dict[str, Optional[UserInfo]]:
+    def get_users_info(self, usernames, limit=0, skip=0, sort_key="username", order=1) -> Dict[str, Optional[UserInfo]]:
         """
         :param usernames: a list of usernames
         :param limit A limit of users requested
         :param skip A quantity of users to skip
+        :param sort_key:
+        :param order:
         :return: a dict, in the form {username: val}, where val is either None if the user cannot be found,
         or a UserInfo. If the list of usernames is empty, return an empty dict.
+
         """
         retval = {username: None for username in usernames} if usernames is not None else {}
         query = {"username": {"$in": usernames}} if usernames is not None else {}
-        infos = self._database.users.find(query).skip(skip).limit(limit)
+        infos = self._database.users.find(query).skip(skip).limit(limit).sort(sort_key,order)
 
         retval = {info["username"]: UserInfo(info["realname"], info["email"], info["username"], info["bindings"],
                                              info["language"], "activate" not in info) for info in infos}
