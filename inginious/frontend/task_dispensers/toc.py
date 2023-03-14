@@ -71,7 +71,7 @@ class TableOfContents(TaskDispenser):
     def get_all_categories(self):
         """Returns the categories specified by the administrator"""
         taskids = self._toc.get_tasks()
-        return set(reduce(concat, [self.get_categories(taskid) for taskid in taskids]))
+        return set(reduce(concat, [self.get_categories(taskid) for taskid in taskids])) if len(taskids) else []
 
     def get_course_grades(self, usernames):
         """ Returns the grade of a user for the current course"""
