@@ -53,8 +53,5 @@ function contest_blackout_time()
 }
 
 function dispenser_structure_contest() {
-    return JSON.stringify({
-        "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
-        "config": dispenser_util_get_task_config()
-    });
+    return dispenser_util_structure();
 }

@@ -522,18 +522,19 @@ function dispenser_util_get_task_config() {
     return tasks_config;
 }
 
-function dispenser_structure_toc() {
+function dispenser_util_structure() {
     return JSON.stringify({
         "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
         "config": dispenser_util_get_task_config()
     });
 }
 
+function dispenser_structure_toc() {
+    return dispenser_util_structure();
+}
+
 function dispenser_structure_combinatory_test() {
-    return JSON.stringify({
-        "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
-        "config": dispenser_util_get_task_config()
-    });
+    return dispenser_util_structure();
 }
 
 function dispenser_submit(dispenser_id) {
