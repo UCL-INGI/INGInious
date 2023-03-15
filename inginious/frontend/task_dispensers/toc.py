@@ -101,7 +101,7 @@ class TableOfContents(TaskDispenser):
         """ Returns the formatted task list edition form """
         config_fields = {
             "closed": SectionConfigItem(_("Closed by default"), "checkbox", False),
-            "hidden": SectionConfigItem(_("Hidden if empty"),"checkbox",False)
+            "hidden_if_empty": SectionConfigItem(_("Hidden if empty"),"checkbox",False)
         }
         return template_helper.render("course_admin/task_dispensers/toc.html", course=course,
                                       course_structure=self._toc, tasks=task_data, config_fields=config_fields,
