@@ -262,9 +262,6 @@ class Section(object):
         :return: the config dict of this section
         """
         return self._config
-    @staticmethod
-    def have_accessible_tasks(tasks):
-        return any([task.get_accessible_time().is_open() for task in tasks])
 
 
 class NonTerminalSection(Section):
