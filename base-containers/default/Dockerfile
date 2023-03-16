@@ -2,5 +2,5 @@
 
 #inherit from the base container, which have all the needed script to launch tasks
 ARG   VERSION=latest
-FROM  ingi/inginious-c-base:${VERSION}
+FROM  ghcr.io/inginious/env-base:${VERSION}
 LABEL org.inginious.grading.name="default"
