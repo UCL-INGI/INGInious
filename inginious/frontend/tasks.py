@@ -105,12 +105,6 @@ class Task(object):
 
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
-
-        # Group task
-        self._groups = bool(self._data.get("groups", False))
-
-        # Submission limits
-        self._submission_limit = self._data.get("submission_limit", {"amount": -1, "period": -1})
         
         # Input random
         self._input_random = int(self._data.get("input_random", 0))
@@ -188,29 +182,6 @@ class Task(object):
             raise Exception("Invalid type for problem " + problemid)
 
         return task_problem_types.get(problem_content.get('type', ""))(problemid, problem_content, self._translations, self._task_fs)
-
-    def get_accessible_time(self, plugin_override=True):
-        """  Get the accessible time of this task """
-        vals = self._plugin_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
-        return vals[0] if len(vals) and plugin_override else self._accessible
-
-    def get_deadline(self):
-        """ Returns a string containing the deadline for this task """
-        if self.get_accessible_time().is_always_accessible():
-            return _("No deadline")
-        elif self.get_accessible_time().is_never_accessible():
-            return _("It's too late")
-        else:
-            # Prefer to show the soft deadline rather than the hard one
-            return self.get_accessible_time().get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
-
-    def is_group_task(self):
-        """ Indicates if the task submission mode is per groups """
-        return self._groups
-
-    def get_submission_limit(self):
-        """ Returns the submission limits et for the task"""
-        return self._submission_limit
 
     def get_name(self, language):
         """ Returns the name of this task """

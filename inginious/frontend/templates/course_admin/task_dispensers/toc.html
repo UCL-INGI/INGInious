@@ -23,3 +23,9 @@
 {% with id="empty_section", title=_("New section"), config={}, level=0, hidden=True, display_subsections=True %}
    {% include "course_admin/task_dispensers/empty_section.html" %}
 {% endwith %}
+
+<script>
+    $(function() {
+        task_config_funcs = [ {{ config_items_funcs | join(",")}} ];
+    });
+</script>

@@ -3,15 +3,9 @@
 
 <div class="form-group row">
     <label for="name" class="col-sm-2 control-label">{{ _("Name") }}</label>
-    <div class="col-sm-7">
+    <div class="col-sm-10">
         <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="{{task_data.get('name','')}}">
     </div>
-    <div class="col-sm-3">
-        <button type="button" data-toggle="modal" data-target="#delete_modal" class="btn btn-block btn-danger">
-            <i class="fa fa-trash"></i> {{ _("Delete task") }}
-        </button>
-    </div>
-
 </div>
 
 {% if available_filetypes|length != 1 %}
@@ -53,117 +47,6 @@
     <label for="contact-url" class="col-sm-2 control-label">{{_("Contact URL")}}</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="contact-url" name="contact_url" placeholder="{{_('Contact link')}}" value="{{task_data.get('contact_url','')}}"/>
-    </div>
-</div>
-<div class="form-group row">
-    <label for="groups" class="col-sm-2 control-label">{{_("Submission mode")}}</label>
-    <div class="col-sm-10">
-        <label>
-            <input type="radio" value="false" name="groups" id="groups"
-                {{ 'checked="checked"'|safe if not task_data.get('groups', False) }}/>
-            {{ _("Individually") }}
-        </label><br/>
-        <label>
-            <input type="radio" value="true" name="groups"
-                {{ 'checked="checked"'|safe if task_data.get('groups', False) }} />
-            {{_("Per group")}}
-        </label>
-    </div>
-</div>
-<div class="form-group row">
-    <label for="groups" class="col-sm-2 control-label">{{ _("Submission limits") }}</label>
-    <div class="col-sm-10">
-        {% set submission_limit = task_data.get('submission_limit', {"amount":-1, "period":-1}) %}
-        <label>
-            <input type="radio" value="none" name="submission_limit" id="submission_limit" {% if submission_limit == {'amount':-1, 'period':-1} %} checked="checked" {% endif %}/> {{ _("No limitation") }}
-        </label><br/>
-        <div class="row">
-            <div class="col-xs-12 col-lg-3">
-                <label>
-                    <input type="radio" value="hard" name="submission_limit"
-                        {{ 'checked="checked"'|safe if submission_limit["period"] == -1 and submission_limit['amount'] >= 0 }} />
-                    {{ _("Hard limit: {nbr_submissions} submission(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] >= 0 else '')|string + '" placeholder="5"  type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>') | safe }}
-                </label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-lg-3">
-                <label>
-                    <input type="radio" value="soft" name="submission_limit"
-                        {{ 'checked="checked"'|safe if submission_limit['period'] >= 0 }} />
-                    {{ _("Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['amount'] >= 0 and submission_limit['period'] > 0 else '')|string + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>', nbr_hours='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['period'] if submission_limit['period'] > 0 else '')|string + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>') | safe }}
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="form-group row">
-    <label class="col-sm-2 control-label">{{_("Accessible")}}</label>
-    <div class="col-sm-10">
-        <label>
-            <input type="radio" value="false" name="accessible"
-                {{ 'checked="checked"'|safe if task_data.get('accessible',True) == False }} />
-            {{_("Never")}}
-        </label><br/>
-        <label>
-            <input type="radio" value="true" name="accessible"
-                {{ 'checked="checked"'|safe if task_data.get('accessible',True) == True }} />
-            {{_("Always")}}
-        </label><br/>
-        <div class="row">
-            <div class="col-xs-12 col-lg-3">
-                <label class="control-label">
-                    <input type="radio" value="custom" name="accessible"
-                        {{'checked="checked"'|safe if task_data.get('accessible',True) not in [True, False] }} />
-                    {%set text = _("Custom, from: {} to: {}").split("{}") %}
-                    {{ text[0] }}</label>
-            </div>
-            {% set at = AccessibleTime(task_data.get('accessible',True)) %}
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-                <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
-                        <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                        <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-
-                </div>
-            </div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">{{text[1]}}</label></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-                <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
-                        <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                        <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <!-- Padding -->
-            <div class="col-xs-12 col-lg-3"></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4"></div>
-            <!-- End of padding -->
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label" data-toggle="tooltip" data-placement="top" title="{{ _('Students can still submit after this date') }}">{{ _("Soft Deadline") }} <sup>?</sup></label></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-                <div class="form-group">
-                    <div class='input-group date' id='accessible_soft_end_picker' data-target-input="nearest">
-                            <input data-target='#accessible_soft_end_picker' name="accessible_soft_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_soft_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                            <div class="input-group-append" data-target="#accessible_soft_end_picker" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script type="text/javascript">
-            $(function() {
-                $('#accessible_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                $('#accessible_soft_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-            });
-        </script>
     </div>
 </div>
 <div class="form-group row">

@@ -107,15 +107,17 @@ class WebAppSubmissionManager:
         :param obj: the new document that will be inserted
         """
         username = self._user_manager.session_username()
+        course = task.get_course()
+        is_group_task =course.get_task_dispenser().get_group_submission(task.get_id())
 
-        if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-            group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+        if is_group_task and not self._user_manager.has_staff_rights_on_course(course, username):
+            group = self._database.groups.find_one({"courseid": course.get_id(), "students": username})
             obj.update({"username": group["students"]})
         else:
             obj.update({"username": [username]})
 
         lti_info = self._user_manager.session_lti_info()
-        if lti_info is not None and task.get_course().lti_send_back_grade():
+        if lti_info is not None and course.lti_send_back_grade():
             outcome_service_url = lti_info["outcome_service_url"]
             outcome_result_id = lti_info["outcome_result_id"]
             outcome_consumer_key = lti_info["consumer_key"]
@@ -133,8 +135,8 @@ class WebAppSubmissionManager:
         # If we are submitting for a group, send the group (user list joined with ",") as username
         if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             username = self._user_manager.session_username()
-            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+            if is_group_task and not self._user_manager.has_staff_rights_on_course(course, username):
+                group = self._database.groups.find_one({"courseid": course.get_id(), "students": username})
                 users = self._database.users.find({"username": {"$in": group["students"]}})
                 inputdata["@username"] = ','.join(group["students"])
                 inputdata["@email"] = ','.join([user["email"] for user in users])

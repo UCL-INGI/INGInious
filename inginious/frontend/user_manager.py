@@ -609,6 +609,7 @@ class UserManager:
         retval = {username: {"task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
 
         users_tasks_list = course.get_task_dispenser().get_user_task_list(usernames)
+        users_grade = course.get_task_dispenser().get_course_grades(usernames)
 
         for result in data:
             username = result["_id"]
@@ -617,7 +618,7 @@ class UserManager:
             result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if
                                      dg["taskid"] in visible_tasks}
 
-            result["grade"] = course.get_task_dispenser().get_course_grade(username)
+            result["grade"] = users_grade[username]
             retval[username] = result
 
         return retval
@@ -736,7 +737,7 @@ class UserManager:
             username = self.session_username()
 
         course = task.get_course()
-        dispenser_filter = course.get_task_dispenser().filter_accessibility(task.get_id(), username)
+        dispenser_filter = course.get_task_dispenser().get_accessibility(task.get_id(), username).after_start()
         return (self.course_is_open_to_user(course, username, lti) and dispenser_filter) \
                or self.has_staff_rights_on_course(task.get_course(), username)
 
@@ -752,27 +753,30 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
+        course = task.get_course()
         # Check if course access is ok
-        course_registered = self.course_is_open_to_user(task.get_course(), username, lti)
+        course_registered = self.course_is_open_to_user(course, username, lti)
         # Check if task accessible to user
-        task_accessible = task.get_accessible_time().is_open()
+        task_accessible = course.get_task_dispenser().get_accessibility(task.get_id(), username).is_open()
         # User has staff rights ?
-        staff_right = self.has_staff_rights_on_course(task.get_course(), username)
+        staff_right = self.has_staff_rights_on_course(course, username)
+        # Is this task a group task .
+        is_group_task = course.get_task_dispenser().get_group_submission(task.get_id())
 
         # Check for group
-        group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
+        group = self._database.groups.find_one({"courseid": course.get_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
-            group_filter = (group is not None and task.is_group_task()) or not task.is_group_task()
+            group_filter = (group is not None and is_group_task) or not is_group_task
         else:
             group_filter = True
 
-        students = group["students"] if (group is not None and task.is_group_task()) else [self.session_username()]
+        students = group["students"] if (group is not None and is_group_task) else [self.session_username()]
 
         # Check for token availability
         enough_tokens = True
         timenow = datetime.now()
-        submission_limit = task.get_submission_limit()
+        submission_limit = course.get_task_dispenser().get_submission_limit(task.get_id())
         if not only_check or only_check == 'tokens':
             if submission_limit == {"amount": -1, "period": -1}:
                 # no token limits

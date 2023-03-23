@@ -125,7 +125,7 @@ class BaseTaskPage(object):
             eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
 
             students = [self.user_manager.session_username()]
-            if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
+            if course.get_task_dispenser().get_group_submission(taskid) and not self.user_manager.has_admin_rights_on_course(course, username):
                 group = self.database.groups.find_one({"courseid": task.get_course_id(),
                                                      "students": self.user_manager.session_username()})
                 if group is not None:

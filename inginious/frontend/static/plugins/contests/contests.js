@@ -51,3 +51,7 @@ function contest_blackout_time()
 		$(this).html('<b>Blackout</b>');
 	});
 }
+
+function dispenser_structure_contest() {
+    return dispenser_util_structure();
+}

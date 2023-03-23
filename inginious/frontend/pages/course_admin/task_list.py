@@ -7,6 +7,7 @@ import json
 import logging
 import flask
 from collections import OrderedDict
+from natsort import natsorted
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -30,7 +31,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             task_dispenser_class = self.course_factory.get_task_dispensers().get(selected_task_dispenser, None)
             if task_dispenser_class:
                 self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser', task_dispenser_class.get_id())
-                self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', "")
+                self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', {})
             else:
                 errors.append(_("Invalid task dispenser"))
         else:
@@ -89,20 +90,19 @@ class CourseTaskListPage(INGIniousAdminPage):
         # Load tasks and verify exceptions
         files = self.task_factory.get_readable_tasks(course)
 
-        output = {}
+        tasks = {}
         if errors is None:
             errors = []
-        for task in files:
+        for taskid in files:
             try:
-                output[task] = course.get_task(task)
+                tasks[taskid] = course.get_task(taskid)
             except Exception as inst:
-                errors.append({"taskid": task, "error": str(inst)})
-        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (course.get_task_dispenser().get_task_order(t[1].get_id()), t[1].get_id())))
+                errors.append({"taskid": taskid, "error": str(inst)})
 
-        tasks_data = OrderedDict()
-        for taskid in tasks:
-            tasks_data[taskid] = {"name": tasks[taskid].get_name(self.user_manager.session_language()),
-                              "url": self.submission_url_generator(taskid)}
+        tasks_data = natsorted([(taskid, {"name": tasks[taskid].get_name(self.user_manager.session_language()),
+                                       "url": self.submission_url_generator(taskid)}) for taskid in tasks],
+                            key=lambda x: x[1]["name"])
+        tasks_data = OrderedDict(tasks_data)
 
         task_dispensers = self.course_factory.get_task_dispensers()
 

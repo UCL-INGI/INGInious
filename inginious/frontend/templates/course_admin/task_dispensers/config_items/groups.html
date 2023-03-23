@@ -1,0 +1,25 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="mt-3">{{_("Submission mode")}}</div>
+{% set group_submission = course.get_task_dispenser().get_group_submission(taskid) %}
+<div class="form-group">
+    <div class="row">
+        <div class="col-md-12">
+            <label>
+            <input type="radio" value="false" name="group_submission_{{taskid}}" id="{{taskid}}" class="group_submission"
+                {{ 'checked="checked"'|safe if not group_submission }}/>
+            {{ _("Individually") }}
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <label>
+                <input type="radio" value="true" name="group_submission_{{taskid}}" id="{{taskid}}" class="group_submission"
+                    {{ 'checked="checked"'|safe if group_submission }} />
+                {{_("Per group")}}
+            </label>
+        </div>
+    </div>
+</div>

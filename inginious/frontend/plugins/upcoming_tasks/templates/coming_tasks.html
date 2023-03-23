@@ -91,21 +91,16 @@
     </div>
 </div>
 
-<div class="list-group">
-    {%if open_courses %}
-        {% set username = user_manager.session_username() %}
-        {% for courseid, course in open_courses.items() %}
-                <div class="row">
-                    <div class="col-xs-12 col-md-8">
-                        {{ course.get_name(user_manager.session_language()) }}
-                        {% with course=course, tasks_data=tasks_data[courseid] %}
-                            {% include "upcoming.html" %}
-                        {% endwith %}
-                    </div>
-                </div>
-        {% endfor %}
-    {% else %}
-        <a href="#register" class="list-group-item list-group-item-action disabled">{{ _("You have no upcoming tasks") }}</a>
-    {% endif %}
+{%if open_courses %}
+    {% for courseid, course in open_courses.items() %}
+        {% with course=course, tasks_data=tasks_data[courseid], tasks=sorted_tasks[courseid] %}
+            {% include "upcoming_task_list.html" %}
+        {% endwith %}
+    {% endfor %}
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ _("You have no upcoming tasks") }}
 </div>
+{% endif %}
+
 {% endblock %}

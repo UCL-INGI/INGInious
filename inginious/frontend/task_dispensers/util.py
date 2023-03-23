@@ -2,23 +2,215 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from inginious.common.base import id_checker
+from inginious.frontend.accessible_time import AccessibleTime
 
 SectionConfigItem = namedtuple('SectionConfigItem', ['label', 'type', 'default'])
 
+
+class TaskConfigItem(metaclass=ABCMeta):
+
+    @classmethod
+    @abstractmethod
+    def get_template(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_id(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_name(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_value(cls, task_config):
+        pass
+
+
+class GroupSubmission(TaskConfigItem):
+    default = False
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/groups.html"
+
+    @classmethod
+    def get_id(cls):
+        return "group_submission"
+
+    @classmethod
+    def get_name(cls):
+        return _("Submission mode")
+
+    @classmethod
+    def get_value(cls, task_config):
+        group_submission = task_config.get(cls.get_id(), cls.default)
+        if not type(group_submission) == bool:
+            raise InvalidTocException("Invalid submission mode")
+        return group_submission
+
+
+class Weight(TaskConfigItem):
+    default = 1
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/weight.html"
+
+    @classmethod
+    def get_id(cls):
+        return "weight"
+
+    @classmethod
+    def get_name(cls):
+        return _("Weight")
+
+    @classmethod
+    def get_value(cls, task_config):
+        weight = task_config.get(cls.get_id(), cls.default)
+        if not (type(weight) == float or type(weight) == int):
+            raise InvalidTocException("The weight value must be a numeric >= 0 ")
+        elif weight < 0:
+            raise InvalidTocException("The weight value must be a numeric >= 0")
+        return weight
+
+
+class SubmissionStorage(TaskConfigItem):
+    default = 0
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/submission_storage.html"
+
+    @classmethod
+    def get_id(cls):
+        return "no_stored_submissions"
+
+    @classmethod
+    def get_name(cls):
+        return _("Submission storage")
+
+    @classmethod
+    def get_value(cls, task_config):
+        no_stored_submissions = task_config.get(cls.get_id(), cls.default)
+        if not type(no_stored_submissions) == int:
+            raise InvalidTocException("The store submission must be an integer > 1 ")
+        elif no_stored_submissions < 0:
+            raise InvalidTocException("The store submission must be an integer > 1")
+        return no_stored_submissions
+
+
+class EvaluationMode(TaskConfigItem):
+    default = "best"
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/evaluation_mode.html"
+
+    @classmethod
+    def get_id(cls):
+        return "evaluation_mode"
+
+    @classmethod
+    def get_name(cls):
+        return _("Evaluation mode")
+
+    @classmethod
+    def get_value(cls, task_config):
+        evaluation_mode = task_config.get(cls.get_id(), cls.default)
+        if evaluation_mode != "best" and evaluation_mode != "last":
+            raise InvalidTocException("The evaluation mode must be either best or last but is " + str(evaluation_mode))
+        return evaluation_mode
+
+
+class Categories(TaskConfigItem):
+    default = []
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/categories.html"
+
+    @classmethod
+    def get_id(cls):
+        return "categories"
+
+    @classmethod
+    def get_name(cls):
+        return _("Categories")
+
+    @classmethod
+    def get_value(cls, task_config):
+        categories = task_config.get(cls.get_id(), cls.default)
+        if "" in categories:
+            raise InvalidTocException("All categories must have a name but are :" + str(categories))
+        return categories
+
+
+class SubmissionLimit(TaskConfigItem):
+    default = {"amount": -1, "period": -1}
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/submission_limit.html"
+
+    @classmethod
+    def get_id(cls):
+        return "submission_limit"
+
+    @classmethod
+    def get_name(cls):
+        return _("Submission limit")
+
+    @classmethod
+    def get_value(cls, task_config):
+        submission_limit = task_config.get(cls.get_id(), cls.default)
+        if not type(submission_limit["amount"]) == int or not type(submission_limit["period"]) == int:
+            raise InvalidTocException("Invalid submission limit")
+        elif submission_limit["amount"] < -1 or submission_limit["period"] < -1:
+            raise InvalidTocException("Submission limit values must be higher than or equal to -1")
+        return submission_limit
+
+
+class Accessibility(TaskConfigItem):
+    default = False
+
+    @classmethod
+    def get_template(cls):
+        return "course_admin/task_dispensers/config_items/accessibility.html"
+
+    @classmethod
+    def get_id(cls):
+        return "accessibility"
+
+    @classmethod
+    def get_name(cls):
+        return _("Accessibility")
+
+    @classmethod
+    def get_value(cls, task_config):
+        accessibility = task_config.get(cls.get_id(), cls.default)
+        try:
+            AccessibleTime(accessibility)
+        except Exception as message:
+            raise InvalidTocException("Invalid task accessibility : {}".format(message))
+        return accessibility
+
+
 class InvalidTocException(Exception):
     pass
-
 
 class SectionsList(object):
     """ A list of section for a course structure """
 
     def __init__(self, structure):
         self._sections = []
-        if not all("rank" in section for section in structure):
-            raise InvalidTocException(_("No rank for one section"))
-        for section in sorted(structure,key=lambda k: k['rank']):
+        for section in structure:
             if "sections_list" in section:
                 self._sections.append(NonTerminalSection(section))
             elif "tasks_list" in section:
@@ -44,94 +236,20 @@ class SectionsList(object):
             tasks += section.get_tasks()
         return tasks
 
-    def add_task(self, taskid, sectionid):
-        """
-        Add the task in its corresponding section
-        :param taskid: the task id of the task
-        :param sectionid: the section id of the section
-        :return: True is the task has been added false otherwise
-        """
-        for i, section in enumerate(self._sections):
-            if section.get_id() == sectionid and section.is_empty() and not section.is_terminal():
-                self._sections[i] = TerminalSection({"id": section.get_id(), "title": section.get_title(),  "tasks_list": {taskid: 0}})
-                return True
-            elif section.add_task(taskid, sectionid):
-                return True
-        return False
-
-    def remove_task(self, taskid):
-        """
-        Remve the task from the structure
-        :param taskid: the task id of the task
-        """
-        for section in self._sections:
-            section.remove_task(taskid)
-
-    def get_value_rec(self,taskid,structure,key):
-        """
-        Returns the value of key for the taskid in the structure if any or None
-
-        The structure can have mutliples sections_list that countains either sections_list or one tasks_list
-        The key should be inside one of the tasks_list
-        """
-        if "sections_list" in structure:
-            for section in structure["sections_list"]:
-                weight = self.get_value_rec(taskid,section, key)
-                if weight is not None:
-                    return weight
-        elif "tasks_list" in structure:
-            if taskid in structure["tasks_list"]:
-                return structure[key].get(taskid, None)
-        return None
-
-    def get_course_grade_weighted_sum(self, user_tasks, task_list, get_weight):
-        """
-        Returns the course grade following a weighted sum
-        :param user_tasks: the user tasks as in the database
-        :param task_list: the list of tasks for a user
-        :param get_weight: a function that take a taskid as input and returns the weight for that taskid
-        :returns: the value of the grade
-        """
-        tasks_data = {taskid: {"succeeded": False, "grade": 0.0} for taskid in task_list}
-        tasks_score = [0.0, 0.0]
-
-        for taskid in task_list:
-            tasks_score[1] += get_weight(taskid)
-
-        for user_task in user_tasks:
-            tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
-            tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
-
-            weighted_score = user_task["grade"]*get_weight(user_task["taskid"])
-            tasks_score[0] += weighted_score
-
-        course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
-        return course_grade
-
     def to_structure(self):
         """
         :return: The structure in YAML format
         """
-        return [section.to_structure(rank) for rank, section in enumerate(self._sections)]
+        return [section.to_structure() for section in self._sections]
 
 
 class Section(object):
     def __init__(self, structure):
-        if "id" in structure and structure["id"] != "":
-            self._id = structure["id"]
-        else:
-            raise InvalidTocException(_("No id for one section"))
         if "title" in structure and structure["title"] != "":
             self._title = structure["title"]
         else:
             raise InvalidTocException(_("No title for one section"))
         self._config = structure["config"] if "config" in structure else {}
-
-    def get_id(self):
-        """
-        :return: the id of this section
-        """
-        return self._id
 
     def get_title(self):
         """
@@ -172,27 +290,11 @@ class NonTerminalSection(Section):
         """
         return self._sections_list.get_tasks()
 
-    def add_task(self, taskid, sectionid):
-        """
-        Add the task in its corresponding section
-        :param taskid: the task id of the task
-        :param sectionid: the section id of the section
-        :return: True is the task has been added false otherwise
-        """
-        return self._sections_list.add_task(taskid, sectionid)
-
-    def remove_task(self, taskid):
-        """
-        Remve the task from the structure
-        :param taskid: the task id of the task
-        """
-        self._sections_list.remove_task(taskid)
-
-    def to_structure(self, rank):
+    def to_structure(self):
         """
         :return: The structure in YAML format
         """
-        return {"id": self._id, "rank": rank, "title": self._title, "sections_list": self._sections_list.to_structure()}
+        return {"title": self._title, "sections_list": self._sections_list.to_structure()}
 
 
 class TerminalSection(Section):
@@ -200,40 +302,7 @@ class TerminalSection(Section):
         Section.__init__(self, structure)
         if not all(id_checker(id) for id in structure["tasks_list"]):
             raise InvalidTocException(_("One task id contains non alphanumerical characters"))
-        self._task_list = [task for task, _ in sorted(structure["tasks_list"].items(), key=lambda x: x[1])]
-        self._weights = {}
-        if "weights" in structure:
-            for taskid,weight in structure["weights"].items():
-                if not (type(weight) == float or type(weight) == int):
-                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
-                elif weight < 0:
-                    raise InvalidTocException( ("The weight value must be a numeric >= 0 for the task: " + str(taskid)) )
-                else:
-                    if taskid in structure['tasks_list']:
-                        self._weights[taskid] = weight
-
-        self._no_stored_submissions = {}
-        if "no_stored_submissions" in structure:
-            for taskid,no_stored_submissions in structure["no_stored_submissions"].items():
-                if not type(no_stored_submissions) == int:
-                    raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
-                elif no_stored_submissions < 0:
-                    raise InvalidTocException( ("The store submission must be an integer > 1 for the task: " + str(taskid)) )
-            self._no_stored_submissions = structure["no_stored_submissions"]
-
-        self._evaluation_mode = {}
-        if "evaluation_mode" in structure:
-            for taskid,evaluation_mode in structure["evaluation_mode"].items():
-                if evaluation_mode != "best" and evaluation_mode != "last":
-                    raise InvalidTocException( ("The evaluation mode must be either best or last for the task: '" + str(taskid)) +"' but is " + str(evaluation_mode) )
-            self._evaluation_mode = structure["evaluation_mode"]
-
-        self._categories = {}
-        if "categories" in structure:
-            for taskid,categorie in structure["categories"].items():
-                if "" in categorie:
-                    raise InvalidTocException( ("The categorie must have a name for the task: '" + str(taskid)) +"' but is " + str(categorie) )
-            self._categories = structure["categories"]
+        self._task_list = structure["tasks_list"]
 
     def is_terminal(self):
         return True
@@ -250,36 +319,14 @@ class TerminalSection(Section):
         """
         return len(self._task_list) == 0
 
-    def add_task(self, taskid, sectionid):
-        """
-        Add the task in its corresponding section
-        :param taskid: the task id of the task
-        :param sectionid: the section id of the section
-        :return: True is the task has been added false otherwise
-        """
-        if not id_checker(taskid):
-            return False
-        if self._id == sectionid and taskid not in self._task_list:
-            self._task_list.append(taskid)
-            return True
-        return False
-
-    def remove_task(self, taskid):
-        """
-        Remve the task from the list of tasks if present
-        :param taskid: the task id of the task
-        """
-        if taskid in self._task_list:
-            self._task_list.remove(taskid)
-
-    def to_structure(self, rank):
+    def to_structure(self):
         """
         :return: The structure in YAML format
         """
-        return {"id": self._id, "rank": rank, "title": self._title,
-                "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)},
-                "weights": self._weights, "no_stored_submissions": self._no_stored_submissions,
-                "evaluation_mode": self._evaluation_mode, "categories": self._categories }
+        return {
+            "title": self._title,
+            "tasks_list": {taskid: rank for rank, taskid in enumerate(self._task_list)}
+        }
 
 
 def check_toc(toc):
@@ -292,3 +339,31 @@ def check_toc(toc):
     except Exception as ex:
         return False, str(ex)
     return True, "Valid TOC"
+
+
+def parse_tasks_config(config_items, data):
+    """
+    Parse the task settings and modify data to set default values if needed
+    :param data: the raw content of the task settings
+    """
+    for taskid, structure in data.items():
+
+        try:
+            for config_item in config_items:
+                id = config_item.get_id()
+                structure[id] = config_item.get_value(structure)
+        except Exception as ex:
+            raise InvalidTocException("In taskid {} : {}".format(taskid, str(ex)))
+
+
+def check_task_config(config_items, data):
+    """
+
+    :param data: the raw content of the task settings
+    :return:  (True, '') if the settings are valid or (False, The error message) otherwise
+    """
+    try:
+        parse_tasks_config(config_items, data)
+        return True, ''
+    except Exception as ex:
+        return False, str(ex)

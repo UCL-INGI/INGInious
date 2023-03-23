@@ -7,6 +7,7 @@
 
 {% set registered = user_manager.course_is_user_registered(course) %}
 {% set staff = user_manager.has_staff_rights_on_course(course) %}
+{% set task_dispenser = course.get_task_dispenser() %}
 
 {% block column %}
     <h3>{{ _("Information") }}</h3>
@@ -25,12 +26,19 @@
         {% endif %}
         {% if not is_lti() %}
             <tr class="
-            {% if task.get_accessible_time().is_open() and not task.get_accessible_time().is_open_with_soft_deadline() %}
+            {% if task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open() and not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open_with_soft_deadline() %}
                 list-group-item-danger
             {% endif %}">
                 <td>{{ _("Deadline") }}</td>
                 <td>
-                    {{ task.get_deadline() }}
+                    {% set accessibility = task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()) %}
+                    {% if accessibility.is_always_accessible() %}
+                        {{ _("No deadline") }}
+                    {% elif accessibility.is_never_accessible() %}
+                        {{ _("It's too late") }}
+                    {% else %}
+                        {{ accessibility.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S") }}
+                    {% endif %}
                 </td>
             </tr>
         {% endif %}
@@ -73,7 +81,7 @@
         <tr>
             <td>{{ _("Submission limit") }}</td>
             <td>
-                {% set submission_limit = task.get_submission_limit() %}
+                {% set submission_limit = course.get_task_dispenser().get_submission_limit(task.get_id()) %}
                 {% if submission_limit == {"amount":-1, "period":-1} %}
                     {{ _("No limitation") }}
                 {% else %}
@@ -123,7 +131,7 @@
                 {{ _("This course is currently invisible for students.  You can change this by modifying the \"accessible\" option in the configuration of the course.") }}
             </div>
         {% endif %}
-        {% if not task.get_accessible_time().after_start() %}
+        {% if not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).after_start() %}
             <div class="alert alert-warning" role="alert">
                 {{ _("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.") }}
             </div>
@@ -145,7 +153,7 @@
         <h3>{{ _("Submitting as") }}</h3>
         <div class="list-group mb-3">
             <div class="list-group-item list-group-item-action list-group-item-info">
-                {% if task.is_group_task() %}
+                {% if task_dispenser.get_group_submission(task.get_id()) %}
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>{{ _('Group') }}</b>
                 {% else %}
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>{{ user_manager.session_realname() }}</b>
@@ -411,15 +419,15 @@
         {% else %}
             <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">{{ _("Submit") }}</button>
         {% endif %}
-    {% elif not task.get_accessible_time().is_open() %}
+    {% elif not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open() %}
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _("The deadline is over, you cannot submit anymore") }}</button>
-    {% elif task.is_group_task() and not groups_ok %}
+    {% elif task_dispenser.get_group_submission(task.get_id()) and not groups_ok %}
         <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _('Please register in a group') }}</button>
     {% elif not tokens_ok %}
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
-            {{ _('You have reached the submission limit.') if not task.is_group_task() else _('Your group have reached the submission limit.') }}
-        {% if task.get_submission_limit()["period"] > 0 %}
-            <br/> {{ _("It will be refilled within the next {} hour(s)").format(task.get_submission_limit()["period"]) }}
+            {{ _('You have reached the submission limit.') if not task_dispenser.get_group_submission(task.get_id()) else _('Your group have reached the submission limit.') }}
+        {% if course.get_task_dispenser().get_submission_limit(task.get_id())["period"] > 0 %}
+            <br/> {{ _("It will be refilled within the next {} hour(s)").format(course.get_task_dispenser().get_submission_limit(task.get_id())["period"]) }}
         {% endif %}
         </button>
     {% else %}

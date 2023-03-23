@@ -2,6 +2,7 @@
 {# more information about the licensing of this file. #}
 
 {% extends "layout.html" %}
+{% set task_dispenser = course.get_task_dispenser() %}
 
 {% block title %} {{course.get_name(user_manager.session_language())}} {% endblock %}
 
@@ -47,7 +48,7 @@
                     <label>{{ _("New task dispenser:") }}</label>
                     <select class="form-control" id="new_task_dispenser" name="task_dispenser">
                         {% for id, task_dispenser_class in task_dispensers.items() %}
-                            <option value="{{id}}">{{ task_dispenser_class.get_name(user_manager.session_language()) }}</option>
+                            <option value="{{id}}" {{ 'selected' if task_dispenser_class.get_id() == task_dispenser.get_id() else '' }}>{{ task_dispenser_class.get_name(user_manager.session_language()) }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -98,7 +99,7 @@
 {% endif %}
 
 <div id="dispenser_data">
-    {{ course.get_task_dispenser().render_edit(template_helper, course, tasks) | safe }}
+    {{ task_dispenser.render_edit(template_helper, course, tasks) | safe }}
 </div>
 
 <div class="row mt-3">
@@ -108,7 +109,7 @@
         </button>
     </div>
     <div class="col-md-6">
-        <button class="btn btn-primary btn-block" onclick="dispenser_submit('{{ course.get_task_dispenser().get_id() }}');">
+        <button class="btn btn-primary btn-block" onclick="dispenser_submit('{{task_dispenser.get_id() }}');">
             <i class="fa fa-save"></i> {{_("Save changes")}}
         </button>
     </div>

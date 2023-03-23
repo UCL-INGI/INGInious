@@ -3,13 +3,15 @@
 
 {% for section in sections %}
     {% if section.is_empty() %}
-        {% with id="section_" + section.get_id(), title=section.get_title(), config=section.get_config(), level=level, hidden=False, display_subsections=False %}
+        {% with id="section_" + (loop.index | string), title=section.get_title(), config=section.get_config(), level=level, hidden=False, display_subsections=False %}
             {% include "course_admin/task_dispensers/empty_section.html" %}
         {% endwith %}
     {% elif section.is_terminal() %}
-        {% include "course_admin/task_dispensers/task_list.html" %}
+        {% with id="section_" + (loop.index | string) %}
+            {% include "course_admin/task_dispensers/task_list.html" %}
+        {% endwith %}
     {% else %}
-        <div id="section_{{section.get_id()}}" class="section sections_list mb-4" data-level="{{level}}">
+        <div id="section_{{ loop.index }}" class="section sections_list mb-4" data-level="{{level}}">
             <div class="section_header handle d-flex justify-content-between divided pr-3">
                 <span class="title h{{level}} mr-3">
                     {{ section.get_title() }}

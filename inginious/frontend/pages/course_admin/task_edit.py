@@ -16,7 +16,6 @@ from flask import redirect
 from werkzeug.exceptions import NotFound
 
 from inginious.frontend.tasks import _migrate_from_v_0_6
-from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 from inginious.common.base import dict_from_prefix, id_checker
@@ -63,7 +62,7 @@ class CourseEditTask(INGIniousAdminPage):
                                            problemdata=json.dumps(task_data.get('problems', {})),
                                            contains_is_html=self.contains_is_html(task_data),
                                            current_filetype=current_filetype,
-                                           available_filetypes=available_filetypes, AccessibleTime=AccessibleTime,
+                                           available_filetypes=available_filetypes,
                                            file_list=CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
                                            additional_tabs=additional_tabs)
 
@@ -82,37 +81,14 @@ class CourseEditTask(INGIniousAdminPage):
         del problem_content["@order"]
         return self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
 
-    def wipe_task(self, courseid, taskid):
-        """ Wipe the data associated to the taskid from DB"""
-        submissions = self.database.submissions.find({"courseid": courseid, "taskid": taskid})
-        for submission in submissions:
-            for key in ["input", "archive"]:
-                if key in submission and type(submission[key]) == bson.objectid.ObjectId:
-                    self.submission_manager.get_gridfs().delete(submission[key])
-
-        self.database.user_tasks.delete_many({"courseid": courseid, "taskid": taskid})
-        self.database.submissions.delete_many({"courseid": courseid, "taskid": taskid})
-
-        self._logger.info("Task %s/%s wiped.", courseid, taskid)
-
     def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid) or not id_checker(courseid):
             raise NotFound(description=_("Invalid course/task id"))
 
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        __, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         data = flask.request.form.copy()
         data["task_file"] = flask.request.files.get("task_file")
-
-        # Delete task ?
-        if "delete" in data:
-            toc = course.get_task_dispenser().get_dispenser_data()
-            toc.remove_task(taskid)
-            self.course_factory.update_course_descriptor_element(courseid, 'toc', toc.to_structure())
-            self.task_factory.delete_task(courseid, taskid)
-            if data.get("wipe", False):
-                self.wipe_task(courseid, taskid)
-            return  redirect(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
 
         # Else, parse content
         try:
@@ -151,51 +127,6 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Task environment parameters
             data["environment_parameters"] = environment_parameters
-
-            # Groups
-            if "groups" in data:
-                data["groups"] = True if data["groups"] == "true" else False
-
-            # Submission limits
-            if "submission_limit" in data:
-                if data["submission_limit"] == "none":
-                    result = {"amount": -1, "period": -1}
-                elif data["submission_limit"] == "hard":
-                    try:
-                        result = {"amount": int(data["submission_limit_hard"]), "period": -1}
-                    except:
-                        return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
-
-                else:
-                    try:
-                        result = {"amount": int(data["submission_limit_soft_0"]), "period": int(data["submission_limit_soft_1"])}
-                        if result['period'] < 0:
-                            return json.dumps({"status": "error", "message": _("The soft limit period must be positive!")})
-                    except:
-                        return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
-
-                if data['submission_limit'] != 'none' and result['amount'] < 0:
-                    return json.dumps({"status": "error", "message": _("The submission limit must be positive!")})
-
-                del data["submission_limit_hard"]
-                del data["submission_limit_soft_0"]
-                del data["submission_limit_soft_1"]
-                data["submission_limit"] = result
-
-            # Accessible
-            if data["accessible"] == "custom":
-                data["accessible"] = "{}/{}/{}".format(data["accessible_start"], data["accessible_soft_end"], data["accessible_end"])
-            elif data["accessible"] == "true":
-                data["accessible"] = True
-            else:
-                data["accessible"] = False
-            del data["accessible_start"]
-            del data["accessible_end"]
-            del data["accessible_soft_end"]
-            try:
-                AccessibleTime(data["accessible"])
-            except Exception as message:
-                return json.dumps({"status": "error", "message": _("Invalid task accessibility ({})").format(message)})
 
             # Random inputs
             try:
