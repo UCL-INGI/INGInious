@@ -20,3 +20,7 @@ class FieldTypes(Enum):
     def get_cast_type(self):
         cast = [None, int, str, bool]
         return cast[self.value]
+
+    def get_default_value(self):
+        values = [None,0,"",False]
+        return values[self.value]
