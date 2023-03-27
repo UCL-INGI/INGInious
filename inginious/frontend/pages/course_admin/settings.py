@@ -146,7 +146,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         # Repair fields
         for field in fields.values():
             try:
-                field["type"] = FieldTypes(int(field["type"])).value
+                field["type"] = int(field["type"])
             except:
                 return _("Invalid type value: {}").format(field["type"])
             if not id_checker(field["id"]):

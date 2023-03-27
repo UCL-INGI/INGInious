@@ -458,7 +458,7 @@
                     <td>
                         <select disabled  class="form-control" name="field[NEW][type]">
                             {% for elem in field_types %}
-                                <option value={{ elem.value}} TYPE_REPLACE_{{ elem.value  }}>{{_(elem.name)}}</option>
+                                <option value={{ elem.value.id}} TYPE_REPLACE_{{ elem.value.id  }}>{{_(elem.name)}}</option>
                             {% endfor %}
                         </select>
                     </td>
@@ -472,7 +472,7 @@
                         <td>
                             <select class="form-control" name="field[{{loop.index}}][type]">
                                 {% for elem in field_types %}
-                                    <option value={{ elem.value}} {% if elem.value == field["type"] %}selected="selected"{% endif %}>{{_(elem.name)}}</option>
+                                    <option value={{ elem.value.id}} {% if elem.value.id == field["type"] %}selected="selected"{% endif %}>{{_(elem.name)}}</option>
                                 {% endfor %}
                             </select>
                         </td>

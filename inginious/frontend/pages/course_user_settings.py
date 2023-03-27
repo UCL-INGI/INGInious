@@ -96,8 +96,8 @@ class CourseUserSettingPage(INGIniousAuthPage):
             else:
                 try:
                     value = data[field]
-                    if (value is None or value == "") and add_fields[field].get_type_name()=="integer":
-                        value = 0
+                    if value is None or value == "":
+                        value = add_fields[field].get_default_value()
                     # try to cast given value to be sure that we match expected type.
                     copied_data[field] = add_fields[field].get_cast_type()(value)
                 except ValueError:
