@@ -55,15 +55,19 @@
         </div>
     {% endif %}
     <h2>{{_("Course settings")}}</h2>
-    <form method="post" action="">
-    {% for key in course_user_setting_fields %}
-        <div class="form-group row">
-            <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ course_user_setting_fields[key].get_description() }}</label>
-            <div class="col-sm-10">
-                {{ course_user_setting_fields[key].render(template_helper, course_user_settings[key]) | safe }}
-            </div>
-        </div>
-    {% endfor %}
-        <button type="submit" class="btn btn-block btn-primary">{{ _("Save data") }}</button>
-    </form>
+    {% if course_user_setting_fields | length ==0 %}
+        <div class="alert alert-info" role="alert">{{ _("there is no customizable option for this course") }}</div>
+    {% else %}
+        <form method="post" action="">
+            {% for key in course_user_setting_fields %}
+                <div class="form-group row">
+                    <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ course_user_setting_fields[key].get_description() }}</label>
+                    <div class="col-sm-10">
+                        {{ course_user_setting_fields[key].render(template_helper, course_user_settings[key]) | safe }}
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-block btn-primary">{{ _("Save data") }}</button>
+        </form>
+    {% endif %}
 {% endblock %}
