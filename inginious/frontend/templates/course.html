@@ -49,6 +49,9 @@
             </div>
         {% endif %}
         <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
+                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
+            </a>
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{ course.get_id() }}">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; {{ _("Course administration") }}
             </a>
