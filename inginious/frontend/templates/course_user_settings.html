@@ -56,7 +56,7 @@
     {% endif %}
     <h2>{{_("Course settings")}}</h2>
     {% if course_user_setting_fields | length ==0 %}
-        <div class="alert alert-info" role="alert">{{ _("there is no customizable option for this course") }}</div>
+        <div class="alert alert-info" role="alert">{{ _("There is no customizable option for this course") }}</div>
     {% else %}
         <form method="post" action="">
             {% for key in course_user_setting_fields %}
