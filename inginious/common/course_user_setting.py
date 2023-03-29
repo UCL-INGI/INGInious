@@ -67,5 +67,5 @@ class CourseUserSetting:
 
     def render(self,template_helper,value):
         if self.get_type_name() !="":
-            return template_helper.render("user_settings/"+self.get_type_name()+".html",input_id=self.get_id(),value=value)
+            return template_helper.render("user_settings/"+self.get_type_name()+".html",input_id=self.get_id(),value=value or self.get_default_value())
         raise Exception
