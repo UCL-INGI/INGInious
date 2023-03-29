@@ -49,7 +49,7 @@
                 <a class="nav-link" data-toggle="tab" href="#tags_tab">{{ _("Tags") }}</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#additional_fields">{{ _("Additional fields") }}</a>
+                <a class="nav-link" data-toggle="tab" href="#course_user_settings">{{ _("User Settings") }}</a>
               </li>
             </ul>
         </div>
@@ -429,7 +429,7 @@
                 </tbody>
             </table>
       </div>
-      <div class="tab-pane fade" id="additional_fields">
+      <div class="tab-pane fade" id="course_user_settings">
           {% if error %}
                 <div class="alert alert-danger" role="alert">
                     {{error}}
@@ -458,7 +458,7 @@
                     <td>
                         <select disabled  class="form-control" name="field[NEW][type]">
                             {% for elem in field_types %}
-                                <option value={{ elem.value}} TYPE_REPLACE_{{ elem.value  }}>{{_(elem.name)}}</option>
+                                <option value={{ elem.value.id}} TYPE_REPLACE_{{ elem.value.id  }}>{{_(elem.name)}}</option>
                             {% endfor %}
                         </select>
                     </td>
@@ -472,7 +472,7 @@
                         <td>
                             <select class="form-control" name="field[{{loop.index}}][type]">
                                 {% for elem in field_types %}
-                                    <option value={{ elem.value}} {% if elem.value == field["type"] %}selected="selected"{% endif %}>{{_(elem.name)}}</option>
+                                    <option value={{ elem.value.id}} {% if elem.value.id == field["type"] %}selected="selected"{% endif %}>{{_(elem.name)}}</option>
                                 {% endfor %}
                             </select>
                         </td>

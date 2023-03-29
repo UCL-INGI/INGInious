@@ -1,0 +1,73 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+{% block title %}{{ course.get_name(user_manager.session_language()) }}{% endblock %}
+{% set registered = user_manager.course_is_user_registered(course) %}
+{% set staff = user_manager.has_staff_rights_on_course(course) %}
+{% block column %}
+    {{ template_helper.call('course_menu', course=course, template_helper=template_helper) | safe }}
+    {%if staff %}
+        {% if not course.is_open_to_non_staff() %}
+            <div class="alert alert-warning" role="alert">
+                {{ _("This course is currently invisible for students. You can change this by modifying the \"accessibility\" option in the configuration of the course.") }}
+            </div>
+        {% endif %}
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{ course.get_id() }}">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; {{ _("Course administration") }}
+            </a>
+        </div>
+    {% elif registered %}
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/group/{{ course.get_id() }}">
+                <i class="fa fa-group fa-fw"></i>&nbsp;
+                {% set mygroup = user_manager.get_course_user_group(course) %}
+                {% if mygroup and user_manager.session_username() in mygroup['students'] %}
+                    {{ _("Group : {}").format(mygroup['description']) }}
+                {% else %}
+                    {{ _("Group management") }}
+                {% endif %}
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
+                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
+            </a>
+        </div>
+    {%endif %}
+{% endblock %}
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% if registered %}
+                <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{{get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            {% endif %}
+            <li class="breadcrumb-item"><a href="{{get_homepath() }}/course/{{ course.get_id() }}">{{ course.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cogs"></i> {{ _("Course settings") }}</a></li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+    {%  if feedback is not none %}
+        <div class="alert alert-{{ feedback[0] }}" role="alert">
+            {{ _(feedback[1] ) }}
+        </div>
+    {% endif %}
+    <h2>{{_("Course settings")}}</h2>
+    {% if course_user_setting_fields | length ==0 %}
+        <div class="alert alert-info" role="alert">{{ _("There is no customizable option for this course") }}</div>
+    {% else %}
+        <form method="post" action="">
+            {% for key in course_user_setting_fields %}
+                <div class="form-group row">
+                    <label class="col-sm-2 " for="{{ key }}" class="control-label">{{ course_user_setting_fields[key].get_description() }}</label>
+                    <div class="col-sm-10">
+                        {{ course_user_setting_fields[key].render(template_helper, course_user_settings[key]) | safe }}
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-block btn-primary">{{ _("Save data") }}</button>
+        </form>
+    {% endif %}
+{% endblock %}

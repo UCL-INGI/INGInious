@@ -7,7 +7,7 @@ import re
 import flask
 
 from inginious.common.base import dict_from_prefix, id_checker
-from inginious.common.field_types import FieldTypes
+from inginious.frontend.user_settings.field_types import FieldTypes
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -97,10 +97,10 @@ class CourseSettingsPage(INGIniousAdminPage):
         if tag_error is not None:
             errors.append(tag_error)
 
-        additional_fields = self.define_additional_fields(data)
-        if additional_fields is not None and not isinstance(additional_fields, dict):
-            errors.append(additional_fields)
-        course_content["fields"] = additional_fields
+        course_user_settings = self.define_course_user_settings(data)
+        if course_user_settings is not None and not isinstance(course_user_settings, dict):
+            errors.append(course_user_settings)
+        course_content["fields"] = course_user_settings
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
@@ -136,8 +136,8 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content["tags"] = tags
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
-    def define_additional_fields(self, data):
-        """Additional field definition method"""
+    def define_course_user_settings(self, data):
+        """Course user settings definition method"""
         fields = self.prepare_datas(data, "field")
         if not isinstance(fields, dict):
             # prepare_datas returned an error
@@ -146,7 +146,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         # Repair fields
         for field in fields.values():
             try:
-                field["type"] = FieldTypes(int(field["type"])).value
+                field["type"] = int(field["type"])
             except:
                 return _("Invalid type value: {}").format(field["type"])
             if not id_checker(field["id"]):
