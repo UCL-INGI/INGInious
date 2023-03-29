@@ -6,7 +6,7 @@ Module definition for CourseUserSetting class
 This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 more information about the licensing of this file.
 """
-from inginious.common.field_types import FieldTypes
+from inginious.frontend.user_settings.field_types import FieldTypes
 
 
 class CourseUserSetting:

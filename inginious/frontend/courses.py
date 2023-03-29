@@ -11,7 +11,7 @@ import re
 from typing import List
 from collections import OrderedDict
 
-from inginious.common.course_user_setting import CourseUserSetting
+from inginious.frontend.user_settings.course_user_setting import CourseUserSetting
 from inginious.common.tags import Tag
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText

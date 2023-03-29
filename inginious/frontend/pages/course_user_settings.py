@@ -7,7 +7,7 @@ more information about the licensing of this file.
 """
 
 import flask
-from inginious.common.field_types import FieldTypes
+from inginious.frontend.user_settings.field_types import FieldTypes
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 

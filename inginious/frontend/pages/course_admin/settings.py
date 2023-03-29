@@ -7,7 +7,7 @@ import re
 import flask
 
 from inginious.common.base import dict_from_prefix, id_checker
-from inginious.common.field_types import FieldTypes
+from inginious.frontend.user_settings.field_types import FieldTypes
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
