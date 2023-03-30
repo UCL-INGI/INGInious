@@ -423,7 +423,8 @@ class UserManager:
             .get(course.get_id(), {})
         # get course default value if it's not set in database
         course_settings = course.get_course_user_settings()
-        [user_settings.setdefault(sett,course_settings[sett].get_default_value()) for sett in course_settings]
+        for sett in course_settings:
+            user_settings.setdefault(sett,course_settings[sett].get_default_value())
         return user_settings
 
     def get_user_activate_hash(self, username):
