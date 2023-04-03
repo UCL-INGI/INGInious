@@ -23,7 +23,10 @@ venv
 inginious/tasks
 # Default backup directory
 inginious/backup
+# The (possibly) cloned bootswatch
+inginious/frontend/static/css/themes/bootswatch
 
 # Build files
 build/lib
 build/scripts-*
+
