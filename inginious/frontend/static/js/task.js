@@ -189,7 +189,6 @@ function displayEvaluatedSubmission(id, fade) {
             $("#my_submission").replaceWith(submission_link);
         }
 
-        $("#share_my_submission").removeClass("hidden");
     }
 
     updateTaskStatus(item.hasClass("list-group-item-success") ? "Succeeded" : "Failed", parseFloat(item.text().split("-")[1]));
@@ -798,14 +797,6 @@ function load_input_match(submissionid, key, input) {
         $(field).prop('value', input[key]);
     else
         $(field).prop('value', "");
-}
-
-// Share eval submission result on social networks
-function share_submission(method_id)
-{
-    var submissionid = $('#my_submission').attr('data-submission-id');
-    window.location.replace("/auth/share/" + method_id + "?submissionid=" + submissionid)
-
 }
 
 /*

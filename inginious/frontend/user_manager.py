@@ -57,21 +57,6 @@ class AuthMethod(object, metaclass=ABCMeta):
         return None
 
     @abstractmethod
-    def share(self, auth_storage, course, task, submission, language):
-        """
-        :param auth_storage: The session auth method storage dict
-        :return: False if error
-        """
-        return False
-
-    @abstractmethod
-    def allow_share(self):
-        """
-        :return: True if the auth method allow sharing, else false
-        """
-        return False
-
-    @abstractmethod
     def get_name(self):
         """
         :return: The name of the auth method, to be displayed publicly

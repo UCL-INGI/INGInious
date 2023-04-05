@@ -190,20 +190,6 @@
             {% else %}
                 <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> {{ _("No submission") }}</div>
             {% endif %}
-
-            {% set ns = namespace(disp_share=False) %}
-            {% for key, method in user_manager.get_auth_methods().items() %}
-                {% if method.allow_share() %}
-                    {% set ns.disp_share = True %}
-                {% endif %}
-            {% endfor %}
-
-            {% if ns.disp_share %}
-                <a id="share_my_submission" href="#" class="list-group-item list-group-item-action list-group-item-info {{ 'hidden' if not eval_submission else '' }}" data-toggle='modal' data-target='#share'>
-                    <i class="fa fa-share-alt fa-fw"></i>
-                    {{ _("Share my result") }}
-                </a>
-            {% endif %}
         </div>
 
         <h3>{{ _("Submission history") }}</h3>
@@ -437,24 +423,6 @@
 
 <!-- Modals -->
 {% set auth_methods = user_manager.get_auth_methods() %}
-
-<div class="modal fade" id="share" tabindex="-1" role="dialog" aria-labelledby="socialModalLabel">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="socialModalLabel">{{ _("Share my result on: ") }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-body">
-                {% for key, method in auth_methods.items() %}
-                    {% if method.allow_share() %}
-                        <a href="#" onclick="share_submission('{{ method.get_id() }}')" class="btn btn-block btn-default">{{ method.get_name() }}</a>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</div>
 
 <script type="text/javascript">
     var problems_types = {{ pdict | safe }};
