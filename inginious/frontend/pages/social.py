@@ -19,7 +19,6 @@ class AuthenticationPage(INGIniousPage):
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
         auth_storage["redir_url"] = flask.request.referrer or '/'
-        auth_storage["method"] = "signin"
         auth_link = auth_method.get_auth_link(auth_storage)
         return redirect(auth_link)
 
@@ -40,7 +39,7 @@ class CallbackPage(INGIniousPage):
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
         user = auth_method.callback(auth_storage)
-        if user and auth_storage.get("method", "") == "signin":
+        if user:
             if not self.user_manager.bind_user(auth_id, user):
                 return redirect("/signin?binderror")
         else:
