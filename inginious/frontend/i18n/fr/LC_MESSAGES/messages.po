@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2022-11-03 14:30+0000\n"
-"Last-Translator: Noa Quenon <noa.quenon@student.uclouvain.be>\n"
+"PO-Revision-Date: 2023-04-07 13:26+0000\n"
+"Last-Translator: Ludovic Taffin <ludovic.taffin@uclouvain.be>\n"
 "Language-Team: French <https://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/fr/>\n"
 "Language: fr\n"
@@ -16,6 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.14\n"
 "Generated-By: Babel 2.11.0\n"
 
 #: inginious/frontend/courses.py:30
@@ -45,7 +46,7 @@ msgstr "<b>L'analyse a échoué</b>: <pre>{}</pre>"
 
 #: inginious/frontend/submission_manager.py:420
 msgid "Feedback is badly formatted."
-msgstr ""
+msgstr "Le feedback est mal formaté."
 
 #: inginious/frontend/task_problems.py:75
 msgid "code"
@@ -87,9 +88,8 @@ msgstr ""
 "méthodes d'authentifications."
 
 #: inginious/frontend/user_manager.py:528
-#, fuzzy
 msgid "User could not be created."
-msgstr "Nouveau public créé."
+msgstr "L'utilisateur n'a pu être créé."
 
 #: inginious/frontend/environment_types/docker.py:12
 msgid "Standard container (Docker)"
@@ -105,7 +105,7 @@ msgstr "Solveur intégré Questions à Choix Multiples"
 
 #: inginious/frontend/environment_types/nvidia.py:11
 msgid "Container with GPUs (NVIDIA)"
-msgstr ""
+msgstr "Conteneur avec GPUs (NVIDIA)"
 
 #: inginious/frontend/pages/course.py:37
 msgid "Course not found."
@@ -210,7 +210,7 @@ msgstr "Empreinte d'activation invalide."
 
 #: inginious/frontend/pages/register.py:39
 msgid "User successfully activated."
-msgstr ""
+msgstr "Utilisateur activé avec succès."
 
 #: inginious/frontend/pages/preferences/profile.py:29
 #: inginious/frontend/pages/register.py:70
@@ -423,9 +423,8 @@ msgstr ""
 "persiste, contactez l'administrateur du cours."
 
 #: inginious/frontend/pages/tasks.py:344
-#, fuzzy
 msgid "[Submission #{submissionid} (<b>{submissionDate}</b>)]"
-msgstr "[Soumission #{submissionid}]"
+msgstr "[Soumission #{submissionid} (<b>{submissionDate}</b>)]"
 
 #: inginious/frontend/pages/tasks.py:379 inginious/frontend/pages/tasks.py:381
 msgid " <truncated>"
@@ -463,25 +462,23 @@ msgstr "Accès interdit"
 
 #: inginious/frontend/pages/utils.py:263
 msgid "You have not sufficient right to see this part."
-msgstr ""
+msgstr "Vous n'avez pas les droits suffisants pour voir cette partie."
 
 #: inginious/frontend/pages/utils.py:312
 msgid "File doesn't exist."
 msgstr "Le fichier n'existe pas."
 
 #: inginious/frontend/pages/admin/admin.py:47
-#, fuzzy
 msgid "User not found"
-msgstr "Cours introuvable."
+msgstr "Utilisateur introuvable"
 
 #: inginious/frontend/pages/admin/admin.py:50
 msgid "Impossible to delete this user"
-msgstr ""
+msgstr "Impossible de supprimer cet utilisateur"
 
 #: inginious/frontend/pages/admin/admin.py:69
-#, fuzzy
 msgid "Unknown action."
-msgstr "Etiquette de catégorie inconnue."
+msgstr "Action inconnue."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:49
 msgid "This audience doesn't exist."
@@ -570,21 +567,17 @@ msgid "Invalid tag id: {}"
 msgstr "Identifiant d'étiquette invalide: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:151
-#, fuzzy
 msgid "Invalid type value: {}"
-msgstr "Type de fichier invalide : {}"
+msgstr "Type de valeur invalide : {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:153
-#, fuzzy
 msgid "Invalid id: {}"
-msgstr "Identifiant d'étiquette invalide: {}"
+msgstr "Identifiant invalide: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:167
-#, fuzzy
 msgid "Some datas have the same id! The id must be unique."
 msgstr ""
-"Plusieurs étiquettes ont le même identifiant! L'identifiant d'une étiquette "
-"doit être unique."
+"Plusieurs données ont le même identifiant ! L'identifiant doit être unique."
 
 #: inginious/frontend/pages/course_admin/statistics.py:192
 #: inginious/frontend/pages/course_admin/submissions.py:138
@@ -613,21 +606,19 @@ msgstr "Nouveau public créé."
 
 #: inginious/frontend/pages/course_admin/student_list.py:224
 msgid "File wrongly formatted."
-msgstr ""
+msgstr "Fichier mal formaté."
 
 #: inginious/frontend/pages/course_admin/student_list.py:239
 msgid "Field was not recognized: "
-msgstr ""
+msgstr "Le champ n'a pas été rerconnu : "
 
 #: inginious/frontend/pages/course_admin/student_list.py:243
-#, fuzzy
 msgid "Unknown role: "
-msgstr "Utilisateur inconnu"
+msgstr "Role inconnu: "
 
 #: inginious/frontend/pages/course_admin/student_list.py:250
-#, fuzzy
 msgid "User was not found: "
-msgstr "Utilisateur introuvable : {}"
+msgstr "Utilisateur introuvable : "
 
 #: inginious/frontend/pages/course_admin/student_list.py:293
 #: inginious/frontend/pages/course_admin/student_list.py:362
@@ -687,12 +678,11 @@ msgstr "Type de fichier invalide : {}"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:135
 msgid "The number of random inputs must be an integer!"
-msgstr ""
+msgstr "Le nombre d'entrées aléatoires doit être un entier !"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:137
-#, fuzzy
 msgid "The number of random inputs must be positive!"
-msgstr "Le nombre de soumissions sauvegardées doit être positif !"
+msgstr "Le nombre d'entrées aléatoires doit être positif !"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:146
 msgid "Your browser returned an invalid form ({})"
@@ -1111,7 +1101,6 @@ msgid "Submission mode"
 msgstr "Mode de soumission"
 
 #: inginious/frontend/task_dispensers/util.py:72
-#, fuzzy
 msgid "Weight"
 msgstr "Poids de la note"
 
@@ -1121,9 +1110,8 @@ msgid "Submission storage"
 msgstr "Stockage des soumissions"
 
 #: inginious/frontend/task_dispensers/util.py:122
-#, fuzzy
 msgid "Evaluation mode"
-msgstr "Pour évaluation"
+msgstr "Mode d'évaluation"
 
 #: inginious/frontend/task_dispensers/util.py:145
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/categories.html:4
@@ -1184,7 +1172,6 @@ msgstr ""
 #: inginious/frontend/templates/course.html:53
 #: inginious/frontend/templates/course.html:71
 #: inginious/frontend/templates/course_user_settings.html:33
-#, fuzzy
 msgid "Course Settings"
 msgstr "Paramètres du cours"
 
@@ -1239,9 +1226,8 @@ msgid "My courses"
 msgstr "Mes cours"
 
 #: inginious/frontend/templates/course.html:117
-#, fuzzy
 msgid "Filter tasks by category"
-msgstr "Filtrer les exercices par étiquette"
+msgstr "Filtrer les exercices par catégorie"
 
 #: inginious/frontend/templates/course.html:131
 msgid "About this course"
@@ -1298,12 +1284,11 @@ msgstr "Vous n'êtes pas inscrit à ce cours."
 
 #: inginious/frontend/templates/course_user_settings.html:59
 msgid "There is no customizable option for this course"
-msgstr ""
+msgstr "Il n'y a pas d'options customisables pour ce cours"
 
 #: inginious/frontend/templates/course_user_settings.html:70
-#, fuzzy
 msgid "Save data"
-msgstr "Archiver les données"
+msgstr "Sauver les données"
 
 #: inginious/frontend/templates/courselist.html:10
 msgid "Public courses"
@@ -2110,13 +2095,12 @@ msgstr "Se désinscrire"
 
 #: inginious/frontend/templates/admin/admin_users.html:5
 #: inginious/frontend/templates/admin/admin_users.html:20
-#, fuzzy
 msgid "Users Administration"
-msgstr "Administration du cours"
+msgstr "Administration des utilisateurs"
 
 #: inginious/frontend/templates/admin/admin_users.html:12
 msgid "Users Admin"
-msgstr ""
+msgstr "Administration des utilisateurs"
 
 #: inginious/frontend/templates/admin/admin_users.html:32
 #: inginious/frontend/templates/course_admin/student_list_table.html:12
@@ -2144,9 +2128,8 @@ msgid "Download CSV"
 msgstr "Télécharger sous format CSV"
 
 #: inginious/frontend/templates/admin/admin_users.html:68
-#, fuzzy
 msgid "Bindings"
-msgstr "Ajouter la méthode"
+msgstr "Liaisons"
 
 #: inginious/frontend/templates/admin/admin_users.html:102
 #: inginious/frontend/templates/course_admin/edit_tabs/files.html:19
@@ -2157,28 +2140,25 @@ msgid "Delete"
 msgstr "Supprimer"
 
 #: inginious/frontend/templates/admin/admin_users.html:107
-#, fuzzy
 msgid "This will delete {}. Are you sure ?"
-msgstr "Ceci va remettre à zéro l'état de soumission pour {}. Etes-vous sûr ?"
+msgstr "Ceci va supprimer {}. Etes-vous sûr ?"
 
 #: inginious/frontend/templates/admin/admin_users.html:112
-#, fuzzy
 msgid "Remove"
-msgstr "Désinscrire {}"
+msgstr "Retirer"
 
 #: inginious/frontend/templates/admin/admin_users.html:122
 #: inginious/frontend/templates/admin/admin_users.html:132
 msgid "Activate"
-msgstr ""
+msgstr "Activer"
 
 #: inginious/frontend/templates/admin/admin_users.html:127
 msgid "This will activate {}."
-msgstr ""
+msgstr "Ceci va activer {}."
 
 #: inginious/frontend/templates/admin/admin_users.html:142
-#, fuzzy
 msgid "Add user"
-msgstr "Utilisateur"
+msgstr "Ajouter un utilisateur"
 
 #: inginious/frontend/templates/admin/admin_users.html:168
 #: inginious/frontend/templates/course_admin/edit_tabs/subproblems.html:22
@@ -2188,18 +2168,16 @@ msgstr "Ajouter"
 
 #: inginious/frontend/templates/admin/admin_users.html:178
 msgid "Available bindings"
-msgstr ""
+msgstr "Liaisons disponibles"
 
 #: inginious/frontend/templates/admin/admin_users.html:250
 #: inginious/frontend/templates/preferences/bindings.html:47
-#, fuzzy
 msgid "Revoke access"
-msgstr "\"Supprimer l'accès\""
+msgstr "Supprimer l'accès"
 
 #: inginious/frontend/templates/admin/admin_users.html:258
-#, fuzzy
 msgid "Identifier :"
-msgstr "Identifiant"
+msgstr "Identifiant :"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:18
 #: inginious/frontend/templates/course_admin/student_list.html:43
@@ -2363,16 +2341,15 @@ msgstr "Paramètres sauvegardés."
 
 #: inginious/frontend/templates/course_admin/settings.html:40
 msgid "Base"
-msgstr ""
+msgstr "Base"
 
 #: inginious/frontend/templates/course_admin/settings.html:46
 msgid "LTI"
-msgstr ""
+msgstr "LTI"
 
 #: inginious/frontend/templates/course_admin/settings.html:52
-#, fuzzy
 msgid "User Settings"
-msgstr "Paramètres du cours"
+msgstr "Paramètres utilisateur"
 
 #: inginious/frontend/templates/course_admin/settings.html:68
 msgid "Administrators"
@@ -2504,17 +2481,16 @@ msgid "Check by email"
 msgstr "Vérification par email"
 
 #: inginious/frontend/templates/course_admin/settings.html:321
-#, fuzzy
 msgid "Access control type"
-msgstr "Liste de contrôle d'accès"
+msgstr "Type de contrôle d'accès"
 
 #: inginious/frontend/templates/course_admin/settings.html:328
 msgid "Accept"
-msgstr ""
+msgstr "Accepter"
 
 #: inginious/frontend/templates/course_admin/settings.html:335
 msgid "Deny"
-msgstr ""
+msgstr "Refuser"
 
 #: inginious/frontend/templates/course_admin/settings.html:340
 msgid "Access control list"
@@ -2562,7 +2538,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/settings.html:383
 #, fuzzy
 msgid "New tag"
-msgstr " Nouvelle étiquette"
+msgstr "Nouvelle étiquette"
 
 #: inginious/frontend/templates/course_admin/settings.html:388
 #: inginious/frontend/templates/course_admin/settings.html:447
@@ -2603,9 +2579,8 @@ msgid "Unknown name"
 msgstr "Nom inconnu"
 
 #: inginious/frontend/templates/course_admin/settings.html:442
-#, fuzzy
 msgid "New field"
-msgstr "\"Mettre à jour les champs additionnels\""
+msgstr "Nouveau champ"
 
 #: inginious/frontend/templates/course_admin/stats.html:40
 msgid "Student progress"
@@ -2697,9 +2672,8 @@ msgid "status"
 msgstr "état"
 
 #: inginious/frontend/templates/course_admin/student_info.html:62
-#, fuzzy
 msgid "Not served by the task dispenser"
-msgstr "Distribution d'exercice invalide"
+msgstr "Non desservi par le distributeur de tâches"
 
 #: inginious/frontend/templates/course_admin/student_info.html:68
 msgid "Not viewed"
@@ -2741,9 +2715,8 @@ msgid "Number of students"
 msgstr "Nombre d'étudiants"
 
 #: inginious/frontend/templates/course_admin/student_list.html:81
-#, fuzzy
 msgid "Upload audiences"
-msgstr "Ajouter un public"
+msgstr "Uploader les audiences"
 
 #: inginious/frontend/templates/course_admin/student_list.html:82
 #: inginious/frontend/templates/course_admin/student_list.html:212
