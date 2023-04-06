@@ -39,11 +39,10 @@ class CallbackPage(INGIniousPage):
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
         user = auth_method.callback(auth_storage)
-        if user:
-            if not self.user_manager.bind_user(auth_id, user):
-                return redirect("/signin?binderror")
-        else:
+        if not user:
             return redirect("/signin?callbackerror")
+        if not self.user_manager.bind_user(auth_id, user):
+            return redirect("/signin?binderror")
 
         return redirect(auth_storage.get("redir_url", "/"))
 
