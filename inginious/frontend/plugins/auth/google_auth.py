@@ -27,7 +27,7 @@ class GoogleAuthMethod(AuthMethod):
     Google auth method
     """
 
-    def get_auth_link(self, auth_storage, share=False):
+    def get_auth_link(self, auth_storage):
         google = OAuth2Session(self._client_id, scope=scope, redirect_uri=flask.request.url_root + self._callback_page)
         authorization_url, state = google.authorization_url(authorization_base_url, hd=self._domain)
         auth_storage["oauth_state"] = state
@@ -46,12 +46,6 @@ class GoogleAuthMethod(AuthMethod):
             return str(profile["sub"]), profile["name"], profile["email"], {}
         except Exception as e:
             return None
-
-    def share(self, auth_storage, course, task, submission, language):
-        return redirect("https://plus.google.com/share?url=" + flask.request.url_root + "/course/" + course.get_id() + "/" + task.get_id())
-
-    def allow_share(self):
-        return True
 
     def get_id(self):
         return self._id

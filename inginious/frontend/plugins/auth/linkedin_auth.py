@@ -22,8 +22,8 @@ class LinkedInAuthMethod(AuthMethod):
     """
     LinkedIn auth method
     """
-    def get_auth_link(self, auth_storage, share=False):
-        linkedin = OAuth2Session(self._client_id, scope=scope + (["w_share"] if share else []), redirect_uri=flask.request.url_root + self._callback_page)
+    def get_auth_link(self, auth_storage):
+        linkedin = OAuth2Session(self._client_id, scope=scope, redirect_uri=flask.request.url_root + self._callback_page)
         authorization_url, state = linkedin.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
         return authorization_url
@@ -44,12 +44,6 @@ class LinkedInAuthMethod(AuthMethod):
             return str(profile["id"]), profile["localizedFirstName"] + " " + profile["localizedLastName"], profile["emailAddress"], {}
         except Exception as e:
             return None
-
-    def share(self, auth_storage, course, task, submission, language):
-        return False
-
-    def allow_share(self):
-        return False
 
     def get_id(self):
         return self._id
