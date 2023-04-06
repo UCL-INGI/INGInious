@@ -27,9 +27,83 @@
 {% endif %}
 <div class="mt-2">
     <form method="POST">
-        {% with target="users" %}
-            {% include "admin/users_query.html" %}
-        {% endwith %}
+        <div class="card mb-3 section">
+            <div id="query_header" class="card-header" onclick="dropdown(this)">
+                <span class="title"> {{ _("Query users") }} </span>
+                <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-down close"> </span>
+            </div>
+
+            <div class="card-body content">
+                <form id="select_form" method="post" action="{{ target }}">
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-xs-12">{{ _("Username") }}</label>
+                            <input name="username" class="form-control" type="text" id="username"
+                                   value="{{ old_params.get("username","") }}"/>
+
+                            <label class="col-xs-12">{{ _("Member name") }}</label>
+                            <input name="realname" class="form-control" type="text" id="realname"
+                                   value="{{ old_params.get("realname","") }}"/>
+
+                            <label class="col-xs-12">{{ _("Email") }}</label>
+                            <input name="email" class="form-control" type="text" id="email"
+                                   value="{{ old_params.get("email","") }}"/>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"></label>
+                                <input name="activated" class="form-check-input" type="checkbox" {% if old_params.get('activated', '') %} checked {% endif %}>
+                                {{ _("Activated") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <div class="card section">
+                                <div class="card-header" onclick="dropdown(this)">
+                                    <span class="title">{{ _("Advanced query") }}</span>
+                                    <span style="font-size: 1.5rem;" class="dropdown_button fa fa-caret-left close"> </span>
+                                </div>
+                                <div class="content card-body" style="display: none">
+
+                                    <!-- Sort by -->
+                                    <div class="col-xs-12 form-group row">
+                                        <div class="col-xs-3 col-sm-3">
+                                            <label>{{ _("Sort by") }}</label>
+                                            <select name="sort_by" class="form-control" id="select_sort_by">
+                                            {% set allowed_sort = [("realname", _("Member name")),
+                                                             ("username", _("User name")),
+                                                             ("email", _("Email"))] %}
+                                            {% for value, name in allowed_sort %}
+                                                <option value="{{ value }}" {% if old_params.get('sort_by', 'username') == value %} selected {% endif %}>{{ name }}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3">
+                                            <label>{{ _("Order") }}</label>
+                                            <select name="order" class="form-control" id="select_order">
+                                                <option value="1" {% if old_params.get('order', 1) == 1 %} selected {% endif %}>{{ _("Descending") }}</option>
+                                                <option value="-1" {% if old_params.get('order', 1) == -1 %} selected {% endif %}>{{ _("Ascending") }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3"  title="{{ _('Only visual. Download and csv always consider all queried users.') }}" data-toggle="tooltip" data-placement="top">
+                                            <label>{{ _("Submissions per page") }} *</label>
+                                            <input name="limit" class="form-control" type="number" id="select_limit" value="{{ old_params.get('limit', '50') }}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validate -->
+                    <div class="btn-group pull-right mb-2 mt-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check"></i> {{ _("Filter") }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </form>
 </div>
 <div class="card-deck m-0">
