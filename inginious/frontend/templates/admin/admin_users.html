@@ -20,7 +20,7 @@
 <h2>{{ _("Users Administration") }}</h2>
 <div>
     <button type="button" data-type="single" data-toggle="modal"
-            data-target="#add_modal" class="btn btn-info add_user" title="Add"><i class="fa fa-user-plus"></i> Add user</button>
+            data-target="#add_modal" class="btn btn-info add_user" title="Add"><i class="fa fa-user-plus"></i> {{ _("Add user")}}</button>
 </div>
 {% if feedback %}
     <p>{{feedback}}</p>
@@ -34,7 +34,7 @@
             </div>
 
             <div class="card-body content">
-                <form id="select_form" method="post" action="{{ target }}">
+                <form id="select_form" method="post">
                     <div class="row">
                         <div class="col-sm-12 form-group">
                             <label class="col-xs-12">{{ _("Username") }}</label>
@@ -113,12 +113,7 @@
                 <th>{{_("member")}}</th>
                 <th>{{_("username")}}</th>
                 <th>{{_("email address")}}</th>
-                <th>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <a href="#" class="btn btn-info"
-                           title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                    </div>
-                </th>
+                <th></th>
                 <th>
                     <form method="post" action="users">
                         <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
@@ -128,7 +123,6 @@
         </thead>
         <tbody>
         {% for user in all_users %}
-
              <tr>
                 <td>
                     {{ all_users[user]["realname"] or all_users[user]["username"] }}
@@ -220,7 +214,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{{ _("Add user") }} </span></h4>
+                <h4 class="modal-title">{{ _("Add user") }}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
@@ -256,7 +250,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{{ _("Available bindings") }}</span></h4>
+                <h4 class="modal-title">{{ _("Available bindings") }}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
