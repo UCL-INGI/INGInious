@@ -109,7 +109,8 @@ class TableOfContents(TaskDispenser):
 
     def render(self, template_helper, course, tasks_data, tag_list):
         """ Returns the formatted task list"""
-        people = self._database.courses.find_one({"_id":course.get_id()})["students"] + course.get_staff()
+        course_req = self._database.courses.find_one({"_id":course.get_id()})
+        people = course_req["students"] if course_req is not None else [] + course.get_staff()
         accessibilities = course.get_task_dispenser().get_accessibilities(self._task_list_func(),people)
         return template_helper.render("task_dispensers/toc.html", course=course, tasks=self._task_list_func(),
                                       tasks_data=tasks_data, tag_filter_list=tag_list, sections=self._toc,accessibilities=accessibilities)
