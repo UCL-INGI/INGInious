@@ -4,12 +4,11 @@
 {# Recursively print a list of sections and their content #}
 
 {% set level = level|default(3, true) %}
-{% set accessibilities = course.get_task_dispenser().get_accessibilities(tasks, [user_manager.session_username()])[user_manager.session_username()] %}
 {% for section in sections %}
     {% set ns = namespace(section_tasks=[],have_accessible_tasks=False) %}
     {% for taskid in section.get_tasks() if taskid in tasks %}
         {% set ns.section_tasks = ns.section_tasks + [tasks[taskid]] %}
-        {% set ns.have_accessible_tasks = ns.have_accessible_tasks or accessibilities[taskid].is_open()%}
+        {% set ns.have_accessible_tasks = ns.have_accessible_tasks or user_manager.user_is_superadmin() or accessibilities[user_manager.session_username()][taskid].is_open()%}
     {% endfor %}
     {% if not section.get_config().get('hidden_if_empty', False) or ns.have_accessible_tasks %}
         {% if section.is_terminal() %}
