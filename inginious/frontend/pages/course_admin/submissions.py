@@ -37,11 +37,12 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission, course.get_task_dispenser())
             return Response(response=json.dumps({"status": "waiting"}), content_type='application/json')
 
-        elif "csv" in user_input or "download" in user_input or "replay" in user_input:
+        elif "csv" in user_input or "download" in user_input or "replay" in user_input or "lightencsv" in user_input:
             best_only = "eval_dl" in user_input and "download" in user_input
             params = self.get_input_params(json.loads(user_input.get("displayed_selection", "")), course)
             data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
-
+            if "lightencsv" in user_input:
+                return make_csv(data, True)
             if "csv" in user_input:
                 return make_csv(data)
 
