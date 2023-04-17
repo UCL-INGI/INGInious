@@ -387,13 +387,13 @@
     {% set tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens') %}
 
     {% if not registered %}
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _("Please enroll in the course to submit.") }}</button>
+        <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" disabled="disabled">{{ _("Please enroll in the course to submit.") }}</button>
     {% elif groups_ok and tokens_ok %}
         {% if user_manager.has_admin_rights_on_course(course) %}
             <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
             <div class="row">
                 <div class="col-xs-9 col-md-10">
-                    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">{{ _("Submit") }}</button>
+                    <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" id="task-submit">{{ _("Submit") }}</button>
                 </div>
                 <div class="col-xs-3 col-md-2">
                     <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
@@ -403,21 +403,21 @@
                 </div>
             </div>
         {% else %}
-            <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">{{ _("Submit") }}</button>
+            <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" id="task-submit">{{ _("Submit") }}</button>
         {% endif %}
     {% elif not task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()).is_open() %}
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _("The deadline is over, you cannot submit anymore") }}</button>
+        <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" disabled="disabled">{{ _("The deadline is over, you cannot submit anymore") }}</button>
     {% elif task_dispenser.get_group_submission(task.get_id()) and not groups_ok %}
-        <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">{{ _('Please register in a group') }}</button>
+        <button class="btn btn-secondary btn-lg btn-block center-block" disabled="disabled">{{ _('Please register in a group') }}</button>
     {% elif not tokens_ok %}
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
+        <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" disabled="disabled">
             {{ _('You have reached the submission limit.') if not task_dispenser.get_group_submission(task.get_id()) else _('Your group have reached the submission limit.') }}
         {% if course.get_task_dispenser().get_submission_limit(task.get_id())["period"] > 0 %}
             <br/> {{ _("It will be refilled within the next {} hour(s)").format(course.get_task_dispenser().get_submission_limit(task.get_id())["period"]) }}
         {% endif %}
         </button>
     {% else %}
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled"> {{ _("You are not allowed to submit") }}</button>
+        <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" disabled="disabled"> {{ _("You are not allowed to submit") }}</button>
     {% endif %}
 </form>
 
