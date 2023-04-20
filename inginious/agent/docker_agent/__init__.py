@@ -50,7 +50,6 @@ class DockerRunningJob:
     assigned_external_ports: List[int]
     student_containers: Set[str]  # container ids of student containers
     enable_network: bool
-    ssh_allowed: bool
 
 
 @dataclass
@@ -80,8 +79,7 @@ class DockerAgent(Agent):
         :param runtime: runtime used by docker (the defaults are "runc" with docker or "kata-runtime" with kata)
         :param ssh_allowed: boolean to make this agent accept tasks with ssh or not
         """
-        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs,
-                                          ssh_allowed=ssh_allowed)
+        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
 
         self._runtimes = {x.envtype: x for x in runtimes} if runtimes is not None else None
 
@@ -101,6 +99,9 @@ class DockerAgent(Agent):
         # Async proxy to os
         self._aos = AsyncProxy(os)
         self._ashutil = AsyncProxy(shutil)
+
+        # Does this agent allow ssh_student ?
+        self._ssh_allowed = ssh_allowed
 
     async def _init_clean(self):
         """ Must be called when the agent is starting """
@@ -281,7 +282,6 @@ class DockerAgent(Agent):
 
         try:
             enable_network = message.environment_parameters.get("network_grading", False)
-            ssh_allowed = message.environment_parameters.get("ssh_allowed", False)
             limits = message.environment_parameters.get("limits", {})
             time_limit = int(limits.get("time", 30))
             hard_time_limit = int(limits.get("hard_time", None) or time_limit * 3)
@@ -413,8 +413,7 @@ class DockerAgent(Agent):
             run_cmd=run_cmd,
             assigned_external_ports=list(ports.values()),
             student_containers=set(),
-            enable_network=enable_network,
-            ssh_allowed=ssh_allowed
+            enable_network=enable_network
         )
 
         self._containers_running[container_id] = info
@@ -675,7 +674,7 @@ class DockerAgent(Agent):
                             ssh = msg["ssh"]
                             run_as_root = msg["run_as_root"]
                             assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                            if ssh and not (info.enable_network and info.ssh_allowed):
+                            if ssh and not (info.enable_network and "ssh" in info.environment_type and self._ssh_allowed):
                                 self._logger.error(
                                     "Exception: ssh for student requires to allow ssh and internet access in the task %s environment configuration tab",
                                     info.job_id)
@@ -980,22 +979,27 @@ class DockerAgent(Agent):
 
     def _detect_runtimes(self) -> Dict[str, DockerRuntime]:
         heuristic = [
-            ("runc", lambda x: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=False, shared_kernel=True, envtype="docker")),
-            ("crun", lambda x: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=False, shared_kernel=True, envtype="docker")),
-            ("kata", lambda x: DockerRuntime(runtime=x, run_as_root=True, enables_gpu=False, shared_kernel=False, envtype="kata")),
-            ("nvidia", lambda x: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=True, shared_kernel=True, envtype="nvidia"))
+            ("runc", lambda x, y: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=False,
+                                                shared_kernel=True, envtype="docker-ssh" if y else "docker")),
+            ("crun", lambda x, y: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=False,
+                                                shared_kernel=True, envtype="docker-ssh" if y else "docker")),
+            ("kata", lambda x, y: DockerRuntime(runtime=x, run_as_root=True, enables_gpu=False,
+                                                shared_kernel=False, envtype="kata-ssh" if y else "kata")),
+            ("nvidia", lambda x, y: DockerRuntime(runtime=x, run_as_root=False, enables_gpu=True,
+                                                  shared_kernel=True, envtype="nvidia-ssh" if y else "nvidia"))
         ]
         retval = {}
 
         for runtime in self._docker.sync.list_runtimes().keys():
             for h_runtime, f in heuristic:
                 if h_runtime in runtime:
-                    v = f(runtime)
-                    if v.envtype not in retval:
-                        self._logger.info("Using %s as runtime with parameters %s", runtime, str(v))
-                        retval[v.envtype] = v
-                    else:
-                        self._logger.warning(
-                            "%s was detected as a runtime; it would duplicate another one, so we ignore it. %s",
-                            runtime, str(v))
+                    for ssh_allowed in {self._ssh_allowed, False}:
+                        v = f(runtime, ssh_allowed)
+                        if v.envtype not in retval:
+                            self._logger.info("Using %s as runtime with parameters %s", runtime, str(v))
+                            retval[v.envtype] = v
+                        else:
+                            self._logger.warning(
+                                "%s was detected as a runtime; it would duplicate another one, so we ignore it. %s",
+                                runtime, str(v))
         return retval
