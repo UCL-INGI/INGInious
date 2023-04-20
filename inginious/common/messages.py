@@ -178,7 +178,6 @@ class AgentHello:
     friendly_name: str  # a string containing a friendly name to identify agent
     available_job_slots: int  # an integer giving the number of concurrent
     available_environments: Dict[str, Dict[str, Dict[str, Any]]]  # dict of available environments:
-    ssh_allowed: bool
     # {
     #     "type": {
     #         "name": {                 #  for example, "default"
