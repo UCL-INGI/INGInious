@@ -76,16 +76,26 @@ class WebAppSubmissionManager:
         }
 
         # Save submission to database
-        submission = self._database.submissions.find_one_and_update(
-            {"_id": submission["_id"]},
-            {"$set": data, "$unset": unset_obj},
-            return_document=ReturnDocument.AFTER
-        )
+        try:
+            submission = self._database.submissions.find_one_and_update(
+                {"_id": submission["_id"]},
+                {"$set": data, "$unset": unset_obj},
+                return_document=ReturnDocument.AFTER
+            )
+
+            for username in submission["username"]:
+                self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
+
+        # Check for size as it also takes the MongoDB command into consideration
+        except pymongo.errors.DocumentTooLarge:
+            data = {"status": "error", "text": _("Maximum submission size exceeded. Check feedback, stdout, stderr and state."), "grade": 0.0}
+            submission = self._database.submissions.find_one_and_update(
+                {"_id": submission["_id"]},
+                {"$set": data, "$unset": unset_obj},
+                return_document=ReturnDocument.AFTER
+            )
 
         self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
-
-        for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
 
         if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
             for username in submission["username"]:
