@@ -23,6 +23,11 @@ def _migrate_from_v_0_6(content):
                                              "run_cmd": content.get("run_cmd", ''),
                                              "network_grading": content.get("network_grading", False),
                                              "response_is_html": content.get('responseIsHTML', False)}
+
+    # Retrocompatibility v0.8.5
+    if content.get("environment_parameters", {}).get("ssh_allowed", False):
+        content["environment_type"] = content["environment_type"] + "-ssh"
+
     return content
 
 
