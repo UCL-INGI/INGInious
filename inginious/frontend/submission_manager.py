@@ -76,16 +76,26 @@ class WebAppSubmissionManager:
         }
 
         # Save submission to database
-        submission = self._database.submissions.find_one_and_update(
-            {"_id": submission["_id"]},
-            {"$set": data, "$unset": unset_obj},
-            return_document=ReturnDocument.AFTER
-        )
+        try:
+            submission = self._database.submissions.find_one_and_update(
+                {"_id": submission["_id"]},
+                {"$set": data, "$unset": unset_obj},
+                return_document=ReturnDocument.AFTER
+            )
+
+            for username in submission["username"]:
+                self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub, task_dispenser)
+
+        # Check for size as it also takes the MongoDB command into consideration
+        except pymongo.errors.DocumentTooLarge:
+            data = {"status": "error", "text": _("Maximum submission size exceeded. Check feedback, stdout, stderr and state."), "grade": 0.0}
+            submission = self._database.submissions.find_one_and_update(
+                {"_id": submission["_id"]},
+                {"$set": data, "$unset": unset_obj},
+                return_document=ReturnDocument.AFTER
+            )
 
         self._plugin_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
-
-        for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub, task_dispenser)
 
         if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
             for username in submission["username"]:
@@ -285,6 +295,7 @@ class WebAppSubmissionManager:
             {"random": 1, "state": 1})
         inputdata["@random"] = states["random"] if "random" in states else []
         inputdata["@state"] = states["state"] if "state" in states else ""
+        inputdata["@settings"] = self._user_manager.get_course_user_settings(username, task.get_course())
 
         # Send LTI information to the client except "consumer_key"
         lti_info = self._user_manager.session_lti_info()

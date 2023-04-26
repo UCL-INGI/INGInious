@@ -20,7 +20,7 @@ from inginious.frontend.pages.preferences.profile import ProfilePage
 from inginious.frontend.pages.preferences.utils import PrefRedirectPage
 from inginious.frontend.pages.utils import SignInPage, LogOutPage
 from inginious.frontend.pages.register import RegistrationPage
-from inginious.frontend.pages.social import AuthenticationPage, CallbackPage, SharePage
+from inginious.frontend.pages.social import AuthenticationPage, CallbackPage
 from inginious.frontend.pages.course_register import CourseRegisterPage
 from inginious.frontend.pages.course import CoursePage
 from inginious.frontend.pages.tasks import TaskPage, TaskPageStaticDownload
@@ -90,7 +90,6 @@ def init_flask_mapping(flask_app):
                            view_func=AuthenticationPage.as_view('authenticationpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>auth/callback/<auth_id>',
                            view_func=CallbackPage.as_view('callbackpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>auth/share/<auth_id>', view_func=SharePage.as_view('sharepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>mycourses', view_func=MyCoursesPage.as_view('mycoursespage'))

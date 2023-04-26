@@ -5,8 +5,8 @@ from inginious.frontend.environment_types.generic_docker_oci_runtime import Gene
 class DockerEnvType(GenericDockerOCIRuntime):
     @property
     def id(self):
-        return "docker"
+        return "docker-ssh" if self._ssh_allowed else "docker"
 
     @property
     def name(self):
-        return _("Standard container (Docker)")
+        return _("Standard container + SSH") if self._ssh_allowed else _("Standard container")

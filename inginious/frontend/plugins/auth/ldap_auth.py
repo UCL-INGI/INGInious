@@ -43,17 +43,11 @@ class LdapAuthMethod(AuthMethod):
         else:
             return '<i class="fa fa-address-book" style="font-size:50px; color:#000000;"></i>'
 
-    def get_auth_link(self, auth_storage, share=False):
+    def get_auth_link(self, auth_storage):
         return "/auth/page/" + self._id
 
     def callback(self, auth_storage):
         return None
-
-    def share(self, auth_storage, course, task, submission, language):
-        return False
-
-    def allow_share(self):
-        return False
 
     def get_settings(self):
         return self._settings

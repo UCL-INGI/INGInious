@@ -48,7 +48,7 @@ class Agent(object, metaclass=ABCMeta):
     An INGInious agent, that grades specific kinds of jobs, and interacts with a Backend.
     """
 
-    def __init__(self, context, backend_addr, friendly_name, concurrency, filesystem, ssh_allowed=False):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, filesystem):
         """
         :param context: a ZMQ context to which the agent will be linked
         :param backend_addr: address of the backend to which the agent should connect. The format is the same as ZMQ
@@ -66,7 +66,6 @@ class Agent(object, metaclass=ABCMeta):
         self.__backend_addr = backend_addr
         self.__context = context
         self.__friendly_name = friendly_name
-        self.__ssh_allowed = ssh_allowed
         self.__backend_socket = self.__context.socket(zmq.DEALER)
         self.__backend_socket.ipv6 = True
 
@@ -112,7 +111,7 @@ class Agent(object, metaclass=ABCMeta):
 
         # Tell the backend we are up and have `concurrency` threads available
         self._logger.info("Saying hello to the backend")
-        await ZMQUtils.send(self.__backend_socket, AgentHello(self.__friendly_name, self.__concurrency, self.environments, self.__ssh_allowed))
+        await ZMQUtils.send(self.__backend_socket, AgentHello(self.__friendly_name, self.__concurrency, self.environments))
         self.__backend_last_seen_time = time.time()
 
         run_listen = self._loop.create_task(self.__run_listen())

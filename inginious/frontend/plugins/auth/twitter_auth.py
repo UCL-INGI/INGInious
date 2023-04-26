@@ -22,8 +22,8 @@ class TwitterAuthMethod(AuthMethod):
     """
     Twitter auth method
     """
-    def get_auth_link(self, auth_storage, share=False):
-        client_id = self._share_client_id if share else self._client_id
+    def get_auth_link(self, auth_storage):
+        client_id = self._client_id
         client_secret = self._clients[client_id]
         twitter = OAuth1Session(client_id, client_secret=client_secret,
                                 callback_uri=flask.request.url_root + self._callback_page)
@@ -46,24 +46,6 @@ class TwitterAuthMethod(AuthMethod):
             return str(profile["id"]), profile["name"], profile["email"], {}
         except:
             return None
-
-    def share(self, auth_storage, course, task, submission, language):
-        twitter = auth_storage.get("session", None)
-        if twitter:
-            r = twitter.post(
-                "https://api.twitter.com/1.1/statuses/update.json",
-                {"status": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
-                    course=course.get_name(language),
-                    task=task.get_name(language),
-                    score=submission["grade"]
-                ) + " " + flask.request.url_root + "course/" + course.get_id() + "/" + task.get_id() + " #inginious" + ((" via @" + self._twitter_user) if self._twitter_user else "")
-                 }
-            )
-            result = json.loads(r.content.decode('utf-8'))
-            return "id" in result
-
-    def allow_share(self):
-        return True
 
     def get_id(self):
         return self._id

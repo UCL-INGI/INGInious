@@ -21,7 +21,7 @@ class GithubAuthMethod(AuthMethod):
     """
     Github auth method
     """
-    def get_auth_link(self, auth_storage, share=False):
+    def get_auth_link(self, auth_storage):
         github = OAuth2Session(self._client_id, scope=scope,  redirect_uri=flask.request.url_root + self._callback_page)
         authorization_url, state = github.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
@@ -40,12 +40,6 @@ class GithubAuthMethod(AuthMethod):
             return str(profile["id"]), realname, profile["email"], {}
         except:
             return None
-
-    def share(self, auth_storage, course, task, submission, language):
-        return False
-
-    def allow_share(self):
-        return False
 
     def __init__(self, id, name, client_id, client_secret):
         self._name = name

@@ -25,7 +25,7 @@ WaitingJob = namedtuple('WaitingJob', ['priority', 'time_received', 'client_addr
 
 RunningJob = namedtuple('RunningJob', ['agent_addr', 'client_addr', 'msg', 'time_started'])
 EnvironmentInfo = namedtuple('EnvironmentInfo', ['last_id', 'created_last', 'agents', 'type'])
-AgentInfo = namedtuple('AgentInfo', ['name', 'environments', 'ssh_allowed'])  # environments is a list of tuple (type, environment)
+AgentInfo = namedtuple('AgentInfo', ['name', 'environments'])  # environments is a list of tuple (type, environment)
 
 class Backend(object):
     """
@@ -138,7 +138,7 @@ class Backend(object):
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
         job = WaitingJob(message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[message.job_id] = job
-        self._waiting_jobs_pq.put((message.environment_type, message.environment, self._get_ssh_allowed(message)), job)
+        self._waiting_jobs_pq.put((message.environment_type, message.environment), job)
 
         await self.update_queue()
 
@@ -196,10 +196,7 @@ class Backend(object):
                 job = None
                 while job is None:
                     # keep the object, do not unzip it directly! It's sometimes modified when a job is killed.
-
-                    topics = [(*env, False) for env in self._registered_agents[agent_addr].environments]
-                    if self._registered_agents[agent_addr].ssh_allowed:
-                        topics += [(*env, True) for env in self._registered_agents[agent_addr].environments]
+                    topics = self._registered_agents[agent_addr].environments
 
                     job = self._waiting_jobs_pq.get(topics)
                     priority, insert_time, client_addr, job_id, job_msg = job
@@ -238,7 +235,7 @@ class Backend(object):
 
         self._registered_agents[agent_addr] = AgentInfo(message.friendly_name,
                                                         [(etype, env) for etype, envs in
-                                                         message.available_environments.items() for env in envs], message.ssh_allowed)
+                                                         message.available_environments.items() for env in envs])
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
         self._ping_count[agent_addr] = 0
 
@@ -408,10 +405,3 @@ class Backend(object):
             return int(job_info.environment_parameters["limits"]["time"])
         except:
             return -1 # unknown
-
-    def _get_ssh_allowed(self, job_info: ClientNewJob):
-        """
-            Returns if the job requires that the agent allows ssh
-            For this to work, ["ssh_allowed"] must be a parameter of the environment.
-        """
-        return job_info.environment_parameters.get("ssh_allowed", False)

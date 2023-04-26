@@ -57,21 +57,6 @@ class AuthMethod(object, metaclass=ABCMeta):
         return None
 
     @abstractmethod
-    def share(self, auth_storage, course, task, submission, language):
-        """
-        :param auth_storage: The session auth method storage dict
-        :return: False if error
-        """
-        return False
-
-    @abstractmethod
-    def allow_share(self):
-        """
-        :return: True if the auth method allow sharing, else false
-        """
-        return False
-
-    @abstractmethod
     def get_name(self):
         """
         :return: The name of the auth method, to be displayed publicly
@@ -416,6 +401,16 @@ class UserManager:
         else:
             apikey = retval.get("apikey", None)
         return apikey
+
+    def get_course_user_settings(self, username, course):
+        user_settings = self._database.users.find_one({"username": username})\
+            .get("course_settings", {})\
+            .get(course.get_id(), {})
+        # get course default value if it's not set in database
+        course_settings = course.get_course_user_settings()
+        for sett in course_settings:
+            user_settings.setdefault(sett,course_settings[sett].get_default_value())
+        return user_settings
 
     def get_user_activate_hash(self, username):
         """

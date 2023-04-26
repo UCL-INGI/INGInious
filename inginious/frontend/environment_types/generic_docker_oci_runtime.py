@@ -28,11 +28,6 @@ class GenericDockerOCIRuntime(FrontendEnvType):
         # Network access in grading container?
         out["network_grading"] = data.get("network_grading", False)
 
-        # SSH allowed ?
-        out["ssh_allowed"] = data.get("ssh_allowed", False)
-        if out["ssh_allowed"] == 'on':
-            out["ssh_allowed"] = True
-
         # Limits
         limits = {"time": 20, "memory": 1024, "disk": 1024}
         if "limits" in data:
@@ -59,3 +54,6 @@ class GenericDockerOCIRuntime(FrontendEnvType):
     def studio_env_template(self, templator, task, allow_html: bool):
         return templator.render("course_admin/edit_tabs/env_generic_docker_oci.html", env_params=task.get("environment_parameters", {}),
                                 content_is_html=allow_html, env_id=self.id)
+
+    def __init__(self, ssh_allowed=False):
+        self._ssh_allowed = ssh_allowed

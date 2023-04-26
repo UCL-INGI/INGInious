@@ -23,8 +23,8 @@ class FacebookAuthMethod(AuthMethod):
     """
     Facebook auth method
     """
-    def get_auth_link(self, auth_storage, share=False):
-        facebook = OAuth2Session(self._client_id, scope=scope + (["publish_actions"] if share else []), redirect_uri=flask.request.url_root + self._callback_page)
+    def get_auth_link(self, auth_storage):
+        facebook = OAuth2Session(self._client_id, scope=scope, redirect_uri=flask.request.url_root + self._callback_page)
         facebook = facebook_compliance_fix(facebook)
         authorization_url, state = facebook.authorization_url(authorization_base_url)
         auth_storage["oauth_state"] = state
@@ -41,30 +41,6 @@ class FacebookAuthMethod(AuthMethod):
             return str(profile["id"]), profile["name"], profile["email"], {}
         except:
             return None
-
-    def share(self, auth_storage, course, task, submission, language):
-        facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=flask.request.url_root + self._callback_page)
-        if facebook:
-            r = facebook.post("https://graph.facebook.com/me/objects/website",
-                              {
-                                  "object": json.dumps({
-                                      "og:title": _("INGInious | {course} - {task}").format(
-                                          course=course.get_name(language),
-                                          task=task.get_name(language)
-                                      ),
-                                      "og:description": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
-                                          course=course.get_name(language),
-                                          task=task.get_name(language),
-                                          score=submission["grade"]
-                                      ),
-                                      "og:url": flask.request.url_root + "course/" + course.get_id() + "/" + task.get_id(),
-                                      "og:image": "http://www.inginious.org/assets/img/header.png"})
-                              })
-            result = json.loads(r.content.decode('utf-8'))
-            return "id" in result
-
-    def allow_share(self):
-        return True
 
     def get_id(self):
         return self._id

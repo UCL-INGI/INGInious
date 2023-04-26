@@ -25,6 +25,9 @@ def register_env_type(env_obj):
 def register_base_env_types():
     # register standard env types here
     register_env_type(DockerEnvType())
+    register_env_type(DockerEnvType(ssh_allowed=True))
     register_env_type(NvidiaEnvType())
+    register_env_type(NvidiaEnvType(ssh_allowed=True))
     register_env_type(KataEnvType())
+    register_env_type(KataEnvType(ssh_allowed=True))
     register_env_type(MCQEnvType())
