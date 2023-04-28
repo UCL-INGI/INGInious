@@ -8,6 +8,7 @@
 import json
 import flask
 from flask import Response
+from flask_httpauth import HTTPTokenAuth
 
 import inginious.common.custom_yaml as yaml
 from inginious.frontend.pages.utils import INGIniousPage
@@ -101,12 +102,19 @@ class APIAuthenticatedPage(APIPage):
         A wrapper for pages that needs authentication. Automatically checks that the client is authenticated and returns "403 Forbidden" if it's
         not the case.
     """
+    auth = HTTPTokenAuth(scheme='APIKey', header='APIKey')
+
+    @auth.verify_token
+    def _verify_apikey(self,apikey):
+        return self.user_manager.get_userinfo_from_apikey(apikey) is not None
 
     def _handle_api(self, handler, handler_args, handler_kwargs):
         return APIPage._handle_api(self, (lambda *args, **kwargs: self._verify_authentication(handler, args, kwargs)), handler_args, handler_kwargs)
 
     def _verify_authentication(self, handler, args, kwargs):
         """ Verify that the user is authenticated """
+        if not self._verify_apikey():
+            raise APIForbidden()
         if not self.user_manager.session_logged_in():
             raise APIForbidden()
         return handler(*args, **kwargs)
