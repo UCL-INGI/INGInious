@@ -12,7 +12,7 @@
     {% endfor %}
     {% if not section.get_config().get('hidden_if_empty', False) or ns.have_accessible_tasks %}
         {% if section.is_terminal() %}
-            {% with tasks=ns.section_tasks, tag_list=tag_filter_list, title=section.get_title(), config=section.get_config() %}
+            {% with tasks=ns.section_tasks, tag_list=tag_filter_list, title=section.get_title(), config=section.get_config(),accessibilities=accessibilities %}
                 {% include "task_dispensers/task_list.html" %}
             {% endwith %}
         {% else %}
