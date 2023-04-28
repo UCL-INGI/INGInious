@@ -180,7 +180,7 @@ function filter_tag(tag) {
     }
 </style>
 
-{{ course.get_task_dispenser().render(template_helper, course, tasks_data, category_filter_list) | safe }}
+{{ course.get_task_dispenser().render(template_helper, course, tasks_data, category_filter_list,user_manager.session_username()) | safe }}
 
 {% include "unregister_modal.html" %}
 
