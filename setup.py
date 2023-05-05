@@ -10,6 +10,7 @@ from setuptools import setup, find_packages
 
 install_requires = [
     "docker>=3.0",
+    "requests < 2.29.0",  # TODO: remove when https://github.com/docker/docker-py/issues/3113 is closed.
     "docutils>=0.14",
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
