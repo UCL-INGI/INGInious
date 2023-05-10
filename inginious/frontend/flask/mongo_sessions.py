@@ -86,7 +86,7 @@ class MongoDBSessionInterface(SessionInterface):
             sid = None
         else:
             cookieless = False
-            sid = request.cookies.get(app.session_cookie_name)
+            sid = request.cookies.get(self.get_cookie_name(app))
 
         if not sid:
             sid = self._generate_sid()
@@ -124,8 +124,7 @@ class MongoDBSessionInterface(SessionInterface):
         if not session:
             if session.modified:
                 self.store.delete_one({'_id': store_id})
-                response.delete_cookie(app.session_cookie_name,
-                                       domain=domain, path=path)
+                response.delete_cookie(self.get_cookie_name(app), domain=domain, path=path)
             return
 
         httponly = self.get_cookie_httponly(app)
@@ -141,6 +140,6 @@ class MongoDBSessionInterface(SessionInterface):
         else:
             session_id = session.sid
         if not cookieless:
-            response.set_cookie(app.session_cookie_name, session_id,
+            response.set_cookie(self.get_cookie_name(app), session_id,
                                 expires=expires, httponly=httponly,
                                 domain=domain, path=path, secure=secure)

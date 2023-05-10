@@ -10,6 +10,7 @@ from setuptools import setup, find_packages
 
 install_requires = [
     "docker>=3.0",
+    "requests < 2.29.0",  # TODO: remove when https://github.com/docker/docker-py/issues/3113 is closed.
     "docutils>=0.14",
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
@@ -26,7 +27,7 @@ install_requires = [
     "WsgiDAV >= 3.0.0",
     "Werkzeug >= 1.0.0",
     "itsdangerous >= 1.1.0",
-    "Flask >= 1.1.0",
+    "Flask >= 2.0.0",
     "Flask-Mail >= 0.9.1",
     "importlib_metadata >= 3.7.0",
     'dataclasses >= 0.8; python_version < "3.7.0"',
