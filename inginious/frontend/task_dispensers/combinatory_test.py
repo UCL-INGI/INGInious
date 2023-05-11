@@ -48,7 +48,7 @@ class CombinatoryTest(TableOfContents):
                                       course_structure=self._toc, tasks=task_data, config_fields=config_fields,
                                       config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
 
-    def render(self, template_helper, course, tasks_data, tag_list):
+    def render(self, template_helper, course, tasks_data, tag_list, username):
         """ Returns the formatted task list"""
         return template_helper.render("task_dispensers/toc.html", course=course, tasks=self._task_list_func(),
                                       tasks_data=tasks_data, tag_filter_list=tag_list, sections=self._toc)
