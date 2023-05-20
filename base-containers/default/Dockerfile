@@ -2,7 +2,8 @@
 
 #inherit from the base container, which have all the needed script to launch tasks
 ARG   VERSION=latest
-FROM  ghcr.io/inginious/env-base:${VERSION}
+ARG   REGISTRY
+FROM  ${REGISTRY}/inginious/env-base:${VERSION}
 
 LABEL org.opencontainers.image.source=https://github.com/UCL-INGI/INGInious-containers
 LABEL org.opencontainers.image.description="Default INGInious grading environment."
