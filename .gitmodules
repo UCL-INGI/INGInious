@@ -1,0 +1,3 @@
+[submodule "base-containers/.util/util-compose"]
+	path = base-containers/.util/util-compose
+	url = https://github.com/INGInious/util-compose.git
