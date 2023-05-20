@@ -1,4 +1,4 @@
-name: Containers build and push with reusable workflows
+name: Build and push base grading containers
 
 on:
   push:
