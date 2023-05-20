@@ -1,4 +1,4 @@
-name: Containers build and push
+name: Containers build and push with reusable workflows
 
 on:
   push:
@@ -6,48 +6,14 @@ on:
 
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  CONTAINERS: base-containers
-
 jobs:
   containers_build_and_push:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      # Get PIP dependencies
-      - name: Cache PIP
-        id: cache-pip
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.local/lib/python${{env.PYTHON_VER}}
-          key: ${{ runner.os }}-pip
-
-      - name: Install dependencies
-        if: steps.cache-pip.outputs.cache-hit != 'true'
-        working-directory: base-containers/
-        run: |
-          git submodule update --init --recursive
-          pip3 install -r .util/util-compose/requirements.txt
-
-      - name: Generate compose file
-        working-directory: base-containers/.util/util-compose
-        run: python3 generate.py ../../context.yml ../../compose.yml
-        
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
-
-      - name: Build and push containers
-        working-directory: base-containers/
-        run: |
-          # see https://github.com/docker/buildx/issues/344#issuecomment-846626613
-          docker buildx create --use
-          echo "FROM scratch" | docker buildx build -
-          docker compose build --push
+    uses: INGInious/.github/.github/workflows/containers.yml@673723b119b1a92695dd5fea1520f5ae28e38abb
+    with:
+      working-directory: base-containers 
+      context-path: context.yml
+      compose-path: compose.yml
+      registry: ghcr.io
+    secrets:
+      GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
