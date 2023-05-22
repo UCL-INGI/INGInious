@@ -373,7 +373,7 @@ class Installer:
             self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
             if self._ask_boolean("Would you like to download them ?", True):
                 try:
-                    self._retrieve_and_extract_tarball("https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball", task_directory)
+                    self._retrieve_and_extract_tarball("https://api.github.com/repos/INGInious/demo-tasks/tarball", task_directory)
                     self._display_info("Successfully downloaded and copied demonstration tasks.")
                 except Exception as e:
                     self._display_error("An error occurred while copying the directory: %s" % str(e))
