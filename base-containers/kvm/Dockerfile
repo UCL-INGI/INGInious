@@ -1,3 +1,6 @@
+ARG   	VERSION=latest
+ARG	REGISTRY
+
 # Rockylinux does not enable 9P virtfs in the shipped QEMU builds, hence we have to rebuild our own version
 # Inspired from https://github.com/acudovs/qemu-kvm-virtfs/blob/master/rpmbuild/build
 FROM rockylinux:8 as builder
@@ -43,7 +46,7 @@ RUN 	patch /root/rpmbuild/SPECS/qemu-kvm.spec /tmp/qemu-kvm.spec.patch
 RUN 	rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec
 
 # Build GNU telnetd server since classical builds do not allow running bash as login util
-RUN	wget https://ftp.gnu.org/gnu/inetutils/inetutils-2.4.tar.xz &&\
+RUN	wget "https://ftp.gnu.org/gnu/inetutils/inetutils-2.4.tar.xz" &&\
 	tar xf inetutils-2.4.tar.xz &&\
 	cd inetutils-2.4 &&\
 	./configure --disable-servers --disable-clients --enable-telnetd --enable-telnet &&\
@@ -52,19 +55,17 @@ RUN	wget https://ftp.gnu.org/gnu/inetutils/inetutils-2.4.tar.xz &&\
 # =====================
 # KVM base container
 # =====================
-ARG   	VERSION=latest
-#FROM 	ghcr.io/inginious/env-base:${VERSION}
-FROM 	ghcr.io/inginious/env-base
+FROM 	${REGISTRY}/inginious/env-base:${VERSION}
 
 # Install QEMU with 9P virtifs enabled
 COPY --from=builder /root/rpmbuild/RPMS/x86_64/qemu-*.rpm /tmp/
-RUN 	yum localinstall -y /tmp/*rpm
-RUN 	rm -rf /tmp/*rpm
-RUN 	ln -s /usr/libexec/qemu-kvm /bin/qemu-kvm
+RUN 	yum localinstall -y /tmp/*rpm &&\
+	rm -rf /tmp/*rpm &&\
+	ln -s /usr/libexec/qemu-kvm /bin/qemu-kvm
 
 # Install GNU telnet utils
 COPY --from=builder /opt/inetutils-2.4/telnet/telnet /usr/sbin
-COPY --from=builder /opt/inetutils-2.4/telnet/telnetd /usr/sbin
+COPY --from=builder /opt/inetutils-2.4/telnetd/telnetd /usr/sbin
 
 # Install dependecies
 RUN dnf install -y expect xinetd git
