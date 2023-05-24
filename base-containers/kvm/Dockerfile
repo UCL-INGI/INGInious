@@ -56,6 +56,7 @@ RUN	wget "https://ftp.gnu.org/gnu/inetutils/inetutils-2.4.tar.xz" &&\
 # KVM base container
 # =====================
 FROM 	${REGISTRY}/inginious/env-base:${VERSION}
+LABEL org.inginious.kvm 1
 
 # Install QEMU with 9P virtifs enabled
 COPY --from=builder /root/rpmbuild/RPMS/x86_64/qemu-*.rpm /tmp/
@@ -75,9 +76,10 @@ WORKDIR /opt
 COPY	virtme.patch .
 RUN	git clone https://github.com/amluto/virtme &&\
 	git -C virtme apply < virtme.patch &&\
-	ln -s virtme/virtme-run /usr/sbin/virtme-run
+	ln -s $(pwd)/virtme/virtme-run /bin/virtme-run
 
 # Get expect script launching the VM
 COPY run.expect /
+COPY telnet /etc/xinetd.d/
 
 WORKDIR /
