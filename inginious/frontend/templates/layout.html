@@ -21,9 +21,9 @@
         <!-- INGInious Style -->
         <link href="{{get_homepath(True)}}/static/css/INGInious-rtl.css?v2" rel="stylesheet">
     {% else %}
-        <link href="{{get_homepath(True)}}/static/css/themes/default/bootstrap.min.css" rel="stylesheet">
+        <link href="{{get_homepath(True)}}/static/css/themes/{{user_manager.get_theme()}}/bootstrap.min.css" rel="stylesheet">
         <!-- INGInious Style -->
-        <link href="{{get_homepath(True)}}/static/css/themes/default/INGInious.css?v2" rel="stylesheet">
+        <link href="{{get_homepath(True)}}/static/css/themes/{{user_manager.get_theme()}}/INGInious.css?v2" rel="stylesheet">
     {% endif %}
     <link href="{{get_homepath(True)}}/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 
@@ -33,7 +33,8 @@
 
 
     <!-- Codemirror Style -->
-    <link href="{{get_homepath(True)}}/static/css/themes/default/codemirror.css" rel="stylesheet">
+    <link href="{{get_homepath(True)}}/static/css/themes/codemirror/main.css" rel="stylesheet">
+    <link href="{{get_homepath(True)}}/static/css/themes/codemirror/{{user_manager.get_codemirror_theme()}}.css" rel="stylesheet">
 
     <!-- selectize -->
     <link href="{{get_homepath(True)}}/static/css/selectize.css" rel="stylesheet">
