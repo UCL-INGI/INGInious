@@ -21,6 +21,7 @@ logger = setup_logger()
 # Check the runtimes
 runtime = sys.argv[1]
 parent_runtime = sys.argv[2]
+kvm_enabled = sys.argv[3] == "True"
 shared_kernel, both_same_kernel = check_runtimes(runtime, parent_runtime)
 # shared_kernal: boolean, True when this student_container is running on docker runtime. False when running on kata runtime.
 # only_dockers: boolean, True when this student_container and its parent grading_container are both running on docker runtimes.
@@ -55,6 +56,16 @@ for name, (spath, append) in system_files.items():
             exit(254)
 
 logger.info("student container started and received initial command")
+
+# If the current container requires KVM passthrough for interactive session, launch KVM start script as root.
+if kvm_enabled and start_cmd["ssh"]:
+    kvm_start_path = os.environ.get('KVM_START_PATH')
+    if kvm_start_path is None:
+        logger.warning('KVM start script not found.')
+    else:
+        #subprocess.Popen(shlex.split(kvm_start_path), input=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.Popen(shlex.split(kvm_start_path))
+        logger.info('KVM launched')
 
 # Start the process
 os.chdir(start_cmd["working_dir"])

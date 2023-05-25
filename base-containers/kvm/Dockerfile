@@ -78,8 +78,11 @@ RUN	git clone https://github.com/amluto/virtme &&\
 	git -C virtme apply < virtme.patch &&\
 	ln -s $(pwd)/virtme/virtme-run /bin/virtme-run
 
-# Get expect script launching the VM
-COPY run.expect /
-COPY telnet /etc/xinetd.d/
-
 WORKDIR /
+
+# Get expect script launching the VM
+COPY run.expect .
+ENV KVM_START_PATH=/run.expect
+
+# Add telnetd config
+COPY telnet /etc/xinetd.d/

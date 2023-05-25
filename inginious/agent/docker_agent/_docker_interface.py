@@ -221,10 +221,12 @@ class DockerInterface(object):  # pragma: no cover
             # TODO: See https://github.com/UCL-INGI/INGInious/issues/950
             pass
 
+        enable_kvm = kvm and image_requires_kvm
+
         response = self._docker.containers.create(
             image,
             stdin_open=True,
-            command="_run_student_intern "+runtime + " " + parent_runtime,  # the script takes the runtimes as arguments
+            command=f"_run_student_intern {runtime} {parent_runtime} {enable_kvm}",  # the script takes the runtimes as arguments
             mem_limit=str(mem_limit) + "M",
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
@@ -240,7 +242,7 @@ class DockerInterface(object):  # pragma: no cover
             },
             runtime=runtime,
             ulimits=[nofile_limit],
-            devices=['/dev/kvm'] if kvm and image_requires_kvm else []
+            devices=['/dev/kvm'] if enable_kvm else []
         )
 
         return response.id
