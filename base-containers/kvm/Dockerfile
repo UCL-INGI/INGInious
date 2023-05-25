@@ -71,6 +71,9 @@ COPY --from=builder /opt/inetutils-2.4/telnetd/telnetd /usr/sbin
 # Install dependecies
 RUN dnf install -y expect xinetd git
 
+# Make xinet config readable for worker user in SSH container
+RUN chmod 644 /etc/xinetd.conf
+
 # Install virtme
 WORKDIR /opt
 COPY	virtme.patch .
@@ -81,7 +84,7 @@ RUN	git clone https://github.com/amluto/virtme &&\
 WORKDIR /
 
 # Get expect script launching the VM
-COPY run.expect .
+COPY run.expect setup.sh /
 ENV KVM_START_PATH=/run.expect
 
 # Add telnetd config

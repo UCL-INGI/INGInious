@@ -56,7 +56,7 @@ def execute_process(args, stdin_string="", internal_command=False, user="worker"
     return stdout.read(), stderr.read()
 
 
-def start_ssh_server(ssh_user):
+def start_ssh_server(ssh_user, kvm_enabled: bool = False):
     # Generate password
     password, _ = execute_process(["/usr/bin/openssl", "rand", "-base64", "10"], internal_command=True, user=ssh_user)
     password = password.decode('utf8').strip()
@@ -70,13 +70,18 @@ def start_ssh_server(ssh_user):
         os.unlink("/run/nologin")
 
     permit_root_login = "yes" if ssh_user == "root" else "no"
+    shell_forward = '-c "telnet localhost 2223"' if kvm_enabled else ''
+
+    # Wait for telnet session
+    if kvm_enabled:
+        while not os.path.exists('/task/student/kvm/.telnet'): pass
 
     # Start the ssh server
     execute_process(["/usr/sbin/sshd",
                     "-p", "22",
                     "-o", "PermitRootLogin={}".format(permit_root_login),
                     "-o", "PasswordAuthentication=yes", "-o", "StrictModes=no",
-                    "-o", "ForceCommand=echo LOGIN: Good luck !; script -q .ssh_logs; cp .ssh_logs /task/student/.ssh_logs; echo LOGOUT: Good bye!",
+                    "-o", f"ForceCommand=echo LOGIN: Good luck !; script {shell_forward} -q .ssh_logs; cp .ssh_logs /task/student/.ssh_logs; echo LOGOUT: Good bye!",
                     "-o", "AllowUsers={}".format(ssh_user)], internal_command=True, user=ssh_user)
     return ssh_user, password
     #When logging in, student is in a special interactive shell where everything is logged into a file.
@@ -179,9 +184,9 @@ def handle_signals(concerned_subprocess, com_socket):
             sys.exit()
 
 
-def handle_ssh_session(container_id, both_dockers, event_loop, socket_unix, container_stdout, user):
+def handle_ssh_session(container_id, both_dockers, event_loop, socket_unix, container_stdout, user, kvm_enabled: bool = False):
     """ Start the ssh server and send identification information """
-    ssh_user, password = start_ssh_server(user)
+    ssh_user, password = start_ssh_server(user, kvm_enabled)
     if both_dockers:
         # Send ssh information to the grading container
         message = msgpack.dumps({"type": "ssh_student", "ssh_user": ssh_user, "password": password})  # constant size

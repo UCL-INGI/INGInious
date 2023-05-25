@@ -2,9 +2,10 @@
 
 log_user 0
 set timeout 600
-spawn virtme-run --memory 256 --kimg /task/student/scripts/bzImage
+spawn /setup.sh
 expect "virtme-init: console is ttyS0\r"
 send -- "ip a add 10.0.2.15/24 dev enp0s2\r"
 send -- "ip l set dev enp0s2 up\r"
+send -- "touch /tmp/student/.telnet\r"
 send -- "stdbuf -oL xinetd -d\r"
 wait

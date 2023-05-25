@@ -62,8 +62,8 @@ if kvm_enabled and start_cmd["ssh"]:
     kvm_start_path = os.environ.get('KVM_START_PATH')
     if kvm_start_path is None:
         logger.warning('KVM start script not found.')
+        exit(250)
     else:
-        #subprocess.Popen(shlex.split(kvm_start_path), input=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.Popen(shlex.split(kvm_start_path))
         logger.info('KVM launched')
 
@@ -104,7 +104,7 @@ scripts_isolation(True)  # Setup script finished, make the scripts directory iso
 # Handle SSH
 if start_cmd["ssh"]:
     logger.info("student container is starting ssh session")
-    retval = handle_ssh_session(student_container_id, both_same_kernel, event_loop, socket_unix, container_stdout, user)
+    retval = handle_ssh_session(student_container_id, both_same_kernel, event_loop, socket_unix, container_stdout, user, kvm_enabled)
     logger.info("student container finished ssh session")
 
 # Run teardown script
