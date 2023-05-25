@@ -82,6 +82,29 @@ class ProfilePage(INGIniousAuthPage):
             else:
                 self.user_manager.set_session_language(language)
 
+        if data["theme"] != userdata.get('theme', 'default'):
+            theme  = data["theme"] if data["theme"] in self.app.available_themes else "default"
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                             {"$set": {"theme": theme}},
+                                                             return_document=ReturnDocument.AFTER)
+            if not result:
+                error = True
+                msg = _("Incorrect username.")
+                return result, msg, error
+            else:
+                self.user_manager.set_session_theme(theme)
+        
+        if data["codemirror_theme"] != userdata.get('codemirror_theme', 'default'):
+            codemirror_theme  = data["codemirror_theme"] if data["codemirror_theme"] in self.app.available_codemirror_themes else "default"
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                             {"$set": {"codemirror_theme": codemirror_theme}},
+                                                             return_document=ReturnDocument.AFTER)
+            if not result:
+                error = True
+                msg = _("Incorrect username.")
+                return result, msg, error
+            else:
+                self.user_manager.set_session_codemirror_theme(codemirror_theme)
         # Checks if updating name
         if len(data["realname"]) > 0:
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
