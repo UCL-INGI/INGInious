@@ -24,13 +24,19 @@ RUN 	yum -y update && yum -y install \
 	yum-utils \
 	'pkgconfig(epoxy)' \
 	'pkgconfig(gbm)' \
-	'pkgconfig(libdrm)'
+	'pkgconfig(libdrm)' \
+	git
 
 # Apply patches and build QEMU
 WORKDIR /opt
 RUN 	yum-builddep -y qemu-kvm
-RUN 	yumdownloader --source qemu-kvm
+#RUN 	yumdownloader --source qemu-kvm
+RUN	wget "http://download.rockylinux.org/pub/rocky/8/AppStream/source/tree/Packages/q/qemu-kvm-6.2.0-32.module%2Bel8.8.0%2B1279%2B230c2115.src.rpm"
 RUN 	rpm -Uvh qemu-kvm-*.src.rpm
+#RUN	git clone https://git.rockylinux.org/staging/rpms/qemu-kvm.git &&\
+#	git -C qemu-kvm checkout r8s-stream-rhel &&\
+#	if [[ ! -d /root/rpmbuild ]]; then mkdir /root/rpmbuild; fi &&\
+#	mv qemu-kvm/{SOURCES,SPECS} /root/rpmbuild/
 RUN sed -i -e 's/--disable-virtfs/--enable-virtfs/' \
 	-e 's/--disable-virtiofsd/--enable-virtiofsd/g' \
 	/root/rpmbuild/SPECS/qemu-kvm.spec
@@ -43,6 +49,11 @@ RUN sed -i -e '/^%files -n qemu-kvm-common/,/^$/s/^$/%{_bindir}\/virtfs-proxy-he
 COPY 	virtio-9p-pci.patch /root/rpmbuild/SOURCES/
 COPY 	qemu-kvm.spec.patch /tmp
 RUN 	patch /root/rpmbuild/SPECS/qemu-kvm.spec /tmp/qemu-kvm.spec.patch
+#RUN	mkdir /tmp/qemu-6.2.0 &&\
+#	cp /root/rpmbuild/SOURCES/* /tmp/qemu-6.2.0/ &&\
+#	cd /tmp &&\
+#	tar cJf /tmp/qemu-6.2.0.tar.xz qemu-6.2.0 &&\
+#	mv /tmp/qemu-6.2.0.tar.xz /root/rpmbuild/SOURCES/
 RUN 	rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec
 
 # Build GNU telnetd server since classical builds do not allow running bash as login util
