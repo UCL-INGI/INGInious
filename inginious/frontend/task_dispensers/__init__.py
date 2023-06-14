@@ -77,7 +77,7 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def render(self, template_helper, course, tasks_data, tag_list):
+    def render(self, template_helper, course, tasks_data, tag_list,username):
         """ Returns the formatted task list"""
         pass
 

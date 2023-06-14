@@ -4,37 +4,39 @@
 {# Recursively print a list of sections and their content #}
 
 {% set level = level|default(3, true) %}
-
 {% for section in sections %}
-    {% if section.is_terminal() %}
-        {% set ns = namespace(section_tasks=[]) %}
-        {% for taskid in section.get_tasks() if taskid in tasks %}
-            {% set ns.section_tasks = ns.section_tasks + [tasks[taskid]] %}
-        {% endfor %}
-        {% with tasks=ns.section_tasks, tag_list=tag_filter_list, title=section.get_title(), config=section.get_config() %}
-            {% include "task_dispensers/task_list.html" %}
-        {% endwith %}
-    {% else %}
-        <div class="section sections-list mb-4">
-            <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
-                <span class="title h{{level}} mr-3">
-                    {{ _(section.get_title()) }}
-                </span>
-                <span class="divider"></span>
+    {% set ns = namespace(section_tasks=[],have_accessible_tasks=False) %}
+    {% for taskid in section.get_tasks() if taskid in tasks %}
+        {% set ns.section_tasks = ns.section_tasks + [tasks[taskid]] %}
+        {% set ns.have_accessible_tasks = ns.have_accessible_tasks or accessibilities[user_manager.session_username()][taskid].is_open()%}
+    {% endfor %}
+    {% if not section.get_config().get('hidden_if_empty', False) or ns.have_accessible_tasks %}
+        {% if section.is_terminal() %}
+            {% with tasks=ns.section_tasks, tag_list=tag_filter_list, title=section.get_title(), config=section.get_config(),accessibilities=accessibilities %}
+                {% include "task_dispensers/task_list.html" %}
+            {% endwith %}
+        {% else %}
+            <div class="section sections-list mb-4">
+                <div class="section_header d-flex justify-content-between divided pr-3" onclick="dropdown(this)">
+                    <span class="title h{{level}} mr-3">
+                        {{ _(section.get_title()) }}
+                    </span>
+                    <span class="divider"></span>
 
-                <span style="font-size: 1.5rem;" class="dropdown_button fa
-                 {% if section.get_config().get('closed', False) %}
-                    fa-caret-left
-                 {% else %}
-                    fa-caret-down
-                 {% endif %} close pl-3">
-                </span>
+                    <span style="font-size: 1.5rem;" class="dropdown_button fa
+                     {% if section.get_config().get('closed', False) %}
+                        fa-caret-left
+                     {% else %}
+                        fa-caret-down
+                     {% endif %} close pl-3">
+                    </span>
+                </div>
+                <div class="content ml-4" style="{% if section.get_config().get('closed', False) %} display:none; {% endif %}">
+                    {% with sections=section.get_sections_list(), level=level+1 %}
+                        {% include "task_dispensers/toc.html" %}
+                    {% endwith %}
+                </div>
             </div>
-            <div class="content ml-4" style="{% if section.get_config().get('closed', False) %} display:none; {% endif %}">
-                {% with sections=section.get_sections_list(), level=level+1 %}
-                    {% include "task_dispensers/toc.html" %}
-                {% endwith %}
-            </div>
-        </div>
+        {% endif %}
     {% endif %}
 {% endfor %}
