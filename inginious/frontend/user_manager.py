@@ -408,6 +408,8 @@ class UserManager:
         :param: the api key
         :return: the user based on the API key, None if the key match no one.
         """
+        if apikey is None:
+            return None
         retval = self._database.users.find_one({"apikey": apikey})
         if not retval:
             return None
