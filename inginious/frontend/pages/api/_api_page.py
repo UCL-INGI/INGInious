@@ -111,6 +111,8 @@ class APIAuthenticatedPage(APIPage):
             token = auth_header.replace('Bearer ', '')
             if self.user_manager.get_userinfo_from_apikey(token) is None:
                 raise APIForbidden()
+        else:
+            raise APIForbidden()
         return handler(*args, **kwargs)
 
 class APIError(Exception):
