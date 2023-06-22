@@ -70,6 +70,10 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="col-sm-12">
+            <label class="control-label">{{ _("API key :") }}</label>
+            <input name="apikey" type="text" class="form-control" value="{{ user_manager.session_api_key() }}" disabled>
+        </div>
         {% if allow_registration %}
             <div class="col-sm-12">
                 <label class="control-label">{{ _("Old password :") }} </label>
