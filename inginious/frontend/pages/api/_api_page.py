@@ -105,15 +105,13 @@ class APIAuthenticatedPage(APIPage):
         return APIPage._handle_api(self, (lambda *args, **kwargs: self._verify_authentication(handler, args, kwargs)), handler_args, handler_kwargs)
 
     def _verify_authentication(self, handler, args, kwargs):
-        """ Verify that request have a http authorization bearer and that token match with a user."""
-        if 'Authorization' in request.headers:
-            auth_header = request.headers.get('Authorization')
-            token = auth_header.replace('Bearer ', '')
-            if self.user_manager.get_userinfo_from_apikey(token) is None:
-                raise APIForbidden()
-        else:
-            raise APIForbidden()
-        return handler(*args, **kwargs)
+        """ Verify that the user is authenticated """
+        username = request.authorization.username
+        password = request.authorization.password
+        apikey = self.user_manager.get_user_api_key(username, create=True)
+        if apikey is not None and password == apikey:
+            return handler(*args, **kwargs)
+        raise APIForbidden()
 
 class APIError(Exception):
     """ Standard API Error """

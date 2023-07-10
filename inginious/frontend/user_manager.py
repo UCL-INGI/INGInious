@@ -402,20 +402,6 @@ class UserManager:
             apikey = retval.get("apikey", None)
         return apikey
 
-    def get_userinfo_from_apikey(self,apikey):
-        """
-        Get the user info from a given API key.
-        :param: the api key
-        :return: the user based on the API key, None if the key match no one.
-        """
-        if apikey is None:
-            return None
-        retval = self._database.users.find_one({"apikey": apikey})
-        if not retval:
-            return None
-        return UserInfo(retval["realname"], retval["email"], retval["username"], retval["bindings"],
-                                             retval["language"], "activate" not in retval)
-
     def get_course_user_settings(self, username, course):
         user_settings = self._database.users.find_one({"username": username})\
             .get("course_settings", {})\
