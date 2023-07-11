@@ -276,7 +276,7 @@ class UnicodeWriter(object):
             self.writerow(row)
 
 
-def make_csv(data, lighten=False):
+def make_csv(data, lighten=False, fields =[]):
     """ Returns the content of a CSV file with the data of the dict/list data """
     # Convert sub-dicts to news cols
     for entry in data:
@@ -298,7 +298,7 @@ def make_csv(data, lighten=False):
     # Convert everything to CSV
     output = [[]]
     if lighten:
-        columns = ["_id","best","courseid","grade","result","status","submitted_on","taskid","username"]
+        columns = fields
     else:
         columns = set()
         if isinstance(data, dict):

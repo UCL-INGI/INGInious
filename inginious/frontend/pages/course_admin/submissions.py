@@ -27,6 +27,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         user_input["audiences"] = flask.request.form.getlist("audiences")
         user_input["tasks"] = flask.request.form.getlist("tasks")
         user_input["org_categories"] = flask.request.form.getlist("org_categories")
+        user_input["selected_fields"] = flask.request.form.getlist("selected_fields")
 
         if "replay_submission" in user_input:
             # Replay a unique submission
@@ -42,7 +43,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             params = self.get_input_params(json.loads(user_input.get("displayed_selection", "")), course)
             data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
             if "lightencsv" in user_input:
-                return make_csv(data, True)
+                return make_csv(data, True, user_input["selected_fields"])
             if "csv" in user_input:
                 return make_csv(data)
 
