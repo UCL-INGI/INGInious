@@ -128,11 +128,6 @@ class CourseTaskFiles(INGIniousAdminPage):
                 self.task_factory.get_available_task_file_extensions():
             return None
 
-        # do not allow hidden dir/files
-        if path != ".":
-            for i in path.split(os.path.sep):
-                if i.startswith("."):
-                    return None
         return path
 
     def action_edit(self, courseid, taskid, path):
