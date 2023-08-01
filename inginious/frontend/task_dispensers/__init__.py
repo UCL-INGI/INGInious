@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class TaskDispenser(metaclass=ABCMeta):
+    legacy_fields = {}
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         """
@@ -14,6 +15,7 @@ class TaskDispenser(metaclass=ABCMeta):
         self._task_list_func = task_list_func
         self._database = database
         self._course_id = course_id
+        self._dispenser_data = dispenser_data
 
     @abstractmethod
     def get_no_stored_submissions(self, taskid):
@@ -110,4 +112,12 @@ class TaskDispenser(metaclass=ABCMeta):
     @abstractmethod
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
+        pass
+
+    def has_legacy_tasks(self):
+        """ Checks if the task files contains dispenser settings """
+        return False
+
+    def import_legacy_tasks(self):
+        """ Imports the task dispenser settings from a task file dict """
         pass

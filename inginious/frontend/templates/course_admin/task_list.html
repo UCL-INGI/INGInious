@@ -98,6 +98,20 @@
     </div>
 {% endif %}
 
+{% if task_dispenser.has_legacy_tasks() %}
+<div class="alert alert-warning pl-1" role="alert">
+    <form method="post">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="row">
+            <div class="col-md-10 mt-1">
+                {{ _("This course currently includes legacy tasks with settings that have to be imported to the task dispenser settings to be effective.") }}
+            </div>
+            <div class="col-md-2"><button type="submit" name="migrate_tasks" class="btn btn-sm btn-block btn-danger"><i class="fa fa-rocket"></i> {{ _("Migrate tasks") }}</button></div>
+        </div>
+    </form>
+</div>
+{% endif %}
+
 <div id="dispenser_data">
     {{ task_dispenser.render_edit(template_helper, course, tasks) | safe }}
 </div>

@@ -215,3 +215,7 @@ class Task(object):
     def regenerate_input_random(self):
         """ Indicates if random inputs should be regenerated """
         return self._regenerate_input_random
+
+    def get_dispenser_settings(self, fields):
+        """ Fetch the legacy config fields now used by task dispensers """
+        return {field_class.get_id(): field_class.get_value({field_class.get_id(): self._data[field]}) for field, field_class in fields.items() if field in self._data}

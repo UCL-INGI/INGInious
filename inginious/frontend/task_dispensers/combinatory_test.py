@@ -12,7 +12,8 @@ from inginious.frontend.accessible_time import AccessibleTime
 
 class CombinatoryTest(TableOfContents):
     config_items = [Weight, SubmissionStorage, EvaluationMode, Categories, SubmissionLimit, Accessibility]
-
+    legacy_fields = {"weight": Weight, "submission_limit": SubmissionLimit, "stored_submissions": SubmissionStorage,
+                     "evaluate": EvaluationMode, "accessible": Accessibility, "categories": Categories}
     @classmethod
     def get_id(cls):
         return "combinatory_test"
