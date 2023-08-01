@@ -34,22 +34,24 @@ class CourseTaskListPage(INGIniousAdminPage):
                 self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', {})
             else:
                 errors.append(_("Invalid task dispenser"))
+        elif "migrate_tasks" in user_input:
+            task_dispenser = course.get_task_dispenser()
+            try:
+                data = task_dispenser.import_legacy_tasks()
+                self.update_dispenser(course, data)
+                self.clean_task_files(course)
+            except Exception as e:
+                errors.append(_("Something wrong happened: ") + str(e))
         else:
             try:
-                task_dispenser = course.get_task_dispenser()
-                data, msg = task_dispenser.check_dispenser_data(user_input["course_structure"])
-                if data:
-                    self.course_factory.update_course_descriptor_element(courseid, 'task_dispenser', task_dispenser.get_id())
-                    self.course_factory.update_course_descriptor_element(courseid, 'dispenser_data', data)
-                else:
-                    errors.append(_("Invalid course structure: ") + msg)
+                self.update_dispenser(course, json.loads(user_input["course_structure"]))
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
 
             for taskid in json.loads(user_input.get("new_tasks", "[]")):
                 try:
                     self.task_factory.create_task(course, taskid, {
-                        "name": taskid, "accessible": False, "problems": {}, "environment_type": "mcq"})
+                        "name": taskid, "problems": {}, "environment_type": "mcq"})
                 except Exception as ex:
                     errors.append(_("Couldn't create task {} : ").format(taskid) + str(ex))
             for taskid in json.loads(user_input.get("deleted_tasks", "[]")):
@@ -66,6 +68,26 @@ class CourseTaskListPage(INGIniousAdminPage):
         # don't forget to reload the modified course
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.page(course, errors, not errors)
+
+    def update_dispenser(self, course, dispenser_data):
+        """ Update the task dispenser based on dispenser_data """
+        task_dispenser = course.get_task_dispenser()
+        data, msg = task_dispenser.check_dispenser_data(dispenser_data)
+        if data:
+            self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',
+                                                                 task_dispenser.get_id())
+            self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
+        else:
+            raise Exception(_("Invalid course structure: ") + msg)
+
+    def clean_task_files(self, course):
+        task_dispenser = course.get_task_dispenser()
+        legacy_fields = task_dispenser.legacy_fields.keys()
+        for taskid in course.get_tasks():
+            descriptor = self.task_factory.get_task_descriptor_content(course.get_id(), taskid)
+            for field in legacy_fields:
+                descriptor.pop(field, None)
+            self.task_factory.update_task_descriptor_content(course.get_id(), taskid, descriptor)
 
     def submission_url_generator(self, taskid):
         """ Generates a submission url """

@@ -2,7 +2,7 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-
+import copy
 import json
 from collections import OrderedDict
 
@@ -17,6 +17,8 @@ from inginious.frontend.accessible_time import AccessibleTime
 
 class TableOfContents(TaskDispenser):
     config_items = [Weight, SubmissionStorage, EvaluationMode, GroupSubmission, Categories, SubmissionLimit, Accessibility]
+    legacy_fields = {"weight": Weight, "submission_limit": SubmissionLimit, "stored_submissions": SubmissionStorage,
+                     "groups": GroupSubmission, "evaluate": EvaluationMode, "accessible": Accessibility, "categories": Categories}
 
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         # Check dispenser data structure
@@ -115,7 +117,7 @@ class TableOfContents(TaskDispenser):
 
     def check_dispenser_data(self, dispenser_data):
         """ Checks the dispenser data as formatted by the form from render_edit function """
-        new_toc = json.loads(dispenser_data)
+        new_toc = dispenser_data
         valid, errors = check_toc(new_toc.get("toc", {}))
         if valid:
             valid, errors = check_task_config(self.config_items, new_toc.get("config", {}))
@@ -125,3 +127,21 @@ class TableOfContents(TaskDispenser):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
         tasks = self._task_list_func()
         return OrderedDict([(taskid, tasks[taskid]) for taskid in self._toc.get_tasks() if taskid in tasks])
+
+    def has_legacy_tasks(self):
+        """ Checks if the task files contains dispenser settings """
+        for taskid, task in self._task_list_func().items():
+            test = task.get_dispenser_settings(self.legacy_fields)
+            if task.get_dispenser_settings(self.legacy_fields):
+                return True
+        return False
+
+    def import_legacy_tasks(self):
+        """ Imports the task dispenser settings from a task file dict """
+        dispenser_data = copy.deepcopy(self._dispenser_data)
+        for taskid, task in self._task_list_func().items():
+            try:
+                dispenser_data["config"][taskid] = task.get_dispenser_settings(self.legacy_fields)
+            except Exception as e:
+                raise Exception(f"In task {taskid} : {e}")
+        return dispenser_data
