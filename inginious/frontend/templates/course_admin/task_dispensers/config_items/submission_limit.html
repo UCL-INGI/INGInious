@@ -1,8 +1,22 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
+
+{% set submission_limit = course.get_task_dispenser().get_submission_limit(taskid) %}
+
+{% if short %}
+{{ _("Submission limits") }} :
+
+<span class="submission_limit submission_limit-none" {% if submission_limit != {'amount':-1, 'period':-1} %} style="display:none;" {% endif %}> {{ _("No limitation") }}</span>
+<span class="submission_limit submission_limit-hard" {% if submission_limit["period"] != -1 or submission_limit["amount"] == -1 %} style="display:none;" {% endif %}>
+    {{ _("Hard limit: {nbr_submissions} submission(s)").format(nbr_submissions='<span class="amount">' + str(submission_limit['amount']) + '</span>') | safe}}
+</span>
+<span class="submission_limit submission_limit-soft" {% if submission_limit["period"] == -1 %} style="display:none;" {% endif %}>
+    {{ _("Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)").format(nbr_submissions='<span class="amount">' + str(submission_limit['amount']) + '</span>', nbr_hours='<span class="period">' + str(submission_limit['period']) + '</span>') | safe}}
+</span>
+
+{% else %}
 <div class="mt-3">{{ _("Submission limits") }}</div>
-<div class="form-group">
-    {% set submission_limit = course.get_task_dispenser().get_submission_limit(taskid) %}
+<div class="form-group submission_limits">
     <label>
         <input name="submission_limit_{{taskid}}" type="radio" value="none" class="submission_limit" id="{{taskid}}" {% if submission_limit == {'amount':-1, 'period':-1} %} checked="checked" {% endif %}/> {{ _("No limitation") }}
     </label><br/>
@@ -25,3 +39,28 @@
         </div>
     </div>
 </div>
+
+<script>
+    $("#edit_{{taskid}} .submission_limits input").change(function () {
+        let action = $(this).attr("name");
+        if(action == "submission_limit_{{taskid}}") {
+            $("#task_{{taskid}} span.submission_limit").hide();
+            if($(this).val() == "none")
+                $("#task_{{taskid}} .submission_limit-none").show();
+            else if($(this).val() == "hard")
+                $("#task_{{taskid}} .submission_limit-hard").show();
+            else
+                $("#task_{{taskid}} .submission_limit-soft").show();
+        }
+        else {
+            let id = $(this).attr("id");
+            if (id == "submission_limit_hard_{{taskid}}")
+                $("#task_{{taskid}} .submission_limit-hard span").text($(this).val());
+            else if(id == "submission_limit_soft_0_{{taskid}}")
+                $("#task_{{taskid}} .submission_limit-soft span.amount").text($(this).val());
+            else
+                $("#task_{{taskid}} .submission_limit-soft span.period").text($(this).val());
+        }
+    });
+</script>
+{% endif %}

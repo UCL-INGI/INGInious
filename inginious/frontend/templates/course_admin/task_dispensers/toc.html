@@ -3,6 +3,43 @@
 
 {% include "course_admin/task_dispensers/util.html" %}
 
+<ul class="nav nav-pills mb-3 small">
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Grouped actions</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item disabled" href="#" id="change-settings"><i class="fa fa-cogs"></i> {{ _("Change selection") }}</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#"><i class="fa fa-arrow-right"></i> {{ _("Move to section...") }}</a>
+            <a class="dropdown-item" href="#"><i class="fa fa-trash"></i> {{ _("Delete") }}</a>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled" href="#">{{ _("On setting: ") }}</a>
+    </li>
+    {% for config_item in course.get_task_dispenser().config_items %}
+    <li class="nav-item">
+        <a class="nav-link setting-filter" data-filter="{{ config_item.get_id() }}" href="#">{{ config_item.get_name() }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    $(".setting-filter").click(function () {
+        if($(this).hasClass("active")) {
+            $("#change-settings").addClass("disabled");
+            $(".setting-filter").removeClass("active");
+            $(".pills").hide();
+        } else {
+            $(".setting-filter").removeClass("active");
+            $("#change-settings").removeClass("disabled");
+            $(this).addClass("active");
+            $(".pills").hide();
+            $(".pills-" + $(this).data("filter")).show();
+        }
+    })
+</script>
+
+
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
         {% with sections=course_structure,level=3,display_subsections=True,config_fields=config_fields %}

@@ -1,9 +1,20 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
+{% set at = course.get_task_dispenser().get_accessibility(taskid, user_manager.session_username()) %}
+
+{% if short %}
+    {{_("Accessibility")}} :
+    <span class="accessibility accessibility-never" {% if not at.is_never_accessible() %} style="display: none;" {% endif %}>{{_("Never")}}</span>
+    <span class="accessibility accessibility-always" {% if not at.is_always_accessible() %} style="display: none;" {% endif %}>{{_("Always")}}</span>
+    <span class="accessibility accessibility-custom" {% if at.is_always_accessible() or at.is_never_accessible() %} style="display: none;" {% endif %}>
+        {{ _("Custom, from: {} to: {}").format('<span class="accessibility-custom-start">' + str(at.get_std_start_date()) + '</span>', '<span class="accessibility-custom-end">' + at.get_std_end_date() + '</span>') | safe}}
+        (<span class="accessibility-custom-soft-end">{{ at.get_std_soft_end_date() }}</span>)
+    </span>
+{% else %}
 <div class="mt-3">{{_("Accessibility")}}</div>
-<div class="form-group row">
-    {% set at = course.get_task_dispenser().get_accessibility(taskid, user_manager.session_username()) %}
+<div class="form-group row accessibility">
+
     <div class="col-md-12">
         <label>
             <input class="accessibility" type="radio" value="false" name="accessibility_{{taskid}}" id="{{taskid}}"
@@ -70,3 +81,41 @@
         });
     </script>
 </div>
+
+<script>
+    $("#edit_{{taskid}} .accessibility input").change(function () {
+        let action = $(this).attr("name");
+        if(action == "accessibility_{{taskid}}") {
+            $("#task_{{taskid}} .accessibility").hide();
+            if($(this).val() == "true")
+                $("#task_{{taskid}} .accessibility-always").show();
+            else if($(this).val() == "false")
+                $("#task_{{taskid}} .accessibility-never").show();
+            else
+                $("#task_{{taskid}} .accessibility-custom").show();
+        }
+        else {
+            let id = $(this).attr("id");
+            if (id == "accessibility_start_{{taskid}}")
+                $("#task_{{taskid}} .accessibility-custom-start").text($(this).val());
+            else if(id == "accessibility_end_{{taskid}}")
+                $("#task_{{taskid}} .accessibility-custom-end").text($(this).val());
+            else
+                $("#task_{{taskid}} .accessibility-custom-soft-end").text($(this).val());
+        }
+    });
+
+    $('#accessibility_start_picker_{{taskid}}').on("change.datetimepicker", function () {
+        let val = $("#accessibility_start_{{taskid}}").val();
+        $("#task_{{taskid}} .accessibility-custom-start").text(val);
+    });
+    $('#accessibility_end_picker_{{taskid}}').on("change.datetimepicker", function () {
+        let val = $("#accessibility_end_{{taskid}}").val();
+        $("#task_{{taskid}} .accessibility-custom-end").text(val);
+    });
+    $('#accessibility_soft_end_picker_{{taskid}}').on("change.datetimepicker", function () {
+        let val = $("#accessibility_soft_end_{{taskid}}").val();
+        $("#task_{{taskid}} .accessibility-custom-soft-end").text(val);
+    });
+</script>
+{% endif %}

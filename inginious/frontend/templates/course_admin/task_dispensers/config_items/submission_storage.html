@@ -1,9 +1,16 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
+{% set no_stored_submissions = course.get_task_dispenser().get_no_stored_submissions(taskid) %}
+{% if short %}
+{{_("Submission storage")}} :
+    <span class="submission_storage submission_storage-all_sub" {% if no_stored_submissions != 0 %} style="display: none;" {% endif %}>{{ _("All submissions") }}</span>
+    <span class="submission_storage submission_storage-no_stored_submissions" {% if no_stored_submissions == 0 %} style="display: none;" {% endif %}>
+        {{ _("Only the last {nbr_submissions} submissions").format(nbr_submissions="<span>" + str(no_stored_submissions) + "</span>") | safe }}
+    </span>
+{% else %}
 <div class="mt-3">{{_("Submission storage")}}</div>
 <div class="no_stored_submissions">
-    {% set no_stored_submissions = course.get_task_dispenser().get_no_stored_submissions(taskid) %}
     <label>
         <input type="radio" value="store_all" class="no_stored_submissions" name="no_stored_submissions_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if no_stored_submissions == 0 }} />
         {{_("All submissions")}}
@@ -17,3 +24,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    $("#edit_{{taskid}} .no_stored_submissions input").change(function () {
+        let action = $(this).attr("name");
+        if(action == "no_stored_submissions_{{taskid}}") {
+            $("#task_{{taskid}} .submission_storage").hide();
+            if($(this).val() == "store_all")
+                $("#task_{{taskid}} .submission_storage-all_sub").show();
+            else
+                $("#task_{{taskid}} .submission_storage-no_stored_submissions").show();
+        }
+        else
+            $("#task_{{taskid}} .submission_storage-no_stored_submissions span").text($(this).val());
+    });
+</script>
+{% endif %}
