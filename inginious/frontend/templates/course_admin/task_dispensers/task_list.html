@@ -5,7 +5,9 @@
 
 <div id="{{id}}" class="section tasks_list card mb-4" data-level="{{level}}" >
     <div class="section_header handle card-header d-flex justify-content-between pr-3">
-        <span class="title">
+
+        <span class="title mt-auto mb-auto">
+            <input type="checkbox" class="mr-3" />
             {{ section.get_title() }}
         </span>
         <span style="display: none" class="divider"></span>
@@ -14,7 +16,7 @@
         {% endwith %}
     </div>
     {% if config_fields %}
-        <div class="config card-body bg-light">
+        <div class="config card-body bg-light pb-2">
             {% with section_config=section.get_config(), config_fields=config_fields %}
                {% include "course_admin/task_dispensers/section_config.html" %}
             {% endwith %}
@@ -24,8 +26,16 @@
         {% for taskid in section.get_tasks() %}
             {% if taskid in tasks %}
                 <div id="task_{{taskid}}" class="task handle list-group-item list-group-item-action d-flex">
-                    <div class="task_name">
-                        {{ tasks[taskid]["name"] }}
+                    <input type="checkbox" class="mt-auto mb-auto mr-3" />
+                    <div class="task_name mt-auto mb-auto">
+                        <p class="m-0 font-weight-bold">{{ tasks[taskid]["name"] }}</p>
+                        {% for config_item in course.get_task_dispenser().config_items %}
+                        <p class="m-0 font-italic pills pills-{{ config_item.get_id() }}" style="display: none;">
+                            {% with short=True %}
+                                {% include config_item.get_template() %}
+                            {% endwith %}
+                        </p>
+                        {% endfor %}
                     </div>
                     {% include "course_admin/task_dispensers/task_buttons.html" %}
                 </div>

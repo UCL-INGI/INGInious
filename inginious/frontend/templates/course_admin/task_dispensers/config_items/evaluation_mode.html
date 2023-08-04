@@ -1,19 +1,36 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
+{% set evaluation_value = course.get_task_dispenser().get_evaluation_mode(taskid) %}
+
+{% if short %}
+{{_("Evaluation submission")}} :
+    <span class="evaluation_submission evaluation_submission-best" {% if not evaluation_value == "best" %} style="display: none;" {% endif %}>{{ _("Best submission") }}</span>
+    <span class="evaluation_submission evaluation_submission-last" {% if not evaluation_value == "last" %} style="display: none;" {% endif %}>{{ _("Last submission") }}</span>
+{% else %}
 <div class="mt-3">{{_("Evaluation submission")}}</div>
-<div class="evaluation_submission">
-    {% set evaluation_value = course.get_task_dispenser().get_evaluation_mode(taskid) %}
-    <label>
-        <input type="radio" value="best" class="evaluation_submission" name="evaluation_submission_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if evaluation_value == "best" }} />
-        {{ _("Best submission") }}
-    </label><br/>
+<div class="form-group evaluation_submission">
     <div class="row">
-        <div>
-            <label class="col-xs-12 col-lg-12">
-                <input type="radio" value="last" class="evaluation_submission" name="evaluation_submission_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if evaluation_value == "last" }} />
-                {{ _("Last submission") }}
-            </label>
-        </div>
+        <label class="col-md-12">
+            <input type="radio" value="best" class="evaluation_submission" name="evaluation_submission_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if evaluation_value == "best" }} />
+            {{ _("Best submission") }}
+        </label>
+    </div>
+    <div class="row">
+        <label class="col-md-12">
+            <input type="radio" value="last" class="evaluation_submission" name="evaluation_submission_{{taskid}}" id="{{taskid}}" {{ 'checked'|safe if evaluation_value == "last" }} />
+            {{ _("Last submission") }}
+        </label>
     </div>
 </div>
+
+<script>
+    $("#edit_{{taskid}} .evaluation_submission input").change(function () {
+        $("#task_{{taskid}} span.evaluation_submission").hide();
+        if($(this).val() == "best")
+            $("#task_{{taskid}} .evaluation_submission-best").show();
+        else
+            $("#task_{{taskid}} .evaluation_submission-last").show();
+    });
+</script>
+{% endif %}
