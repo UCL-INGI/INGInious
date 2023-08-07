@@ -131,7 +131,7 @@
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{ _("Grouped actions") }}</a>
         <div class="dropdown-menu">
-            <a class="dropdown-item disabled" href="#" id="change-settings"><i class="fa fa-cogs"></i> {{ _("Change selection") }}</a>
+            <a class="dropdown-item disabled" href="#" id="change-settings" data-toggle="modal" data-target="#grouped-actions-edit"><i class="fa fa-cogs"></i> {{ _("Change selection") }}</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#"><i class="fa fa-arrow-right"></i> {{ _("Move to section...") }}</a>
             <a class="dropdown-item" href="#"><i class="fa fa-trash"></i> {{ _("Delete") }}</a>
@@ -172,3 +172,29 @@
         });
     });
 </script>
+
+<div class="modal fade" id="grouped-actions-edit" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{ _("Edit selected tasks") }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="col-md-12 mb-3">
+            {% for config_item in course.get_task_dispenser().config_items %}
+                <div class="pills pills-{{ config_item.get_id() }}" style="display: none;">
+                {% with taskid="" %}
+                    {% include config_item.get_template() %}
+                {% endwith %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ _("Close") }}</button>
+        </div>
+        </div>
+    </div>
+</div>
