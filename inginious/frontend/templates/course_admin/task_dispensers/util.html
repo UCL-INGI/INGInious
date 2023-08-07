@@ -160,5 +160,15 @@
             $(".pills").hide();
             $(".pills-" + $(this).data("filter")).show();
         }
-    })
+    });
+
+    $(function() {
+        $(".grouped-actions-section").change(function () {
+            let id = $(this).data("section");
+            let val = this.checked;
+            $("#" + id + " .grouped-actions").each(function () {
+                $(this).prop("checked", val);
+            });
+        });
+    });
 </script>
