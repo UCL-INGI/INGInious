@@ -116,16 +116,28 @@
 <div id="all_tasks" style="display: none">
     {% for taskid in tasks %}
         <div id="task_{{ taskid }}_clone" class="task handle list-group-item list-group-item-action d-flex">
-            <div class="task_name p-0">
-                {{ tasks[taskid]["name"] }}
+            <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" data-taskid="{{ taskid }}" />
+            <div class="task_name mt-auto mb-auto">
+                <p class="m-0 font-weight-bold">{{ tasks[taskid]["name"] }}</p>
+                {% for config_item in course.get_task_dispenser().config_items %}
+                <p class="m-0 font-italic pills pills-{{ config_item.get_id() }}" style="display: none;">
+                    {% with short=True %}
+                        {% include config_item.get_template() %}
+                    {% endwith %}
+                </p>
+                {% endfor %}
             </div>
             {% include "course_admin/task_dispensers/task_buttons.html" %}
         </div>
     {% endfor %}
     <div id="new_task_clone" class="task handle list-group-item list-group-item-action d-flex">
-        <div class="task_name p-0">{{ _("New task with id: ") }}</div>
+        <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" />
+        <div class="task_name mt-auto mb-auto">
+            <p class="m-0 font-weight-bold">{{ _("New task with id: ") }}</p>
+        </div>
+
         <div class="ml-auto">
-            <button class="delete_task btn btn-sm btn-warning" onclick="dispenser_util_delete_task(this, true, this.closest('.task').id.to_taskid())"
+            <button class="delete_task btn btn-sm btn-warning" onclick="dispenser_util_delete_task(this, false, this.closest('.task').id.to_taskid())"
                     title="{{ _('Delete invalid task') }}" style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-trash"></i>
             </button>
