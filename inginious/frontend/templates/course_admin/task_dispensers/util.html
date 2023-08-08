@@ -53,6 +53,8 @@
     {% include "course_admin/task_dispensers/util_delete_modal.html" %}
 {% endwith %}
 
+{% include "course_admin/task_dispensers/util_move_modal.html" %}
+
 {% for taskid in tasks %}
     {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
 {% endfor %}
@@ -137,7 +139,7 @@
         <div class="dropdown-menu">
             <a class="dropdown-item disabled" href="#" id="change-settings" data-toggle="modal" data-target="#grouped-actions-edit"><i class="fa fa-cogs"></i> {{ _("Change selection") }}</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#"><i class="fa fa-arrow-right"></i> {{ _("Move to section...") }}</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#grouped_actions_move_modal"><i class="fa fa-arrow-right"></i> {{ _("Move to section...") }}</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_grouped_actions_modal"><i class="fa fa-trash"></i> {{ _("Delete") }}</a>
         </div>
     </li>
