@@ -151,11 +151,17 @@ function dispenser_util_open_delete_modal(button) {
     }
 }
 
+function dispenser_util_delete_selection(keep_files) {
+    $(".grouped-actions-task:checked").each(function () {
+        let button = $("#task_" + $(this).data("taskid") + " button.delete_task");
+        dispenser_util_delete_task(button, keep_files, $(this).data("taskid"));
+    });
+}
+
 function dispenser_util_delete_section(button, keep_files) {
     const section = $("#" + button.getAttribute('data-target'));
     const parent = section.parent().closest(".sections_list");
     const wipe = $('#delete_section_modal .wipe_tasks').prop("checked");
-
 
     section.find(".task").each(function () {
         const taskid = this.id.to_taskid();
