@@ -32,6 +32,7 @@ function dispenser_util_rename_section(element, new_section) {
             draggable_tasks[section[0].id] = dispenser_util_make_tasks_list_sortable(section);
         }
         warn_before_exit = true;
+        dispenser_util_update_section_select();
     };
 
     input.focusout(quit);
@@ -238,6 +239,7 @@ function dispenser_util_content_modified(section) {
         }
         dispenser_util_section_to_empty(section);
     }
+    dispenser_util_update_section_select();
 }
 
 function dispenser_util_section_to_empty(section) {
@@ -265,6 +267,33 @@ function dispenser_util_empty_to_subsections(section) {
 function dispenser_util_empty_to_tasks(section) {
     section.removeClass("sections_list");
     section.find(".section_placeholder").remove();
+}
+
+/*******************/
+/* Grouped actions */
+/*******************/
+
+function dispenser_util_update_section_select() {
+    $("#grouped-actions-section-select").find("option").remove();
+    $("#course_structure .section").each(function () {
+        let id = this.id;
+        let level = $(this).data('level') - 3;
+        let title = "-".repeat(level) + " " + $(this).find(".title").first().text().trim();
+        let enabled = $(this).hasClass("tasks_list");
+        $("#grouped-actions-section-select").append($('<option>', { value: id, text: title, disabled: !enabled}));
+    });
+}
+
+function dispenser_util_move_selection() {
+    let dest = $("#grouped-actions-section-select :selected").val();
+    $(".grouped-actions-task:checked").each(function () {
+        let elem = $("#task_" + $(this).data("taskid"));
+        let source = elem.parent().parent();
+
+        elem.detach().appendTo($("#" + dest + " .list-group"));
+        dispenser_util_content_modified(source);
+    });
+    dispenser_util_content_modified($('#' + dest));
 }
 
 /****************************
