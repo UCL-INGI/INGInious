@@ -129,7 +129,8 @@ function dispenser_util_add_tasks_to_section(button) {
         else {
             var new_task_clone = $("#new_task_clone").clone();
             new_task_clone.attr("id", 'task_' + selected_tasks[i]);
-            new_task_clone.children(".task_name").append(selected_tasks[i]);
+            new_task_clone.children("input").data("taskid", selected_tasks[i]);
+            new_task_clone.find(".task_name p.font-weight-bold").append(selected_tasks[i]);
             content.append(new_task_clone);
             dispenser_add_task(selected_tasks[i]);
         }
