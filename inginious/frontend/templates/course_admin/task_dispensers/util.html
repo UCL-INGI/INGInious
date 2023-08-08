@@ -41,11 +41,15 @@
     });
 </script>
 
-{% with section=True %}
+{% with type="section" %}
     {% include "course_admin/task_dispensers/util_delete_modal.html" %}
 {% endwith %}
 
-{% with section=False %}
+{% with type="task" %}
+    {% include "course_admin/task_dispensers/util_delete_modal.html" %}
+{% endwith %}
+
+{% with type="grouped_actions" %}
     {% include "course_admin/task_dispensers/util_delete_modal.html" %}
 {% endwith %}
 
@@ -134,7 +138,7 @@
             <a class="dropdown-item disabled" href="#" id="change-settings" data-toggle="modal" data-target="#grouped-actions-edit"><i class="fa fa-cogs"></i> {{ _("Change selection") }}</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#"><i class="fa fa-arrow-right"></i> {{ _("Move to section...") }}</a>
-            <a class="dropdown-item" href="#"><i class="fa fa-trash"></i> {{ _("Delete") }}</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_grouped_actions_modal"><i class="fa fa-trash"></i> {{ _("Delete") }}</a>
         </div>
     </li>
     <li class="nav-item">
