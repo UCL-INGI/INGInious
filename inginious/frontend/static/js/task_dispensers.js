@@ -216,6 +216,29 @@ function dispenser_util_delete_task(button, keep_files, taskid){
 /*******************************
  *  Adapt structure to change  *
  *******************************/
+
+function dispenser_toggle_adapt_viewport() {
+    let button = $("#compact-view");
+    if(button.hasClass("active"))
+        button.removeClass("active");
+    else
+        button.addClass("active");
+    dispenser_util_adapt_viewport();
+}
+
+function dispenser_util_adapt_viewport() {
+    $("#course_structure").removeAttr("style");
+    if($("#compact-view").hasClass("active")) {
+        var viewport_height = window.innerHeight;
+        var document_height = $("#main-content").innerHeight() + $("#inginious-top").innerHeight();
+        var overflow = document_height - viewport_height;
+        if (overflow > 0) {
+            $("#course_structure").height($("#course_structure").height() - overflow);
+            $("#course_structure").css("overflow", "auto");
+        }
+    }
+}
+
 function dispenser_util_adapt_size(element) {
     const level = Number($(element).parent().closest(".sections_list").attr("data-level")) + 1;
     $(element).attr("data-level", level);
@@ -251,6 +274,7 @@ function dispenser_util_content_modified(section) {
         dispenser_util_section_to_empty(section);
     }
     dispenser_util_update_section_select();
+    dispenser_util_adapt_viewport();
 }
 
 function dispenser_util_section_to_empty(section) {
