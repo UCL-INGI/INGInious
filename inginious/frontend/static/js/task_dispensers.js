@@ -127,11 +127,21 @@ function dispenser_util_add_tasks_to_section(button) {
         if(existing_task)
             content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
         else {
+            // Copy and add the new task
             var new_task_clone = $("#new_task_clone").clone();
             new_task_clone.attr("id", 'task_' + selected_tasks[i]);
-            new_task_clone.children("input").data("taskid", selected_tasks[i]);
-            new_task_clone.find(".task_name p.font-weight-bold").append(selected_tasks[i]);
+            new_task_clone.html(new_task_clone.html().replaceAll("NEWTASKID", selected_tasks[i]));
+            new_task_clone.find(".task_settings").tooltip({"placement": "bottom"})
+            new_task_clone.find(".delete_task").tooltip({"placement": "bottom"})
             content.append(new_task_clone);
+
+            // Copy and add the new fields
+            var new_modal_clone = $("#edit-modals-template").clone();
+            new_modal_clone.html(new_modal_clone.html().replaceAll("NEWTASKID", selected_tasks[i]));
+            new_modal_clone.find(".categories").selectize({delimiter: ",", persist: false,
+                create: function (input) { return {value: input, text: input}; },
+            });
+            $("#edit-modals").append(new_modal_clone.children(".modal"));
             dispenser_add_task(selected_tasks[i]);
         }
     }

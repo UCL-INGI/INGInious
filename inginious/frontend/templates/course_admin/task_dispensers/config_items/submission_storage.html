@@ -47,13 +47,13 @@
         if(action == "no_stored_submissions_") {
             let value =  $(this).val();
             $(".grouped-actions-task:checked").each(function () {
-                $(".no_stored_submissions #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
+                $("#edit-modals .no_stored_submissions #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
             });
         }
         else {
             let value =  $(this).val();
             $(".grouped-actions-task:checked").each(function () {
-                $(".no_stored_submissions #no_stored_submissions_value_" + $(this).data("taskid")).val(value).change();
+                $("#edit-modals .no_stored_submissions #no_stored_submissions_value_" + $(this).data("taskid")).val(value).change();
             });
         }
     });

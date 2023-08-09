@@ -44,7 +44,7 @@
     $(".grouped-actions-group_submissions input").change(function () {
         let value =  $(this).val();
         $(".grouped-actions-task:checked").each(function () {
-            $(".group_submissions #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
+            $("#edit-modals .group_submissions #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
         });
     });
 </script>

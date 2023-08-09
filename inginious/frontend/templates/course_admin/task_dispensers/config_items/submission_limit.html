@@ -71,14 +71,14 @@
         if(action == "submission_limit_") {
             let value =  $(this).val();
             $(".grouped-actions-task:checked").each(function () {
-                $(".submission_limits #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
+                $("#edit-modals .submission_limits #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
             });
         }
         else {
             let value =  $(this).val();
             let id = $(this).attr("id");
             $(".grouped-actions-task:checked").each(function () {
-                $(".submission_limits #" + id + $(this).data("taskid")).val(value).change();
+                $("#edit-modals .submission_limits #" + id + $(this).data("taskid")).val(value).change();
             });
         }
     });

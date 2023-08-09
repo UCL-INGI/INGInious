@@ -39,7 +39,7 @@
     $(".grouped-actions-evaluation_submission input").change(function () {
         let value =  $(this).val();
         $(".grouped-actions-task:checked").each(function () {
-            $(".evaluation_submission #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
+            $("#edit-modals .evaluation_submission #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
         });
     });
 </script>

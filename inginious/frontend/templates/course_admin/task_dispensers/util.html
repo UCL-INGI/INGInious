@@ -55,13 +55,46 @@
 
 {% include "course_admin/task_dispensers/util_move_modal.html" %}
 
+<div id="edit-modals">
+<div class="modal fade" id="grouped-actions-edit" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{ _("Edit selected tasks") }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="col-md-12 mb-3">
+            {% for config_item in course.get_task_dispenser().config_items %}
+                <div class="pills pills-{{ config_item.get_id() }}" style="display: none;">
+                {% with taskid="" %}
+                    {% include config_item.get_template() %}
+                {% endwith %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ _("Close") }}</button>
+        </div>
+        </div>
+    </div>
+</div>
 {% for taskid in tasks %}
     {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
 {% endfor %}
+</div>
+
+<div id="edit-modals-template">
+{% with taskid="NEWTASKID" %}
+    {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
+{% endwith %}
+</div>
 
 <script>
     $('document').ready(function(){
-        $(".categories").each(function(val){
+        $("#edit-modals .categories").each(function(){
             $(this).selectize({
                 delimiter: ",",
                 persist: false,
@@ -131,14 +164,24 @@
         </div>
     {% endfor %}
     <div id="new_task_clone" class="task handle list-group-item list-group-item-action d-flex">
-        <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" />
+        <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" data-taskid="NEWTASKID" />
         <div class="task_name mt-auto mb-auto">
-            <p class="m-0 font-weight-bold">{{ _("New task with id: ") }}</p>
+            <p class="m-0 font-weight-bold">{{ _("New task with id: ") }} NEWTASKID</p>
+            {% for config_item in course.get_task_dispenser().config_items %}
+            <p class="m-0 font-italic pills pills-{{ config_item.get_id() }}" style="display: none;">
+                {% with short=True, taskid="NEWTASKID" %}
+                    {% include config_item.get_template() %}
+                {% endwith %}
+            </p>
+            {% endfor %}
         </div>
-
-        <div class="ml-auto">
-            <button class="delete_task btn btn-sm btn-warning" onclick="dispenser_util_delete_task(this, false, this.closest('.task').id.to_taskid())"
-                    title="{{ _('Delete invalid task') }}" style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
+        <div class="ml-auto btn-group btn-group-sm" role="group">
+            <a class="task_settings btn btn-primary m-auto" data-toggle="modal" data-target="#edit_NEWTASKID"
+                    title="{{ _('Task settings') }}">
+                <i class="fa fa-cogs" aria-hidden="true"></i>
+            </a>
+            <button class="delete_task btn btn-warning m-auto" onclick="dispenser_util_delete_task(this, false, this.closest('.task').id.to_taskid())"
+                    title="{{ _('Delete task') }}" style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-trash"></i>
             </button>
         </div>
@@ -190,29 +233,3 @@
         });
     });
 </script>
-
-<div class="modal fade" id="grouped-actions-edit" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">{{ _("Edit selected tasks") }}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="col-md-12 mb-3">
-            {% for config_item in course.get_task_dispenser().config_items %}
-                <div class="pills pills-{{ config_item.get_id() }}" style="display: none;">
-                {% with taskid="" %}
-                    {% include config_item.get_template() %}
-                {% endwith %}
-                </div>
-            {% endfor %}
-        </div>
-
-        <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ _("Close") }}</button>
-        </div>
-        </div>
-    </div>
-</div>
