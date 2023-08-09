@@ -99,14 +99,14 @@ class TableOfContents(TaskDispenser):
         """ Returns the task dispenser data structure """
         return self._toc
 
-    def render_edit(self, template_helper, course, task_data):
+    def render_edit(self, template_helper, course, task_data, task_errors):
         """ Returns the formatted task list edition form """
         config_fields = {
             "closed": SectionConfigItem(_("Closed by default"), "checkbox", False),
             "hidden_if_empty": SectionConfigItem(_("Hidden if empty"),"checkbox",False)
         }
         return template_helper.render("course_admin/task_dispensers/toc.html", course=course,
-                                      course_structure=self._toc, tasks=task_data, config_fields=config_fields,
+                                      course_structure=self._toc, tasks=task_data, task_errors=task_errors, config_fields=config_fields,
                                       config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
 
     def render(self, template_helper, course, tasks_data, tag_list, username):

@@ -74,7 +74,7 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def render_edit(self, template_helper, course, task_data):
+    def render_edit(self, template_helper, course, task_data, task_errors):
         """ Returns the formatted task list edition form """
         pass
 

@@ -115,11 +115,13 @@ class CourseTaskListPage(INGIniousAdminPage):
         tasks = {}
         if errors is None:
             errors = []
+
+        tasks_errors = {}
         for taskid in files:
             try:
                 tasks[taskid] = course.get_task(taskid)
-            except Exception as inst:
-                errors.append({"taskid": taskid, "error": str(inst)})
+            except Exception as ex:
+                tasks_errors[taskid] = str(ex)
 
         tasks_data = natsorted([(taskid, {"name": tasks[taskid].get_name(self.user_manager.session_language()),
                                        "url": self.submission_url_generator(taskid)}) for taskid in tasks],
@@ -130,5 +132,5 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         return self.template_helper.render("course_admin/task_list.html", course=course,
                                            task_dispensers=task_dispensers, tasks=tasks_data, errors=errors,
-                                           validated=validated, webdav_host=self.webdav_host)
+                                           tasks_errors=tasks_errors, validated=validated, webdav_host=self.webdav_host)
 
