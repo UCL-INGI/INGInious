@@ -29,18 +29,6 @@
     .sections_list >div>div>div> .sections_list_option { display: block; }
 </style>
 
-<script>
-    $(function () {
-        $(".tasks_list").each(function(){
-            draggable_tasks[this.id] = dispenser_util_make_tasks_list_sortable($(this));
-        });
-
-        $(".sections_list").each(function(){
-            draggable_sections[this.id] = dispenser_util_make_sections_list_sortable($(this));
-        });
-    });
-</script>
-
 {% with type="section" %}
     {% include "course_admin/task_dispensers/util_delete_modal.html" %}
 {% endwith %}
@@ -91,24 +79,6 @@
     {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
 {% endwith %}
 </div>
-
-<script>
-    $('document').ready(function(){
-        $("#edit-modals .categories").each(function(){
-            $(this).selectize({
-                delimiter: ",",
-                persist: false,
-                create: function (input) {
-                    return {
-                    value: input,
-                    text: input,
-                    };
-                },
-            });
-
-        });
-    });
-</script>
 
 <div class="modal fade" id="addTaskModal" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -196,6 +166,8 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#grouped_actions_move_modal"><i class="fa fa-arrow-right"></i> {{ _("Move to section...") }}</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_grouped_actions_modal"><i class="fa fa-trash"></i> {{ _("Delete") }}</a>
+            <div class="dropdown-divider"></div>
+            <a id="compact-view" class="dropdown-item active" href="#" onclick="dispenser_toggle_adapt_viewport()"><i class="fa fa-eye"></i> {{ _("Compact view") }}</a>
         </div>
     </li>
     <li class="nav-item">
@@ -224,6 +196,15 @@
     });
 
     $(function() {
+
+        $(".tasks_list").each(function(){
+            draggable_tasks[this.id] = dispenser_util_make_tasks_list_sortable($(this));
+        });
+
+        $(".sections_list").each(function(){
+            draggable_sections[this.id] = dispenser_util_make_sections_list_sortable($(this));
+        });
+
         $(".grouped-actions-section").change(function () {
             let id = $(this).data("section");
             let val = this.checked;
@@ -231,5 +212,21 @@
                 $(this).prop("checked", val);
             });
         });
+
+        $("#edit-modals .categories").each(function(){
+            $(this).selectize({
+                delimiter: ",",
+                persist: false,
+                create: function (input) {
+                    return {
+                    value: input,
+                    text: input,
+                    };
+                },
+            });
+        });
+
+        dispenser_util_adapt_viewport();
+        $(window).on( "resize", dispenser_util_adapt_viewport);
     });
 </script>
