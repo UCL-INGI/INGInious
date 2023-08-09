@@ -30,6 +30,19 @@
             $("#edit_" + $(this).data("taskid") +  " input.categories").val(value).change();
         });
     });
+
+    $(function() {
+        $("#edit-modals .categories").each(function () {
+            $(this).selectize({delimiter: ",", persist: false,
+                create: function (input) { return { value: input, text: input }; }
+            });
+        });
+        $("#edit-modals").on("new_task", function () {
+            $(this).find(".categories").last().selectize({delimiter: ",", persist: false,
+                create: function (input) { return { value: input, text: input }; }
+            });
+        });
+    });
 </script>
 {% endif %}
 {% endif %}
