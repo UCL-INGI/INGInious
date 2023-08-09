@@ -95,7 +95,7 @@ RUN	git clone https://github.com/amluto/virtme &&\
 WORKDIR /
 
 # Get expect script launching the VM
-COPY run.expect setup.sh /
+COPY run.expect setup.sh telnet_login.sh /
 ENV KVM_START_PATH=/run.expect
 
 # Add telnetd config

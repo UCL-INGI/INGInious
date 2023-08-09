@@ -5,6 +5,6 @@ socket_type = stream
 wait = no
 user = root
 server = /usr/sbin/telnetd
-server_args = -E /bin/bash
+server_args = -E /telnet_login.sh
 disable = no
 }
