@@ -16,7 +16,7 @@ except ImportError:
 try:
     __version__ = version(__name__)
 except PackageNotFoundError:
-    __version__ = "0.7.dev0"
+    __version__ = "0.9.dev0"
 
 MARKETPLACE_URL = "https://marketplace.inginious.org/marketplace.json"
 DB_VERSION = 15

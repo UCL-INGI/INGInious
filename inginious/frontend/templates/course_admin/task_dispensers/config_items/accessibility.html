@@ -127,14 +127,14 @@
         if(action == "accessibility_") {
             let value =  $(this).val();
             $(".grouped-actions-task:checked").each(function () {
-                $(".accessibility #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
+                $("#edit-modals .accessibility #" + $(this).data("taskid") + "[value=" + value + "]").prop("checked", true).change();
             });
         }
         else {
             let value =  $(this).val();
             let id = $(this).attr("id");
             $(".grouped-actions-task:checked").each(function () {
-                $(".accessibility #" + id + $(this).data("taskid")).val(value).change();
+                $("#edit-modals .accessibility #" + id + $(this).data("taskid")).val(value).change();
             });
         }
     });
@@ -142,19 +142,19 @@
     $('#accessibility_start_picker_').on("change.datetimepicker", function () {
         let value = $("#accessibility_start_").val();
         $(".grouped-actions-task:checked").each(function () {
-            $(".accessibility #accessibility_start_" + $(this).data("taskid")).val(value).change();
+            $("#edit-modals .accessibility #accessibility_start_" + $(this).data("taskid")).val(value).change();
         });
     });
     $('#accessibility_end_picker_').on("change.datetimepicker", function () {
         let value = $("#accessibility_end_").val();
         $(".grouped-actions-task:checked").each(function () {
-            $(".accessibility #accessibility_end_" + $(this).data("taskid")).val(value).change();
+            $("#edit-modals .accessibility #accessibility_end_" + $(this).data("taskid")).val(value).change();
         });
     });
     $('#accessibility_soft_end_picker_').on("change.datetimepicker", function () {
         let value = $("#accessibility_soft_end_").val();
         $(".grouped-actions-task:checked").each(function () {
-            $(".accessibility #accessibility_soft_end_" + $(this).data("taskid")).val(value).change();
+            $("#edit-modals .accessibility #accessibility_soft_end_" + $(this).data("taskid")).val(value).change();
         });
     });
 </script>
