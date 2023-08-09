@@ -138,10 +138,8 @@ function dispenser_util_add_tasks_to_section(button) {
             // Copy and add the new fields
             var new_modal_clone = $("#edit-modals-template").clone();
             new_modal_clone.html(new_modal_clone.html().replaceAll("NEWTASKID", selected_tasks[i]));
-            new_modal_clone.find(".categories").selectize({delimiter: ",", persist: false,
-                create: function (input) { return {value: input, text: input}; },
-            });
             $("#edit-modals").append(new_modal_clone.children(".modal"));
+            $("#edit-modals").trigger("new_task");
             dispenser_add_task(selected_tasks[i]);
         }
     }

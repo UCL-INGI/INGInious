@@ -213,19 +213,6 @@
             });
         });
 
-        $("#edit-modals .categories").each(function(){
-            $(this).selectize({
-                delimiter: ",",
-                persist: false,
-                create: function (input) {
-                    return {
-                    value: input,
-                    text: input,
-                    };
-                },
-            });
-        });
-
         dispenser_util_adapt_viewport();
         $(window).on( "resize", dispenser_util_adapt_viewport);
     });
