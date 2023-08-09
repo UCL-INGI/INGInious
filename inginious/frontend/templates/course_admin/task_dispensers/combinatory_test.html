@@ -1,8 +1,6 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{% include "course_admin/task_dispensers/util.html" %}
-
 <div class="alert alert-primary alert-dismissible fade show" role="alert">
     <h4 class="alert-heading">{{ _("Combinatory tests") }}</h4>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -12,6 +10,8 @@
     <hr>
     <p class="mb-0">{{ _("As an administrator, the only way to access all the tasks is through this administration page.") }}</p>
 </div>
+
+{% include "course_admin/task_dispensers/util.html" %}
 
 <div id="course_structure" data-level="2" class="sections_list pb-3">
     <div class="content">
