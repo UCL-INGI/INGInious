@@ -19,7 +19,8 @@ from werkzeug.exceptions import NotFound, HTTPException
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 
-from inginious.common.exceptions import TaskNotFoundException, CourseNotFoundException
+from inginious.common.exceptions import TaskNotFoundException
+from inginious.frontend.exceptions import CourseNotFoundException
 from inginious.frontend.pages.course import handle_course_unavailable
 from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 

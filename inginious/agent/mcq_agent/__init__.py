@@ -19,7 +19,7 @@ class MCQAgent(Agent):
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
-        :param tasks_filesystem: FileSystemProvider to the course/tasks
+        :param tasks_filesystem: FileSystemProvider to the taskset/tasks
         :param problem_types: Problem types dictionary
         """
         super().__init__(context, backend_addr, friendly_name, concurrency, tasks_filesystem)
@@ -78,15 +78,15 @@ class MCQAgent(Agent):
         # This may pose problem with apps that start multiple MCQAgents in the same process...
         builtins.__dict__['_'] = translation.gettext
 
-        course_fs = self._fs.from_subfolder(msg.course_id)
-        task_fs = course_fs.from_subfolder(msg.task_id)
+        taskset_fs = self._fs.from_subfolder(msg.taskset_id)
+        task_fs = taskset_fs.from_subfolder(msg.task_id)
         translations_fs = task_fs.from_subfolder("$i18n")
         if not translations_fs.exists():
             translations_fs = task_fs.from_subfolder("student").from_subfolder("$i18n")
         if not translations_fs.exists():
-            translations_fs = course_fs.from_subfolder("$common").from_subfolder("$i18n")
+            translations_fs = taskset_fs.from_subfolder("$common").from_subfolder("$i18n")
         if not translations_fs.exists():
-            translations_fs = course_fs.from_subfolder("$common").from_subfolder("student")\
+            translations_fs = taskset_fs.from_subfolder("$common").from_subfolder("student")\
                 .from_subfolder("$i18n")
 
         if translations_fs.exists() and translations_fs.exists(language + ".mo"):
@@ -113,7 +113,7 @@ class MCQAgent(Agent):
             problems[key] = (p_result, "\n\n".join(messages))
 
         if need_emul:
-            self._logger.warning("Task %s/%s is not a pure MCQ but has env=MCQ", msg.course_id, msg.task_id)
+            self._logger.warning("Task %s/%s is not a pure MCQ but has env=MCQ", msg.taskset_id, msg.task_id)
             raise CannotCreateJobException("Task wrongly configured as a MCQ")
 
         if error_count != 0:

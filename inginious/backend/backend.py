@@ -171,12 +171,12 @@ class Backend(object):
         for job_id, content in self._job_running.items():
             agent_friendly_name = self._registered_agents[content.agent_addr].name
             jobs_running.append((content.msg.job_id, content.client_addr == client_addr, agent_friendly_name,
-                                 content.msg.course_id+"/"+content.msg.task_id,
+                                 content.msg.taskset_id+"/"+content.msg.task_id,
                                  content.msg.launcher, int(content.time_started), self._get_time_limit_estimate(content.msg)))
 
         #jobs_waiting: a list of tuples in the form
         #(job_id, is_current_client_job, info, launcher, max_time)
-        jobs_waiting = [(job.job_id, job.client_addr == client_addr, job.msg.course_id+"/"+job.msg.task_id, job.msg.launcher,
+        jobs_waiting = [(job.job_id, job.client_addr == client_addr, job.msg.taskset_id+"/"+job.msg.task_id, job.msg.launcher,
                                      self._get_time_limit_estimate(job.msg)) for job in self._waiting_jobs.values()]
 
         await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendGetQueue(jobs_running, jobs_waiting))
@@ -216,7 +216,7 @@ class Backend(object):
             # Send the job to agent
             self._job_running[job_id] = RunningJob(agent_addr, client_addr, job_msg, time.time())
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_id, agent_addr)
-            await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
+            await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.taskset_id, job_msg.task_id,
                                                                                         job_msg.task_problems, job_msg.inputdata,
                                                                                         job_msg.environment_type,
                                                                                         job_msg.environment,

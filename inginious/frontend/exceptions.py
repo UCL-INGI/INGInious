@@ -6,21 +6,17 @@
 """ Some type of exceptions used by parts of INGInious """
 
 
-class InvalidNameException(Exception):
+class CourseNotFoundException(Exception):
     pass
 
 
-class TaskNotFoundException(Exception):
+class CourseUnreadableException(Exception):
     pass
 
 
-class TaskAlreadyExistsException(Exception):
+class CourseAlreadyExistsException(Exception):
     pass
 
 
-class TaskUnreadableException(Exception):
-    pass
-
-
-class TaskReaderNotFoundException(Exception):
+class ImportCourseException(Exception):
     pass

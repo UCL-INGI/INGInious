@@ -149,6 +149,9 @@ class Task(object):
         """ Return the courseid of the course that contains this task """
         return self._course.get_id()
 
+    def get_taskset_id(self):
+        return self.get_course_id()
+
     def get_course(self):
         """ Return the course that contains this task """
         return self._course
