@@ -8,7 +8,8 @@ import flask
 from flask import redirect
 from werkzeug.exceptions import NotFound
 
-from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
+from inginious.common.exceptions import InvalidNameException
+from inginious.frontend.exceptions import CourseNotFoundException, CourseUnreadableException
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 

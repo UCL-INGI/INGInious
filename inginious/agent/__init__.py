@@ -167,15 +167,15 @@ class Agent(object, metaclass=ABCMeta):
 
         try:
             if message.environment_type not in self.environments or message.environment not in self.environments[message.environment_type]:
-                self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", message.course_id, message.task_id,
+                self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", message.taskset_id, message.task_id,
                                      message.environment_type, message.environment)
-                raise CannotCreateJobException('This environment is not available in this agent. Please contact your course administrator.')
+                raise CannotCreateJobException('This environment is not available in this agent. Please contact the taskset administrator.')
 
-            task_fs = self._fs.from_subfolder(message.course_id).from_subfolder(message.task_id)
+            task_fs = self._fs.from_subfolder(message.taskset_id).from_subfolder(message.task_id)
             if not task_fs.exists():
-                self._logger.warning("Task %s/%s unavailable on this agent", message.course_id, message.task_id)
+                self._logger.warning("Task %s/%s unavailable on this agent", message.taskset_id, message.task_id)
                 raise CannotCreateJobException('Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
-                                               'persists, please contact your course administrator.')
+                                               'persists, please contact the taskset administrator.')
 
             # Let the subclass run the job
             await self.new_job(message)
@@ -184,14 +184,14 @@ class Agent(object, metaclass=ABCMeta):
         except TooManyCallsException:
             self._logger.exception("TooManyCallsException in new_job")
             await self.send_job_result(job_id=message.job_id, result="crash",
-                                       text="An unknown error occurred in the agent. Please contact your course administrator.",
+                                       text="An unknown error occurred in the agent. Please contact the taskset administrator.",
                                        state=previous_state)
         except JobNotRunningException:
             self._logger.exception("JobNotRunningException in new_job")
         except:
             self._logger.exception("Unknown exception in new_job")
             await self.send_job_result(job_id=message.job_id, result="crash",
-                                       text="An unknown error occurred in the agent. Please contact your course administrator.",
+                                       text="An unknown error occurred in the agent. Please contact the taskset administrator.",
                                        state=previous_state)
 
     async def send_ssh_job_info(self, job_id: BackendJobId, host: str, port: int, username: str, key: str):

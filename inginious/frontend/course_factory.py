@@ -7,10 +7,11 @@
 import logging
 
 from inginious.common.filesystems import FileSystemProvider
-from inginious.common.log import get_course_logger
+from inginious.frontend.log import get_course_logger
 from inginious.common.base import id_checker, get_json_or_yaml, loads_json_or_yaml
 from inginious.frontend.plugin_manager import PluginManager
-from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException, CourseAlreadyExistsException
+from inginious.common.exceptions import InvalidNameException
+from inginious.frontend.exceptions import CourseNotFoundException, CourseUnreadableException, CourseAlreadyExistsException
 
 from inginious.frontend.courses import Course
 from inginious.frontend.task_factory import TaskFactory

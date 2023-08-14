@@ -10,8 +10,8 @@ from flask import redirect
 from werkzeug.exceptions import Forbidden
 
 from inginious.common.base import id_checker
-from inginious.common.exceptions import ImportCourseException
-from inginious.common.log import get_course_logger
+from inginious.frontend.exceptions import ImportCourseException
+from inginious.frontend.log import get_course_logger
 from inginious.frontend.marketplace_courses import get_all_marketplace_courses, get_marketplace_course
 from inginious.frontend.pages.utils import INGIniousAuthPage
 

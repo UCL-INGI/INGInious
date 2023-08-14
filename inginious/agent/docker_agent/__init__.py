@@ -45,7 +45,7 @@ class DockerRunningJob:
     sockets_path: str
     student_path: str
     systemfiles_path: str
-    course_common_student_path: str
+    taskset_common_student_path: str
     run_cmd: str
     assigned_external_ports: List[int]
     student_containers: Set[str]  # container ids of student containers
@@ -71,7 +71,7 @@ class DockerAgent(Agent):
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
         :param concurrency: number of simultaneous jobs that can be run by this agent
-        :param tasks_fs: FileSystemProvider for the course / tasks
+        :param tasks_fs: FileSystemProvider for the taskset / tasks
         :param address_host: hostname/ip/... to which external client should connect to access to the docker
         :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
@@ -273,7 +273,7 @@ class DockerAgent(Agent):
 
     def __new_job_sync(self, message: BackendNewJob, future_results):
         """ Synchronous part of _new_job. Creates needed directories, copy files, and starts the container. """
-        course_id = message.course_id
+        taskset_id = message.taskset_id
         task_id = message.task_id
 
         debug = message.debug
@@ -290,28 +290,28 @@ class DockerAgent(Agent):
         except:
             raise CannotCreateJobException('The agent is unable to parse the parameters')
 
-        course_fs = self._fs.from_subfolder(course_id)
-        task_fs = course_fs.from_subfolder(task_id)
+        taskset_fs = self._fs.from_subfolder(taskset_id)
+        task_fs = taskset_fs.from_subfolder(task_id)
 
-        if not course_fs.exists() or not task_fs.exists():
-            self._logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
+        if not taskset_fs.exists() or not task_fs.exists():
+            self._logger.warning("Task %s/%s unavailable on this agent", taskset_id, task_id)
             raise CannotCreateJobException(
                 'Task unavailable on agent. Please retry later, the agents should synchronize soon. '
-                'If the error persists, please contact your course administrator.')
+                'If the error persists, please contact the taskset administrator.')
 
         # Check for realistic memory limit value
         if mem_limit < 20:
             mem_limit = 20
         elif mem_limit > self._max_memory_per_slot:
-            self._logger.warning("Task %s/%s ask for too much memory (%dMB)! Available: %dMB", course_id, task_id,
+            self._logger.warning("Task %s/%s ask for too much memory (%dMB)! Available: %dMB", taskset_id, task_id,
                                  mem_limit, self._max_memory_per_slot)
             raise CannotCreateJobException(
-                'Not enough memory on agent (available: %dMB). Please contact your course administrator.' % self._max_memory_per_slot)
+                'Not enough memory on agent (available: %dMB). Please contact the taskset administrator.' % self._max_memory_per_slot)
 
         if environment_type not in self._containers or environment_name not in self._containers[environment_type]:
-            self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", course_id, task_id,
+            self._logger.warning("Task %s/%s ask for an unknown environment %s/%s", taskset_id, task_id,
                                  environment_type, environment_name)
-            raise CannotCreateJobException('Unknown container. Please contact your course administrator.')
+            raise CannotCreateJobException('Unknown container. Please contact the taskset administrator.')
 
         environment = self._containers[environment_type][environment_name]["id"]
         runtime = self._containers[environment_type][environment_name]["runtime"]
@@ -342,20 +342,20 @@ class DockerAgent(Agent):
             raise CannotCreateJobException('Cannot make container temp directory.')
 
         task_path = path_join(container_path, 'task')  # tmp_dir/id/task/
-        course_path = path_join(container_path, 'course')
+        taskset_path = path_join(container_path, 'course')
 
         sockets_path = path_join(container_path, 'sockets')  # tmp_dir/id/socket/
         student_path = path_join(task_path, 'student')  # tmp_dir/id/task/student/
         systemfiles_path = path_join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
 
-        course_common_path = path_join(course_path, 'common')
-        course_common_student_path = path_join(course_path, 'common', 'student')
+        taskset_common_path = path_join(taskset_path, 'common')
+        taskset_common_student_path = path_join(taskset_path, 'common', 'student')
 
         # Create the needed directories
         os.mkdir(sockets_path)
         os.chmod(container_path, 0o777)
         os.chmod(sockets_path, 0o777)
-        os.mkdir(course_path)
+        os.mkdir(taskset_path)
 
         # TODO: avoid copy
         task_fs.copy_from(None, task_path)
@@ -367,21 +367,21 @@ class DockerAgent(Agent):
 
         # Copy common and common/student if needed
         # TODO: avoid copy
-        if course_fs.from_subfolder("$common").exists():
-            course_fs.from_subfolder("$common").copy_from(None, course_common_path)
+        if taskset_fs.from_subfolder("$common").exists():
+            taskset_fs.from_subfolder("$common").copy_from(None, taskset_common_path)
         else:
-            os.mkdir(course_common_path)
+            os.mkdir(taskset_common_path)
 
-        if course_fs.from_subfolder("$common").from_subfolder("student").exists():
-            course_fs.from_subfolder("$common").from_subfolder("student").copy_from(None, course_common_student_path)
+        if taskset_fs.from_subfolder("$common").from_subfolder("student").exists():
+            taskset_fs.from_subfolder("$common").from_subfolder("student").copy_from(None, taskset_common_student_path)
         else:
-            os.mkdir(course_common_student_path)
+            os.mkdir(taskset_common_student_path)
 
         # Run the container
         try:
             container_id = self._docker.sync.create_container(environment, enable_network, mem_limit, task_path,
-                                                              sockets_path, course_common_path,
-                                                              course_common_student_path,
+                                                              sockets_path, taskset_common_path,
+                                                              taskset_common_student_path,
                                                               self.__get_fd_limit(), runtime,
                                                               ports)
         except Exception as e:
@@ -409,7 +409,7 @@ class DockerAgent(Agent):
             sockets_path=sockets_path,
             student_path=student_path,
             systemfiles_path=systemfiles_path,
-            course_common_student_path=course_common_student_path,
+            taskset_common_student_path=taskset_common_student_path,
             run_cmd=run_cmd,
             assigned_external_ports=list(ports.values()),
             student_containers=set(),
@@ -489,7 +489,7 @@ class DockerAgent(Agent):
                                                                            memory_limit, parent_info.student_path,
                                                                            socket_path,
                                                                            parent_info.systemfiles_path,
-                                                                           parent_info.course_common_student_path,
+                                                                           parent_info.taskset_common_student_path,
                                                                            parent_info.environment_type,
                                                                            self.__get_fd_limit(),
                                                                            parent_info.container_id if share_network else None,

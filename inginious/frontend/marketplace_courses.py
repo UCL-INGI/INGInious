@@ -9,7 +9,7 @@ import requests
 
 from inginious import MARKETPLACE_URL
 from inginious.common.base import loads_json_or_yaml
-from inginious.common.exceptions import CourseNotFoundException
+from inginious.frontend.exceptions import CourseNotFoundException
 from inginious.frontend.parsable_text import ParsableText
 
 

@@ -31,7 +31,7 @@ class ClientNewJob:
     """ Creates a new job """
     job_id: ClientJobId  # the client-side job id that is associated to this job
     priority: int  # the job priority
-    course_id: str  # course id of the task to run
+    taskset_id: str  # taskset id of the task to run
     task_id: str  # task id of the task to run
     task_problems: Dict[str, Any]  # task dictionary
     inputdata: Dict[str, Any]  # student input data
@@ -117,7 +117,7 @@ class BackendGetQueue:
         - job_id is a job id. It may be from another client.
         - is_current_client_job is a boolean indicating if the client that asked the request has started the job
         - agent_name is the agent name
-        - info is "courseid/taskid"
+        - info is "tasksetid/taskid"
         - launcher is the name of the launcher, which may be anything
         - started_at the time (in seconds since UNIX epoch) at which the job started
         - max_time the maximum time that can be used, or -1 if no timeout is set
@@ -128,7 +128,7 @@ class BackendGetQueue:
 
         - job_id is a job id. It may be from another client.
         - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-        - info is "courseid/taskid"
+        - info is "tasksetid/taskid"
         - launcher is the name of the launcher, which may be anything
         - max_time the maximum time that can be used, or -1 if no timeout is set
 
@@ -148,7 +148,7 @@ class BackendGetQueue:
 class BackendNewJob:
     """ Creates a new job """
     job_id: BackendJobId  # the backend-side job id that is associated to this job
-    course_id: str  # course id of the task to run
+    taskset_id: str  # taskset id of the task to run
     task_id: str  # task id of the task to run
     task_problems: Dict[str, Any]  # task dictionary
     inputdata: Dict[str, Any]  # student input data
