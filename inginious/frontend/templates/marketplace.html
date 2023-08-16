@@ -9,12 +9,12 @@
     {% else %}
         <h3> {{ _("How to use") }}</h3>
         <div class="alert alert-warning" role="alert">
-            {{ _("This page list all the course that are publicly avalaible. When you click import, it will create a new course on your INGInious instance. You will be admin of this new course and it will contain all the tasks and the structure of the imported course") }}
+            {{ _("This page list all the tasksets that are publicly avalaible. When you click import, it will create a new taskset on your INGInious instance. You will be admin of this new taskset and it will contain all the tasks of the imported taskset.") }}
         </div>
         <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/mycourses">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/tasksets">
                 <i class="fa fa-fw fa-th-list"></i>
-                {{ _("My courses") }}
+                {{ _("My tasksets") }}
             </a>
         </div>
     {% endif %}
@@ -38,22 +38,22 @@
     {% endfor %}
     <div id="templates_div" class="card-deck m-0">
         {% set username = user_manager.session_username() %}
-        {% if courses |length !=0 %}
-            {% for courseid, course in courses.items() %}
+        {% if tasksets |length !=0 %}
+            {% for tasksetid, taskset in tasksets.items() %}
                 <div class="card m-2">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <a href="{{ get_homepath() + "/marketplace/" + courseid }}">{{ course.get_name(user_manager.session_language()) }}</a>
+                            <a href="{{ get_homepath() + "/marketplace/" + tasksetid }}">{{ taskset.get_name(user_manager.session_language()) }}</a>
                         </h5>
                         <span class="card-text m-0 wrap-h6">
-                            {{ course.get_short_desc(user_manager.session_language()) | safe }}
+                            {{ taskset.get_short_desc(user_manager.session_language()) | safe }}
                         </span>
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">
                             <a href="#" data-toggle="modal" data-target="#exportModal"
-                                onclick="$('#courseid').val('{{ course.get_id() }}')">
-                                <i class="fa fa-fw fa-download"></i> {{ _("Import course") }}<br/>
+                                onclick="$('#tasksetid').val('{{ taskset.get_id() }}')">
+                                <i class="fa fa-fw fa-download"></i> {{ _("Import taskset") }}<br/>
                             </a>
                         </small>
                     </div>
@@ -71,7 +71,7 @@
                 {% endif %}
             {% endfor %}
         {% else %}
-            <span class="list-group-item list-group-item-action disabled">{{ _("No public courses available") }}</span>
+            <span class="list-group-item list-group-item-action disabled">{{ _("No public tasksets available") }}</span>
         {% endif %}
     </div>
 
@@ -81,17 +81,17 @@
             <!-- Modal content-->
             <form method="post" class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">{{ _("Import this course") }}</h4>
+                    <h4 class="modal-title">{{ _("Import this taskset") }}</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
 
-                    <p>{{ _('This will create a new course with the ID bellow. This new course will contain the tasks and structure of the selected course') }}</p>
-                    <input class="form-control" type="text" name="new_courseid" placeholder="{{ _('Course ID') }}">
-                    <input id="courseid" type="hidden" name="courseid">
+                    <p>{{ _('This will create a new taskset with the ID bellow. This new taskset will contain the tasks and structure of the selected taskset') }}</p>
+                    <input class="form-control" type="text" name="new_tasksetid" placeholder="{{ _('Course ID') }}">
+                    <input id="tasksetid" type="hidden" name="tasksetid">
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">{{ _("Create course") }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _("Create taskset") }}</button>
                 </div>
             </form>
 

@@ -11,12 +11,6 @@
         <div class="alert alert-warning" role="alert">
             {{ _("This page lists all the courses that are available now. If you are a course administrator, go to your 'My courses' page to see all of them.") }}
         </div>
-        <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/mycourses">
-                <i class="fa fa-fw fa-th-list"></i>
-                {{ _("My courses") }}
-            </a>
-        </div>
         {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
     {% endif %}
 {% endblock %}

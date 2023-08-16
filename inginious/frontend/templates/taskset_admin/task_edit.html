@@ -6,18 +6,17 @@
 {% block title %}{{ _("Edit {}").format(taskid) }}{% endblock %}
 
 {% block column %}
-    {{ template_helper.call('course_admin_menu',course=course,current='tasks') | safe }}
+    {{ template_helper.call('taskset_admin_menu',taskset=taskset,current='settings') | safe }}
     <button class="btn btn-primary btn-block mt-3 task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
 {% endblock %}
 
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
-                <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}/tasks" title="{{ _('Tasks') }}" data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/tasksets" title="{{ _('Tasksets') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-tasks"></i></a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}">{{taskset.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i></a></li>
             <li class="breadcrumb-item active"><a href="#">{{ _("Edit task \"{}\"").format(taskid) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
@@ -29,14 +28,13 @@
     <div class="pull-right">
         <div class="btn-group">
             <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">{{ _("Save changes") }}</div></button>
-            <a id="switch" class="btn-sm btn btn-info" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"><i class="fa fa-eye"></i> <div class="d-none d-sm-inline">{{ _("View task") }}</div></a>
         </div>
     </div>
 </h2>
 
 <div id="task_edit_submit_status"></div>
 
-<form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
+<form id="edit_task_form" class="edit-form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
     <div class="card mb-3">
         <div class="card-header">
@@ -61,15 +59,15 @@
         </div>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
-                {% include "course_admin/edit_tabs/basic.html" %}
+                {% include "taskset_admin/edit_tabs/basic.html" %}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_environment">
-                {% include "course_admin/edit_tabs/environment.html" %}
+                {% include "taskset_admin/edit_tabs/environment.html" %}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">
-                {% include "course_admin/edit_tabs/subproblems.html" %}
+                {% include "taskset_admin/edit_tabs/subproblems.html" %}
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_files">
@@ -82,7 +80,7 @@
                 </ul>
                 <div id="edit_file_tabs_content" class="tab-content">
                     {% with error=None %}
-                        {% include "course_admin/edit_tabs/files.html" %}
+                        {% include "taskset_admin/edit_tabs/files.html" %}
                     {% endwith %}
                 </div>
             </div>
@@ -137,7 +135,7 @@
     {% endfor %}
 </div>
 
-{% include "course_admin/edit_tabs/file_modals.html" %}
+{% include "taskset_admin/edit_tabs/file_modals.html" %}
 
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">

@@ -22,7 +22,7 @@ from inginious.frontend.user_manager import UserManager
 
 class CourseDangerZonePage(INGIniousAdminPage):
     """ Course administration page: list of audiences """
-    _logger = logging.getLogger("inginious.webapp.danger_zone")
+    _logger = logging.getLogger("inginious.webapp.course.danger_zone")
 
     def wipe_course(self, courseid):
         submissions = self.database.submissions.find({"courseid": courseid})

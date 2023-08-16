@@ -17,7 +17,7 @@ class ScoreBoardCourse(INGIniousAuthPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course = self.course_factory.get_course(courseid)
+        course = self.taskset_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
 
         try:
@@ -46,7 +46,7 @@ class ScoreBoard(INGIniousAuthPage):
 
     def GET_AUTH(self, courseid, scoreboardid):  # pylint: disable=arguments-differ
         """ GET request """
-        course = self.course_factory.get_course(courseid)
+        course = self.taskset_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
 
         try:

@@ -2,38 +2,38 @@
 {# more information about the licensing of this file. #}
 
 {% extends "layout.html" %}
-{% block title %}{{ course.get_name(user_manager.session_language()) }}{% endblock %}}
+{% block title %}{{ taskset.get_name(user_manager.session_language()) }}{% endblock %}}
 {% block column %}
 <h3>{{ _("Information") }}</h3>
     <table class="table table-sm">
-        {% if course.get_languages() %}
+        {% if taskset.get_languages() %}
             <tr>
                 <td>{{ _("Language(s)") }}</td>
-                <td>{{ course.get_languages() }}</td>
+                <td>{{ taskset.get_languages() }}</td>
             </tr>
         {%  endif %}
-        {% if course.get_license() %}
+        {% if taskset.get_license() %}
             <tr>
                 <td>{{ _("License") }}</td>
-                <td>{{ course.get_license() }}</td>
+                <td>{{ taskset.get_license() }}</td>
             </tr>
         {%  endif %}
-        {% if course.get_maintainers() %}
+        {% if taskset.get_maintainers() %}
             <tr>
                 <td>{{ _("Maintainer(s)") }}</td>
-                <td>{{ course.get_maintainers() }}</td>
+                <td>{{ taskset.get_maintainers() }}</td>
             </tr>
         {% endif %}
-        {% if course.get_authors() %}
+        {% if taskset.get_authors() %}
             <tr>
                 <td>{{ _("Author(s)") }}</td>
-                <td>{{ course.get_authors() }}</td>
+                <td>{{ taskset.get_authors() }}</td>
             </tr>
         {% endif %}
-        {% if course.get_link() %}
+        {% if taskset.get_link() %}
             <tr>
                 <td>{{ _("Link") }}</td>
-                <td><a href="{{ course.get_link() }}" target="_blank">{{ course.get_link() }}</a></td>
+                <td><a href="{{ taskset.get_link() }}" target="_blank">{{ taskset.get_link() }}</a></td>
             </tr>
         {% endif %}
     </table>
@@ -43,29 +43,29 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ get_homepath() + "/marketplace"}}" title="{{ _("Marketplace") }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-shopping-bag"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#"> {{ course.get_name(user_manager.session_language()) }}
+            <li class="breadcrumb-item active"><a href="#"> {{ taskset.get_name(user_manager.session_language()) }}
                 <span class="sr-only">{{_("(current)")}}</span></a></li>
         </ol>
     </nav>
 {% endblock %}
 
 {% block content %}
-    <h2>{{ course.get_name(user_manager.session_language()) }}</h2>
+    <h2>{{ taskset.get_name(user_manager.session_language()) }}</h2>
     {% for error in errors %}
         <div class="alert alert-danger alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             {{ error }}
         </div>
     {% endfor %}
-    <div id="course_description">
-        {{ course.get_description(user_manager.session_language()) | safe }}
+    <div id="taskset_description">
+        {{ taskset.get_description(user_manager.session_language()) | safe }}
     </div>
     <form class="form row" method="post">
         <div class="form-group col-sm-8">
-            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder='{{ _("New course id") }}'>
+            <input name="new_tasksetid" type="text" class="form-control" id="new_tasksetid" placeholder='{{ _("New taskset id") }}'>
         </div>
         <div class="form-group col-sm-4">
-            <button type="submit" class="btn btn-block btn-primary">{{ _("Import course") }}</button>
+            <button type="submit" class="btn btn-block btn-primary">{{ _("Import taskset") }}</button>
         </div>
     </form>
 {% endblock %}

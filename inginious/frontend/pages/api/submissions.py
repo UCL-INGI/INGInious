@@ -12,13 +12,13 @@ import flask
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 
 
-def _get_submissions(course_factory, submission_manager, user_manager, translations, courseid, taskid, with_input, submissionid=None):
+def _get_submissions(taskset_factory, submission_manager, user_manager, translations, courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
 
     try:
-        course = course_factory.get_course(courseid)
+        course = taskset_factory.get_course(courseid)
     except:
         raise APINotFound("Course not found")
 
@@ -31,7 +31,7 @@ def _get_submissions(course_factory, submission_manager, user_manager, translati
         raise APINotFound("Task not found")
 
     if submissionid is None:
-        submissions = submission_manager.get_user_submissions(task)
+        submissions = submission_manager.get_user_submissions(course, task)
     else:
         try:
             submissions = [submission_manager.get_submission(submissionid)]
@@ -111,7 +111,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
         """
         with_input = "input" in flask.request.args
 
-        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input, submissionid)
+        return _get_submissions(self.taskset_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -152,7 +152,7 @@ class APISubmissions(APIAuthenticatedPage):
         """
         with_input = "input" in flask.request.args
 
-        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input)
+        return _get_submissions(self.taskset_factory, self.submission_manager, self.user_manager, self.app.l10n_manager.translations, courseid, taskid, with_input)
 
     def API_POST(self, courseid, taskid):  # pylint: disable=arguments-differ
         """
@@ -168,7 +168,7 @@ class APISubmissions(APIAuthenticatedPage):
         """
 
         try:
-            course = self.course_factory.get_course(courseid)
+            course = self.taskset_factory.get_course(courseid)
         except:
             raise APINotFound("Course not found")
 
@@ -185,7 +185,7 @@ class APISubmissions(APIAuthenticatedPage):
         self.user_manager.user_saw_task(username, courseid, taskid)
 
         # Verify rights
-        if not self.user_manager.task_can_user_submit(task, username, False):
+        if not self.user_manager.task_can_user_submit(course, task, username, False):
             raise APIForbidden("You are not allowed to submit for this task")
 
         user_input = flask.request.form.copy()
@@ -209,7 +209,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         # Start the submission
         try:
-            submissionid, _ = self.submission_manager.add_job(task, user_input, course.get_task_dispenser(), debug)
+            submissionid, _ = self.submission_manager.add_job(course, task, user_input, course.get_task_dispenser(), debug)
             return 200, {"submissionid": str(submissionid)}
         except Exception as ex:
             raise APIError(500, str(ex))

@@ -67,7 +67,7 @@ class BaseTaskPage(object):
 
         try:
             task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task, username, is_LTI):
+            if not self.user_manager.task_is_visible_by_user(course, task, username, is_LTI):
                 return self.template_helper.render("task_unavailable.html")
         except TaskNotFoundException:
             raise NotFound()
@@ -112,7 +112,7 @@ class BaseTaskPage(object):
 
             user_task = self.database.user_tasks.find_one_and_update(
                 {
-                    "courseid": task.get_course_id(),
+                    "courseid": courseid,
                     "taskid": task.get_id(),
                     "username": self.user_manager.session_username()
                 },
@@ -127,13 +127,13 @@ class BaseTaskPage(object):
 
             students = [self.user_manager.session_username()]
             if course.get_task_dispenser().get_group_submission(taskid) and not self.user_manager.has_admin_rights_on_course(course, username):
-                group = self.database.groups.find_one({"courseid": task.get_course_id(),
+                group = self.database.groups.find_one({"courseid": courseid,
                                                      "students": self.user_manager.session_username()})
                 if group is not None:
                     students = group["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
-            submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
+            submissions = self.submission_manager.get_user_submissions(course, task) if self.user_manager.session_logged_in() else []
             user_info = self.user_manager.get_user_info(username)
 
             # Visible tags
@@ -165,7 +165,7 @@ class BaseTaskPage(object):
         is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
         task = course.get_task(taskid)
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+        if not self.user_manager.task_is_visible_by_user(course, task, username, isLTI):
             return self.template_helper.render("task_unavailable.html")
 
         self.user_manager.user_saw_task(username, courseid, taskid)
@@ -173,11 +173,11 @@ class BaseTaskPage(object):
         userinput = flask.request.form
         if "@action" in userinput and userinput["@action"] == "submit":
             # Verify rights
-            if not self.user_manager.task_can_user_submit(task, username, lti=isLTI):
+            if not self.user_manager.task_can_user_submit(course, task, username, lti=isLTI):
                 return json.dumps({"status": "error", "title": _("Error"), "text": _("You are not allowed to submit for this task.")})
 
             # Retrieve input random and check still valid
-            random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
+            random_input = self.database.user_tasks.find_one({"courseid": courseid, "taskid": task.get_id(), "username": username}, { "random": 1 })
             random_input = random_input["random"] if "random" in random_input else []
             for i in range(0, len(random_input)):
                 s = "@random_" + str(i)
@@ -215,7 +215,7 @@ class BaseTaskPage(object):
 
             # Start the submission
             try:
-                submissionid, oldsubids = self.submission_manager.add_job(task, userinput, course.get_task_dispenser(), debug)
+                submissionid, oldsubids = self.submission_manager.add_job(course, task, userinput, course.get_task_dispenser(), debug)
                 return Response(content_type='application/json', response=json.dumps({
                     "status": "ok", "submissionid": str(submissionid), "remove": oldsubids,
                     "text": _("<b>Your submission has been sent...</b>")
@@ -237,7 +237,7 @@ class BaseTaskPage(object):
 
                 # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
-                    "courseid":task.get_course_id(),
+                    "courseid": courseid,
                     "taskid": task.get_id(),
                     "username": {"$in": result["username"]}
                 })
@@ -405,11 +405,11 @@ class TaskPageStaticDownload(INGIniousPage):
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 
             if taskid == "$common":
-                public_folder = course.get_fs().from_subfolder("$common").from_subfolder("public")
+                public_folder = course.get_taskset().get_fs().from_subfolder("$common").from_subfolder("public")
             else:
 
                 task = course.get_task(taskid)
-                if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
+                if not self.user_manager.task_is_visible_by_user(course, task):  # ignore LTI check here
                     return self.template_helper.render("task_unavailable.html")
 
                 public_folder = task.get_fs().from_subfolder("public")

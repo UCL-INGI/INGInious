@@ -44,12 +44,12 @@ inginious.frontend.app module
     :undoc-members:
     :show-inheritance:
 
-.. _inginious.frontend.course_factory:
+.. _inginious.frontend.taskset_factory:
 
-inginious.frontend.course_factory module
+inginious.frontend.taskset_factory module
 -------------------------------------------
 
-.. automodule:: inginious.frontend.course_factory
+.. automodule:: inginious.frontend.taskset_factory
     :members:
     :undoc-members:
     :show-inheritance:

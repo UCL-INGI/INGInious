@@ -16,27 +16,27 @@ from flask import redirect
 from werkzeug.exceptions import NotFound
 
 from inginious.frontend.tasks import _migrate_from_v_0_6
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.pages.taskset_admin.utils import INGIniousAdminPage
 
 from inginious.common.base import dict_from_prefix, id_checker
 from inginious.common.exceptions import TaskNotFoundException
-from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
+from inginious.frontend.pages.taskset_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.tasks import Task
 
 
-class CourseEditTask(INGIniousAdminPage):
+class EditTaskPage(INGIniousAdminPage):
     """ Edit a task """
     _logger = logging.getLogger("inginious.webapp.task_edit")
 
-    def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, tasksetid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid):
             raise NotFound(description=_("Invalid task id"))
 
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        taskset, __ = self.get_taskset_and_check_rights(tasksetid)
 
         try:
-            task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
+            task_data = self.task_factory.get_task_descriptor_content(taskset.get_id(), taskid)
         except TaskNotFoundException:
             raise NotFound()
 
@@ -48,22 +48,22 @@ class CourseEditTask(INGIniousAdminPage):
 
         current_filetype = None
         try:
-            current_filetype = self.task_factory.get_task_descriptor_extension(courseid, taskid)
+            current_filetype = self.task_factory.get_task_descriptor_extension(taskset.get_id(), taskid)
         except:
             pass
         available_filetypes = self.task_factory.get_available_task_file_extensions()
 
-        additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
+        additional_tabs = self.plugin_manager.call_hook('task_editor_tab', taskset=taskset, taskid=taskid,
                                                         task_data=task_data, template_helper=self.template_helper)
 
-        return self.template_helper.render("course_admin/task_edit.html", course=course, taskid=taskid,
+        return self.template_helper.render("taskset_admin/task_edit.html", taskset=taskset, taskid=taskid,
                                            problem_types=self.task_factory.get_problem_types(), task_data=task_data,
                                            environment_types=environment_types, environments=environments,
                                            problemdata=json.dumps(task_data.get('problems', {})),
                                            contains_is_html=self.contains_is_html(task_data),
                                            current_filetype=current_filetype,
                                            available_filetypes=available_filetypes,
-                                           file_list=CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
+                                           file_list=CourseTaskFiles.get_task_filelist(self.task_factory, taskset, taskid),
                                            additional_tabs=additional_tabs)
 
     @classmethod
@@ -81,12 +81,12 @@ class CourseEditTask(INGIniousAdminPage):
         del problem_content["@order"]
         return self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
 
-    def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
+    def POST_AUTH(self, tasksetid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
-        if not id_checker(taskid) or not id_checker(courseid):
-            raise NotFound(description=_("Invalid course/task id"))
+        if not id_checker(taskid) or not id_checker(tasksetid):
+            raise NotFound(description=_("Invalid taskset/task id"))
 
-        __, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        __, __ = self.get_taskset_and_check_rights(tasksetid)
         data = flask.request.form.copy()
         data["task_file"] = flask.request.files.get("task_file")
 
@@ -145,24 +145,24 @@ class CourseEditTask(INGIniousAdminPage):
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(message)})
 
-        # Get the course
+        # Get the taskset
         try:
-            course = self.course_factory.get_course(courseid)
+            taskset = self.taskset_factory.get_taskset(tasksetid)
         except:
-            return json.dumps({"status": "error", "message": _("Error while reading course's informations")})
+            return json.dumps({"status": "error", "message": _("Error while reading taskset data")})
 
         # Get original data
         try:
-            orig_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
+            orig_data = self.task_factory.get_task_descriptor_content(taskset.get_id(), taskid)
             data["order"] = orig_data["order"]
         except:
             pass
 
-        task_fs = self.task_factory.get_task_fs(courseid, taskid)
+        task_fs = self.task_factory.get_task_fs(taskset.get_id(), taskid)
         task_fs.ensure_exists()
 
         # Call plugins and return the first error
-        plugin_results = self.plugin_manager.call_hook('task_editor_submit', course=course, taskid=taskid,
+        plugin_results = self.plugin_manager.call_hook('task_editor_submit', taskset=taskset, taskid=taskid,
                                                        task_data=data, task_fs=task_fs)
 
         # Retrieve the first non-null element
@@ -171,7 +171,7 @@ class CourseEditTask(INGIniousAdminPage):
             return error
 
         try:
-            Task(course, taskid, data, self.course_factory.get_fs(), self.plugin_manager, self.task_factory.get_problem_types())
+            Task(taskset, taskid, data, self.plugin_manager, self.task_factory.get_problem_types())
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Invalid data: {}").format(str(message))})
 
@@ -189,7 +189,7 @@ class CourseEditTask(INGIniousAdminPage):
                         {"status": "error", "message": _("There was a problem while extracting the zip archive. Some files may have been modified")})
                 task_fs.copy_to(tmpdirname)
 
-        self.task_factory.delete_all_possible_task_files(courseid, taskid)
-        self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
+        self.task_factory.delete_all_possible_task_files(tasksetid, taskid)
+        self.task_factory.update_task_descriptor_content(tasksetid, taskid, data, force_extension=file_ext)
 
         return json.dumps({"status": "ok"})

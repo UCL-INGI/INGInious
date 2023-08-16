@@ -10,13 +10,21 @@ class CourseNotFoundException(Exception):
     pass
 
 
-class CourseUnreadableException(Exception):
-    pass
-
-
 class CourseAlreadyExistsException(Exception):
     pass
 
 
-class ImportCourseException(Exception):
+class TasksetNotFoundException(Exception):
+    pass
+
+
+class TasksetUnreadableException(Exception):
+    pass
+
+
+class TasksetAlreadyExistsException(Exception):
+    pass
+
+
+class ImportTasksetException(Exception):
     pass

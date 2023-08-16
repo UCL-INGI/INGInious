@@ -84,10 +84,10 @@ class CourseTaskListPage(INGIniousAdminPage):
         task_dispenser = course.get_task_dispenser()
         legacy_fields = task_dispenser.legacy_fields.keys()
         for taskid in course.get_tasks():
-            descriptor = self.task_factory.get_task_descriptor_content(course.get_id(), taskid)
+            descriptor = self.task_factory.get_task_descriptor_content(course.get_taskset().get_id(), taskid)
             for field in legacy_fields:
                 descriptor.pop(field, None)
-            self.task_factory.update_task_descriptor_content(course.get_id(), taskid, descriptor)
+            self.task_factory.update_task_descriptor_content(course.get_taskset().get_id(), taskid, descriptor)
 
     def submission_url_generator(self, taskid):
         """ Generates a submission url """
@@ -110,7 +110,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         """ Get all data and display the page """
 
         # Load tasks and verify exceptions
-        files = self.task_factory.get_readable_tasks(course)
+        files = self.task_factory.get_readable_tasks(course.get_taskset())
 
         tasks = {}
         if errors is None:
@@ -132,5 +132,5 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         return self.template_helper.render("course_admin/task_list.html", course=course,
                                            task_dispensers=task_dispensers, tasks=tasks_data, errors=errors,
-                                           tasks_errors=tasks_errors, validated=validated, webdav_host=self.webdav_host)
+                                           tasks_errors=tasks_errors, validated=validated)
 

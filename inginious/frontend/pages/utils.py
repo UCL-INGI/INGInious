@@ -25,7 +25,7 @@ from inginious.frontend.user_manager import UserManager
 from inginious.frontend.parsable_text import ParsableText
 from pymongo.database import Database
 
-from inginious.frontend.course_factory import CourseFactory
+from inginious.frontend.taskset_factory import TasksetFactory
 from inginious.frontend.task_factory import TaskFactory
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
@@ -71,8 +71,13 @@ class INGIniousPage(MethodView):
         return self.app.plugin_manager
 
     @property
-    def course_factory(self) -> CourseFactory:
+    def taskset_factory(self) -> TasksetFactory:
         """ Returns the course factory singleton """
+        return self.app.taskset_factory
+
+    @property
+    def course_factory(self) -> TaskFactory:
+        """ Returns the task factory singleton """
         return self.app.course_factory
 
     @property
@@ -323,7 +328,7 @@ class INGIniousStaticPage(INGIniousPage):
         return self.template_helper.render("static.html", pagetitle=title, content=content)
 
 
-def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str], course_id: str,
+def generate_user_selection_box(user_manager: UserManager, render_func, current_users: List[str],
                                 name: str, id: str, placeholder: str = None, single=False):
     """
     Returns the HTML for a user selection box.
@@ -331,7 +336,7 @@ def generate_user_selection_box(user_manager: UserManager, render_func, current_
 
     The box will return, when submitted using a form, a list of usernames separated by commas, under the given name.
 
-    NB: this function is available in the templates directly as "$user_selection_box(current_users, course_id, name, id)".
+    NB: this function is available in the templates directly as "$user_selection_box(current_users, name, id)".
     You must ignore the first argument (template_helper) in the templates.
 
     :param user_manager: UserManager instance
@@ -345,7 +350,7 @@ def generate_user_selection_box(user_manager: UserManager, render_func, current_
     """
     current_users = [{"realname": y.realname if y is not None else x, "username": x} for x, y in
                      user_manager.get_users_info(current_users).items()]
-    return render_func("course_admin/user_selection_box.html", current_users=current_users, course_id=course_id,
+    return render_func("user_selection_box.html", current_users=current_users,
                        name=name, id=id, placeholder=placeholder, single=single)
 
 
@@ -354,8 +359,8 @@ def register_utils(database, user_manager, template_helper: TemplateHelper):
     Registers utils in the template helper
     """
     template_helper.add_to_template_globals("user_selection_box",
-                                            lambda current_users, course_id, name, id, placeholder=None, single=False:
+                                            lambda current_users, name, id, placeholder=None, single=False:
                                             generate_user_selection_box(user_manager, template_helper.render,
-                                                                        current_users, course_id, name, id, placeholder,
+                                                                        current_users, name, id, placeholder,
                                                                         single)
                                             )
