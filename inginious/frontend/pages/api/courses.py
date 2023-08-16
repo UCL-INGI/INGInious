@@ -45,10 +45,10 @@ class APICourses(APIAuthenticatedPage):
         output = []
 
         if courseid is None:
-            courses = self.course_factory.get_all_courses()
+            courses = self.taskset_factory.get_all_courses()
         else:
             try:
-                courses = {courseid: self.course_factory.get_course(courseid)}
+                courses = {courseid: self.taskset_factory.get_course(courseid)}
             except:
                 raise APINotFound("Course not found")
 

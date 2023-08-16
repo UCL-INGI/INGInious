@@ -14,26 +14,6 @@ class MyCoursesPage(INGIniousAuthPage):
     """ Index page """
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
-        """ Display main course list page """
-        return self.show_page(None)
-
-    def POST_AUTH(self):  # pylint: disable=arguments-differ
-        """ Parse course registration or course creation and display the course list page """
-
-        user_input = flask.request.form
-        success = None
-
-        if "new_courseid" in user_input and self.user_manager.user_is_superadmin():
-            try:
-                courseid = user_input["new_courseid"]
-                self.course_factory.create_course(courseid, {"name": courseid, "accessible": False})
-                success = True
-            except:
-                success = False
-
-        return self.show_page(success)
-
-    def show_page(self, success):
         """  Display main course list page """
         username = self.user_manager.session_username()
         user_info = self.user_manager.get_user_info(username)
@@ -64,5 +44,4 @@ class MyCoursesPage(INGIniousAuthPage):
         return self.template_helper.render("mycourses.html",
                                            open_courses=open_courses,
                                            registrable_courses=registerable_courses,
-                                           submissions=except_free_last_submissions,
-                                           success=success)
+                                           submissions=except_free_last_submissions)

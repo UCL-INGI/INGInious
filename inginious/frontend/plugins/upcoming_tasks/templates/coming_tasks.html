@@ -30,19 +30,22 @@
     <div class="list-group">
         {% if submissions %}
             {% for submission in submissions %}
-                <a class="list-group-item list-group-item-action
-                    {% if submission['status'] == 'done' and submission['result'] == 'success' %}
-                        list-group-item-success
-                    {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
-                        list-group-item-info
-                    {% elif submission['status'] == 'waiting' %}
-                        list-group-item-warning
-                    {% else %}
-                        list-group-item-danger
-                    {% endif %}"
-                    href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
-                    <b>{{ submission["task"].get_course().get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
-                </a>
+                {% if submission['courseid'] in open_courses %}
+                    {% set course = open_courses[submission['courseid']] %}
+                    <a class="list-group-item list-group-item-action
+                        {% if submission['status'] == 'done' and submission['result'] == 'success' %}
+                            list-group-item-success
+                        {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
+                            list-group-item-info
+                        {% elif submission['status'] == 'waiting' %}
+                            list-group-item-warning
+                        {% else %}
+                            list-group-item-danger
+                        {% endif %}"
+                        href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                        <b>{{ course.get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
+                    </a>
+                {% endif %}
             {% endfor %}
         {% else %}
             <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>

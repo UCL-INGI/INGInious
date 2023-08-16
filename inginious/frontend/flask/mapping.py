@@ -14,6 +14,7 @@ from inginious.frontend.pages.index import IndexPage
 from inginious.frontend.pages.queue import QueuePage
 from inginious.frontend.pages.courselist import CourseListPage
 from inginious.frontend.pages.mycourses import MyCoursesPage
+from inginious.frontend.pages.tasksets import TasksetsPage
 from inginious.frontend.pages.preferences.bindings import BindingsPage
 from inginious.frontend.pages.preferences.delete import DeletePage
 from inginious.frontend.pages.preferences.profile import ProfilePage
@@ -27,7 +28,7 @@ from inginious.frontend.pages.tasks import TaskPage, TaskPageStaticDownload
 from inginious.frontend.pages.lti import LTITaskPage, LTILaunchPage, LTIBindPage, LTIAssetPage, LTILoginPage
 from inginious.frontend.pages.group import GroupPage
 from inginious.frontend.pages.marketplace import MarketplacePage
-from inginious.frontend.pages.marketplace_course import MarketplaceCoursePage
+from inginious.frontend.pages.marketplace_taskset import MarketplaceTasksetPage
 from inginious.frontend.pages.api.auth_methods import APIAuthMethods
 from inginious.frontend.pages.api.authentication import APIAuthentication
 from inginious.frontend.pages.api.courses import APICourses
@@ -42,12 +43,15 @@ from inginious.frontend.pages.course_admin.submission import SubmissionPage
 from inginious.frontend.pages.course_admin.submissions import CourseSubmissionsPage
 from inginious.frontend.pages.course_admin.task_list import CourseTaskListPage
 from inginious.frontend.pages.course_admin.audience_edit import CourseEditAudience
-from inginious.frontend.pages.course_admin.task_edit import CourseEditTask
-from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
-from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFileUpload
-from inginious.frontend.pages.course_admin.danger_zone import CourseDangerZonePage
 from inginious.frontend.pages.course_admin.statistics import CourseStatisticsPage
-from inginious.frontend.pages.course_admin.search_user import CourseAdminSearchUserPage
+from inginious.frontend.pages.course_admin.danger_zone import CourseDangerZonePage
+from inginious.frontend.pages.taskset_admin.utils import TasksetRedirectPage
+from inginious.frontend.pages.taskset_admin.settings import TasksetSettingsPage
+from inginious.frontend.pages.taskset_admin.task_edit import EditTaskPage
+from inginious.frontend.pages.taskset_admin.task_edit_file import CourseTaskFiles
+from inginious.frontend.pages.taskset_admin.task_edit_file import CourseTaskFileUpload
+from inginious.frontend.pages.taskset_admin.danger_zone import TasksetDangerZonePage
+from inginious.frontend.pages.search_user import SearchUserPage
 
 
 class CookielessConverter(BaseConverter):
@@ -78,8 +82,8 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>register/<courseid>',
                            view_func=CourseRegisterPage.as_view('courseregisterpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>marketplace', view_func=MarketplacePage.as_view('marketplacepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>marketplace/<courseid>',
-                           view_func=MarketplaceCoursePage.as_view('marketplacecoursepage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>marketplace/<tasksetid>',
+                           view_func=MarketplaceTasksetPage.as_view('marketplacetasksetpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>', view_func=CoursePage.as_view('coursepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>', view_func=TaskPage.as_view('taskpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>/<path:path>',
@@ -93,6 +97,7 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>mycourses', view_func=MyCoursesPage.as_view('mycoursespage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>tasksets', view_func=TasksetsPage.as_view('tasksetspage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences', view_func=PrefRedirectPage.as_view('prefredirectpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>preferences/bindings',
                            view_func=BindingsPage.as_view('bindingspage'))
@@ -121,18 +126,27 @@ def init_flask_mapping(flask_app):
                            view_func=CourseTaskListPage.as_view('coursetasklistpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/edit/audience/<audienceid>',
                            view_func=CourseEditAudience.as_view('courseditaudience'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/edit/task/<taskid>',
-                           view_func=CourseEditTask.as_view('coursedittask'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/edit/task/<taskid>/files',
-                           view_func=CourseTaskFiles.as_view('coursetaskfiles'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/edit/task/<taskid>/dd_upload',
-                           view_func=CourseTaskFileUpload.as_view('coursetaskfileupload'))
+
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>',
+                           view_func=TasksetRedirectPage.as_view('tasksetredirectpage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/settings',
+                           view_func=TasksetSettingsPage.as_view('tasksetsettingspage'))
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>',
+                           view_func=EditTaskPage.as_view('tasksetedittask'))
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>/files',
+                           view_func=CourseTaskFiles.as_view('tasksettaskfiles'))
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>/dd_upload',
+                           view_func=CourseTaskFileUpload.as_view('tasksettaskfileupload'))
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/danger',
+                           view_func=TasksetDangerZonePage.as_view('tasksetdangerzonepage'))
+
+    flask_app.add_url_rule('/<cookieless:sessionid>search_user/<request>',
+                           view_func=SearchUserPage.as_view('searchuserpage'))
+
     flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/danger',
                            view_func=CourseDangerZonePage.as_view('coursedangerzonepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/stats',
                            view_func=CourseStatisticsPage.as_view('coursestatisticspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/search_user/<request>',
-                           view_func=CourseAdminSearchUserPage.as_view('courseadminsearchuserpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>api/v0/auth_methods',
                            view_func=APIAuthMethods.as_view('apiauthmethods'))
     flask_app.add_url_rule('/<cookieless:sessionid>api/v0/authentication',

@@ -18,6 +18,7 @@ from pymongo import MongoClient
 from werkzeug.exceptions import InternalServerError
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
+import inginious.frontend.pages.taskset_admin.utils as taskset_admin_utils
 import inginious.frontend.pages.preferences.utils as preferences_utils
 from inginious.frontend.environment_types import register_base_env_types
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
@@ -29,7 +30,7 @@ from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.l10n_manager import L10nManager
 from inginious import get_root_path, __version__, DB_VERSION
-from inginious.frontend.course_factory import create_factories
+from inginious.frontend.taskset_factory import create_factories
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
@@ -217,13 +218,13 @@ def get_app(config):
 
     default_problem_types = get_default_displayable_problem_types()
 
-    course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager, database)
+    taskset_factory, course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager, database)
 
     user_manager = UserManager(database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
-    client = create_arch(config, fs_provider, zmq_context, course_factory)
+    client = create_arch(config, fs_provider, zmq_context, taskset_factory)
 
     lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
 
@@ -253,6 +254,9 @@ def get_app(config):
     template_helper.add_other("course_admin_menu",
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.render,
                                                                                   plugin_manager, user_manager))
+    template_helper.add_other("taskset_admin_menu",
+                              lambda taskset, current: taskset_admin_utils.get_menu(taskset, current, template_helper.render,
+                                                                                  user_manager))
     template_helper.add_other("preferences_menu",
                               lambda current: preferences_utils.get_menu(config.get("allow_deletion", True),
                                                                          current, template_helper.render,
@@ -280,6 +284,7 @@ def get_app(config):
     # Insert the needed singletons into the application, to allow pages to call them
     flask_app.get_homepath = get_homepath
     flask_app.plugin_manager = plugin_manager
+    flask_app.taskset_factory = taskset_factory
     flask_app.course_factory = course_factory
     flask_app.task_factory = task_factory
     flask_app.submission_manager = submission_manager

@@ -1,0 +1,202 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+
+{% block title %} {{ taskset.get_name(user_manager.session_language()) }} - {{ _("Settings") }} {% endblock %}
+
+{% block column %}
+    {{ template_helper.call('taskset_admin_menu',taskset=taskset,current='settings') | safe }}
+{% endblock %}
+
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/tasksets" title="{{ _('Tasksets') }}" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-tasks"></i></a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}">{{taskset.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cog"></i> {{_("Taskset settings")}} <span class="sr-only">{{ _("(current)") }}</span></a></li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+<h2>{{ _("Edit taskset {}").format(taskset.get_name(user_manager.session_language())) }}</h2>
+
+{% if errors | length %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {%for error in errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{%elif saved %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ _("Settings saved.") }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endif %}
+
+<form id="edit_taskset_form"  class="edit-form" action="{{get_homepath()}}/taskset/{{taskset.get_id()}}/settings" method="post">
+    <div class="card mb-3">
+        <div class="card-header ">
+                <span>{{ _("Settings") }}</span>
+                <i class="pull-right">
+                    <button class="btn btn-block btn-sm btn-primary" type="submit"><i class="fa fa-download"></i> {{ _("Save changes") }}</button>
+                </i>
+        </div>
+        <div class="card-body">
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 control-label">{{ _("Name") }}</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="title" value="{{ taskset.get_name(user_manager.session_language()) }}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 control-label"> {{_("Administrators") }}</label>
+                <div class="col-sm-10">
+                    {{ user_selection_box(current_users=taskset.get_admins(), name="admins", id="admins", placeholder=_("Enter something here to search for a user")) | safe }}
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="description" class="col-sm-2 control-label">{{ _("Short description") }} </label>
+                <div class="col-sm-10">
+                    <textarea id="description" class="code-editor form-control" name="description" data-x-language="rst" data-x-lines="10">{{ taskset.get_descriptor().get('description','') }}</textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 control-label">{{ _("Instantiable by") }}</label>
+                <div class="col-sm-10">
+                    <label>
+                        <input type="radio" value="false" name="public" {% if not taskset.is_public() %} checked="checked" {% endif %}/> {{ _("Taskset owners only") }}
+                    </label><br/>
+                    <label>
+                        <input type="radio" value="true" name="public" {% if taskset.is_public()  %}  checked="checked" {% endif %}/> {{ _("Everyone") }}
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if webdav_host %}
+    <div class="mb-3 mt-3" id="webdav_accord" role="tablist" aria-multiselectable="true">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white" id="webdav_head">
+                <div style="cursor: pointer" data-toggle="collapse" data-parent="#webdav_accord" href="#webdav" aria-expanded="false" aria-controls="webdav">
+                    <i class="fa fa-fw fa-chevron-right"></i>{{_("WebDAV access")}}
+                </div>
+            </div>
+            <div id="webdav" class="collapse" role="tabpanel" aria-labelledby="webdav_head">
+                <div class="card-body">
+                    {{_("Use this URL to access your taskset folder using WebDAV:")}}<br/>
+                <br/>
+                <table class="table">
+                    <tr><td>{{_("URL")}}</td><td><code>{{ webdav_host ~ "/" ~ taskset.get_id()}}</code></td></tr>
+                    <tr><td>{{_("Username")}}</td><td><code>{{user_manager.session_username()}}</code></td></tr>
+                    <tr><td>{{_("Password")}}</td><td><code>{{user_manager.session_api_key()}}</code></td></tr>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <span>{{ _("Task list") }}</span>
+        <a class="text-black-50 pull-right" id="add_task_link" href="#" data-toggle="modal" data-target="#add_modal" title="{{ _('Add new task') }}">
+            <i class="fa fa-plus"></i>
+        </a>
+    </div>
+    <ul class="list-group list-group-flush">
+    {% for taskid, task in taskset.get_tasks().items() %}
+        <li class="list-group-item group-entry d-flex">
+            <div class="task_name mt-auto mb-auto">
+                <p class="font-weight-bold mt-0 mb-0">{{ taskid }}</p>
+                <p class="font-italic mb-0">{{ task.get_name(user_manager.session_language())}}</p>
+            </div>
+            <div class="ml-auto btn-group btn-group-sm" role="group">
+                <a class="edit_task btn btn-primary m-auto" href="{{get_homepath()}}/taskset/{{taskset.get_id()}}/edit/{{taskid}}"
+                        title="{{ _('Edit task') }}" data-toggle="tooltip" data-placement="bottom">
+                    <i class="fa fa-pencil"></i>
+                </a>
+                <a class="delete_task btn btn-danger m-auto" data-toggle="modal" data-target="#delete_modal" data-taskid="{{ taskid }}" data-taskname="{{ task.get_name(user_manager.session_language())}}" title="{{ _('Delete task') }}">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+
+<div id="delete_modal" class="modal fade">
+    <form method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ _("Delete task {}").format('<span class="taskid"></span>') | safe }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ _("This will <b>permanently</b> remove the task {} and its files from INGInious, making it unavailable from courses.").format('<span class="font-italic taskname"></span>') | safe }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">{{_("Cancel")}}</button>
+                        <button name="delete" type="submit" class="btn btn-danger">{{ _("Delete task") }}</button>
+                    </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="add_modal" class="modal fade">
+    <form method="post">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _("Create new task") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-sm-4 control-label mt-auto mb-auto">{{ _("New taskid") }}</label>
+                        <div class="col-sm-8">
+                            <input name="taskid" type="text" class="form-control" placeholder="{{ _('New taskid') }}" />
+                        </div>
+                    </div>
+                </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">{{_("Cancel")}}</button>
+                        <button name="add" type="submit" class="btn btn-primary">{{ _("Add task") }}</button>
+                    </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script type="text/javascript">
+    $("#add_task_link").tooltip({"placement": "left"});
+    $(".delete_task").tooltip({"placement": "bottom"})
+
+    $('#delete_modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget)
+      var taskid = button.data('taskid');
+      var taskname = button.data('taskname');
+      var modal = $(this);
+      modal.find('button[name=delete]').val(taskid);
+      modal.find('.taskid').text(taskid);
+      modal.find('.taskname').text(taskname);
+    });
+
+</script>
+
+{% endblock %}

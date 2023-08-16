@@ -52,7 +52,7 @@ class GenericDockerOCIRuntime(FrontendEnvType):
         return out
 
     def studio_env_template(self, templator, task, allow_html: bool):
-        return templator.render("course_admin/edit_tabs/env_generic_docker_oci.html", env_params=task.get("environment_parameters", {}),
+        return templator.render("taskset_admin/edit_tabs/env_generic_docker_oci.html", env_params=task.get("environment_parameters", {}),
                                 content_is_html=allow_html, env_id=self.id)
 
     def __init__(self, ssh_allowed=False):

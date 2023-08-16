@@ -23,7 +23,13 @@ class TableOfContents(TaskDispenser):
     def __init__(self, task_list_func, dispenser_data, database, course_id):
         # Check dispenser data structure
         dispenser_data = dispenser_data or {"toc": {}, "config": {}}
-        if not isinstance(dispenser_data, dict) or "toc" not in dispenser_data or "config" not in dispenser_data:
+
+        # Allow to support older structures
+        if isinstance(dispenser_data, list):
+            dispenser_data = {"toc": dispenser_data}
+        dispenser_data.setdefault("config", {})
+
+        if not isinstance(dispenser_data, dict) or "toc" not in dispenser_data:
             raise Exception("Invalid dispenser data structure")
 
         TaskDispenser.__init__(self, task_list_func, dispenser_data, database, course_id)

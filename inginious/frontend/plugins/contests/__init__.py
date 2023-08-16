@@ -95,7 +95,7 @@ class ContestScoreboard(INGIniousAuthPage):
     """ Displays the scoreboard of the contest """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
-        course = self.course_factory.get_course(courseid)
+        course = self.taskset_factory.get_course(courseid)
         task_dispenser = course.get_task_dispenser()
         if not task_dispenser.get_id() == Contest.get_id():
             raise NotFound()
@@ -191,9 +191,9 @@ class ContestAdmin(INGIniousAdminPage):
 
     def save_contest_data(self, course, contest_data):
         """ Saves updated contest data for the course """
-        course_content = self.course_factory.get_course_descriptor_content(course.get_id())
+        course_content = self.taskset_factory.get_course_descriptor_content(course.get_id())
         course_content["dispenser_data"]["contest_settings"] = contest_data
-        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
+        self.taskset_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
@@ -259,7 +259,7 @@ class ContestAdmin(INGIniousAdminPage):
                                                data=contest_data, errors=errors, saved=False)
 
 
-def init(plugin_manager, course_factory, client, config):  # pylint: disable=unused-argument
+def init(plugin_manager, taskset_factory, client, config):  # pylint: disable=unused-argument
     """
         Init the contest plugin.
         Available configuration:
@@ -275,4 +275,4 @@ def init(plugin_manager, course_factory, client, config):  # pylint: disable=unu
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
     plugin_manager.add_hook('header_html', additional_headers)
     plugin_manager.add_hook('course_menu', course_menu)
-    course_factory.add_task_dispenser(Contest)
+    taskset_factory.add_task_dispenser(Contest)
