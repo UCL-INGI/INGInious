@@ -10,10 +10,13 @@
             title="{{ _('View task') }}" data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-eye" ></i>
     </a>
-    <a class="edit_task btn btn-info m-auto" href="{{get_homepath()}}/admin/{{course.get_id()}}/edit/task/{{taskid}}"
+    {% set taskset = course.get_taskset() %}
+    {% if user_manager.session_username() in taskset.get_admins() or user_manager.user_is_superadmin() %}
+    <a class="edit_task btn btn-info m-auto" href="{{get_homepath()}}/taskset/{{taskset.get_id()}}/edit/{{taskid}}"
             title="{{ _('Edit task') }}" data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-pencil"></i>
     </a>
+    {% endif %}
     <a class="rename_task btn btn-secondary m-auto" href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?tasks={{taskid}}"
             title="{{ _('View submissions') }}"  data-toggle="tooltip" data-placement="bottom">
         <i class="fa fa-file-code-o fa-fw"></i>

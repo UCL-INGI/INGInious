@@ -39,7 +39,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             try:
                 data = task_dispenser.import_legacy_tasks()
                 self.update_dispenser(course, data)
-                self.clean_task_files(course)
+                #self.clean_task_files(course) ## TODO: move this to taskset dispenser template
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
         else:
@@ -48,17 +48,6 @@ class CourseTaskListPage(INGIniousAdminPage):
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
 
-            for taskid in json.loads(user_input.get("new_tasks", "[]")):
-                try:
-                    self.task_factory.create_task(course, taskid, {
-                        "name": taskid, "problems": {}, "environment_type": "mcq"})
-                except Exception as ex:
-                    errors.append(_("Couldn't create task {} : ").format(taskid) + str(ex))
-            for taskid in json.loads(user_input.get("deleted_tasks", "[]")):
-                try:
-                    self.task_factory.delete_task(courseid, taskid)
-                except Exception as ex:
-                    errors.append(_("Couldn't delete task {} : ").format(taskid) + str(ex))
             for taskid in json.loads(user_input.get("wiped_tasks", "[]")):
                 try:
                     self.wipe_task(courseid, taskid)
@@ -80,6 +69,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         else:
             raise Exception(_("Invalid course structure: ") + msg)
 
+    # TODO: move this to taskset dispenser template
     def clean_task_files(self, course):
         task_dispenser = course.get_task_dispenser()
         legacy_fields = task_dispenser.legacy_fields.keys()
