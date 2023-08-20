@@ -138,7 +138,7 @@
                     {{ _("Delete course") }}
                 </div>
                 <div class="card-body">
-                    {{ _("<p> This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious.</p><p>To confirm your will, please type the course id below :</p>") | safe }}
+                    {{ _("<p> This will <b>permanently</b> remove the course and all its data (including backups) from INGInious.</p><p>To confirm your will, please type the course id below :</p>") | safe }}
                     <form class="form-horizontal" method="post">
                         <input type="hidden" name="token" value="{{ thehash }}">
                         <div class="row">

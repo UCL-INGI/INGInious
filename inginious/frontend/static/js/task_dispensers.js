@@ -3,9 +3,7 @@
 // more information about the licensing of this file.
 //
 
-var dispenser_deleted_tasks = [];
 var dispenser_wiped_tasks = [];
-var dispenser_new_tasks = [];
 var dragged_from;
 var draggable_sections = {};
 var draggable_tasks = {};
@@ -63,8 +61,6 @@ function dispenser_util_create_section(parent) {
  *****************************/
 function dispenser_util_open_task_modal(target) {
     $('#add_existing_tasks').attr('data-target', target.closest('.section').id);
-    $('#add_new_task').attr('data-target', target.closest('.section').id);
-    $('#new_task_id').attr('data-target', target.closest('.section').id.to_section_id());
 
     var placed_task = [];
     $('.task').each(function () {
@@ -105,43 +101,17 @@ function dispenser_util_click_modal_task(task) {
 function dispenser_util_add_tasks_to_section(button) {
     task_id= $("#new_task_id").val();
     var selected_tasks = [];
-    var existing_task = $(button).attr("id") == "add_existing_tasks";
-    if(existing_task) {
-        $.each($("input[name='task']:checked"), function () {
-            selected_tasks.push($(this).val());
-        });
-    }
-    else {
-        if(!task_id.match(/^[a-zA-Z0-9_\-]+$/)){
-            alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-            return;
-        }
-        selected_tasks.push(task_id);
-    }
+
+    $.each($("input[name='task']:checked"), function () {
+        selected_tasks.push($(this).val());
+    });
 
     const section = $("#" + $(button).attr('data-target'));
     const content = section.children(".content");
 
     for (var i = 0; i < selected_tasks.length; i++) {
         warn_before_exit = true;
-        if(existing_task)
-            content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
-        else {
-            // Copy and add the new task
-            var new_task_clone = $("#new_task_clone").clone();
-            new_task_clone.attr("id", 'task_' + selected_tasks[i]);
-            new_task_clone.html(new_task_clone.html().replaceAll("NEWTASKID", selected_tasks[i]));
-            new_task_clone.find(".task_settings").tooltip({"placement": "bottom"})
-            new_task_clone.find(".delete_task").tooltip({"placement": "bottom"})
-            content.append(new_task_clone);
-
-            // Copy and add the new fields
-            var new_modal_clone = $("#edit-modals-template").clone();
-            new_modal_clone.html(new_modal_clone.html().replaceAll("NEWTASKID", selected_tasks[i]));
-            $("#edit-modals").append(new_modal_clone.children(".modal"));
-            $("#edit-modals").trigger("new_task");
-            dispenser_add_task(selected_tasks[i]);
-        }
+        content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
     }
 
     dispenser_util_content_modified(section);
@@ -161,24 +131,20 @@ function dispenser_util_open_delete_modal(button) {
     }
 }
 
-function dispenser_util_delete_selection(keep_files) {
+function dispenser_util_delete_selection() {
     $(".grouped-actions-task:checked").each(function () {
         let button = $("#task_" + $(this).data("taskid") + " button.delete_task");
-        dispenser_util_delete_task(button, keep_files, $(this).data("taskid"));
+        dispenser_util_delete_task(button, $(this).data("taskid"));
     });
 }
 
-function dispenser_util_delete_section(button, keep_files) {
+function dispenser_util_delete_section(button) {
     const section = $("#" + button.getAttribute('data-target'));
     const parent = section.parent().closest(".sections_list");
     const wipe = $('#delete_section_modal .wipe_tasks').prop("checked");
 
     section.find(".task").each(function () {
         const taskid = this.id.to_taskid();
-        if(!keep_files){
-            $("#modal_task_" + taskid).remove()
-            dispenser_delete_task(taskid)
-        }
         if(wipe){
             dispenser_wipe_task(taskid)
         }
@@ -189,16 +155,12 @@ function dispenser_util_delete_section(button, keep_files) {
     dispenser_util_content_modified(parent);
 }
 
-function dispenser_util_delete_task(button, keep_files, taskid){
+function dispenser_util_delete_task(button, taskid){
     $(button).mouseleave().focusout();
     var wipe = false;
     if(!taskid) {
         taskid = button.getAttribute('data-target').to_taskid();
         wipe = $('#delete_task_modal .wipe_tasks').prop("checked");
-    }
-    if(!keep_files){
-        $("#modal_task_" + taskid).remove()
-        dispenser_delete_task(taskid)
     }
     if(wipe){
         dispenser_wipe_task(taskid)
@@ -561,20 +523,8 @@ function dispenser_util_get_tasks_list(element) {
     return tasks_list;
 }
 
-function dispenser_delete_task(taskid) {
-    dispenser_deleted_tasks.push(taskid);
-}
-
 function dispenser_wipe_task(taskid) {
     dispenser_wiped_tasks.push(taskid);
-}
-
-function dispenser_add_task(taskid) {
-    if(!taskid.match(/^[a-zA-Z0-9_\-]+$/)){
-        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-        return;
-    }
-    dispenser_new_tasks.push(taskid);
 }
 
 function dispenser_util_get_task_config() {
@@ -610,8 +560,6 @@ function dispenser_submit(dispenser_id) {
     warn_before_exit = false;
     $("<form>").attr("method", "post").appendTo($("#dispenser_data")).hide()
         .append($("<input>").attr("name", "course_structure").val(structure_json))
-        .append($("<input>").attr("name", "new_tasks").val(JSON.stringify(dispenser_new_tasks)))
-        .append($("<input>").attr("name", "deleted_tasks").val(JSON.stringify(dispenser_deleted_tasks)))
         .append($("<input>").attr("name", "wiped_tasks").val(JSON.stringify(dispenser_wiped_tasks))).submit();
 }
 

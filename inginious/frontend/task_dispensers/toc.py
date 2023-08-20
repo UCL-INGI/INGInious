@@ -136,8 +136,10 @@ class TableOfContents(TaskDispenser):
 
     def has_legacy_tasks(self):
         """ Checks if the task files contains dispenser settings """
+        if self._dispenser_data.get("imported", False):
+            return False
+
         for taskid, task in self._task_list_func().items():
-            test = task.get_dispenser_settings(self.legacy_fields)
             if task.get_dispenser_settings(self.legacy_fields):
                 return True
         return False
@@ -150,4 +152,5 @@ class TableOfContents(TaskDispenser):
                 dispenser_data["config"][taskid] = task.get_dispenser_settings(self.legacy_fields)
             except Exception as e:
                 raise Exception(f"In task {taskid} : {e}")
+        dispenser_data["imported"] = True
         return dispenser_data
