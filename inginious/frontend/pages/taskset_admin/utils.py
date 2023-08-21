@@ -59,6 +59,7 @@ class TasksetRedirectPage(INGIniousAdminPage):
 def get_menu(taskset, current, renderer, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; " + _("Settings")),
+                       ("template", "<i class='fa fa-file-o fa-fw'></i>&nbsp; " + _("Course template")),
                        ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]
 
     return renderer("taskset_admin/menu.html", taskset=taskset, entries=default_entries, current=current)

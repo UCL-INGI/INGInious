@@ -12,7 +12,7 @@
         </div>
         <div class="col-md-12">
 
-            {% for config_item in course.get_task_dispenser().config_items %}
+            {% for config_item in element.get_task_dispenser().config_items %}
                 {% include config_item.get_template() %}
             {% endfor %}
 

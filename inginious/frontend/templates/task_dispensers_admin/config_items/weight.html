@@ -1,7 +1,7 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{% set weight = course.get_task_dispenser().get_weight(taskid) %}
+{% set weight = element.get_task_dispenser().get_weight(taskid) %}
 
 {% if short %}
 {{ _("Grade weight (in comparison to other tasks)") }} : <span>{{ weight }}</span>

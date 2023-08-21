@@ -1,7 +1,7 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{% set evaluation_value = course.get_task_dispenser().get_evaluation_mode(taskid) %}
+{% set evaluation_value = element.get_task_dispenser().get_evaluation_mode(taskid) %}
 
 {% if short %}
 {{_("Evaluation submission")}} :
