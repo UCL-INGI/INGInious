@@ -2,7 +2,7 @@
 {# more information about the licensing of this file. #}
 
 <div class="ml-auto btn-group btn-group-sm" role="group">
-    <a class="task_settings btn btn-primary m-auto" data-toggle="modal" data-target="#edit_{{taskid}}"
+    <a class="task_settings btn btn-primary m-auto" data-toggle="modal" data-target="#edit_task_modal" data-taskid="{{taskid}}"
             title="{{ _('Task settings') }}">
         <i class="fa fa-cogs" aria-hidden="true"></i>
     </a>
@@ -38,8 +38,3 @@
         <i class="fa fa-trash"></i>
     </button>
 </div>
-
-<script type="text/javascript">
-    $(".task_settings").tooltip({"placement": "bottom"})
-    $(".delete_task").tooltip({"placement": "bottom"})
-</script>
