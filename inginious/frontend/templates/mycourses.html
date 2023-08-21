@@ -74,8 +74,6 @@
 
                             {% if username in course.get_admins() or user_manager.user_is_superadmin() %}
                                 {{ _("Administrator") }}
-                            {% elif username in course.get_tutors() %}
-                                {{ _("Tutor") }}
                             {% elif user_manager.course_is_user_registered(course) %}
                                 {{ _("Student") }}
                             {% endif %}

@@ -63,7 +63,7 @@ class BaseTaskPage(object):
         if not self.user_manager.course_is_open_to_user(course, username, is_LTI):
             return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
-        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
+        is_staff = self.user_manager.has_admin_rights_on_course(course, username)
 
         try:
             task = course.get_task(taskid)
@@ -84,7 +84,6 @@ class BaseTaskPage(object):
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
-        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
 
         userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
@@ -139,7 +138,7 @@ class BaseTaskPage(object):
             # Visible tags
             course_tags = course.get_tags()
             visible_tags = [tags for _,tags in course_tags.items() if
-                tags.is_visible_for_student() or self.user_manager.has_staff_rights_on_course(course)]
+                tags.is_visible_for_student() or self.user_manager.has_admin_rights_on_course(course)]
 
             # Problem dict
             pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
@@ -161,7 +160,6 @@ class BaseTaskPage(object):
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
             return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
 
-        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
         is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
         task = course.get_task(taskid)
@@ -226,14 +224,14 @@ class BaseTaskPage(object):
                 }))
 
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-            result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
+            result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_admin)
             if result is None:
                 return Response(content_type='application/json', response=json.dumps({
                     'status': "error",  "title": _("Error"), "text": _("Internal error")
                 }))
-            elif self.submission_manager.is_done(result, user_check=not is_staff):
+            elif self.submission_manager.is_done(result, user_check=not is_admin):
                 result = self.submission_manager.get_input_from_submission(result)
-                result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
+                result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_admin)
 
                 # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
@@ -258,9 +256,9 @@ class BaseTaskPage(object):
                 ))
 
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
-            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_admin)
             submission = self.submission_manager.get_input_from_submission(submission)
-            submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
+            submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_admin)
             if not submission:
                 raise NotFound(description=_("Submission doesn't exist."))
 

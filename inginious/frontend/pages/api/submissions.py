@@ -45,7 +45,7 @@ def _get_submissions(taskset_factory, submission_manager, user_manager, translat
     for submission in submissions:
         submission = submission_manager.get_feedback_from_submission(
             submission,
-            show_everything=user_manager.has_staff_rights_on_course(course, user_manager.session_username()),
+            show_everything=user_manager.has_admin_rights_on_course(course, user_manager.session_username()),
             translation=translations.get(user_manager.session_language(), gettext.NullTranslations())
         )
         data = {

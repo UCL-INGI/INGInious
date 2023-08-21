@@ -17,12 +17,12 @@ class CourseTaskListPage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+        course, __ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         errors = []
         user_input = flask.request.form
@@ -55,7 +55,7 @@ class CourseTaskListPage(INGIniousAdminPage):
                     errors.append(_("Couldn't wipe task {} : ").format(taskid) + str(ex))
 
         # don't forget to reload the modified course
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid)
         return self.page(course, errors, not errors)
 
     def update_dispenser(self, course, dispenser_data):

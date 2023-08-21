@@ -20,7 +20,7 @@ class CourseEditAudience(INGIniousAdminPage):
 
     def get_user_lists(self, course, audienceid=''):
         """ Get the available student and tutor lists for audience edition"""
-        tutor_list = course.get_staff()
+        tutor_list = course.get_admins()
         student_list = self.user_manager.get_course_registered_users(course, False)
         users_info = self.user_manager.get_users_info(student_list + tutor_list)
 
@@ -55,13 +55,13 @@ class CourseEditAudience(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid, audienceid):  # pylint: disable=arguments-differ
         """ Edit a audience """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         return self.display_page(course, audienceid)
 
     def POST_AUTH(self, courseid, audienceid=''):  # pylint: disable=arguments-differ
         """ Edit a audience """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+        course, __ = self.get_course_and_check_rights(courseid)
         msg=''
         error = False
 

@@ -104,16 +104,15 @@ class CourseFactory(object):
 
             try:
                 taskset_descriptor = self._taskset_factory.get_taskset_descriptor_content(courseid)
+                cleaned_taskset_descriptor = {
+                    "name": taskset_descriptor["name"],
+                    "admins": taskset_descriptor.get("admins", []),
+                    "description": taskset_descriptor.get( "description", "")
+                }
                 taskset_descriptor["tasksetid"] = courseid
+                taskset_descriptor["admins"] = taskset_descriptor.get("admins", []) + taskset_descriptor.get("tutors", [])
                 self._database.courses.update_one({"_id": courseid}, {"$set": taskset_descriptor}, upsert=True)
-                self._taskset_factory.update_taskset_descriptor_content(
-                    courseid,
-                    {
-                        "name": taskset_descriptor["name"],
-                        "admins": taskset_descriptor.get("admins", []),
-                        "description": taskset_descriptor.get( "description", "")
-                    }
-                )
+                self._taskset_factory.update_taskset_descriptor_content(courseid, cleaned_taskset_descriptor)
             except TasksetNotFoundException as e:
                 get_course_logger(courseid).warning("No migration from taskset possible for courseid {}.".format(courseid))
 

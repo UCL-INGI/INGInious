@@ -54,7 +54,6 @@ class Course(object):
         _migrate_from_v_0_6(content, self._task_factory.get_all_tasks(self._taskset))
 
         self._admins = self._content.get('admins', [])
-        self._tutors = self._content.get('tutors', [])
         self._description = self._content.get('description', '')
         self._accessible = AccessibleTime(self._content.get("accessible", None))
         self._registration = AccessibleTime(self._content.get("registration", None))
@@ -123,17 +122,9 @@ class Course(object):
         """ Get (a copy) the description of the course """
         return copy.deepcopy(self._content)
 
-    def get_staff(self):
-        """ Returns a list containing the usernames of all the staff users """
-        return list(set(self.get_tutors() + self.get_admins()))
-
     def get_admins(self):
         """ Returns a list containing the usernames of the administrators of this course """
         return self._admins
-
-    def get_tutors(self):
-        """ Returns a list containing the usernames of the tutors assigned to this course """
-        return self._tutors
 
     def is_open_to_non_staff(self):
         """ Returns true if the course is accessible by users that are not administrator of this course """
