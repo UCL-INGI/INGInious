@@ -116,8 +116,8 @@ class TableOfContents(TaskDispenser):
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
 
         return template_helper.render("task_dispensers_admin/toc.html", element=element, course=course, taskset=taskset,
-                                      dispenser_structure=self._toc, tasks=task_data, task_errors=task_errors, config_fields=config_fields,
-                                      config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
+                                      dispenser_structure=self._toc, dispenser_config=self._task_config, tasks=task_data,
+                                      task_errors=task_errors, config_fields=config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list, username):
         """ Returns the formatted task list"""
@@ -130,8 +130,9 @@ class TableOfContents(TaskDispenser):
         new_toc = dispenser_data
         valid, errors = check_toc(new_toc.get("toc", {}))
         if valid:
-            new_toc["imported"] = dispenser_data.get("imported", False) or self._dispenser_data.get("imported", False)
             valid, errors = check_task_config(self.config_items, new_toc.get("config", {}))
+        if valid and new_toc:
+            new_toc["imported"] = dispenser_data.get("imported", False) or self._dispenser_data.get("imported", False)
         return new_toc if valid else None, errors
 
     def get_ordered_tasks(self):
