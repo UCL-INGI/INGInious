@@ -57,7 +57,7 @@ class CourseStudentListPage(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, __ = self.get_course_and_check_rights(courseid, None, True)
+        course, __ = self.get_course_and_check_rights(courseid)
         data = flask.request.form.copy()
         data["delete"] = flask.request.form.getlist("delete")
         data["groupfile"] = flask.request.files.get("groupfile")
@@ -109,7 +109,7 @@ class CourseStudentListPage(INGIniousAdminPage):
             self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
             key=lambda k: k[1].realname if k[1] is not None else "")
 
-        users = OrderedDict(sorted(list(self.user_manager.get_users_info(course.get_staff()).items()),
+        users = OrderedDict(sorted(list(self.user_manager.get_users_info(course.get_admins()).items()),
                                    key=lambda k: k[1].realname if k[1] is not None else "") + users)
 
         user_data = OrderedDict([(username, {
@@ -271,7 +271,7 @@ class CourseStudentListPage(INGIniousAdminPage):
 
                     # update list of students and tutors of the course.
                     new_students = list(set(stud_list).union(set(course_students)))
-                    new_tutors = list(set(course.get_tutors()).union(set(course_tutors)))
+                    new_tutors = list(set(course.get_admins()).union(set(course_tutors)))
 
                     self.database.courses.update_one({"_id": courseid}, {"$set": {"students": new_students,
                                                                                   "tutors": new_tutors}})
@@ -288,7 +288,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                                                                {"$set": {"students": audience["students"],
                                                                          "tutors": audience["tutors"]}})
 
-            active_tab = "tab_audiences"
+                active_tab = "tab_audiences"
         except Exception as e:
             msg["audiences"] = _('An error occurred while parsing the data.')
             error["audiences"] = True
@@ -459,7 +459,7 @@ class CourseStudentListPage(INGIniousAdminPage):
             audience = self.database.audiences.find_one({"_id": ObjectId(audienceid), "courseid": course.get_id()})
 
         # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
+        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_admins()]
 
         students, errored_students = [], []
 

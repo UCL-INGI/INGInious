@@ -4,7 +4,7 @@
 {% extends "layout.html" %}
 
 {% set registered = user_manager.course_is_user_registered(course) %}
-{% set staff = user_manager.has_staff_rights_on_course(course) %}
+{% set staff = user_manager.has_admin_rights_on_course(course) %}
 
 {% block title %}{{ course.get_name(user_manager.session_language()) }}{% endblock %}
 

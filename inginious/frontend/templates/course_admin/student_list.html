@@ -53,7 +53,7 @@
     <div class="tab-content">
         <div role="tabpanel" class="card-body tab-pane active" id="tab_students">
             {% set len_all_users = user_data|length %}
-            {% set len_staff = course.get_staff()|length %}
+            {% set len_staff = course.get_admins()|length %}
             {% with user_data=user_data[len_staff:len_all_users], is_staff=False %}
                 <p>{{ _("Number of students") }} : {{ user_data | length }}</p>
                 {% include "course_admin/student_list_table.html" %}
@@ -70,7 +70,7 @@
             {% endif %}
         </div>
         <div role="tabpanel" class="card-body tab-pane" id="tab_staff">
-            {% with user_data=user_data[0:(course.get_staff()|length)], is_staff=True %}
+            {% with user_data=user_data[0:(course.get_admins()|length)], is_staff=True %}
                 {% include "course_admin/student_list_table.html" %}
             {% endwith %}
         </div>

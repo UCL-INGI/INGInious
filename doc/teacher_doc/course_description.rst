@@ -25,7 +25,6 @@ file. For instance, this file, for a course with id ``courseid1``, should be pla
     admins:
       - demouser
     name: "[DEMO] Demonstration course"
-    tutors: []
     groups_student_choice: false
     accessible: true
     registration: true
@@ -40,11 +39,6 @@ the webapp. Here are the possible fields to set:
 
 - ``admins``
   List of administrators usernames. These users will have complete administrations right on the course.
-
-- ``tutors``
-  List of tutors usernames (restricted-rights teaching assistants). These users will have read-only rights on the
-  course content. They cannot change course parameters nor tasks, cannot replay submissions or wipe the course data.
-  However, they can manage the audience composition and download all the student submissions.
 
 - ``accessible``
   When this field is defined, the course is only visible if within the defined period.

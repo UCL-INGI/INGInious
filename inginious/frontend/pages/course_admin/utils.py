@@ -24,23 +24,18 @@ class INGIniousAdminPage(INGIniousAuthPage):
     An improved version of INGIniousAuthPage that checks rights for the administration
     """
 
-    def get_course_and_check_rights(self, courseid, taskid=None, allow_all_staff=True):
+    def get_course_and_check_rights(self, courseid, taskid=None):
         """ Returns the course with id ``courseid`` and the task with id ``taskid``, and verify the rights of the user.
             Raise app.forbidden() when there is no such course of if the users has not enough rights.
             :param courseid: the course on which to check rights
             :param taskid: If not None, returns also the task with id ``taskid``
-            :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
             :returns (Course, Task)
         """
 
         try:
             course = self.course_factory.get_course(courseid)
-            if allow_all_staff:
-                if not self.user_manager.has_staff_rights_on_course(course):
-                    raise Forbidden(description=_("You don't have staff rights on this course."))
-            else:
-                if not self.user_manager.has_admin_rights_on_course(course):
-                    raise Forbidden(description=_("You don't have admin rights on this course."))
+            if not self.user_manager.has_admin_rights_on_course(course):
+                raise Forbidden(description=_("You don't have admin rights on this course."))
 
             if taskid is None:
                 return course, None
@@ -366,10 +361,7 @@ class CourseRedirectPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
-        if self.user_manager.session_username() in course.get_tutors():
-            return redirect(self.app.get_homepath() + '/admin/{}/tasks'.format(courseid))
-        else:
-            return redirect(self.app.get_homepath() + '/admin/{}/settings'.format(courseid))
+        return redirect(self.app.get_homepath() + '/admin/{}/settings'.format(courseid))
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """

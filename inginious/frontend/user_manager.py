@@ -733,7 +733,7 @@ class UserManager:
 
         dispenser_filter = course.get_task_dispenser().get_accessibility(task.get_id(), username).after_start()
         return (self.course_is_open_to_user(course, username, lti) and dispenser_filter) \
-               or self.has_staff_rights_on_course(course, username)
+               or self.has_admin_rights_on_course(course, username)
 
     def task_can_user_submit(self, course, task, username=None, only_check=None, lti=None):
         """ returns true if the user can submit his work for this task
@@ -752,7 +752,7 @@ class UserManager:
         # Check if task accessible to user
         task_accessible = course.get_task_dispenser().get_accessibility(task.get_id(), username).is_open()
         # User has staff rights ?
-        staff_right = self.has_staff_rights_on_course(course, username)
+        staff_right = self.has_admin_rights_on_course(course, username)
         # Is this task a group task .
         is_group_task = course.get_task_dispenser().get_group_submission(task.get_id())
 
@@ -925,7 +925,7 @@ class UserManager:
         if lti == "auto":
             lti = self.session_lti_info() is not None
 
-        if self.has_staff_rights_on_course(course, username):
+        if self.has_admin_rights_on_course(course, username):
             return True
 
         if not course.get_accessibility().is_open():
@@ -958,7 +958,7 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        if self.has_staff_rights_on_course(course, username):
+        if self.has_admin_rights_on_course(course, username):
             return True
 
         return self._database.courses.find_one({"students": username, "_id": course.get_id()}) is not None
@@ -975,7 +975,7 @@ class UserManager:
         l = course_obj.get("students", []) if course_obj else []
 
         if with_admins:
-            return list(set(l + course.get_staff()))
+            return list(set(l + course.get_admins()))
         else:
             return l
 
@@ -1013,19 +1013,6 @@ class UserManager:
             username = self.session_username()
 
         return (username in course.get_admins()) or (include_superadmins and self.user_is_superadmin(username))
-
-    def has_staff_rights_on_course(self, course, username=None, include_superadmins=True):
-        """
-        Check if a user can be considered as having staff rights for a course
-        :type course: inginious.frontend.courses.Course
-        :param username: the username. If None, the username of the currently logged in user is taken
-        :param include_superadmins: Boolean indicating if superadmins should be taken into account
-        :return: True if the user has staff rights, False else
-        """
-        if username is None:
-            username = self.session_username()
-
-        return (username in course.get_staff()) or (include_superadmins and self.user_is_superadmin(username))
 
     @classmethod
     def generate_api_key(cls):

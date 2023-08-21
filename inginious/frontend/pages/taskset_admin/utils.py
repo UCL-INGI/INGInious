@@ -25,7 +25,6 @@ class INGIniousAdminPage(INGIniousAuthPage):
             Raise app.forbidden() when there is no such course of if the users has not enough rights.
             :param courseid: the course on which to check rights
             :param taskid: If not None, returns also the task with id ``taskid``
-            :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
             :returns (Course, Task)
         """
 
