@@ -11,13 +11,13 @@
         </span>
         <span style="display: none" class="divider"></span>
         {% with tasks_list_option=True, sections_list_option=True %}
-            {% include "course_admin/task_dispensers/section_menu.html" %}
+            {% include "task_dispensers_admin/section_menu.html" %}
         {% endwith %}
     </div>
     {% if config_fields %}
         <div class="config card-body bg-light">
             {% with section_config=config, config_fields=config_fields %}
-               {% include "course_admin/task_dispensers/section_config.html" %}
+               {% include "task_dispensers_admin/section_config.html" %}
             {% endwith %}
         </div>
     {% endif %}

@@ -16,11 +16,10 @@ from inginious.frontend.courses import Course
 class CourseFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, taskset_factory, task_factory, plugin_manager, task_dispensers, database):
+    def __init__(self, taskset_factory, task_factory, plugin_manager, database):
         self._taskset_factory = taskset_factory
         self._task_factory = task_factory
         self._plugin_manager = plugin_manager
-        self._task_dispensers = task_dispensers
         self._database = database
 
         self._migrate_legacy_courses()
@@ -29,13 +28,13 @@ class CourseFactory(object):
         """
         :param task_dispenser: TaskDispenser class
         """
-        self._task_dispensers.update({task_dispenser.get_id(): task_dispenser})
+        self._taskset_factory.add_task_dispenser(task_dispenser)
 
     def get_task_dispensers(self):
         """
         Returns the supported task dispensers by this taskset factory
         """
-        return self._task_dispensers
+        return self._taskset_factory.get_task_dispensers()
 
     def get_task_factory(self):
         """
@@ -68,7 +67,7 @@ class CourseFactory(object):
     def get_course(self, courseid):
         course_desc = self.get_course_descriptor_content(courseid)
         try:
-            return Course(courseid, course_desc, self._taskset_factory, self._task_factory, self._plugin_manager, self._task_dispensers, self._database)
+            return Course(courseid, course_desc, self._taskset_factory, self._task_factory, self._plugin_manager, self._database)
         except Exception as e:
             raise CourseNotFoundException()
 
@@ -78,7 +77,7 @@ class CourseFactory(object):
         for course_desc in course_descriptors:
             courseid = course_desc["_id"]
             try:
-                result[courseid] = Course(courseid, course_desc, self._taskset_factory, self._task_factory, self._plugin_manager, self._task_dispensers, self._database)
+                result[courseid] = Course(courseid, course_desc, self._taskset_factory, self._task_factory, self._plugin_manager, self._database)
             except Exception:
                 get_course_logger(courseid).warning("Cannot open course", exc_info=True)
 
@@ -107,8 +106,11 @@ class CourseFactory(object):
                 cleaned_taskset_descriptor = {
                     "name": taskset_descriptor["name"],
                     "admins": taskset_descriptor.get("admins", []),
-                    "description": taskset_descriptor.get( "description", "")
+                    "description": taskset_descriptor.get( "description", ""),
                 }
+                if "task_dispenser" in taskset_descriptor:
+                    cleaned_taskset_descriptor["task_dispenser"] = taskset_descriptor["task_dispenser"]
+                    cleaned_taskset_descriptor["dispenser_data"] = taskset_descriptor.get("dispenser_data", {})
                 taskset_descriptor["tasksetid"] = courseid
                 taskset_descriptor["admins"] = taskset_descriptor.get("admins", []) + taskset_descriptor.get("tutors", [])
                 self._database.courses.update_one({"_id": courseid}, {"$set": taskset_descriptor}, upsert=True)

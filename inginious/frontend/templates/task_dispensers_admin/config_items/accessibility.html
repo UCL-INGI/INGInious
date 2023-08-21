@@ -1,7 +1,7 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{% set at = course.get_task_dispenser().get_accessibility(taskid, user_manager.session_username()) %}
+{% set at = element.get_task_dispenser().get_accessibility(taskid, user_manager.session_username()) %}
 
 {% if short %}
     {{_("Accessibility")}} :

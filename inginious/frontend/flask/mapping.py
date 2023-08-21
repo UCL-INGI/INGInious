@@ -50,6 +50,7 @@ from inginious.frontend.pages.taskset_admin.settings import TasksetSettingsPage
 from inginious.frontend.pages.taskset_admin.task_edit import EditTaskPage
 from inginious.frontend.pages.taskset_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.pages.taskset_admin.task_edit_file import CourseTaskFileUpload
+from inginious.frontend.pages.taskset_admin.template import TasksetTemplatePage
 from inginious.frontend.pages.taskset_admin.danger_zone import TasksetDangerZonePage
 from inginious.frontend.pages.search_user import SearchUserPage
 
@@ -137,6 +138,8 @@ def init_flask_mapping(flask_app):
                            view_func=CourseTaskFiles.as_view('tasksettaskfiles'))
     flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>/dd_upload',
                            view_func=CourseTaskFileUpload.as_view('tasksettaskfileupload'))
+    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/template',
+                           view_func=TasksetTemplatePage.as_view('tasksettemplatepage'))
     flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/danger',
                            view_func=TasksetDangerZonePage.as_view('tasksetdangerzonepage'))
 

@@ -38,7 +38,7 @@ class GroupSubmission(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/groups.html"
+        return "task_dispensers_admin/config_items/groups.html"
 
     @classmethod
     def get_id(cls):
@@ -61,7 +61,7 @@ class Weight(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/weight.html"
+        return "task_dispensers_admin/config_items/weight.html"
 
     @classmethod
     def get_id(cls):
@@ -86,7 +86,7 @@ class SubmissionStorage(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/submission_storage.html"
+        return "task_dispensers_admin/config_items/submission_storage.html"
 
     @classmethod
     def get_id(cls):
@@ -111,7 +111,7 @@ class EvaluationMode(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/evaluation_mode.html"
+        return "task_dispensers_admin/config_items/evaluation_mode.html"
 
     @classmethod
     def get_id(cls):
@@ -134,7 +134,7 @@ class Categories(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/categories.html"
+        return "task_dispensers_admin/config_items/categories.html"
 
     @classmethod
     def get_id(cls):
@@ -157,7 +157,7 @@ class SubmissionLimit(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/submission_limit.html"
+        return "task_dispensers_admin/config_items/submission_limit.html"
 
     @classmethod
     def get_id(cls):
@@ -182,7 +182,7 @@ class Accessibility(TaskConfigItem):
 
     @classmethod
     def get_template(cls):
-        return "course_admin/task_dispensers/config_items/accessibility.html"
+        return "task_dispensers_admin/config_items/accessibility.html"
 
     @classmethod
     def get_id(cls):

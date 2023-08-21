@@ -187,14 +187,14 @@ function dispenser_toggle_adapt_viewport() {
 }
 
 function dispenser_util_adapt_viewport() {
-    $("#course_structure").removeAttr("style");
+    $("#dispenser_structure").removeAttr("style");
     if($("#compact-view").hasClass("active")) {
         var viewport_height = window.innerHeight;
         var document_height = $("#main-content").innerHeight() + $("#inginious-top").innerHeight();
         var overflow = document_height - viewport_height;
         if (overflow > 0) {
-            $("#course_structure").height($("#course_structure").height() - overflow);
-            $("#course_structure").css("overflow", "auto");
+            $("#dispenser_structure").height($("#dispenser_structure").height() - overflow);
+            $("#dispenser_structure").css("overflow", "auto");
         }
     }
 }
@@ -270,7 +270,7 @@ function dispenser_util_empty_to_tasks(section) {
 
 function dispenser_util_update_section_select() {
     $("#grouped-actions-section-select").find("option").remove();
-    $("#course_structure .section").each(function () {
+    $("#dispenser_structure .section").each(function () {
         let id = this.id;
         let level = $(this).data('level') - 3;
         let title = "-".repeat(level) + " " + $(this).find(".title").first().text().trim();
@@ -529,7 +529,7 @@ function dispenser_wipe_task(taskid) {
 
 function dispenser_util_get_task_config() {
     let tasks_config = {};
-    dispenser_util_get_tasks_list($('#course_structure .content')).forEach(function (elem) {
+    dispenser_util_get_tasks_list($('#dispenser_structure .content')).forEach(function (elem) {
         tasks_config[elem] = {};
     });
 
@@ -542,7 +542,7 @@ function dispenser_util_get_task_config() {
 
 function dispenser_util_structure() {
     return JSON.stringify({
-        "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
+        "toc": dispenser_util_get_sections_list($('#dispenser_structure').children(".content")),
         "config": dispenser_util_get_task_config()
     });
 }
@@ -559,7 +559,7 @@ function dispenser_submit(dispenser_id) {
     var structure_json = window['dispenser_structure_' + dispenser_id]();
     warn_before_exit = false;
     $("<form>").attr("method", "post").appendTo($("#dispenser_data")).hide()
-        .append($("<input>").attr("name", "course_structure").val(structure_json))
+        .append($("<input>").attr("name", "dispenser_structure").val(structure_json))
         .append($("<input>").attr("name", "wiped_tasks").val(JSON.stringify(dispenser_wiped_tasks))).submit();
 }
 

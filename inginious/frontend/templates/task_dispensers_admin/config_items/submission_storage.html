@@ -1,7 +1,7 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{% set no_stored_submissions = course.get_task_dispenser().get_no_stored_submissions(taskid) %}
+{% set no_stored_submissions = element.get_task_dispenser().get_no_stored_submissions(taskid) %}
 {% if short %}
 {{_("Submission storage")}} :
     <span class="submission_storage submission_storage-all_sub" {% if no_stored_submissions != 0 %} style="display: none;" {% endif %}>{{ _("All submissions") }}</span>

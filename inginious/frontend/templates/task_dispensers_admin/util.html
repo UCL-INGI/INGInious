@@ -30,18 +30,18 @@
 </style>
 
 {% with type="section" %}
-    {% include "course_admin/task_dispensers/util_delete_modal.html" %}
+    {% include "task_dispensers_admin/util_delete_modal.html" %}
 {% endwith %}
 
 {% with type="task" %}
-    {% include "course_admin/task_dispensers/util_delete_modal.html" %}
+    {% include "task_dispensers_admin/util_delete_modal.html" %}
 {% endwith %}
 
 {% with type="grouped_actions" %}
-    {% include "course_admin/task_dispensers/util_delete_modal.html" %}
+    {% include "task_dispensers_admin/util_delete_modal.html" %}
 {% endwith %}
 
-{% include "course_admin/task_dispensers/util_move_modal.html" %}
+{% include "task_dispensers_admin/util_move_modal.html" %}
 
 <div id="edit-modals">
 <div class="modal fade" id="grouped-actions-edit" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
@@ -54,7 +54,7 @@
             </button>
         </div>
         <div class="col-md-12 mb-3">
-            {% for config_item in course.get_task_dispenser().config_items %}
+            {% for config_item in element.get_task_dispenser().config_items %}
                 <div class="pills pills-{{ config_item.get_id() }}" style="display: none;">
                 {% with taskid="" %}
                     {% include config_item.get_template() %}
@@ -70,14 +70,8 @@
     </div>
 </div>
 {% for taskid in tasks %}
-    {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
+    {% include "task_dispensers_admin/util_task_edit_modal.html" %}
 {% endfor %}
-</div>
-
-<div id="edit-modals-template">
-{% with taskid="NEWTASKID" %}
-    {% include "course_admin/task_dispensers/util_task_edit_modal.html" %}
-{% endwith %}
 </div>
 
 <div class="modal fade" id="addTaskModal" role="dialog">
@@ -115,7 +109,7 @@
             <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" data-taskid="{{ taskid }}" />
             <div class="task_name mt-auto mb-auto">
                 <p class="m-0 font-weight-bold">{{ tasks[taskid]["name"] }}</p>
-                {% for config_item in course.get_task_dispenser().config_items %}
+                {% for config_item in element.get_task_dispenser().config_items %}
                 <p class="m-0 font-italic pills pills-{{ config_item.get_id() }}" style="display: none;">
                     {% with short=True %}
                         {% include config_item.get_template() %}
@@ -123,7 +117,7 @@
                 </p>
                 {% endfor %}
             </div>
-            {% include "course_admin/task_dispensers/task_buttons.html" %}
+            {% include "task_dispensers_admin/task_buttons.html" %}
         </div>
     {% endfor %}
 </div>
@@ -143,7 +137,7 @@
     <li class="nav-item">
         <a class="nav-link disabled" href="#">{{ _("On setting: ") }}</a>
     </li>
-    {% for config_item in course.get_task_dispenser().config_items %}
+    {% for config_item in element.get_task_dispenser().config_items %}
     <li class="nav-item">
         <a class="nav-link setting-filter" data-filter="{{ config_item.get_id() }}" href="#">{{ config_item.get_name() }}</a>
     </li>

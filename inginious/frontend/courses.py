@@ -9,7 +9,6 @@ import copy
 import gettext
 import re
 from typing import List
-from collections import OrderedDict
 
 from inginious.frontend.user_settings.course_user_setting import CourseUserSetting
 from inginious.common.tags import Tag
@@ -17,31 +16,18 @@ from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
 from inginious.frontend.user_manager import UserInfo
 from inginious.frontend.task_dispensers.toc import TableOfContents
-
-def _migrate_from_v_0_6(content, task_list):
-    if 'task_dispenser' not in content:
-        content["task_dispenser"] = "toc"
-        if 'toc' in content:
-            content['dispenser_data'] = {"toc": content["toc"]}
-        else:
-            ordered_tasks = OrderedDict(sorted(list(task_list.items()),
-                                               key=lambda t: (int(t[1]._data.get('order', -1)), t[1].get_id())))
-            content['dispenser_data'] = {
-                "toc": [{"config": {}, "title": _("List of exercises"), "tasks_list": list(ordered_tasks.keys())}],
-                "config": {}
-            }
+from inginious.frontend.tasksets import _migrate_from_v_0_6
 
 
 class Course(object):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, taskset_factory, task_factory, plugin_manager, task_dispensers, database):
+    def __init__(self, courseid, content, taskset_factory, task_factory, plugin_manager, database):
         self._id = courseid
         self._content = content
         self._taskset_factory = taskset_factory
         self._task_factory = task_factory
         self._plugin_manager = plugin_manager
-
         self._translations = {}
 
         try:
@@ -75,12 +61,14 @@ class Course(object):
                                                             field_dict["description"],
                                                             field_dict["type"])
                                      for key, field_dict in self._content.get("fields", {}).items()}
+        task_dispensers = self._taskset_factory.get_task_dispensers()
         task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'), TableOfContents)
         # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
         # to avoid them to be cached along with the course object. Passing the task factory as argument
         # would require to pass the course too, and have a useless reference back.
         try:
-            self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self._taskset), self._content.get("dispenser_data", ''), database, self.get_id())
+            self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self._taskset),
+                                                        self._content.get("dispenser_data", ''), database, self.get_id())
         except Exception as e:
             raise
 

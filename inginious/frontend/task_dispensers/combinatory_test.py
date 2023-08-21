@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 from random import Random
+import inginious
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.util import SectionConfigItem, Weight, SubmissionStorage, EvaluationMode, \
     Categories, SubmissionLimit, Accessibility
@@ -40,19 +41,23 @@ class CombinatoryTest(TableOfContents):
 
         return result
 
-    def render_edit(self, template_helper, course, task_data, task_errors):
+    def render_edit(self, template_helper, element, task_data, task_errors):
         """ Returns the formatted task list edition form """
         config_fields = {
             "amount": SectionConfigItem(_("Amount of tasks to be displayed"), "number", 0)
         }
-        return template_helper.render("course_admin/task_dispensers/combinatory_test.html", course=course,
-                                      course_structure=self._toc, tasks=task_data, task_errors=task_errors, config_fields=config_fields,
+
+        taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
+        course = element if isinstance(element, inginious.frontend.courses.Course) else None
+
+        return template_helper.render("task_dispensers_admin/combinatory_test.html",  element=element, course=course, taskset=taskset,
+                                      dispenser_structure=self._toc, tasks=task_data, task_errors=task_errors, config_fields=config_fields,
                                       config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
 
-    def render(self, template_helper, course, tasks_data, tag_list, username):
+    def render(self, template_helper, element, tasks_data, tag_list, username):
         """ Returns the formatted task list"""
-        accessibilities = course.get_task_dispenser().get_accessibilities(self._task_list_func(), [username])
-        return template_helper.render("task_dispensers/toc.html", course=course, tasks=self._task_list_func(),
+        accessibilities = element.get_task_dispenser().get_accessibilities(self._task_list_func(), [username])
+        return template_helper.render("task_dispensers/toc.html", element=element, tasks=self._task_list_func(),
                                       tasks_data=tasks_data, tag_filter_list=tag_list, sections=self._toc,
                                       accessibilities=accessibilities)
 

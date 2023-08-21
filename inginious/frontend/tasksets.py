@@ -8,11 +8,27 @@
 import copy
 import gettext
 
+from collections import OrderedDict
+from inginious.frontend.task_dispensers.toc import TableOfContents
+
+
+def _migrate_from_v_0_6(content, task_list):
+    if 'task_dispenser' not in content:
+        content["task_dispenser"] = "toc"
+        if 'toc' in content:
+            content['dispenser_data'] = {"toc": content["toc"]}
+        else:
+            ordered_tasks = OrderedDict(sorted(list(task_list.items()),
+                                               key=lambda t: (int(t[1]._data.get('order', -1)), t[1].get_id())))
+            content['dispenser_data'] = {
+                "toc": [{"config": {}, "title": _("List of exercises"), "tasks_list": list(ordered_tasks.keys())}],
+                "config": {}
+            }
 
 class Taskset(object):
     """ A course with some modification for users """
 
-    def __init__(self, tasksetid, content, course_fs, task_factory, legacy=False):
+    def __init__(self, tasksetid, content, course_fs, task_factory, task_dispensers, database, legacy=False):
         self._id = tasksetid
         self._content = content
         self._fs = course_fs
@@ -36,6 +52,16 @@ class Taskset(object):
             self._public = self._content.get('public', False)
         except:
             raise Exception("Taskset has an invalid YAML spec: " + self.get_id())
+
+        task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'), TableOfContents)
+        # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
+        # to avoid them to be cached along with the course object. Passing the task factory as argument
+        # would require to pass the course too, and have a useless reference back.
+        try:
+            self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self),
+                                                        self._content.get("dispenser_data", ''), database, self.get_id())
+        except Exception as e:
+            raise
 
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
@@ -83,3 +109,7 @@ class Taskset(object):
     def is_legacy(self):
         """ Returns if the taskset has been loaded via an old course.yaml file """
         return self._legacy
+
+    def get_task_dispenser(self):
+        """ Returns the taskset dispenser template """
+        return self._task_dispenser

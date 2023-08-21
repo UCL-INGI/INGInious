@@ -1,7 +1,7 @@
 {# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
 {# more information about the licensing of this file. #}
 
-{% set group_submission = course.get_task_dispenser().get_group_submission(taskid) %}
+{% set group_submission = element.get_task_dispenser().get_group_submission(taskid) %}
 {%if short %}
     {{_("Submission mode")}} :
     <span class="group_submission group_submission-true" {% if not group_submission %} style="display: none;" {% endif %}>{{ _("Per group") }}</span>

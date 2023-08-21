@@ -39,12 +39,11 @@ class CourseTaskListPage(INGIniousAdminPage):
             try:
                 data = task_dispenser.import_legacy_tasks()
                 self.update_dispenser(course, data)
-                #self.clean_task_files(course) ## TODO: move this to taskset dispenser template
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
         else:
             try:
-                self.update_dispenser(course, json.loads(user_input["course_structure"]))
+                self.update_dispenser(course, json.loads(user_input["dispenser_structure"]))
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
 
@@ -68,16 +67,6 @@ class CourseTaskListPage(INGIniousAdminPage):
             self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
         else:
             raise Exception(_("Invalid course structure: ") + msg)
-
-    # TODO: move this to taskset dispenser template
-    def clean_task_files(self, course):
-        task_dispenser = course.get_task_dispenser()
-        legacy_fields = task_dispenser.legacy_fields.keys()
-        for taskid in course.get_tasks():
-            descriptor = self.task_factory.get_task_descriptor_content(course.get_taskset().get_id(), taskid)
-            for field in legacy_fields:
-                descriptor.pop(field, None)
-            self.task_factory.update_task_descriptor_content(course.get_taskset().get_id(), taskid, descriptor)
 
     def submission_url_generator(self, taskid):
         """ Generates a submission url """

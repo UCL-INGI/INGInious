@@ -33,9 +33,11 @@ class TasksetsPage(INGIniousAuthPage):
             try:
                 taskset = self.taskset_factory.get_taskset(tasksetid)
                 if self.user_manager.session_username() in taskset.get_admins() or taskset.is_public() or self.user_manager.user_is_superadmin():
+                    task_dispenser = taskset.get_task_dispenser()
                     self.course_factory.create_course(courseid, {
                         "name": courseid, "accessible": False, "tasksetid": taskset.get_id(),
-                        "admins": [self.user_manager.session_username()], "students": []
+                        "admins": [self.user_manager.session_username()], "students": [],
+                        "task_dispenser": task_dispenser.get_id(), "dispenser_data": task_dispenser.get_dispenser_data()
                     })
                     success = True
                     messages.append(_("Course with id {} successfully instantiated from taskset {}").format(courseid, tasksetid))

@@ -22,10 +22,24 @@ class TasksetFactory(object):
     """ Load tasksets from disk """
     _logger = logging.getLogger("inginious.taskset_factory")
 
-    def __init__(self, filesystem: FileSystemProvider, task_factory):
+    def __init__(self, filesystem: FileSystemProvider, task_factory, task_dispensers, database):
         self._filesystem = filesystem
         self._task_factory = task_factory
+        self._task_dispensers = task_dispensers
+        self._database = database
         self._cache = {}
+
+    def add_task_dispenser(self, task_dispenser):
+        """
+        :param task_dispenser: TaskDispenser class
+        """
+        self._task_dispensers.update({task_dispenser.get_id(): task_dispenser})
+
+    def get_task_dispensers(self):
+        """
+        Returns the supported task dispensers by this taskset factory
+        """
+        return self._task_dispensers
 
     def get_taskset(self, tasksetid):
         """
@@ -210,7 +224,8 @@ class TasksetFactory(object):
                     last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
 
         self._cache[tasksetid] = (
-            Taskset(tasksetid, taskset_descriptor, self.get_taskset_fs(tasksetid), self._task_factory, "course" in path_to_descriptor),
+            Taskset(tasksetid, taskset_descriptor, self.get_taskset_fs(tasksetid), self._task_factory,
+                    self._task_dispensers, self._database, "course" in path_to_descriptor),
             last_modif
         )
 
@@ -229,7 +244,7 @@ def create_factories(fs_provider, task_dispensers, task_problem_types, plugin_ma
         plugin_manager = PluginManager()
 
     task_factory = TaskFactory(fs_provider, plugin_manager, task_problem_types)
-    taskset_factory = TasksetFactory(fs_provider, task_factory)
-    course_factory = CourseFactory(taskset_factory, task_factory, plugin_manager, task_dispensers, database) if database is not None else None
+    taskset_factory = TasksetFactory(fs_provider, task_factory, task_dispensers, database)
+    course_factory = CourseFactory(taskset_factory, task_factory, plugin_manager, database) if database is not None else None
 
     return taskset_factory, course_factory, task_factory

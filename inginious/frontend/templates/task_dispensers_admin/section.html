@@ -6,11 +6,11 @@
 {% for section in sections %}
     {% if section.is_empty() %}
         {% with id="section_" + offset + "_" + (loop.index | string), title=section.get_title(), config=section.get_config(), level=level, hidden=False, display_subsections=False %}
-            {% include "course_admin/task_dispensers/empty_section.html" %}
+            {% include "task_dispensers_admin/empty_section.html" %}
         {% endwith %}
     {% elif section.is_terminal() %}
         {% with id="section_" + offset + "_" + (loop.index | string) %}
-            {% include "course_admin/task_dispensers/task_list.html" %}
+            {% include "task_dispensers_admin/task_list.html" %}
         {% endwith %}
     {% else %}
         <div id="section_{{ offset}}_{{ loop.index }}" class="section sections_list mb-4" data-level="{{level}}">
@@ -21,19 +21,19 @@
                 </span>
                 <span class="divider"></span>
                 {% with tasks_list_option=False, sections_list_option=True %}
-                    {% include "course_admin/task_dispensers/section_menu.html" %}
+                    {% include "task_dispensers_admin/section_menu.html" %}
                 {% endwith %}
             </div>
             {% if config_fields %}
                 <div class="config card-body">
                     {% with section_config=section.get_config(), config_fields=config_fields %}
-                       {% include "course_admin/task_dispensers/section_config.html" %}
+                       {% include "task_dispensers_admin/section_config.html" %}
                     {% endwith %}
                 </div>
             {% endif %}
             <div class="content ml-4">
                 {% with sections=section.get_sections_list(),level=level+1, offset=offset + "_" + loop.index | string %}
-                    {% include "course_admin/task_dispensers/section.html" %}
+                    {% include "task_dispensers_admin/section.html" %}
                 {% endwith %}
             </div>
         </div>
