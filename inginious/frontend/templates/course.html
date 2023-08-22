@@ -50,7 +50,7 @@
         {% endif %}
         <div class="list-group">
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
-                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
+                <i class="fa fa-smile-o fa-fw"></i>&nbsp; {{ _("User settings") }}
             </a>
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{ course.get_id() }}">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; {{ _("Course administration") }}
@@ -68,7 +68,7 @@
                 {% endif %}
             </a>
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
-                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
+                <i class="fa fa-smile-o fa-fw"></i>&nbsp; {{ _("User settings") }}
             </a>
             {% if course.allow_unregister() %}
                 <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-action list-group-item-info">

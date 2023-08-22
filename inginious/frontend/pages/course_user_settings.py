@@ -43,7 +43,7 @@ class CourseUserSettingPage(INGIniousAuthPage):
         self.database.users.update_one({"username": username},
                                        {"$set": {"course_settings." + courseid: course_user_settings}})
 
-        return self.show_page(courseid, course_user_settings, ("success", "Course settings successfully updated."))
+        return self.show_page(courseid, course_user_settings, ("success", "User settings successfully updated."))
 
     def show_page(self, courseid, course_user_settings, feedback):
         """
