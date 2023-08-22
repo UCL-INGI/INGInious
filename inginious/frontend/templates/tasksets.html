@@ -18,12 +18,6 @@
     <div class="alert alert-warning" role="alert">
         {{ _("This page lists all the tasksets you have access to. You can find instantiated courses on the course list page.") }}
     </div>
-    <div class="list-group mb-3">
-        <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/courselist">
-            <i class="fa fa-fw fa-th-list"></i>
-            {{ _("Course list") }}
-        </a>
-    </div>
 
     {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
 {% endblock %}
