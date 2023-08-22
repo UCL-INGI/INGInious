@@ -30,7 +30,7 @@
                 {% endif %}
             </a>
             <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/user_settings/{{ course.get_id() }}">
-                <i class="fa fa-cogs fa-fw"></i>&nbsp; {{ _("Course Settings") }}
+                <i class="fa fa-smile-o fa-fw"></i>&nbsp; {{ _("User settings") }}
             </a>
         </div>
     {%endif %}
@@ -44,7 +44,7 @@
                 <li class="breadcrumb-item"><a href="{{get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
             {% endif %}
             <li class="breadcrumb-item"><a href="{{get_homepath() }}/course/{{ course.get_id() }}">{{ course.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cogs"></i> {{ _("Course settings") }}</a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cogs"></i> {{ _("User settings") }}</a></li>
         </ol>
     </nav>
 {% endblock %}
@@ -54,7 +54,7 @@
             {{ _(feedback[1] ) }}
         </div>
     {% endif %}
-    <h2>{{_("Course settings")}}</h2>
+    <h2>{{_("User settings")}}</h2>
     {% if course_user_setting_fields | length ==0 %}
         <div class="alert alert-info" role="alert">{{ _("There is no customizable option for this course") }}</div>
     {% else %}
