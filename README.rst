@@ -38,9 +38,11 @@ Simply run:
 
 And access http://localhost:9000 in your browser.
 
-*The default user and login are "superadmin".*
+*The default login and password are "superadmin".*
 
-You can add new courses to your fresh INGInious instance by installing them in the "tasks" folder.
+Docker-compose will create a "tasks" folder if it does not exist already.
+
+You can then add new courses to your fresh INGInious instance by installing them in the "tasks" folder.
 
 For example, the INGInious tutorial course is installed with the following commands:
 
@@ -54,6 +56,14 @@ For example, the INGInious tutorial course is installed with the following comma
 .. code-block::
 
    $ sudo chown -R <your_user>:<your_user> tasks
+
+*This can happen when the tasks directory is created by docker-compose.*
+
+Note that the `configuration.deploy.yaml` file provided is a sample configuration, the secret key **must** be changed by administrators in production deployments.
+
+.. _Manual installation: https://docs.inginious.org/en/latest/admin_doc/install_doc/installation.html
+
+`Manual installation`_ is also possible with pip.
 
 Documentation
 -------------

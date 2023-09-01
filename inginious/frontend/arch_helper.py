@@ -85,6 +85,9 @@ def create_arch(configuration, tasks_fs, context, course_factory):
         else:
             debug_ports = range(64100, 64111)
 
+        """ Those imports are required in pip-based installation but are not available in 
+            docker-compose based ones. """
+
         from inginious.agent.docker_agent import DockerAgent
         from inginious.agent.mcq_agent import MCQAgent
         from inginious.backend.backend import Backend
