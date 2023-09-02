@@ -1,0 +1,20 @@
+name: Build and push core containers
+
+on:
+  push:
+    branches: [master]
+
+  workflow_dispatch:
+
+jobs:
+  containers_build_and_push:
+    uses: INGInious/.github/.github/workflows/containers.yml@6506916a602fc6bf47d6e8f34586732d3c8e1502
+    with:
+      working-directory: base-containers 
+      context-path: context.yml
+      compose-path: compose.yml
+      registry: ghcr.io
+      container_type: core
+    secrets:
+      GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
