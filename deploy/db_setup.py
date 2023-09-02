@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     print('Initial DB setup.')
 
-    database = try_mongodb_opts('inginious-db')
+    database = try_mongodb_opts('db')
 
     database.users.insert_one({"username": username,
                                        "realname": realname,

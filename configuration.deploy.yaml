@@ -1,9 +1,9 @@
-backend: tcp://inginious-backend:2000
+backend: tcp://backend:2000
 backup_directory: /inginious/backups
 local-config: {}
 mongo_opt:
     database: INGInious
-    host: inginious-db
+    host: db
 plugins: []
 session_parameters:
     ignore_change_ip: false

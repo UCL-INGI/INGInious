@@ -34,7 +34,7 @@ Simply run:
 
 .. code-block::
 
-   $ docker-compose up --build
+   $ REGISTRY=ghcr.io VERSION=latest docker-compose up --build
 
 And access http://localhost:9000 in your browser.
 
