@@ -177,11 +177,11 @@ def get_app(config):
     available_languages.update(available_translations)
 
     available_themes = [
-        theme_dir for theme_dir in os.listdir(os.path.join('inginious', 'frontend', 'static', 'css', 'themes'))
-        if theme_dir not in ('yeti', 'codemirror') and not theme_dir.startswith(('.', '_'))
+        theme_dir for theme_dir in os.listdir(os.path.join(get_root_path(), 'frontend', 'static', 'css', 'themes'))
+        if theme_dir not in ('codemirror', ) and not theme_dir.startswith(('.', '_'))
     ]
     available_codemirror_themes= [
-        file.split('.')[0] for file in os.listdir(os.path.join('inginious', 'frontend', 'static', 'css', 'themes', 'codemirror'))
+        file.split('.')[0] for file in os.listdir(os.path.join(get_root_path(), 'frontend', 'static', 'css', 'themes', 'codemirror'))
         if file.endswith('.css') and not file.startswith('main')
     ]
     

@@ -55,8 +55,8 @@ function colorizeStaticCode()
                 var nmode = CodeMirror.findModeByName(elem);
                 if(nmode != undefined) {
                     mode = nmode;
-                } else if (elem.startsWith('theme=')) {
-                    theme = elem.split('=')[1];
+                } else if (elem.startsWith('theme:')) {
+                    theme = elem.split(':')[1];
                 }
             }
         });

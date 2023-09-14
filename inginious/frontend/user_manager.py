@@ -32,15 +32,6 @@ class AuthInvalidMethodException(Exception):
 
 
 class AuthMethod(object, metaclass=ABCMeta):
-
-    @abstractmethod
-    def get_theme(self):
-        return 'default'
-    
-    @abstractmethod
-    def get_codemirror_theme(self):
-        return 'default'
-
     @abstractmethod
     def get_id(self):
         """
@@ -115,10 +106,10 @@ class UserManager:
     #           User session management          #
     ##############################################
 
-    def get_theme(self):
-        return self._session.get('theme', 'darkly')
+    def session_theme(self):
+        return self._session.get('theme', 'default')
     
-    def get_codemirror_theme(self):
+    def session_codemirror_theme(self):
         return self._session.get('codemirror_theme', 'default')
     
     def session_logged_in(self):
@@ -373,8 +364,15 @@ class UserManager:
         query = {"username": {"$in": usernames}} if usernames is not None else {}
         infos = self._database.users.find(query).skip(skip).limit(limit)
 
-        retval = {info["username"]: UserInfo(info["realname"], info["email"], info["username"], info["bindings"],
-                                             info["language"], "activate" not in info) for info in infos}
+        retval = {info["username"]: UserInfo(
+            info["realname"],
+            info["email"],
+            info["username"],
+            info["bindings"],
+            info["language"],
+            "activate" not in info
+        ) for info in infos}
+        
         return retval
 
     def get_user_info(self, username) -> Optional[UserInfo]:
