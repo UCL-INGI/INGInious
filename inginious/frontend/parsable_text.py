@@ -36,7 +36,7 @@ class EmptiableCodeBlock(CodeBlock):
             translation = _get_inginious_translation()
             self.content = [translation.gettext("[no content]")]
         
-        self.options.setdefault('classes', []).append('theme={}'.format(flask.current_app.user_manager.get_codemirror_theme()))
+        self.options.setdefault('classes', []).append('theme:{}'.format(flask.current_app.user_manager.session_codemirror_theme()))
         return super(EmptiableCodeBlock, self).run()
 
 
