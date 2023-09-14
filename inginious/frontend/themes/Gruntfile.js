@@ -1,3 +1,4 @@
+// Based on Bootswatch from Thomas Spark (https://github.com/thomaspark/bootswatch)
 'use strict';
 
 const path = require('path');
@@ -15,7 +16,7 @@ const banner = `/*!
 `;
 
 const BUILD_DIR = 'build/';
-const DIST_DIR = 'themes/';
+const DIST_DIR = 'src/';
 const OUT_DIR  = '../static/css/themes'
 
 const SWATCHES = ["darkly", "yeti"];
