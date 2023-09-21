@@ -38,11 +38,11 @@ Simply run:
 
 And access http://localhost:9000 in your browser.
 
-*The default login and password are "superadmin".*
+*The default login and password are ``superadmin``.*
 
-Docker-compose will create a "tasks" folder if it does not exist already.
+Docker-compose will create a ``tasks`` folder if it does not exist already.
 
-You can then add new courses to your fresh INGInious instance by installing them in the "tasks" folder.
+You can then add new courses to your fresh INGInious instance by installing them in the ``tasks`` folder.
 
 For example, the INGInious tutorial course is installed with the following commands:
 
