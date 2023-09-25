@@ -34,6 +34,14 @@ class AuthInvalidMethodException(Exception):
 class AuthMethod(object, metaclass=ABCMeta):
 
     @abstractmethod
+    def get_theme(self):
+        return 'default'
+    
+    @abstractmethod
+    def get_codemirror_theme(self):
+        return 'default'
+
+    @abstractmethod
     def get_id(self):
         """
         :return: The auth method id
@@ -107,6 +115,12 @@ class UserManager:
     #           User session management          #
     ##############################################
 
+    def get_theme(self):
+        return self._session.get('theme', 'darkly')
+    
+    def get_codemirror_theme(self):
+        return self._session.get('codemirror_theme', 'default')
+    
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """
         return "loggedin" in self._session and self._session["loggedin"] is True
@@ -184,6 +198,13 @@ class UserManager:
     def session_api_key(self):
         """ Returns the API key for the current user. Created on first demand. """
         return self.get_user_api_key(self.session_username())
+
+    def set_session_theme(self, theme):
+        self._session["theme"] = theme
+    
+
+    def set_session_codemirror_theme(self, codemirror_theme):
+        self._session["codemirror_theme"] = codemirror_theme
 
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""

@@ -1,53 +1,34 @@
 'use strict';
 
 const path = require('path');
-const sass = require('sass');
+const sass = require('node-sass');
 const autoprefixer = require('autoprefixer');
 const pkg = require('./package.json');
 
-const SWATCHES = [
-  'cerulean',
-  'cosmo',
-  'cyborg',
-  'darkly',
-  'flatly',
-  'journal',
-  'litera',
-  'lumen',
-  'lux',
-  'materia',
-  'minty',
-  'morph',
-  'pulse',
-  'quartz',
-  'sandstone',
-  'simplex',
-  'sketchy',
-  'slate',
-  'solar',
-  'spacelab',
-  'superhero',
-  'united',
-  'vapor',
-  'yeti',
-  'zephyr'
-];
+const banner = `/*!
+ * Bootswatch v${pkg.version}
+ * Homepage: ${pkg.homepage}
+ * Copyright 2012-${new Date().getFullYear()} ${pkg.author}
+ * Licensed under ${pkg.license}
+ * Based on Bootstrap
+*/
+`;
 
 const BUILD_DIR = 'build/';
 const DIST_DIR = 'themes/';
-const DOCS_DEST = 'docs/5/';
+const OUT_DIR  = '../static/css/themes'
+
+const SWATCHES = ["darkly", "yeti"];
 let buildTheme = '';
 
 module.exports = grunt => {
   grunt.loadNpmTasks('@lodder/grunt-postcss');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-html');
 
   // Force use of Unix newlines
   grunt.util.linefeed = '\n';
@@ -55,66 +36,39 @@ module.exports = grunt => {
   grunt.initConfig({
     clean: {
       build: {
-        src: 'dist/*/build.scss'
+        src:  path.join(DIST_DIR, '*/build.scss')
       }
     },
     concat: {
+      options: {
+        banner
+      },
       dist: {
         src: [],
         dest: ''
       }
     },
     copy: {
-      vendor: {
-        files: [{
-          expand: true,
-          cwd: 'node_modules/bootstrap-icons',
-          src: ['font/**'],
-          dest: 'docs/_vendor/bootstrap-icons/'
-        }, {
-          expand: true,
-          cwd: 'node_modules/jquery',
-          src: ['dist/**'],
-          dest: 'docs/_vendor/jquery/'
-        }, {
-          expand: true,
-          cwd: 'node_modules/prismjs',
-          src: ['prism.js', 'themes/prism-okaidia.css'],
-          dest: 'docs/_vendor/prismjs/'
-        }, {
-          expand: true,
-          cwd: 'node_modules/bootstrap',
-          src: ['dist/**'],
-          dest: 'docs/_vendor/bootstrap/'
-        }]
-      },
       css: {
         files: [{
           expand: true,
-          cwd: 'dist',
+          cwd: DIST_DIR,
           src: [
-            '**/*.css',
-            '**/*.scss'
+            '**/*.css'
           ],
-          dest: DOCS_DEST
+          dest: OUT_DIR
         }]
       }
     },
     sass: {
       options: {
         implementation: sass,
-        outputStyle: 'expanded'
+        outputStyle: 'expanded',
+        precision: 6
       },
       dist: {
         src: [],
         dest: ''
-      },
-      docs: {
-        options: {
-          outputStyle: 'compressed',
-        },
-        src: 'docs/_assets/scss/custom.scss',
-        dest: 'docs/_assets/css/custom.min.css'
       }
     },
     postcss: {
@@ -126,10 +80,6 @@ module.exports = grunt => {
       dist: {
         src: [],
         dest: ''
-      },
-      docs: {
-        src: 'docs/_assets/css/custom.min.css',
-        dest: 'docs/_assets/css/custom.min.css'
       }
     },
     cssmin: {
@@ -145,43 +95,10 @@ module.exports = grunt => {
         dest: ''
       }
     },
-    htmllint: {
-      options: {
-        ignore: [
-          /Attribute “autocomplete” is only allowed when the input type is.*/
-        ]
-      },
-      src: [
-        'docs/**/*.html',
-        '!docs/**/bower_components/**/*.html',
-        '!docs/_vendor/**/*.html',
-        '!docs/2/**/*.html'
-      ]
-    },
-    connect: {
-      options: {
-        hostname: 'localhost',
-        livereload: 35729,
-        port: 3000,
-        open: true
-      },
-      base: {
-        options: {
-          base: 'docs'
-        }
-      }
-    },
     watch: {
       options: {
         livereload: '<%= connect.options.livereload %>',
         spawn: false
-      },
-      dev: {
-        files: [
-          'dist/*/_variables.scss',
-          'dist/*/_bootswatch.scss'
-        ],
-        tasks: 'build'
       }
     }
   });
@@ -203,16 +120,6 @@ module.exports = grunt => {
     const cssDest = path.join(themeDir, '/bootstrap.css');
     const cssDestMin = path.join(themeDir, '/bootstrap.min.css');
 
-    const banner = `/*!
- * Bootswatch v${pkg.version} (${pkg.homepage})
- * Theme: ${theme}
- * Copyright 2012-${new Date().getFullYear()} ${pkg.author}
- * Licensed under ${pkg.license}
- * Based on Bootstrap
-*/
-      `;
-
-    grunt.config.set('concat.options', {banner});
     grunt.config.set('concat.dist', {
       src: concatSrc,
       dest: concatDest
@@ -226,7 +133,7 @@ module.exports = grunt => {
       dest: cssDest
     });
     grunt.config.set('copy.css.files.0.cwd', themeDir);
-    grunt.config.set('copy.css.files.0.dest', path.join(DOCS_DEST, theme));
+    grunt.config.set('copy.css.files.0.dest', path.join(OUT_DIR, theme));
     grunt.config.set('cssmin.dist', {
       src: cssDest,
       dest: cssDestMin
@@ -259,8 +166,5 @@ module.exports = grunt => {
   });
 
   grunt.registerTask('default', ['connect', 'watch']);
-  grunt.registerTask('vendor', 'copy:vendor');
-  grunt.registerTask('docs-css', ['sass:docs', 'postcss:docs']);
-  grunt.registerTask('docs', ['docs-css', 'vendor']);
-  grunt.registerTask('release', ['swatch', 'docs']);
+  grunt.registerTask('release', ['swatch']);
 };
