@@ -1,5 +1,14 @@
 services:
 
+  base:
+    image: ${REGISTRY}/inginious/core-base:${VERSION}
+    build:
+      dockerfile: deploy/inginious-base.containerfile
+      args:
+        - VERSION=${VERSION}
+        - REGISTRY=${REGISTRY}
+    command: /bin/true
+
   db:
     image: mongo:6.0.2
     networks:
@@ -7,6 +16,8 @@ services:
 
   backend:
     image: ${REGISTRY}/inginious/core-backend:${VERSION}
+    depends_on:
+      - base
     build:
       dockerfile: deploy/backend.containerfile
       args:
