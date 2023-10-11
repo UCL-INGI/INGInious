@@ -1,3 +1,4 @@
+# Base core container. This is not a service per-se but is used as a common layer for the core services.
 FROM rockylinux:8
 
 ENV INGINIOUS_COMPOSE=1
