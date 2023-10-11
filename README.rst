@@ -36,9 +36,13 @@ Simply run:
 
    $ REGISTRY=ghcr.io VERSION=latest docker-compose up --build
 
+
 And access http://localhost:9000 in your browser.
 
-*The default login and password are ``superadmin``.*
+*The default login and password are* ``superadmin``.
+
+The ``--build`` argument is optional, use it if you want to rebuild locally the core containers.
+If you want to simply pull them from the project's registry, this argument is not required.
 
 Docker-compose will create a ``tasks`` folder if it does not exist already.
 
@@ -55,7 +59,7 @@ For example, the INGInious tutorial course is installed with the following comma
 
 .. code-block::
 
-   $ sudo chown -R <your_user>:<your_user> tasks
+   $ sudo chown -R <your_user>:<your_user_group> tasks
 
 *This can happen when the tasks directory is created by docker-compose.*
 
