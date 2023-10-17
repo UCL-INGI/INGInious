@@ -10,7 +10,7 @@ function init_common()
     colorizeStaticCode();
     $('.code-editor').each(function(index, elem)
     {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'), $(elem).attr('data-x-first-line'));
+        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'), $(elem).attr('data-x-first-line') !== undefined ? $(elem).attr('data-x-first-line') : "1");
     });
 
     //Fix a bug with codemirror and bootstrap tabs
