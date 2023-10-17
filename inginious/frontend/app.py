@@ -302,7 +302,6 @@ def get_app(config):
     flask_app.privacy_page = config.get("privacy_page", None)
     flask_app.static_directory = config.get("static_directory", "./static")
     flask_app.webdav_host = config.get("webdav_host", None)
-    flask_app.jinja_env.auto_reload = True
 
     # Init the mapping of the app
     init_flask_mapping(flask_app)

@@ -10,7 +10,7 @@ function init_common()
     colorizeStaticCode();
     $('.code-editor').each(function(index, elem)
     {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'), $(elem).attr('data-x-first-line') !== undefined ? $(elem).attr('data-x-first-line') : "1");
+        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'), $(elem).attr('data-x-first-line'));
     });
 
     //Fix a bug with codemirror and bootstrap tabs
@@ -76,6 +76,8 @@ function registerCodeEditor(textarea, lang, lines, firstline)
         mode = {"mode": "plain", "mime": "text/plain"};
 
     var is_single = $(textarea).hasClass('single');
+    // if firstline not given, set to "1"
+    var firstline = firstline ?? "1";
 
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
