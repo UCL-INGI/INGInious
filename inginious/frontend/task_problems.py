@@ -82,7 +82,7 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
         header = ParsableText(self.gettext(language,self._header), "rst",
                               translation=self.get_translation_obj(language))
         return template_helper.render("tasks/code.html", inputId=self.get_id(), header=header,
-                                      lines=8, maxChars=0, language=self._language, optional=self._optional,
+                                      lines=8, first_line=1, maxChars=0, language=self._language, optional=self._optional,
                                       default=self._default)
 
     @classmethod
