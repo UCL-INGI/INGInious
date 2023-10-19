@@ -69,17 +69,13 @@ function colorizeStaticCode()
 }
 
 //Register and init a code editor (ace)
-function registerCodeEditor(textarea, lang, lines, firstline)
+function registerCodeEditor(textarea, lang, lines, firstline=1)
 {
     var mode = CodeMirror.findModeByName(lang);
     if(mode == undefined)
         mode = {"mode": "plain", "mime": "text/plain"};
 
     var is_single = $(textarea).hasClass('single');
-    // if firstline null or undefined, set to "1"
-    firstline = parseInt(firstline)?? "1";
-    if (isNaN(firstline))
-        firstline = 1;
 
 
 
