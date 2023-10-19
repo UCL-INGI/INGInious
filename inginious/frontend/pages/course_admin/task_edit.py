@@ -145,16 +145,16 @@ class CourseEditTask(INGIniousAdminPage):
             data["network_grading"] = "network_grading" in data
 
             # Checking problem inputs
-            print(problems)
             for problem, values in problems.items():
-                try:
-                    offset = int(values["offset"])
-                    if offset < 1:
+                if len(values["offset"]) != 0:
+                    try:
+                        offset = int(values["offset"])
+                        if offset < 1:
+                            return json.dumps(
+                                {"status": "error", "message": _("The line offset for a problem must be positive!")})
+                    except ValueError :
                         return json.dumps(
-                            {"status": "error", "message": _("The line offset for a problem must be positive!")})
-                except ValueError :
-                    return json.dumps(
-                        {"status": "error", "message": _("The line offset for a problem must be an integer!")})
+                            {"status": "error", "message": _("The line offset for a problem must be an integer!")})
 
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(message)})
