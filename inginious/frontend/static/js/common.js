@@ -76,12 +76,16 @@ function registerCodeEditor(textarea, lang, lines, firstline)
         mode = {"mode": "plain", "mime": "text/plain"};
 
     var is_single = $(textarea).hasClass('single');
-    // if firstline not given, set to "1"
-    var firstline = firstline ?? "1";
+    // if firstline null or undefined, set to "1"
+    firstline = parseInt(firstline)?? "1";
+    if (isNaN(firstline))
+        firstline = 1;
+
+
 
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
-        firstLineNumber: parseInt(firstline),
+        firstLineNumber: firstline,
         mode:              mode["mime"],
         foldGutter:        true,
         styleActiveLine:   true,
