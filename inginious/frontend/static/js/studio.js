@@ -411,6 +411,8 @@ function studio_init_template_code(well, pid, problem)
     var default_editor = registerCodeEditor(default_tag, 'text', default_tag.tagName === "INPUT" ? 1 : 10);
     if("default" in problem)
         default_editor.setValue(problem["default"]);
+    if("offset" in problem)
+        $('#offset-' + pid, well).val(problem["offset"]);
 }
 
 /**
