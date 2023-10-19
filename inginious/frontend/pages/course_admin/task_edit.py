@@ -89,7 +89,6 @@ class CourseEditTask(INGIniousAdminPage):
         __, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         data = flask.request.form.copy()
         data["task_file"] = flask.request.files.get("task_file")
-        print(data)
 
         # Else, parse content
         try:
@@ -144,17 +143,6 @@ class CourseEditTask(INGIniousAdminPage):
             # Network grading
             data["network_grading"] = "network_grading" in data
 
-            # Checking problem inputs
-            for problem, values in problems.items():
-                if len(values["offset"]) != 0:
-                    try:
-                        offset = int(values["offset"])
-                        if offset < 1:
-                            return json.dumps(
-                                {"status": "error", "message": _("The line offset for a problem must be positive!")})
-                    except ValueError :
-                        return json.dumps(
-                            {"status": "error", "message": _("The line offset for a problem must be an integer!")})
 
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(message)})
