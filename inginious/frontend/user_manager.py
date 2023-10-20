@@ -540,7 +540,7 @@ class UserManager:
         self._database.users.insert_one({"username": values["username"],
                                          "realname": values["realname"],
                                          "email": values["email"],
-                                         "password": self.hash_password_sha512(values["password"]),
+                                         "password": "argon2id-"+self.hash_password_argon2id(values["password"]),
                                          "bindings": {},
                                          "language": "en"})
         return None
