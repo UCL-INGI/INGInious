@@ -187,6 +187,7 @@ class CodeProblem(Problem):
                 offset = int(problem_content["offset"])
                 if offset < 1:
                     raise Exception("Line offset must be positive!")
+                problem_content["offset"] = offset
             except ValueError:
                 raise Exception("Line offset must be an integer!")
         return Problem.parse_problem(problem_content)
