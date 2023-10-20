@@ -294,10 +294,11 @@ class UserManager:
         :param password: User password
         :return: Returns a dict representing the user
         """
-        password_hash = self.hash_password_sha512(password)
+        password_hash_sha512 = self.hash_password_sha512(password)
+        password_hash_argon2id = "argon2id-" + self.hash_password_argon2id(password)
 
         user = self._database.users.find_one(
-            {"username": username, "password": password_hash, "activate": {"$exists": False}})
+            {"username": username, "password": {"$in": [password_hash_sha512, password_hash_argon2id]}, "activate": {"$exists": False}})
 
         return user if user is not None and self.connect_user(username, user["realname"], user["email"],
                                                               user["language"],
