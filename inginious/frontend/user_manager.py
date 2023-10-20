@@ -293,7 +293,7 @@ class UserManager:
         :param password: User password
         :return: Returns a dict representing the user
         """
-        password_hash = self.hash_password(password)
+        password_hash = self.hash_password_sha512(password)
 
         user = self._database.users.find_one(
             {"username": username, "password": password_hash, "activate": {"$exists": False}})
@@ -539,7 +539,7 @@ class UserManager:
         self._database.users.insert_one({"username": values["username"],
                                          "realname": values["realname"],
                                          "email": values["email"],
-                                         "password": self.hash_password(values["password"]),
+                                         "password": self.hash_password_sha512(values["password"]),
                                          "bindings": {},
                                          "language": "en"})
         return None
@@ -1034,7 +1034,7 @@ class UserManager:
         return hexlify(os.urandom(40)).decode('utf-8')
 
     @classmethod
-    def hash_password(cls, content):
+    def hash_password_sha512(cls, content):
         """
         :param content: a str input
         :return a hash of str input

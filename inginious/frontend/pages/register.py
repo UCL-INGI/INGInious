@@ -91,8 +91,8 @@ class RegistrationPage(INGIniousPage):
                 else:
                     msg = _("This email address is already in use !")
             else:
-                passwd_hash = UserManager.hash_password(data["passwd"])
-                activate_hash = UserManager.hash_password(str(random.getrandbits(256)))
+                passwd_hash = UserManager.hash_password_sha512(data["passwd"])
+                activate_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
                 self.database.users.insert_one({"username": data["username"],
                                                 "realname": data["realname"],
                                                 "email": email,
@@ -138,7 +138,7 @@ To activate your account, please click on the following link :
             msg = _("Invalid email format.")
 
         if not error:
-            reset_hash = UserManager.hash_password(str(random.getrandbits(256)))
+            reset_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
             user = self.database.users.find_one_and_update({"email": data["recovery_email"]},
                                                            {"$set": {"reset": reset_hash}})
             if user is None:
@@ -180,7 +180,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
             msg = _("Passwords don't match !")
 
         if not error:
-            passwd_hash = UserManager.hash_password(data["passwd"])
+            passwd_hash = UserManager.hash_password_sha512(data["passwd"])
             user = self.database.users.find_one_and_update({"reset": data["reset"]},
                                                            {"$set": {"password": passwd_hash},
                                                             "$unset": {"reset": True, "activate": True}})

@@ -54,8 +54,8 @@ class ProfilePage(INGIniousAuthPage):
             msg = _("Passwords don't match !")
             return result, msg, error
         elif self.app.allow_registration and len(data["passwd"]) >= 6:
-            oldpasswd_hash = UserManager.hash_password(data["oldpasswd"])
-            passwd_hash = UserManager.hash_password(data["passwd"])
+            oldpasswd_hash = UserManager.hash_password_sha512(data["oldpasswd"])
+            passwd_hash = UserManager.hash_password_sha512(data["passwd"])
 
             match = {"username": self.user_manager.session_username()}
             if "password" in userdata:

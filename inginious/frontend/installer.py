@@ -566,7 +566,7 @@ class Installer:
         database.users.insert_one({"username": username,
                                    "realname": realname,
                                    "email": email,
-                                   "password": UserManager.hash_password(password),
+                                   "password": UserManager.hash_password_sha512(password),
                                    "bindings": {},
                                    "language": "en"})
 
