@@ -21,6 +21,7 @@ from pymongo import ReturnDocument
 from binascii import hexlify
 import os
 import re
+from argon2 import PasswordHasher
 
 
 class AuthInvalidInputException(Exception):
@@ -1040,3 +1041,12 @@ class UserManager:
         :return a hash of str input
         """
         return hashlib.sha512(content.encode("utf-8")).hexdigest()
+
+    @classmethod
+    def hash_password_argon2id(cls, content):
+        """
+        :param content: a str input
+        :return a hash of str input
+        """
+        ph = PasswordHasher()
+        return ph.hash(content)
