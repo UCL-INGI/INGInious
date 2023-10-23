@@ -9,10 +9,11 @@ import re
 import flask
 from pymongo import ReturnDocument
 from werkzeug.exceptions import NotFound
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 from inginious.frontend.user_manager import UserManager
-
 
 class ProfilePage(INGIniousAuthPage):
     """ Profile page for DB-authenticated users"""
@@ -54,20 +55,23 @@ class ProfilePage(INGIniousAuthPage):
             msg = _("Passwords don't match !")
             return result, msg, error
         elif self.app.allow_registration and len(data["passwd"]) >= 6:
-            oldpasswd_hash = UserManager.hash_password_sha512(data["oldpasswd"])
-            passwd_hash = UserManager.hash_password_sha512(data["passwd"])
-
+            ph = PasswordHasher()
             match = {"username": self.user_manager.session_username()}
-            if "password" in userdata:
-                match["password"] = oldpasswd_hash
 
-            result = self.database.users.find_one_and_update(match,
-                                                             {"$set": {"password": passwd_hash}},
+            if "password" in userdata:
+                user = self.database.users.find_one(match)
+                oldpasswd_hash_sha512 = UserManager.hash_password_sha512(data["oldpasswd"])
+                try:
+                    if oldpasswd_hash_sha512 == user["password"] or ph.verify(user["password"][9:], data["oldpasswd"]):
+                        passwd_hash = "argon2id-" + UserManager.hash_password_argon2id(data["passwd"])
+
+                except VerifyMismatchError:
+                    error = True
+                    msg = _("Incorrect old password.")
+                    return result, msg, error
+
+            result = self.database.users.find_one_and_update(match,{"$set": {"password": passwd_hash}},
                                                              return_document=ReturnDocument.AFTER)
-            if not result:
-                error = True
-                msg = _("Incorrect old password.")
-                return result, msg, error
 
         # Check if updating language
         if data["language"] != userdata["language"]:

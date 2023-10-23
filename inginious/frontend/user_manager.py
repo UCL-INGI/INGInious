@@ -22,6 +22,7 @@ from binascii import hexlify
 import os
 import re
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 
 class AuthInvalidInputException(Exception):
@@ -305,7 +306,7 @@ class UserManager:
             elif self.hash_password_sha512(password) == user["password"] or ph.verify(user["password"][9:], password):
                 return user and self.connect_user(username, user["realname"], user["email"],user["language"],
                                                   user.get("tos_accepted", False))
-        except:  # ph.verify() raises Error if hash does not correspond or has incorrect structure
+        except VerifyMismatchError: 
             return None
 
 
