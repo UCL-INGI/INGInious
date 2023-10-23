@@ -292,17 +292,22 @@ class UserManager:
         Authenticate the user in database
         :param username: Username/Login
         :param password: User password
-        :return: Returns a dict representing the user
+        :return: Returns a dict representing the user, or None if the authentication was not successful
         """
-        password_hash_sha512 = self.hash_password_sha512(password)
-        password_hash_argon2id = "argon2id-" + self.hash_password_argon2id(password)
-
         user = self._database.users.find_one(
-            {"username": username, "password": {"$in": [password_hash_sha512, password_hash_argon2id]}, "activate": {"$exists": False}})
+            {"username": username, "activate": {"$exists": False}})
+        ph = PasswordHasher()
 
-        return user if user is not None and self.connect_user(username, user["realname"], user["email"],
-                                                              user["language"],
-                                                              user.get("tos_accepted", False)) else None
+        try:
+            if user is None:
+                return None
+
+            elif self.hash_password_sha512(password) == user["password"] or ph.verify(user["password"][9:], password):
+                return user and self.connect_user(username, user["realname"], user["email"],user["language"],
+                                                  user.get("tos_accepted", False))
+        except:  # ph.verify() raises Error if hash does not correspond or has incorrect structure
+            return None
+
 
     def is_user_activated(self, username):
         """
