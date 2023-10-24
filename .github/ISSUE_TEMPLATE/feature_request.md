@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: Add the context of the feature request at the beginning of the title, if possible,
   e.g. [frontend/installer]
-labels: Feature request
+labels: ["Feature request", "Triage needed"]
 assignees: ''
 
 ---

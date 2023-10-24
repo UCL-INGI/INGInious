@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: Add the context of the bug at the beginning of the title, if possible, e.g.
   [frontend/installer]
-labels: Bug
+labels: ["Bug", "Triage needed"]
 assignees: ''
 
 ---
