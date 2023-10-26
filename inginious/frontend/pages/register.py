@@ -91,7 +91,7 @@ class RegistrationPage(INGIniousPage):
                 else:
                     msg = _("This email address is already in use !")
             else:
-                passwd_hash = "argon2id-" + UserManager.hash_password_argon2id(data["passwd"])
+                passwd_hash = UserManager.hash_password(data["passwd"])
                 activate_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
                 self.database.users.insert_one({"username": data["username"],
                                                 "realname": data["realname"],
@@ -180,7 +180,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
             msg = _("Passwords don't match !")
 
         if not error:
-            passwd_hash = "argon2id-" + UserManager.hash_password_argon2id(data["passwd"])
+            passwd_hash = UserManager.hash_password(data["passwd"])
             user = self.database.users.find_one_and_update({"reset": data["reset"]},
                                                            {"$set": {"password": passwd_hash},
                                                             "$unset": {"reset": True, "activate": True}})

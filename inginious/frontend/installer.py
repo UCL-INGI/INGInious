@@ -566,7 +566,7 @@ class Installer:
         database.users.insert_one({"username": username,
                                    "realname": realname,
                                    "email": email,
-                                   "password": "argon2id-" + UserManager.hash_password_argon2id(password),
+                                   "password": UserManager.hash_password(password),
                                    "bindings": {},
                                    "language": "en"})
 

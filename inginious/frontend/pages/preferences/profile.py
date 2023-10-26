@@ -63,7 +63,7 @@ class ProfilePage(INGIniousAuthPage):
                 oldpasswd_hash_sha512 = UserManager.hash_password_sha512(data["oldpasswd"])
                 try:
                     if oldpasswd_hash_sha512 == user["password"] or ph.verify(user["password"][9:], data["oldpasswd"]):
-                        passwd_hash = "argon2id-" + UserManager.hash_password_argon2id(data["passwd"])
+                        passwd_hash = UserManager.hash_password(data["passwd"])
 
                 except VerifyMismatchError:
                     error = True

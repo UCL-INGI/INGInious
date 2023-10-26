@@ -1056,4 +1056,17 @@ class UserManager:
         :return a hash of str input
         """
         ph = PasswordHasher()
-        return ph.hash(content)
+        return "argon2id-" + ph.hash(content)
+
+    @classmethod
+    def hash_password(cls, content):
+        """
+        Encapsulates the other password hashing functions
+        :param content: a str input
+        :return a hash of str input
+        """
+
+        methods = {"argon2id": cls.hash_password_argon2id, "sha512": cls.hash_password_sha512}
+        latest_method = "argon2id"
+
+        return methods[latest_method](content)
