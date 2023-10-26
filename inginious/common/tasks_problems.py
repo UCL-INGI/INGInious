@@ -133,8 +133,10 @@ class Problem(object, metaclass=ABCMeta):
     def get_translation_obj(self, language=None):
         return self._translations.get(language, gettext.NullTranslations())
 
-    def gettext(self, language, *args, **kwargs):
-        return self.get_translation_obj(language).gettext(*args, **kwargs)
+    def gettext(self, language, text):
+        if text == "":
+            return text
+        return self.get_translation_obj(language).gettext(text)
 
 
 class CodeProblem(Problem):

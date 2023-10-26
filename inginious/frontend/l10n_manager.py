@@ -17,5 +17,7 @@ class L10nManager:
             lang = self._session.get("language", "") if flask.has_app_context() else ""
         return self.translations.get(lang, gettext.NullTranslations())
 
-    def gettext(self, *args, **kwargs):
-        return self.get_translation_obj().gettext(*args, **kwargs)
+    def gettext(self, text):
+        if text == "":
+            return text
+        return self.get_translation_obj().gettext(text)
