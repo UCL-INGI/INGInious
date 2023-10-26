@@ -288,26 +288,36 @@ class UserManager:
         """
         return self._auth_methods
 
-    def auth_user(self, username, password):
+    def auth_user(self, username, password, do_connect=True):
         """
         Authenticate the user in database
         :param username: Username/Login
         :param password: User password
+        :param do_connect: indicates if the user must be connected after authentification, True by default
         :return: Returns a dict representing the user, or None if the authentication was not successful
         """
         user = self._database.users.find_one(
             {"username": username, "activate": {"$exists": False}})
-        ph = PasswordHasher()
 
-        try:
-            if user is None:
-                return None
+        def connect_user(username, user, do_connect):
+            return (user and self.connect_user(username, user["realname"], user["email"], user["language"],
+                                               user.get("tos_accepted", False)) if do_connect else user)
 
-            elif self.hash_password_sha512(password) == user["password"] or ph.verify(user["password"][9:], password):
-                return user and self.connect_user(username, user["realname"], user["email"],user["language"],
-                                                  user.get("tos_accepted", False))
-        except VerifyMismatchError: 
+        if user is None:
             return None
+
+        if user["password"][:9] == "argon2id-":
+            try:
+                ph = PasswordHasher()
+                if ph.verify(user["password"][9:], password):
+                    return connect_user(username, user, do_connect)
+            except VerifyMismatchError:
+                return None
+        else:
+            if self.hash_password_sha512(password) == user["password"]:
+                return connect_user(username, user, do_connect)
+            else:
+                return None
 
 
     def is_user_activated(self, username):
@@ -547,7 +557,7 @@ class UserManager:
         self._database.users.insert_one({"username": values["username"],
                                          "realname": values["realname"],
                                          "email": values["email"],
-                                         "password": "argon2id-"+self.hash_password_argon2id(values["password"]),
+                                         "password": self.hash_password(values["password"]),
                                          "bindings": {},
                                          "language": "en"})
         return None
