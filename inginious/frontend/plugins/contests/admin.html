@@ -60,7 +60,8 @@ accessibility date of the course &lt; registration start date &lt; registration 
             </div>
             <script type="text/javascript">
                 $(function() {
-                    $('#start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                    $('#start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
+                                                        sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
@@ -76,7 +77,8 @@ accessibility date of the course &lt; registration start date &lt; registration 
             </div>
             <script type="text/javascript">
                 $(function() {
-                    $('#end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                    $('#end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
+                                                    sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
