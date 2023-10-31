@@ -73,7 +73,7 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
 
-UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language", "activated"])
+UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language", "timezone", "activated"])
 
 
 class UserManager:
@@ -182,6 +182,10 @@ class UserManager:
     def session_language(self):
         """ Returns the current session language """
         return self._session.get("language", "en")
+
+    def session_timezone(self):
+        """ Returns the current session language """
+        return self._session.get("timezone", "UTC")
 
     def session_api_key(self):
         """ Returns the API key for the current user. Created on first demand. """
@@ -389,7 +393,7 @@ class UserManager:
         infos = self._database.users.find(query).skip(skip).limit(limit)
 
         retval = {info["username"]: UserInfo(info["realname"], info["email"], info["username"], info["bindings"],
-                                             info["language"], "activate" not in info) for info in infos}
+                                             info["language"], info["timezone"], "activate" not in info) for info in infos}
         return retval
 
     def get_user_info(self, username) -> Optional[UserInfo]:
@@ -515,7 +519,8 @@ class UserManager:
                                                  "realname": realname,
                                                  "email": email,
                                                  "bindings": {auth_id: [username, additional]},
-                                                 "language": self._session.get("language", "en")})
+                                                 "language": self._session.get("language", "en"),
+                                                 "timezone": self._session.get("timezone", "UTC")})
                 self.connect_user("", realname, email, self._session.get("language", "en"), False)
 
         return True
@@ -577,7 +582,8 @@ class UserManager:
                                          "email": values["email"],
                                          "password": self.hash_password(values["password"]),
                                          "bindings": {},
-                                         "language": "en"})
+                                         "language": "en",
+                                         "timezone": "UTC"})
         return None
 
     ##############################################

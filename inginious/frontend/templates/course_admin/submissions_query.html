@@ -3,8 +3,10 @@
 
 <script>
     $(function() {
-        $('#date_before_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-        $('#date_after_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        $('#date_before_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', timeZone: '{{user_manager.session_timezone()}}',
+                                                defaultDate: "{{old_params.get('date_before', '')}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        $('#date_after_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', timeZone: '{{user_manager.session_timezone()}}',
+                                                defaultDate: "{{old_params.get('date_after', '')}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
 
         $('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
         {
@@ -183,7 +185,7 @@
                                 <div class="col-xs-12 col-sm-6">
                                     <label class="col-xs-12">{{ _("After date") }}</label>
                                     <div class="input-group date" id="date_after_picker" data-target-input="nearest">
-                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{old_params.get('date_after', '')}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
                                         <div class="input-group-append" data-target="#date_after_picker" data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
@@ -192,7 +194,7 @@
                                 <div class="col-xs-12 col-sm-6">
                                     <label class="col-xs-12">{{ _("Before date") }}</label>
                                     <div class="input-group date" id="date_before_picker" data-target-input="nearest">
-                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{old_params.get('date_before', '')}}" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
+                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
                                         <div class="input-group-append" data-target="#date_before_picker" data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
