@@ -188,7 +188,7 @@
                         $(function() {
                             $('#accessible_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
                                                                             defaultDate: moment.utc("{{at.get_std_start_date()}}"), sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                            $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timezone: '{{user_manager.session_timezone()}}',
+                            $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
                                                                             defaultDate: moment.utc("{{at.get_std_end_date()}}"), sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                         });
                     </script>
