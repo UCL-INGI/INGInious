@@ -61,7 +61,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
             <script type="text/javascript">
                 $(function() {
                     $('#start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                        sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                                                        defaultDate: "{{data['start']}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
@@ -70,7 +70,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
         <label for="end" class="col-sm-2 control-label">Contest ends</label>
         <div class="col-sm-10">
             <div class='input-group date' id='end_picker' data-target-input="nearest">
-                <input data-target='#end_picker' name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{data['end']}}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
+                <input data-target='#end_picker' name="end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
                 <div class="input-group-append" data-target="#end_picker" data-toggle="datetimepicker">
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
@@ -78,7 +78,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
             <script type="text/javascript">
                 $(function() {
                     $('#end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                    sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                                                    defaultDate: "{{data['end']}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>

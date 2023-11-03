@@ -80,6 +80,8 @@
 
 {% if not grouped %}
 <script>
+    var general_taskid = ""
+
     // Feed modal
     $("#edit_task_modal").on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
@@ -120,11 +122,10 @@
 
     // Catch modal changes
     $("#edit_task_modal .accessibility input").change(function () {
-        var taskid = $("#edit_task_modal").data("taskid");
         let action = $(this).attr("name");
 
         if(action == "accessibility") {
-            $("#task_" + taskid + " .accessibility").hide();
+            $("#task_" + general_taskid + " .accessibility").hide();
             if($(this).val() == "true") {
                 $("#task_" + taskid + " .accessibility-always").show();
                 dispenser_config[taskid]["accessibility"]["start"] = "{{ at.min }}";
@@ -136,7 +137,7 @@
                 dispenser_config[taskid]["accessibility"]["soft_end"] = "{{ at.max }}";
                 dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
             } else {
-                $("#task_" + taskid + " .accessibility-custom").show();
+                $("#task_" + general_taskid + " .accessibility-custom").show();
                 var start = $("#edit_task_modal").find("#accessibility_start").val();
                 var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
                 var end = $("#edit_task_modal").find("#accessibility_end").val();
@@ -166,7 +167,7 @@
             return;
         var taskid = $("#edit_task_modal").data("taskid");
         let val = $("#edit_task_modal #accessibility_start").val();
-        $("#task_" + taskid + " .accessibility-custom-start").text(val);
+        $("#task_" + general_taskid + " .accessibility-custom-start").text(val);
         var start = $("#edit_task_modal").find("#accessibility_start").val();
         dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
     });
@@ -197,10 +198,9 @@
         let action = $(this).attr("name");
         let id = $(this).attr("id");
         $(".grouped-actions-task:checked").each(function () {
-            var taskid = $(this).data("taskid");
 
             if(action == "accessibility") {
-                $("#task_" + taskid + " .accessibility").hide();
+                $("#task_" + general_taskid + " .accessibility").hide();
                 if(value == "true") {
                     $("#task_" + taskid + " .accessibility-always").show();
                     dispenser_config[taskid]["accessibility"]["start"] = "{{ at.min }}";
@@ -212,7 +212,7 @@
                     dispenser_config[taskid]["accessibility"]["soft_end"] = "{{ at.max }}";
                     dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
                 } else {
-                    $("#task_" + taskid + " .accessibility-custom").show();
+                    $("#task_" + general_taskid + " .accessibility-custom").show();
                     var start = $("#grouped-actions-edit #accessibility_start").val();
                     var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
                     var end = $("#grouped-actions-edit #accessibility_end").val();
@@ -223,11 +223,11 @@
                 }
             } else {
                 if (id == "accessibility_start")
-                    $("#task_" + taskid + " .accessibility-custom-start").text(value);
+                    $("#task_" + general_taskid + " .accessibility-custom-start").text(value);
                 else if(id == "accessibility_end")
-                    $("#task_" + taskid + " .accessibility-custom-end").text(value);
+                    $("#task_" + general_taskid + " .accessibility-custom-end").text(value);
                 else
-                    $("#task_" + taskid + " .accessibility-custom-soft-end").text(value);
+                    $("#task_" + general_taskid + " .accessibility-custom-soft-end").text(value);
 
                 var start = $("#grouped-actions-edit #accessibility_start").val();
                 var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
@@ -243,7 +243,7 @@
     $('#accessibility_start_picker_grouped').on("change.datetimepicker", function () {
         let val = $("#grouped-actions-edit #accessibility_start").val();
         $(".grouped-actions-task:checked").each(function () {
-            $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
+            $("#task_" + $(this).data("general_taskid") + " .accessibility-custom-start").text(val);
             var start = $("#grouped-actions-edit #accessibility_start").val();
             dispenser_config[$(this).data("taskid")]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
         });
