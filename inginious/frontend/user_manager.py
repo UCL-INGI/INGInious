@@ -209,13 +209,17 @@ class UserManager:
     def set_session_language(self, language):
         self._session["language"] = language
 
-    def _set_session(self, username, realname, email, language, tos_signed):
+    def set_session_timezone(self, timezone):
+        self._session["timezone"] = timezone
+
+    def _set_session(self, username, realname, email, language, timezone, tos_signed):
         """ Init the session. Preserves potential LTI information. """
         self._session["loggedin"] = True
         self._session["email"] = email
         self._session["username"] = username
         self._session["realname"] = realname
         self._session["language"] = language
+        self._session["timezone"] = timezone
         self._session["tos_signed"] = tos_signed
         self._session["token"] = None
         if "lti" not in self._session:
@@ -227,6 +231,8 @@ class UserManager:
         self._session["email"] = None
         self._session["username"] = None
         self._session["realname"] = None
+        self._session["language"] = None
+        self._session["timezone"] = None
         self._session["token"] = None
         self._session["lti"] = None
         self._session["tos_signed"] = None
@@ -351,7 +357,7 @@ class UserManager:
             {"username": username, "activate": {"$exists": True, "$nin": [None]}})
         return user is None
 
-    def connect_user(self, username, realname, email, language, tos_accepted):
+    def connect_user(self, username, realname, email, language, timezone, tos_accepted):
         """ Opens a session for the user
 
         :param username: Username
@@ -360,11 +366,12 @@ class UserManager:
         """
 
         self._database.users.update_one({"email": email},
-                                        {"$set": {"realname": realname, "username": username, "language": language}},
+                                        {"$set": {"realname": realname, "username": username, "language": language,
+                                                  "timezone": timezone}},
                                         upsert=True)
         ip = flask.request.remote_addr
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, ip)
-        self._set_session(username, realname, email, language, tos_accepted)
+        self._set_session(username, realname, email, language, timezone, tos_accepted)
         return True
 
     def disconnect_user(self):
@@ -491,7 +498,8 @@ class UserManager:
         if user_profile and not self.session_logged_in():
             # Sign in
             self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"],
-                              user_profile["language"], user_profile.get("tos_accepted", False))
+                              user_profile["language"], user_profile["timezone"],
+                              user_profile.get("tos_accepted", False))
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
             self._database.users.find_one_and_update({"username": self.session_username()},
@@ -521,7 +529,8 @@ class UserManager:
                                                  "bindings": {auth_id: [username, additional]},
                                                  "language": self._session.get("language", "en"),
                                                  "timezone": self._session.get("timezone", "UTC")})
-                self.connect_user("", realname, email, self._session.get("language", "en"), False)
+                self.connect_user("", realname, email, self._session.get("language", "en"),
+                                  self._session.get("timezone", "UTC"),False)
 
         return True
 
