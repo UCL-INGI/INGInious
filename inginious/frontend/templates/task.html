@@ -141,7 +141,7 @@
                 <i class="fa fa-files-o fa-fw"></i>&nbsp; {{ _("View submissions") }}
             </a>
             {% if user_manager.has_admin_rights_on_course(course) %}
-                <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{course.get_id()}}/edit/task/{{task.get_id()}}">
+                <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/taskset/{{course.get_id()}}/edit/{{task.get_id()}}">
                     <i class="fa fa-edit fa-fw"></i>&nbsp;{{ _("Edit task") }}
                 </a>
                 <a href="#" class="list-group-item list-group-item-action list-group-item-info" data-toggle="modal" data-target="#modal-debug">
