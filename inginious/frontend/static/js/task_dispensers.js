@@ -113,6 +113,8 @@ function dispenser_util_add_tasks_to_section(button) {
     for (var i = 0; i < selected_tasks.length; i++) {
         warn_before_exit = true;
         content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
+        if(!(selected_tasks[i] in dispenser_config))
+            dispenser_config[selected_tasks[i]] = {};
     }
 
     dispenser_util_content_modified(section);
@@ -168,7 +170,8 @@ function dispenser_util_delete_task(button, taskid){
     }
     const task = $("#task_" + taskid);
     const parent = task.closest(".tasks_list");
-    task.remove()
+    task.remove();
+    delete dispenser_config[taskid];
 
     warn_before_exit = true;
     dispenser_util_content_modified(parent);
