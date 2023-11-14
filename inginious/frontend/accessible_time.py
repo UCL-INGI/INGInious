@@ -28,47 +28,30 @@ def parse_date(date, default=None):
 class AccessibleTime(object):
     """ represents the period of time when a course/task is accessible """
 
-    def __init__(self, val=None):
+    def __init__(self, val=None, period=None):
         """
-            Parse a string/a boolean to get the correct time period.
-            Correct values for val:
-            True (task always open)
-            False (task always closed)
-            2014-07-16 11:24:00 (task is open from 2014-07-16 at 11:24:00)
-            2014-07-16 (task is open from 2014-07-16)
-            / 2014-07-16 11:24:00 (task is only open before the 2014-07-16 at 11:24:00)
-            / 2014-07-16 (task is only open before the 2014-07-16)
-            2014-07-16 11:24:00 / 2014-07-20 11:24:00 (task is open from 2014-07-16 11:24:00 and will be closed the 2014-07-20 at 11:24:00)
-            2014-07-16 / 2014-07-20 11:24:00 (...)
-            2014-07-16 11:24:00 / 2014-07-20 (...)
-            2014-07-16 / 2014-07-20 (...)
-            2014-07-16 11:24:00 / 2014-07-20 11:24:00 / 2014-07-20 12:24:00 (task is open from 2014-07-16 11:24:00, has a soft deadline set at 2014-07-20 11:24:00 and will be closed the 2014-07-20 at 11:24:00)
-            2014-07-16 / 2014-07-20 11:24:00 / 2014-07-21 (...)
-            2014-07-16 / 2014-07-20 / 2014-07-21 (...)
+            Used to represent the period of time when a course/task is accessible.
+            :param val : bool, optionnal, if False, it is never accessible, if True, it is always accessible or limited
+            by period dict
+            :param period : dict, contains start, end and optionally soft_end datetime objects
         """
-        if val is None or val == "" or val is True:
-            self._val = [datetime.min, datetime.max]
-            self._soft_end = datetime.max
-        elif val == False:
-            self._val = [datetime.max, datetime.max]
-            self._soft_end = datetime.max
-        else:  # str
-            values = val.split("/")
-            if len(values) == 1:
-                self._val = [parse_date(values[0].strip(), datetime.min), datetime.max]
-                self._soft_end = datetime.max
-            elif len(values) == 2:
-                # Has start time and hard deadline
-                self._val = [parse_date(values[0].strip(), datetime.min), parse_date(values[1].strip(), datetime.max)]
-                self._soft_end = self._val[1]
-            else:
-                # Has start time, soft deadline and hard deadline
-                self._val = [parse_date(values[0].strip(), datetime.min), parse_date(values[2].strip(), datetime.max)]
-                self._soft_end = parse_date(values[1].strip(), datetime.max)
 
-        # Having a soft deadline after the hard one does not make sense, make soft-deadline same as hard-deadline
-        if self._soft_end > self._val[1]:
-            self._soft_end = self._val[1]
+        period = period or {"start": None, "soft_end": None, "end": None}
+        if "soft_end" not in period.keys():
+            period["soft_end"] = None
+
+        if val is None or val == "" or val is True:
+            if period["start"] or period["soft_end"] or period["end"]:
+                self._start = period.get("start", datetime.min)
+                self._end = period.get("end", datetime.max)
+                self._soft_end = period.get("soft_end", datetime.max)
+            else:
+                self._start = datetime.min
+                self._end, self._soft_end = datetime.max, datetime.max
+        else:
+            self._start = self._end = self._soft_end = datetime.max
+        if self._soft_end and self._end and self._soft_end > self._end:
+            self._soft_end = self._end
 
 
     def before_start(self, when=None):
@@ -76,7 +59,7 @@ class AccessibleTime(object):
         if when is None:
             when = datetime.now()
 
-        return self._val[0] > when
+        return self._start > when
 
     def after_start(self, when=None):
         """ Returns True if the task/course is or have been accessible in the past """
@@ -87,53 +70,51 @@ class AccessibleTime(object):
         if when is None:
             when = datetime.now()
 
-        return self._val[0] <= when and when <= self._val[1]
+        return self._start <= when and when <= self._end
 
     def is_open_with_soft_deadline(self, when=None):
         """ Returns True if the course/task is still open with the soft deadline """
         if when is None:
             when = datetime.now()
 
-        return self._val[0] <= when and when <= self._soft_end
+        return self._start <= when and when <= self._soft_end
 
     def is_always_accessible(self):
         """ Returns true if the course/task is always accessible """
-        return self._val[0] == datetime.min and self._val[1] == datetime.max
+        return self._start == datetime.min and self._end == datetime.max
 
     def is_never_accessible(self):
         """ Returns true if the course/task is never accessible """
-        return self._val[0] == datetime.max and self._val[1] == datetime.max
+        return self._start == datetime.max and self._end == datetime.max
 
     def get_std_start_date(self):
         """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        first, _ = self._val
-        if first != datetime.min and first != datetime.max:
-            return first.strftime("%Y-%m-%d %H:%M:%S")
+        if self._start != datetime.min and self._start != datetime.max:
+            return self._start.strftime("%Y-%m-%d %H:%M:%S") if self._start is not None else ""
         else:
             return ""
 
     def get_std_end_date(self):
         """ If the date is custom, return the end datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        _, second = self._val
-        if second != datetime.max:
-            return second.strftime("%Y-%m-%d %H:%M:%S")
+        if self._end != datetime.max:
+            return self._end.strftime("%Y-%m-%d %H:%M:%S") if self._end is not None else ""
         else:
             return ""
 
     def get_std_soft_end_date(self):
         """ If the date is custom, return the soft datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._soft_end != datetime.max:
-            return self._soft_end.strftime("%Y-%m-%d %H:%M:%S")
+            return self._soft_end.strftime("%Y-%m-%d %H:%M:%S") if self._soft_end is not None else ""
         else:
             return ""
 
     def get_start_date(self):
         """ Return a datetime object, representing the date when the task/course become accessible """
-        return self._val[0]
+        return self._start
 
     def get_end_date(self):
         """ Return a datetime object, representing the deadline for accessibility """
-        return self._val[1]
+        return self._end
 
     def get_soft_end_date(self):
         """ Return a datetime object, representing the soft deadline for accessibility """
