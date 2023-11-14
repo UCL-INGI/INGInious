@@ -41,8 +41,8 @@ class Course(object):
 
         self._admins = self._content.get('admins', [])
         self._description = self._content.get('description', '')
-        self._accessible = AccessibleTime(self._content.get("accessible", None))
-        self._registration = AccessibleTime(self._content.get("registration", None))
+        self._accessible = AccessibleTime(self._content.get("accessible", None), self._content.get("accessible_period"))
+        self._registration = AccessibleTime(self._content.get("registration", None), self._content.get("registration_period"))
         self._registration_password = self._content.get('registration_password', None)
         self._registration_ac = self._content.get('registration_ac', None)
         if self._registration_ac not in [None, "username", "binding", "email"]:
