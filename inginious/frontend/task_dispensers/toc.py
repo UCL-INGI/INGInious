@@ -118,9 +118,9 @@ class TableOfContents(TaskDispenser):
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
 
         for task in self._task_config.values():
-            task['accessibility_period'] = {
+            task['accessibility']['period'] = {
                 key: value.strftime("%Y-%m-%d %H:%M:%S") if value is not None else ""
-                for key, value in task['accessibility_period'].items()
+                for key, value in task['accessibility']['period'].items()
             }
 
         return template_helper.render("task_dispensers_admin/toc.html", element=element, course=course, taskset=taskset,
