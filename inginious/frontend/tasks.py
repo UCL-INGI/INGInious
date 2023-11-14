@@ -103,7 +103,8 @@ class Task(object):
             self._contact_url = ""
 
         # _accessible
-        self._accessible = AccessibleTime(self._data.get("accessible", None))
+        self._accessible = AccessibleTime(self._data.get("accessible", None),
+                                          self._data.get("accessible_period", {"start": None, "soft_end": None, "end": None}))
         
         # Input random
         self._input_random = int(self._data.get("input_random", 0))
