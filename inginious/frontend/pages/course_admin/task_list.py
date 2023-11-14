@@ -63,10 +63,10 @@ class CourseTaskListPage(INGIniousAdminPage):
         task_dispenser = course.get_task_dispenser()
         data, msg = task_dispenser.check_dispenser_data(dispenser_data)
         if data:
-            for task in data['coonfig'].values():
-                task['accessibility_period'] = {
+            for task in data['config'].values():
+                task['accessibility']['period'] = {
                     key: str(value) if value != "" else None
-                    for key, value in task['accessibility_period'].items()
+                    for key, value in task['accessibility']['period'].items()
                 }
             self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',
                                                                  task_dispenser.get_id())
