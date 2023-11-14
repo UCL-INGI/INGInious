@@ -197,7 +197,7 @@ class Accessibility(TaskConfigItem):
     def get_value(cls, task_config):
         accessibility = task_config.get(cls.get_id(), cls.default)
         try:
-            AccessibleTime(accessibility['is_open'], accessibility['period'])
+            AccessibleTime(*accessibility.values())
         except Exception as message:
             raise InvalidTocException("Invalid task accessibility : {}".format(message))
         return accessibility
