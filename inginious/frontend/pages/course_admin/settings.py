@@ -41,41 +41,39 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
 
         if data["accessible"] == "custom":
-            course_content['accessible'] = True
-            course_content['accessible_period'] = {}
-            course_content['accessible_period']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else None
-            course_content['accessible_period']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else None
+            course_content['accessible']['is_open'] = True
+            course_content['accessible']['period'] = {}
+            course_content['accessible']['period']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else None
+            course_content['accessible']['period']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else None
         elif data["accessible"] == "true":
-            course_content['accessible'] = True
-            course_content['accessible_period']["start"] = None
-            course_content['accessible_period']["end"] = None
+            course_content['accessible']['is_open'] = True
+            course_content['accessible']['period']["start"] = None
+            course_content['accessible']['period']["end"] = None
         else:
-            course_content['accessible'] = False
-            course_content['accessible_period']["start"] = None
-            course_content['accessible_period']["end"] = None
+            course_content['accessible']['is_open'] = False
+            course_content['accessible']['period']["start"] = None
+            course_content['accessible']['period']["end"] = None
 
         try:
-            AccessibleTime(course_content['accessible'], course_content['accessible_period'])
+            AccessibleTime(course_content['accessible']['is_open'], course_content['accessible']['period'])
         except:
             errors.append(_('Invalid accessibility dates'))
 
         course_content['allow_unregister'] = True if data["allow_unregister"] == "true" else False
         course_content['allow_preview'] = True if data["allow_preview"] == "true" else False
 
+        course_content['registration'] = {"period": {"start": None, "end": None}}
         if data["registration"] == "custom":
-            course_content['registration'] = True
-            course_content['registration_period'] = {}
-            course_content['registration_period']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else None
-            course_content['registration_period']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else None
+            course_content['registration']['is_open'] = True
+            course_content['registration']['period']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else None
+            course_content['registration']['period']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else None
         elif data["registration"] == "true":
-            course_content['registration'] = True
-            course_content['registration_period']["start"] = None
-            course_content['registration_period']["end"] = None
+            course_content['registration']['is_open'] = True
         else:
             course_content['registration'] = False
 
         try:
-            AccessibleTime(course_content['registration'], course_content['registration_period'])
+            AccessibleTime(course_content['registration']['is_open'], course_content['registration']['period'])
         except Exception:
             errors.append(_('Invalid registration dates'))
 

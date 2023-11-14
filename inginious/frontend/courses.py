@@ -41,10 +41,12 @@ class Course(object):
 
         self._admins = self._content.get('admins', [])
         self._description = self._content.get('description', '')
-        self._accessible = AccessibleTime(self._content.get("accessible", None), self._content.get("accessible_period"))
-        self._registration = AccessibleTime(self._content.get("registration", None), self._content.get("registration_period"))
-        self._registration_password = self._content.get('registration_password', None)
-        self._registration_ac = self._content.get('registration_ac', None)
+        self._accessible = AccessibleTime(self._content['accessible'].get('is_open'),
+                                          self._content['accessible'].get('period'))
+        self._registration = AccessibleTime(self._content.get('registration', {}).get('is_open'),
+                                            self._content.get('registration', {}).get('period'))
+        self._registration_password = self._content.get('registration_password')
+        self._registration_ac = self._content.get('registration_ac')
         if self._registration_ac not in [None, "username", "binding", "email"]:
             raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
         self._registration_ac_accept = self._content.get('registration_ac_accept', True)
