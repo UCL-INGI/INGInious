@@ -8,6 +8,7 @@ import logging
 import flask
 from collections import OrderedDict
 from natsort import natsorted
+from datetime import datetime
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
@@ -62,6 +63,11 @@ class CourseTaskListPage(INGIniousAdminPage):
         task_dispenser = course.get_task_dispenser()
         data, msg = task_dispenser.check_dispenser_data(dispenser_data)
         if data:
+            for task in data['coonfig'].values():
+                task['accessibility_period'] = {
+                    key: str(value) if value != "" else None
+                    for key, value in task['accessibility_period'].items()
+                }
             self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',
                                                                  task_dispenser.get_id())
             self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
