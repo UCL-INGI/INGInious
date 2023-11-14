@@ -83,6 +83,7 @@ def import_taskset(taskset, new_tasksetid, username, taskset_factory):
         new_descriptor = {"description": old_descriptor.get("description", ""),
                           'admins': [username],
                           "accessible": False,
+                          "accessible_period": {"start": None, "end": None},
                           "tags": old_descriptor.get("tags", {})}
         if "name" in old_descriptor:
             new_descriptor["name"] = old_descriptor["name"] + " - " + new_tasksetid
