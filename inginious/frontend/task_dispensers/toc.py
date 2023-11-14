@@ -5,6 +5,7 @@
 import copy
 import inginious
 from collections import OrderedDict
+from datetime import datetime
 
 from functools import reduce
 from operator import concat
@@ -115,6 +116,12 @@ class TableOfContents(TaskDispenser):
 
         taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
+
+        for task in self._task_config.values():
+            task['accessibility_period'] = {
+                key: value.strftime("%Y-%m-%d %H:%M:%S") if value is not None else ""
+                for key, value in task['accessibility_period'].items()
+            }
 
         return template_helper.render("task_dispensers_admin/toc.html", element=element, course=course, taskset=taskset,
                                       dispenser_structure=self._toc, dispenser_config=self._task_config, tasks=task_data,
