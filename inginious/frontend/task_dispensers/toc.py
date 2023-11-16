@@ -38,6 +38,9 @@ class TableOfContents(TaskDispenser):
         self._toc = SectionsList(dispenser_data.get("toc", {}))
         self._task_config = dispenser_data.get("config", {})
         parse_tasks_config(self._task_list_func().keys(), self.config_items, self._task_config)
+        #print(self._task_config)
+        #self._task_config['01_getting_started']['weight'] = 0
+        #print(self._task_config)
 
     @classmethod
     def get_id(cls):
@@ -119,7 +122,7 @@ class TableOfContents(TaskDispenser):
 
         for task in self._task_config.values():
             task['accessibility']['period'] = {
-                key: value.strftime("%Y-%m-%d %H:%M:%S") if value is not None else ""
+                key: value.strftime("%Y-%m-%d %H:%M:%S") if isinstance(value, datetime) else ""
                 for key, value in task['accessibility']['period'].items()
             }
 

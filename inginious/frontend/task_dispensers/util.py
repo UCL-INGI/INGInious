@@ -153,7 +153,7 @@ class Categories(TaskConfigItem):
 
 
 class SubmissionLimit(TaskConfigItem):
-    default = {"amount": -1, "period": -1}
+    default = dict({"amount": -1, "period": -1})
 
     @classmethod
     def get_template(cls):
@@ -178,8 +178,8 @@ class SubmissionLimit(TaskConfigItem):
 
 
 class Accessibility(TaskConfigItem):
-    default = {"is_open": False,
-               "period": {"start": None, "soft_end": None, "end": None}}
+    default = dict({"is_open": False,
+               "period": {"start": None, "soft_end": None, "end": None}})
 
     @classmethod
     def get_template(cls):
@@ -358,7 +358,7 @@ def parse_tasks_config(task_list, config_items, data):
 
     # Set default empty dict for missing tasks
     for taskid in task_list:
-        data.setdefault(taskid, {})
+        data.setdefault(taskid, {})  # putting default dictionnary that are all the same ????
 
     # Check each config validity
     for taskid, structure in data.items():
