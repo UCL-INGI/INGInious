@@ -65,7 +65,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         if data:
             for task in data['config'].values():
                 task['accessibility']['period'] = {
-                    key: str(value) if value != "" else None
+                    key: datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if value != "" else None
                     for key, value in task['accessibility']['period'].items()
                 }
             self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',
