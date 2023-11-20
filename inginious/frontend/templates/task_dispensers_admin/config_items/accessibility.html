@@ -92,7 +92,6 @@
 
         if (accessibility === true) {
             if (accessibility_period["start"] || accessibility_period["soft_end"] || accessibility_period["end"]) {
-                console.log("in")
                 value = 'custom';
 
                 $('#accessibility_start_picker').datetimepicker('defaultDate', accessibility_period["start"]);
