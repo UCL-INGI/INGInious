@@ -302,7 +302,10 @@ class TerminalSection(Section):
         Section.__init__(self, structure)
         if not all(id_checker(id) for id in structure["tasks_list"]):
             raise InvalidTocException(_("One task id contains non alphanumerical characters"))
-        self._task_list = structure["tasks_list"]
+        if isinstance(structure["tasks_list"], dict):
+            self._task_list = [taskid for taskid, pos in sorted(structure["tasks_list"].items(), key=lambda l: l[1])]
+        else:
+            self._task_list = structure["tasks_list"]
 
     def is_terminal(self):
         return True
