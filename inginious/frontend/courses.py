@@ -41,10 +41,10 @@ class Course(object):
 
         self._admins = self._content.get('admins', [])
         self._description = self._content.get('description', '')
-        self._accessible = AccessibleTime(self._content['accessible'].get('is_open'),
-                                          self._content['accessible'].get('period'))
-        self._registration = AccessibleTime(self._content.get('registration', {}).get('is_open'),
-                                            self._content.get('registration', {}).get('period'))
+        self._accessible = AccessibleTime(self._content['accessible']['is_open'],
+                                          self._content['accessible']['period'])
+        self._registration = AccessibleTime(self._content['registration']['is_open'],
+                                            self._content['registration']['period'])
         self._registration_password = self._content.get('registration_password')
         self._registration_ac = self._content.get('registration_ac')
         if self._registration_ac not in [None, "username", "binding", "email"]:
@@ -76,8 +76,8 @@ class Course(object):
 
         # Force some parameters if LTI is active
         if self.is_lti():
-            self._accessible = AccessibleTime(True)
-            self._registration = AccessibleTime(False)
+            self._accessible = AccessibleTime(True,{"start": None, "end": None})
+            self._registration = AccessibleTime(False,{"start": None, "end": None})
             self._registration_password = None
             self._registration_ac = None
             self._registration_ac_list = []
