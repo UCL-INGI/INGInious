@@ -42,7 +42,6 @@ class CourseSettingsPage(INGIniousAdminPage):
 
         if data["accessible"] == "custom":
             course_content['accessible']['is_open'] = True
-            course_content['accessible']['period'] = {}
             course_content['accessible']['period']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else None
             course_content['accessible']['period']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else None
         elif data["accessible"] == "true":
@@ -62,7 +61,6 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['allow_unregister'] = True if data["allow_unregister"] == "true" else False
         course_content['allow_preview'] = True if data["allow_preview"] == "true" else False
 
-        course_content['registration'] = {"period": {"start": None, "end": None}}
         if data["registration"] == "custom":
             course_content['registration']['is_open'] = True
             course_content['registration']['period']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else None

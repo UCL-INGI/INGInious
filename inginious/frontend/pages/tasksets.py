@@ -36,6 +36,7 @@ class TasksetsPage(INGIniousAuthPage):
                     task_dispenser = taskset.get_task_dispenser()
                     self.course_factory.create_course(courseid, {
                         "name": courseid, "accessible": {"is_open": False, "period": {"start": None, "end": None}},
+                        "registration": {"is_open": False, "period": {"start": None, "end": None}},
                         "tasksetid": taskset.get_id(), "admins": [self.user_manager.session_username()], "students": [],
                         "task_dispenser": task_dispenser.get_id(), "dispenser_data": task_dispenser.get_dispenser_data()
                     })

@@ -36,22 +36,12 @@ class AccessibleTime(object):
             :param period : dict, contains start, end and optionally soft_end datetime objects
         """
 
-        period = period or {"start": None, "soft_end": None, "end": None}
-        if "soft_end" not in period.keys():
-            period["soft_end"] = None
-
-        if val is None or val == "" or val is True:
-            if period["start"] or period["soft_end"] or period["end"]:
-                self._start = period.get("start", datetime.min)
-                self._end = period.get("end", datetime.max)
-                self._soft_end = period.get("soft_end", datetime.max)
-            else:
-                self._start = datetime.min
-                self._end, self._soft_end = datetime.max, datetime.max
-        else:
-            self._start = self._end = self._soft_end = datetime.max
-        if self._soft_end and self._end and self._soft_end > self._end:
-            self._soft_end = self._end
+        self._start = period["start"] if period["start"] is not None else datetime.min
+        self._end = period["end"] if period["end"] is not None else datetime.max
+        if "soft_end" in period:
+            self._soft_end = period["soft_end"] if period["soft_end"] is not None else datetime.max
+            if self._soft_end > self._end:
+                self._soft_end = self._end
 
 
     def before_start(self, when=None):
