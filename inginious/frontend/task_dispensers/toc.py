@@ -11,7 +11,7 @@ from functools import reduce
 from operator import concat
 from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_config, check_task_config,\
     SectionsList, SectionConfigItem, GroupSubmission, Weight, SubmissionStorage, EvaluationMode, Categories, \
-    SubmissionLimit, Accessibility
+    SubmissionLimit, Accessibility, task_config_datetimes_to_str
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
 
@@ -118,17 +118,10 @@ class TableOfContents(TaskDispenser):
 
         taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
-
-        _task_config = copy.deepcopy(self._task_config)
-
-        for task in _task_config.values():
-            task['accessibility']['period'] = {
-                key: value.strftime("%Y-%m-%d %H:%M:%S") if isinstance(value, datetime) else ""
-                for key, value in task['accessibility']['period'].items()
-            }
+        task_config = task_config_datetimes_to_str(self._task_config)
 
         return template_helper.render("task_dispensers_admin/toc.html", element=element, course=course, taskset=taskset,
-                                      dispenser_structure=self._toc, dispenser_config=_task_config, tasks=task_data,
+                                      dispenser_structure=self._toc, dispenser_config=task_config, tasks=task_data,
                                       task_errors=task_errors, config_fields=config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list, username):

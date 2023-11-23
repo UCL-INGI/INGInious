@@ -11,7 +11,7 @@ from natsort import natsorted
 from datetime import datetime
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
-
+from inginious.frontend.pages.utils import dispenser_data_str_to_datetimes
 
 class CourseTaskListPage(INGIniousAdminPage):
     """ List informations about all tasks """
@@ -63,11 +63,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         task_dispenser = course.get_task_dispenser()
         data, msg = task_dispenser.check_dispenser_data(dispenser_data)
         if data:
-            for task in data['config'].values():
-                task['accessibility']['period'] = {
-                    key: datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if value != "" else None
-                    for key, value in task['accessibility']['period'].items()
-                }
+            dispenser_data_str_to_datetimes(data)
             self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',
                                                                  task_dispenser.get_id())
             self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)

@@ -11,6 +11,8 @@ from natsort import natsorted
 from datetime import datetime
 
 from inginious.frontend.pages.taskset_admin.utils import INGIniousAdminPage
+from inginious.frontend.pages.utils import dispenser_data_str_to_datetimes
+
 
 
 class TasksetTemplatePage(INGIniousAdminPage):
@@ -62,11 +64,7 @@ class TasksetTemplatePage(INGIniousAdminPage):
         task_dispenser = taskset.get_task_dispenser()
         data, msg = task_dispenser.check_dispenser_data(dispenser_data)
         if data:
-            for task in dispenser_data.values():
-                task['accessibility']['period'] = {
-                    key: datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if value != "" else None
-                    for key, value in task['accessibility']['period'].items()
-                }
+            dispenser_data_str_to_datetimes(data)
             self.taskset_factory.update_taskset_descriptor_element(taskset.get_id(), 'task_dispenser',
                                                                  task_dispenser.get_id())
             self.taskset_factory.update_taskset_descriptor_element(taskset.get_id(), 'dispenser_data', data)
