@@ -28,13 +28,16 @@ def parse_date(date, default=None):
 class AccessibleTime(object):
     """ represents the period of time when a course/task is accessible """
 
-    def __init__(self, val=None, period=None):
+    def __init__(self, is_open=None, period=None):
         """
             Used to represent the period of time when a course/task is accessible.
             :param val : bool, optionnal, if False, it is never accessible, if True, it is always accessible or limited
             by period dict
             :param period : dict, contains start, end and optionally soft_end datetime objects
         """
+
+        if is_open is None or period is None:
+            raise Exception("AccessibleTime must be initialized with a boolean and a period dict")
 
         self._start = period["start"] if period["start"] is not None else datetime.min
         self._end = period["end"] if period["end"] is not None else datetime.max
