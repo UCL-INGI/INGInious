@@ -2,6 +2,9 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
+import copy
+from datetime import datetime
+
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from inginious.common.base import id_checker
@@ -358,7 +361,7 @@ def parse_tasks_config(task_list, config_items, data):
 
     # Set default empty dict for missing tasks
     for taskid in task_list:
-        data.setdefault(taskid, {})  # putting default dictionnary that are all the same ????
+        data.setdefault(taskid, {})
 
     # Check each config validity
     for taskid, structure in data.items():
@@ -381,3 +384,14 @@ def check_task_config(task_list, config_items, data):
         return True, ''
     except Exception as ex:
         return False, str(ex)
+
+
+def task_config_datetimes_to_str(task_config):
+
+    updated_task_config = copy.deepcopy(task_config)
+    for task in updated_task_config.values():
+        task['accessibility']['period'] = {
+            key: value.strftime("%Y-%m-%d %H:%M:%S") if isinstance(value, datetime) else ""
+            for key, value in task['accessibility']['period'].items()
+        }
+    return updated_task_config
