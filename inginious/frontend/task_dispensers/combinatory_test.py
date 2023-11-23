@@ -4,10 +4,13 @@
 # more information about the licensing of this file.
 
 from random import Random
+import copy
+from datetime import datetime
+
 import inginious
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.util import SectionConfigItem, Weight, SubmissionStorage, EvaluationMode, \
-    Categories, SubmissionLimit, Accessibility
+    Categories, SubmissionLimit, Accessibility, task_config_datetimes_to_str
 from inginious.frontend.accessible_time import AccessibleTime
 
 
@@ -27,17 +30,20 @@ class CombinatoryTest(TableOfContents):
         return False
 
     def get_accessibilities(self, taskids, usernames):
-        result = {username: {taskid: AccessibleTime(False) for taskid in taskids} for username in usernames}
+        result = {username: {taskid: AccessibleTime(False, {"start": None, "soft_end": None, "end": None})
+                             for taskid in taskids} for username in usernames}
         for index, section in enumerate(self._toc):
             task_list = [taskid for taskid in section.get_tasks()
-                         if AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {}))).after_start()]
+                         if AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {}))["is_open"],
+                                           Accessibility.get_value(self._task_config.get(taskid, {}))["period"]).after_start()]
             amount_questions = int(section.get_config().get("amount", 0))
             for username in usernames:
                 rand = Random("{}#{}#{}".format(username, index, section.get_title()))
                 random_order_choices = task_list.copy()
                 rand.shuffle(random_order_choices)
                 for taskid in random_order_choices[0:amount_questions]:
-                    result[username][taskid] = AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {})))
+                    accessibility_values = Accessibility.get_value(self._task_config.get(taskid, {}))
+                    result[username][taskid] = AccessibleTime(**accessibility_values)
 
         return result
 
@@ -49,10 +55,10 @@ class CombinatoryTest(TableOfContents):
 
         taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
+        task_config = task_config_datetimes_to_str(self._task_config)
 
-        return template_helper.render("task_dispensers_admin/combinatory_test.html",  element=element, course=course,
-                                      taskset=taskset, dispenser_structure=self._toc, dispenser_config=self._task_config,
-                                      tasks=task_data, task_errors=task_errors, config_fields=config_fields)
+        return template_helper.render("task_dispensers_admin/combinatory_test.html",  element=element, course=course, taskset=taskset,
+                                      dispenser_structure=self._toc, dispenser_config=task_config, tasks=task_data, task_errors=task_errors, config_fields=config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list, username):
         """ Returns the formatted task list"""
