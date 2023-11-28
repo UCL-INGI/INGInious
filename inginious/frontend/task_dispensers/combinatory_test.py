@@ -10,7 +10,7 @@ from datetime import datetime
 import inginious
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.util import SectionConfigItem, Weight, SubmissionStorage, EvaluationMode, \
-    Categories, SubmissionLimit, Accessibility, task_config_datetimes_to_str
+    Categories, SubmissionLimit, Accessibility, dict_data_datetimes_to_str
 from inginious.frontend.accessible_time import AccessibleTime
 
 
@@ -55,7 +55,7 @@ class CombinatoryTest(TableOfContents):
 
         taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
-        task_config = task_config_datetimes_to_str(self._task_config)
+        task_config = dict_data_datetimes_to_str(self._task_config)
 
         return template_helper.render("task_dispensers_admin/combinatory_test.html",  element=element, course=course, taskset=taskset,
                                       dispenser_structure=self._toc, dispenser_config=task_config, tasks=task_data, task_errors=task_errors, config_fields=config_fields)
