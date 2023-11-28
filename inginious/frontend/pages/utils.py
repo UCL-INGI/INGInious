@@ -367,9 +367,17 @@ def register_utils(database, user_manager, template_helper: TemplateHelper):
                                             )
 
 
-def dispenser_data_str_to_datetimes(dispenser_data):
-    for task in dispenser_data['config'].values():
-        task['accessibility']['period'] = {
-            key: datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if (value != "" and value is not None) else None
-            for key, value in task['accessibility']['period'].items()
-        }
+def dict_data_str_to_datetimes(data):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, str):
+                try:
+                    data[key] = datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if (value != "") else None
+                except ValueError:
+                    pass  # If it's not a valid date string, continue without converting
+            else:
+                dict_data_str_to_datetimes(value)
+    elif isinstance(data, list):
+        for index, item in enumerate(data):
+            dict_data_str_to_datetimes(item)
+    return data

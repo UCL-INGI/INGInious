@@ -386,12 +386,14 @@ def check_task_config(task_list, config_items, data):
         return False, str(ex)
 
 
-def task_config_datetimes_to_str(task_config):
-
-    updated_task_config = copy.deepcopy(task_config)
-    for task in updated_task_config.values():
-        task['accessibility']['period'] = {
-            key: value.strftime("%Y-%m-%d %H:%M:%S") if isinstance(value, datetime) else ""
-            for key, value in task['accessibility']['period'].items()
-        }
-    return updated_task_config
+def dict_data_datetimes_to_str(data):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, datetime):
+                data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                dict_data_datetimes_to_str(value)
+    elif isinstance(data, list):
+        for index, item in enumerate(data):
+            dict_data_datetimes_to_str(item)
+    return data
