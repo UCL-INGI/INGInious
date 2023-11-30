@@ -199,10 +199,11 @@ class Accessibility(TaskConfigItem):
     @classmethod
     def get_value(cls, task_config):
         accessibility = task_config.get(cls.get_id(), cls.default)
-        try:
-            AccessibleTime(*accessibility.values())
-        except Exception as message:
-            raise InvalidTocException("Invalid task accessibility : {}".format(message))
+        if isinstance(accessibility, dict):
+            try:
+                AccessibleTime(*accessibility.values())
+            except Exception as message:
+                raise InvalidTocException("Invalid task accessibility : {}".format(message))
         return accessibility
 
 
