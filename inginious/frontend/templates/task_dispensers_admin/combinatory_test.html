@@ -35,11 +35,7 @@
 {% endwith %}
 
 <script>
-    dispenser_config = JSON.parse('{{ dispenser_config | tojson }}');
-    task_config_funcs = [ {{ config_items_funcs | join(",")}} ];
-    /* Why put inside jquery block ? => it will wait for the page to be loaded before executing the script. But why ?
     $(function() {
         dispenser_config = JSON.parse('{{ dispenser_config | tojson }}');
     });
-    */
 </script>
