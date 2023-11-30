@@ -33,11 +33,18 @@ class AccessibleTime(object):
             Used to represent the period of time when a course/task is accessible.
             :param val : bool, optionnal, if False, it is never accessible, if True, it is always accessible or limited
             by period dict
-            :param period : dict, contains start, end and optionally soft_end datetime objects
+            :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
         """
 
-        if is_open is None or period is None:
+        if not isinstance(is_open, bool) or not isinstance(period, dict):
             raise Exception("AccessibleTime must be initialized with a boolean and a period dict")
+
+        # transforming strings into datetimes in case AccessibleTime is used in html files (where datetime objects are not supported)
+        for key, date in period.items():
+            if isinstance(date, str) and date != "":
+                period[key] = parse_date(date)
+            elif isinstance(date, str) and date == "":
+                period[key] = None
 
         self._start = period["start"] if period["start"] is not None else datetime.min
         self._end = period["end"] if period["end"] is not None else datetime.max
