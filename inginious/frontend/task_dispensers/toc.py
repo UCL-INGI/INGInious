@@ -72,8 +72,7 @@ class TableOfContents(TaskDispenser):
     def get_accessibilities(self, taskids, usernames):
         """  Get the accessible time of this task """
 
-        return {username: {taskid: AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {}))["is_open"],
-                                                  Accessibility.get_value(self._task_config.get(taskid, {}))["period"])
+        return {username: {taskid: AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {})))
                            for taskid in taskids } for username in usernames}
 
     def get_categories(self, taskid):

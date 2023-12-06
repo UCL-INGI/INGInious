@@ -30,20 +30,19 @@ class CombinatoryTest(TableOfContents):
         return False
 
     def get_accessibilities(self, taskids, usernames):
-        result = {username: {taskid: AccessibleTime(False, {"start": None, "soft_end": None, "end": None})
+        result = {username: {taskid: AccessibleTime({"start": datetime.min, "soft_end": datetime.max, "end": datetime.max})
                              for taskid in taskids} for username in usernames}
         for index, section in enumerate(self._toc):
             task_list = [taskid for taskid in section.get_tasks()
-                         if AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {}))["is_open"],
-                                           Accessibility.get_value(self._task_config.get(taskid, {}))["period"]).after_start()]
+                         if AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {}))).after_start()]
             amount_questions = int(section.get_config().get("amount", 0))
             for username in usernames:
                 rand = Random("{}#{}#{}".format(username, index, section.get_title()))
                 random_order_choices = task_list.copy()
                 rand.shuffle(random_order_choices)
                 for taskid in random_order_choices[0:amount_questions]:
-                    accessibility_values = Accessibility.get_value(self._task_config.get(taskid, {}))
-                    result[username][taskid] = AccessibleTime(**accessibility_values)
+                    accessibility_period = Accessibility.get_value(self._task_config.get(taskid, {}))
+                    result[username][taskid] = AccessibleTime(accessibility_period)
 
         return result
 

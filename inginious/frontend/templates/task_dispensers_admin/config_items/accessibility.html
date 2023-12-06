@@ -86,22 +86,24 @@
         if (!("accessibility" in dispenser_config[taskid]))
             return;
         general_taskid = taskid
-        var accessibility = dispenser_config[taskid]["accessibility"]["is_open"]
-        var accessibility_period = dispenser_config[taskid]["accessibility"]["period"] || {"start": "", "soft_end": "", "end": ""};
+        var accessibility = dispenser_config[taskid]["accessibility"];
         var value;
 
-        if (accessibility === true) {
-            if (accessibility_period["start"] || accessibility_period["soft_end"] || accessibility_period["end"]) {
-                value = 'custom';
+        special_dates = ["1-01-01 00:00:00", "9999-12-31 23:59:59"]
+        function isSpecialDate(date) {
+            return special_dates.includes(date);
+        }
 
-                $('#accessibility_start_picker').datetimepicker('defaultDate', accessibility_period["start"]);
-                $('#accessibility_soft_end_picker').datetimepicker('defaultDate', accessibility_period["soft_end"]);
-                $('#accessibility_end_picker').datetimepicker('defaultDate', accessibility_period["end"]);
+        if (Object.values(accessibility).some(date => !isSpecialDate(date))) {
+            value = 'custom';
 
-            } else {
-                value = 'true';
-            }
-        } else{
+            $('#accessibility_start_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["start"]) ? '' : accessibility["start"]);
+            $('#accessibility_soft_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["soft_end"]) ? '' : accessibility["soft_end"]);
+            $('#accessibility_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["end"]) ? '' : accessibility["end"]);
+
+        } else if (Object.values(accessibility).some(date => date == "1-01-01 00:00:00")) {
+            value = 'true';
+        } else {
             value = 'false';
         }
 
@@ -119,67 +121,68 @@
             $("#task_" + taskid + " .accessibility").hide();
             if($(this).val() == "true") {
                 $("#task_" + general_taskid + " .accessibility-always").show();
-                dispenser_config[general_taskid]["accessibility"]["is_open"] = true;
-                dispenser_config[general_taskid]["accessibility"]["period"]["start"] = "";
-                dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = "";
-                dispenser_config[general_taskid]["accessibility"]["period"]["end"] = "";
+                dispenser_config[general_taskid]["accessibility"]["start"] = "1-01-01 00:00:00";
+                dispenser_config[general_taskid]["accessibility"]["soft_end"] = "9999-12-31 23:59:59";
+                dispenser_config[general_taskid]["accessibility"]["end"] = "9999-12-31 23:59:59";
             } else if($(this).val() == "false") {
                 $("#task_" + general_taskid + " .accessibility-never").show();
-                dispenser_config[general_taskid]["accessibility"]["is_open"] = false;
-                dispenser_config[general_taskid]["accessibility"]["period"]["start"] = "";
-                dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = "";
-                dispenser_config[general_taskid]["accessibility"]["period"]["end"] = "";
+                dispenser_config[general_taskid]["accessibility"]["start"] = "9999-12-31 23:59:59";
+                dispenser_config[general_taskid]["accessibility"]["soft_end"] = "9999-12-31 23:59:59";
+                dispenser_config[general_taskid]["accessibility"]["end"] = "9999-12-31 23:59:59";
             } else {
                 $("#task_" + general_taskid + " .accessibility-custom").show();
-                dispenser_config[general_taskid]["accessibility"]["is_open"] = true;
                 var start = $("#edit_task_modal").find("#accessibility_start").val();
                 var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
                 var end = $("#edit_task_modal").find("#accessibility_end").val();
 
-
-                dispenser_config[general_taskid]["accessibility"]["period"]["start"] = start;
-                dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = soft_end;
-                dispenser_config[general_taskid]["accessibility"]["period"]["end"] = end;
+                dispenser_config[general_taskid]["accessibility"]["start"] = start == "" ? "1-01-01 00:00:00" : start;
+                dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end == "" ? "9999-12-31 23:59:59" : soft_end;
+                dispenser_config[general_taskid]["accessibility"]["end"] = end == "" ? "9999-12-31 23:59:59" : end;
             }
         } else {
             let id = $(this).attr("id");
 
             if (id == "accessibility_start") {
                 var start = $("#task_" + general_taskid + " .accessibility-custom-start").text($(this).val());
-                dispenser_config[general_taskid]["accessibility"]["period"]["start"] = start;
+                dispenser_config[general_taskid]["accessibility"]["start"] = start;
             } else if(id == "accessibility_end") {
                 var end = $("#task_" + general_taskid + " .accessibility-custom-end").text($(this).val());
-                dispenser_config[general_taskid]["accessibility"]["period"]["end"] = end;
+                dispenser_config[general_taskid]["accessibility"]["end"] = end;
             } else {
                 var soft_end = $("#task_" + general_taskid + " .accessibility-custom-soft-end").text($(this).val());
-                dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = soft_end;
+                dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end;
             }
-            dispenser_config[general_taskid]["accessibility"]["is_open"] = true;
         }
     });
 
     $('#accessibility_start_picker').on("change.datetimepicker", function () {
+        if( $("input[name='accessibility']:checked").val() != "custom")
+            return;
         var taskid = $("#edit_task_modal").data("taskid");
         let val = $("#edit_task_modal #accessibility_start").val();
         $("#task_" + taskid + " .accessibility-custom-start").text(val);
         var start = $("#edit_task_modal").find("#accessibility_start").val();
-        dispenser_config[general_taskid]["accessibility"]["period"]["start"] = start;
+        dispenser_config[general_taskid]["accessibility"]["start"] = start;
     });
 
     $('#accessibility_end_picker').on("change.datetimepicker", function () {
+        if( $("input[name='accessibility']:checked").val() != "custom")
+            return;
         var taskid = $("#edit_task_modal").data("taskid");
         let val = $("#edit_task_modal #accessibility_end").val();
         $("#task_" + general_taskid + " .accessibility-custom-end").text(val);
         var end = $("#edit_task_modal").find("#accessibility_end").val();
-        dispenser_config[general_taskid]["accessibility"]["period"]["end"] = end;
+        dispenser_config[general_taskid]["accessibility"]["end"] = end;
     });
 
     $('#accessibility_soft_end_picker').on("change.datetimepicker", function () {
+        if( $("input[name='accessibility']:checked").val() != "custom")
+            return;
         var taskid = $("#edit_task_modal").data("taskid");
         let val = $("#edit_task_modal #accessibility_soft_end").val();
         $("#task_" + general_taskid + " .accessibility-custom-soft-end").text(val);
         var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
-        dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = soft_end;
+        dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end;
     });
 
     // Catch grouped action changes
@@ -194,26 +197,23 @@
                 $("#task_" + taskid + " .accessibility").hide();
                 if(value == "true") {
                     $("#task_" + general_taskid + " .accessibility-always").show();
-                    dispenser_config[general_taskid]["accessibility"]["is_open"] = true;
-                    dispenser_config[general_taskid]["accessibility"]["period"]["start"] = "";
-                    dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = "";
-                    dispenser_config[general_taskid]["accessibility"]["period"]["end"] = "";
+                    dispenser_config[general_taskid]["accessibility"]["start"] = "1-01-01 00:00:00";
+                    dispenser_config[general_taskid]["accessibility"]["soft_end"] = "9999-12-31 23:59:59";
+                    dispenser_config[general_taskid]["accessibility"]["end"] = "9999-12-31 23:59:59";
                 } else if(value== "false") {
                     $("#task_" + general_taskid + " .accessibility-never").show();
-                    dispenser_config[general_taskid]["accessibility"]["is_open"] = false;
-                    dispenser_config[general_taskid]["accessibility"]["period"]["start"] = "";
-                    dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = "";
-                    dispenser_config[general_taskid]["accessibility"]["period"]["end"] = "";
+                    dispenser_config[general_taskid]["accessibility"]["start"] = "9999-12-31 23:59:59";
+                    dispenser_config[general_taskid]["accessibility"]["soft_end"] = "9999-12-31 23:59:59";
+                    dispenser_config[general_taskid]["accessibility"]["end"] = "9999-12-31 23:59:59";
                 } else {
                     $("#task_" + general_taskid + " .accessibility-custom").show();
-                    dispenser_config[general_taskid]["accessibility"]["is_open"] = true;
                     var start = $("#grouped-actions-edit #accessibility_start").val();
                     var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
                     var end = $("#grouped-actions-edit #accessibility_end").val();
 
-                    dispenser_config[general_taskid]["accessibility"]["period"]["start"] = start;
-                    dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = soft_end;
-                    dispenser_config[general_taskid]["accessibility"]["period"]["end"] = end;
+                    dispenser_config[general_taskid]["accessibility"]["start"] = start;
+                    dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end;
+                    dispenser_config[general_taskid]["accessibility"]["end"] = end;
                 }
             } else {
                 if (id == "accessibility_start")
@@ -223,14 +223,13 @@
                 else
                     $("#task_" + taskid + " .accessibility-custom-soft-end").text(value);
 
-                dispenser_config[general_taskid]["accessibility"]["is_open"] = true;
                 var start = $("#grouped-actions-edit #accessibility_start").val();
                 var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
                 var end = $("#grouped-actions-edit #accessibility_end").val();
 
-                dispenser_config[general_taskid]["accessibility"]["period"]["start"] = start;
-                dispenser_config[general_taskid]["accessibility"]["period"]["soft_end"] = soft_end;
-                dispenser_config[general_taskid]["accessibility"]["period"]["end"] = end;
+                dispenser_config[general_taskid]["accessibility"]["start"] = start == "" ? "1-01-01 00:00:00" : start;
+                dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end == "" ? "9999-12-31 23:59:59" : soft_end;
+                dispenser_config[general_taskid]["accessibility"]["end"] = end == "" ? "9999-12-31 23:59:59" : end;
             }
         });
     });
@@ -240,7 +239,7 @@
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
             var start = $("#grouped-actions-edit #accessibility_start").val();
-            dispenser_config[$(this).data("general_taskid")]["accessibility"]["period"]["start"] = start;
+            dispenser_config[$(this).data("general_taskid")]["accessibility"]["start"] = start;
         });
     });
     $('#accessibility_end_picker_grouped').on("change.datetimepicker", function () {
@@ -248,7 +247,7 @@
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("general_taskid") + " .accessibility-custom-end").text(val);
             var end = $("#grouped-actions-edit #accessibility_end").val();
-            dispenser_config[$(this).data("general_taskid")]["accessibility"]["period"]["end"] = end;
+            dispenser_config[$(this).data("general_taskid")]["accessibility"]["end"] = end;
         });
     });
     $('#accessibility_soft_end_picker_grouped').on("change.datetimepicker", function () {
@@ -256,7 +255,7 @@
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("general_taskid") + " .accessibility-custom-soft-end").text(val);
             var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
-            dispenser_config[$(this).data("general_taskid")]["accessibility"]["period"]["soft_end"] = soft_end;
+            dispenser_config[$(this).data("general_taskid")]["accessibility"]["soft_end"] = soft_end;
         });
     });
 

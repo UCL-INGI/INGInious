@@ -10,11 +10,14 @@ from datetime import datetime
 
 def parse_date(date, default=None):
     """ Parse a valid date """
-    if date == "":
+    if date == "" or not isinstance(date, str):
         if default is not None:
             return default
         else:
             raise Exception("Unknown format for " + date)
+
+    if date == "1-01-01 00:00:00":
+        return datetime.min
 
     for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H",
                         "%d/%m/%Y"]:
@@ -28,7 +31,7 @@ def parse_date(date, default=None):
 class AccessibleTime(object):
     """ represents the period of time when a course/task is accessible """
 
-    def __init__(self, is_open=None, period=None):
+    def __init__(self, period=None):
         """
             Used to represent the period of time when a course/task is accessible.
             :param val : bool, optionnal, if False, it is never accessible, if True, it is always accessible or limited
@@ -36,22 +39,35 @@ class AccessibleTime(object):
             :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
         """
 
-        if not isinstance(is_open, bool) or not isinstance(period, dict):
-            raise Exception("AccessibleTime must be initialized with a boolean and a period dict")
-
-        # transforming strings into datetimes in case AccessibleTime is used in html files (where datetime objects are not supported)
+        # transforming strings into datetimes in case AccessibleTime is used in html files, where datetime objects are not supported
         for key, date in period.items():
             if isinstance(date, str) and date != "":
                 period[key] = parse_date(date)
             elif isinstance(date, str) and date == "":
                 period[key] = None
 
-        self._start = period["start"] if period["start"] is not None else datetime.min
-        self._end = period["end"] if period["end"] is not None else datetime.max
+        self._start = self.adapt_database_date(period["start"])
+        self._end = self.adapt_database_date(period["end"])
         if "soft_end" in period:
-            self._soft_end = period["soft_end"] if period["soft_end"] is not None else datetime.max
+            self._soft_end = self.adapt_database_date(period["soft_end"])
             if self._soft_end > self._end:
                 self._soft_end = self._end
+
+
+    def adapt_database_date(self, date):
+        """
+            Check if the date is the max or min DB value and transforms it into a datetime object.
+            MongoDB stores ISODate() objects in the database. When we store datetime.min or datetime.max in the database,
+            we will not get the same value back. It is because ISODate() objects store the date with a precision of
+            milliseconds, not nanoseconds like datetime objects.
+            :param date: datetime object coming from the database
+        """
+        if date == datetime(1, 1, 1, 0, 0, 0, 000000):
+            return datetime.min
+        elif date == datetime(9999, 12, 31, 23, 59, 59, 999000):
+            return datetime.max
+        else:
+            return date
 
 
     def before_start(self, when=None):
