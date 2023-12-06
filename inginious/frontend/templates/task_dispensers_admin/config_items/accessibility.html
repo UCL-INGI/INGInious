@@ -144,13 +144,13 @@
 
             if (id == "accessibility_start") {
                 var start = $("#task_" + general_taskid + " .accessibility-custom-start").text($(this).val());
-                dispenser_config[general_taskid]["accessibility"]["start"] = start;
+                dispenser_config[general_taskid]["accessibility"]["start"] = start == "" ? "1-01-01 00:00:00" : start;
             } else if(id == "accessibility_end") {
                 var end = $("#task_" + general_taskid + " .accessibility-custom-end").text($(this).val());
-                dispenser_config[general_taskid]["accessibility"]["end"] = end;
+                dispenser_config[general_taskid]["accessibility"]["end"] = end == "" ? "9999-12-31 23:59:59" : end;
             } else {
                 var soft_end = $("#task_" + general_taskid + " .accessibility-custom-soft-end").text($(this).val());
-                dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end;
+                dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end == "" ? "9999-12-31 23:59:59" : soft_end;
             }
         }
     });
@@ -162,7 +162,7 @@
         let val = $("#edit_task_modal #accessibility_start").val();
         $("#task_" + taskid + " .accessibility-custom-start").text(val);
         var start = $("#edit_task_modal").find("#accessibility_start").val();
-        dispenser_config[general_taskid]["accessibility"]["start"] = start;
+        dispenser_config[general_taskid]["accessibility"]["start"] = start == "" ? "1-01-01 00:00:00" : start;
     });
 
     $('#accessibility_end_picker').on("change.datetimepicker", function () {
@@ -172,7 +172,7 @@
         let val = $("#edit_task_modal #accessibility_end").val();
         $("#task_" + general_taskid + " .accessibility-custom-end").text(val);
         var end = $("#edit_task_modal").find("#accessibility_end").val();
-        dispenser_config[general_taskid]["accessibility"]["end"] = end;
+        dispenser_config[general_taskid]["accessibility"]["end"] = end == "" ? "9999-12-31 23:59:59" : end;
     });
 
     $('#accessibility_soft_end_picker').on("change.datetimepicker", function () {
@@ -182,7 +182,7 @@
         let val = $("#edit_task_modal #accessibility_soft_end").val();
         $("#task_" + general_taskid + " .accessibility-custom-soft-end").text(val);
         var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
-        dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end;
+        dispenser_config[general_taskid]["accessibility"]["soft_end"] = soft_end == "" ? "9999-12-31 23:59:59" : soft_end;
     });
 
     // Catch grouped action changes
@@ -239,7 +239,7 @@
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
             var start = $("#grouped-actions-edit #accessibility_start").val();
-            dispenser_config[$(this).data("general_taskid")]["accessibility"]["start"] = start;
+            dispenser_config[$(this).data("general_taskid")]["accessibility"]["start"] = start == "" ? "1-01-01 00:00:00" : start;
         });
     });
     $('#accessibility_end_picker_grouped').on("change.datetimepicker", function () {
@@ -247,7 +247,7 @@
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("general_taskid") + " .accessibility-custom-end").text(val);
             var end = $("#grouped-actions-edit #accessibility_end").val();
-            dispenser_config[$(this).data("general_taskid")]["accessibility"]["end"] = end;
+            dispenser_config[$(this).data("general_taskid")]["accessibility"]["end"] = end == "" ? "9999-12-31 23:59:59" : end;
         });
     });
     $('#accessibility_soft_end_picker_grouped').on("change.datetimepicker", function () {
@@ -255,7 +255,7 @@
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("general_taskid") + " .accessibility-custom-soft-end").text(val);
             var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
-            dispenser_config[$(this).data("general_taskid")]["accessibility"]["soft_end"] = soft_end;
+            dispenser_config[$(this).data("general_taskid")]["accessibility"]["soft_end"] = soft_end == "" ? "9999-12-31 23:59:59" : soft_end;
         });
     });
 
