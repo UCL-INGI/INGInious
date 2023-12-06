@@ -1,0 +1,100 @@
+services:
+
+  base:
+    image: ${REGISTRY}/inginious/core-base:${VERSION}
+    build:
+      dockerfile: deploy/inginious-base.containerfile
+      args:
+        - VERSION=${VERSION}
+        - REGISTRY=${REGISTRY}
+    command: /bin/true
+
+  db:
+    image: mongo:6.0.2
+    networks:
+      - inginious
+
+  backend:
+    image: ${REGISTRY}/inginious/core-backend:${VERSION}
+    depends_on:
+      - base
+    build:
+      dockerfile: deploy/backend.containerfile
+      args:
+        - VERSION=${VERSION}
+        - REGISTRY=${REGISTRY}
+    environment:
+      AGENT: "tcp://0.0.0.0:2001"
+      CLIENT: "tcp://0.0.0.0:2000"
+    networks:
+      - inginious
+
+  agent-docker:
+    image: ${REGISTRY}/inginious/core-agent_docker:${VERSION}
+    depends_on:
+      - backend
+    deploy:
+      replicas: 1
+    build:
+      dockerfile: deploy/agent-docker.containerfile
+      args:
+        - VERSION=${VERSION}
+        - REGISTRY=${REGISTRY}
+    environment:
+      BACKEND: "tcp://backend:2001"
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     # See https://github.com/UCL-INGI/INGInious/issues/352
+     - ./tasks/:/inginious/tasks
+     - ./backups/:/inginious/backups
+     # See https://github.com/UCL-INGI/INGInious/issues/799
+     - /tmp/agent_data/:/tmp/agent_data/
+    networks:
+      - inginious
+
+  agent-mcq:
+    image: ${REGISTRY}/inginious/core-agent_mcq:${VERSION}
+    depends_on:
+      - backend
+    deploy:
+      replicas: 1
+    build:
+      dockerfile: deploy/agent-mcq.containerfile
+      args:
+        - VERSION=${VERSION}
+        - REGISTRY=${REGISTRY}
+    environment:
+      BACKEND: "tcp://backend:2001"
+    volumes:
+     # See https://github.com/UCL-INGI/INGInious/issues/352
+     - ./tasks/:/inginious/tasks
+     - ./backups/:/inginious/backups
+     # See https://github.com/UCL-INGI/INGInious/issues/799
+     - /tmp/agent_data/:/tmp/agent_data/
+    networks:
+      - inginious
+
+  frontend:
+    image: ${REGISTRY}/inginious/core-frontend:${VERSION}
+    build:
+      dockerfile: deploy/frontend.containerfile
+      args:
+        - VERSION=${VERSION}
+        - REGISTRY=${REGISTRY}
+    depends_on:
+      - backend
+      - agent-docker
+      - agent-mcq
+    environment:
+      - INGINIOUS_WEBAPP_HOST=0.0.0.0
+    volumes:
+      - ./configuration.deploy.yaml:/inginious/configuration.yaml
+      - ./tasks/:/inginious/tasks
+      - ./backups/:/inginious/backups
+    ports:
+      - 9000:8080
+    networks:
+      - inginious
+
+networks:
+  inginious:
