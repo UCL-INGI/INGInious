@@ -38,7 +38,7 @@ test_requires = [
 
 doc_requires = [
     "ipython==8.12.3",
-    "sphinx==7.2.1",
+    "sphinx==7.1.2",
     "sphinx-autodoc-typehints==1.25.2",
     "sphinx-rtd-theme==2.0.0",
     "sphinx-tabs==3.4.4"
