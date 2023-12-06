@@ -9,30 +9,26 @@ import os
 from setuptools import setup, find_packages
 
 install_requires = [
-    "docker == 6.1.3",
-    "requests == 2.28.2",  # TODO: remove when https://github.com/docker/docker-py/issues/3113 is closed.
-    "docutils == 0.20.1",
-    "pymongo == 4.5.0",
-    "PyYAML == 6.0.1",
-    "Jinja2 == 3.1.2",
-    "lti == 0.9.5",
-    "oauth2 == 1.9.0.post1",
-    "httplib2 == 0.22.0",
-    "watchdog == 3.0.0",
-    "msgpack == 1.0.5",
-    "pyzmq == 25.1.1",
-    "natsort == 8.4.0",
-    "psutil == 5.9.5",
-    "zipstream == 1.1.4",
-    "WsgiDAV == 4.2.0",
-    "Werkzeug == 2.3.7",
-    "itsdangerous== 1.1.0",
-    "Flask == 2.3.3",
-    "Flask-Mail == 0.9.1",
-    "importlib_metadata == 6.8.0",
-    'dataclasses >= 0.8; python_version < "3.7.0"',
-    "pytidylib == 0.3.2",
-    "sphinx-autodoc-typehints == 1.24.0",
+    "docker==6.1.3",
+    "docutils==0.20.1",
+    "Flask==3.0.0",
+    "Flask-Mail==0.9.1",
+    "itsdangerous==2.1.2",
+    "Jinja2==3.1.2",
+    "lti==0.9.5",
+    "msgpack==1.0.7",
+    "natsort==8.4.0",
+    "psutil==5.9.6",
+    "pymongo==4.6.1",
+    "pytidylib==0.3.2",
+    "PyYAML==6.0.1",
+    "pyzmq==25.1.2",
+    "requests-oauthlib==1.3.1",
+    "sh==2.0.6",
+    "watchdog==3.0.0",
+    "Werkzeug==3.0.1",
+    "WsgiDAV==4.3.0",
+    "zipstream==1.1.4"
 ]
 
 test_requires = [
@@ -42,15 +38,11 @@ test_requires = [
 
 doc_requires = [
     "sphinx==4.5.0",
-    "sphinx_rtd_theme==1.0.0",
+    "sphinx-autodoc-typehints==1.25.2",
+    "sphinx-rtd-theme==1.0.0",
     "sphinx-tabs==3.3.1",
     "ipython==8.2.0"
 ]
-
-if sys.platform == 'win32':
-    install_requires += ["pbs>=0.110"]
-else:
-    install_requires += ["sh>=1.11"]
 
 scripts = [] if os.environ.get("INGINIOUS_COMPOSE") else [
     'inginious-agent-docker',
