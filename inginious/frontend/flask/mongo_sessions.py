@@ -136,7 +136,7 @@ class MongoDBSessionInterface(SessionInterface):
                               {"$set": {'data': val, 'expiration': expires, 'cookieless': cookieless}},
                               upsert=True)
         if self.use_signer:
-            session_id = self._get_signer(app).sign(want_bytes(session.sid))
+            session_id = self._get_signer(app).sign(session.sid).decode()
         else:
             session_id = session.sid
         if not cookieless:
