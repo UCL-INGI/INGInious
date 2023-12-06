@@ -27,6 +27,50 @@ INGInious can be used as an external grader for EDX. The course `Paradigms of Co
 .. _Docker: https://www.docker.com/
 .. _Paradigms of Computer Programming - Fundamentals: https://www.edx.org/course/louvainx/louvainx-louv1-1x-paradigms-computer-2751
 
+How to install?
+---------------
+
+Simply run:
+
+.. code-block::
+
+   $ docker compose up --build
+
+> Note that you can override the registry and containers version by setting the `REGISTRY` and
+> `VERSION` environment variables.
+
+And access http://localhost:9000 in your browser.
+
+*The default login and password are* ``superadmin``.
+
+The ``--build`` argument is optional, use it if you want to rebuild locally the core containers.
+If you want to simply pull them from the project's registry, this argument is not required.
+
+Docker-compose will create a ``tasks`` folder if it does not exist already.
+
+You can then add new courses to your fresh INGInious instance by installing them in the ``tasks`` folder.
+
+For example, the INGInious tutorial course is installed with the following commands:
+
+.. code-block::
+
+   $ git clone https://github.com/UCL-INGI/INGInious-demo-tasks.git
+   $ mv INGInious-demo-tasks/tutorial tasks/
+
+*If you encounter permission errors, you should run the following command:*
+
+.. code-block::
+
+   $ sudo chown -R <your_user>:<your_user_group> tasks
+
+*This can happen when the tasks directory is created by docker-compose.*
+
+Note that the `configuration.deploy.yaml` file provided is a sample configuration, the secret key **must** be changed by administrators in production deployments.
+
+.. _Manual installation: https://docs.inginious.org/en/latest/admin_doc/install_doc/installation.html
+
+`Manual installation`_ is also possible with pip.
+
 Documentation
 -------------
 
