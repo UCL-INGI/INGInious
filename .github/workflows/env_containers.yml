@@ -8,9 +8,9 @@ on:
 
 jobs:
   containers_build_and_push:
-    uses: INGInious/.github/.github/workflows/containers.yml@6506916a602fc6bf47d6e8f34586732d3c8e1502
+    uses: INGInious/.github/.github/workflows/containers.yml@135401b716d3496d81aace75b2a06cd5f21b507c
     with:
-      working-directory: base-containers 
+      working-directory: base-containers
       context-path: context.yml
       compose-path: compose.yml
       registry: ghcr.io
