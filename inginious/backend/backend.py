@@ -399,9 +399,9 @@ class Backend(object):
     def _get_time_limit_estimate(self, job_info: ClientNewJob):
         """
             Returns an estimate of the time taken by a given job, if available in the environment_parameters.
-            For this to work, ["limits"]["time"] must be a parameter of the environment.
+            For this to work, ["limits"]["hard_time"] must be a parameter of the environment.
         """
         try:
-            return int(job_info.environment_parameters["limits"]["time"])
+            return int(job_info.environment_parameters["limits"]["hard_time"])
         except:
             return -1 # unknown
