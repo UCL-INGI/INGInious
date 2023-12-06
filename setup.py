@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 install_requires = [
     "docker==6.1.3",
-    "docutils==0.20.1",
+    "docutils==0.18.1",
     "Flask==3.0.0",
     "Flask-Mail==0.9.1",
     "itsdangerous==2.1.2",
@@ -37,11 +37,11 @@ test_requires = [
 ]
 
 doc_requires = [
-    "sphinx==4.5.0",
+    "ipython==8.12.3",
+    "sphinx==7.2.1",
     "sphinx-autodoc-typehints==1.25.2",
-    "sphinx-rtd-theme==1.0.0",
-    "sphinx-tabs==3.3.1",
-    "ipython==8.2.0"
+    "sphinx-rtd-theme==2.0.0",
+    "sphinx-tabs==3.4.4"
 ]
 
 scripts = [] if os.environ.get("INGINIOUS_COMPOSE") else [
