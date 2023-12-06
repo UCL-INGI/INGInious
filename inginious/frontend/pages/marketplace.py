@@ -8,6 +8,7 @@ import sys
 import flask
 from flask import redirect
 from werkzeug.exceptions import Forbidden
+from datetime import datetime
 
 from inginious.common.base import id_checker
 from inginious.frontend.exceptions import ImportTasksetException
@@ -82,7 +83,7 @@ def import_taskset(taskset, new_tasksetid, username, taskset_factory):
     try:
         new_descriptor = {"description": old_descriptor.get("description", ""),
                           'admins': [username],
-                          "accessible": {"is_open": False, "period": {"start": None, "end": None}},
+                          "accessible":  {"start": datetime.max, "end": datetime.max},
                           "tags": old_descriptor.get("tags", {})}
         if "name" in old_descriptor:
             new_descriptor["name"] = old_descriptor["name"] + " - " + new_tasksetid

@@ -372,7 +372,12 @@ def dict_data_str_to_datetimes(data):
         for key, value in data.items():
             if isinstance(value, str):
                 try:
-                    data[key] = datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if (value != "") else None
+                    if value == "1-01-01 00:00:00":
+                        data[key] = datetime.min
+                    elif value == "9999-12-31 23:59:59":
+                        data[key] = datetime.max
+                    else:
+                        data[key] = datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if (value != "") else None
                 except ValueError:
                     pass  # If it's not a valid date string, continue without converting
             else:

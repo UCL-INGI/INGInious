@@ -181,8 +181,7 @@ class SubmissionLimit(TaskConfigItem):
 
 
 class Accessibility(TaskConfigItem):
-    default = dict({"is_open": False,
-               "period": {"start": None, "soft_end": None, "end": None}})
+    default = dict({"start": datetime.min, "soft_end": datetime.max, "end": datetime.max})
 
     @classmethod
     def get_template(cls):
@@ -201,7 +200,7 @@ class Accessibility(TaskConfigItem):
         accessibility = task_config.get(cls.get_id(), cls.default)
         if isinstance(accessibility, dict):
             try:
-                AccessibleTime(*accessibility.values())
+                AccessibleTime(accessibility)
             except Exception as message:
                 raise InvalidTocException("Invalid task accessibility : {}".format(message))
         return accessibility
