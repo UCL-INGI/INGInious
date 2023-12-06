@@ -1,4 +1,4 @@
-name: Build and push core containers
+name: "CD: Env containers"
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       context-path: context.yml
       compose-path: compose.yml
       registry: ghcr.io
-      container_type: core
+      container_type: env
     secrets:
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}

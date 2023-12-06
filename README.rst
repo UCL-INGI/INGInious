@@ -9,7 +9,7 @@ INGInious
    :target: https://www.codacy.com/gh/UCL-INGI/INGInious/dashboard?utm_source=github.com&utm_medium=referral&utm_content=UCL-INGI/INGInious&utm_campaign=Badge_Coverage
 .. image:: https://github.com/UCL-INGI/INGInious/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/UCL-INGI/INGInious/actions
-.. image:: https://github.com/UCL-INGI/INGInious/actions/workflows/core_containers.yml/badge.svg
+.. image:: https://github.com/UCL-INGI/INGInious/actions/workflows/env_containers.yml/badge.svg
     :target: https://github.com/UCL-INGI/INGInious/actions
 .. image:: https://readthedocs.org/projects/inginious/badge/?version=latest
     :target: https://readthedocs.org/projects/inginious/?badge=latest
