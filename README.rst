@@ -34,8 +34,10 @@ Simply run:
 
 .. code-block::
 
-   $ REGISTRY=ghcr.io VERSION=latest docker-compose up --build
+   $ docker compose up --build
 
+> Note that you can override the registry and containers version by setting the `REGISTRY` and
+> `VERSION` environment variables.
 
 And access http://localhost:9000 in your browser.
 
