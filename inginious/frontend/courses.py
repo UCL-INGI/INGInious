@@ -9,6 +9,7 @@ import copy
 import gettext
 import re
 from typing import List
+from datetime import datetime
 
 from inginious.frontend.user_settings.course_user_setting import CourseUserSetting
 from inginious.common.tags import Tag
@@ -41,10 +42,8 @@ class Course(object):
 
         self._admins = self._content.get('admins', [])
         self._description = self._content.get('description', '')
-        self._accessible = AccessibleTime(self._content['accessible']['is_open'],
-                                          self._content['accessible']['period'])
-        self._registration = AccessibleTime(self._content['registration']['is_open'],
-                                            self._content['registration']['period'])
+        self._accessible = AccessibleTime(self._content['accessible'])
+        self._registration = AccessibleTime(self._content['registration'])
         self._registration_password = self._content.get('registration_password')
         self._registration_ac = self._content.get('registration_ac')
         if self._registration_ac not in [None, "username", "binding", "email"]:
@@ -76,8 +75,8 @@ class Course(object):
 
         # Force some parameters if LTI is active
         if self.is_lti():
-            self._accessible = AccessibleTime(True,{"start": None, "end": None})
-            self._registration = AccessibleTime(False,{"start": None, "end": None})
+            self._accessible = AccessibleTime({"start": datetime.min, "end": datetime.max})
+            self._registration = AccessibleTime({"start": datetime.max, "end": datetime.max})
             self._registration_password = None
             self._registration_ac = None
             self._registration_ac_list = []
