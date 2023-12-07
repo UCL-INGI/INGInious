@@ -20,4 +20,4 @@ class L10nManager:
     def gettext(self, text):
         if text == "":
             return text
-        return self.get_translation_obj().gettext(text)
+        return self.get_translation_obj().gettext(text) if text else ""

@@ -116,7 +116,7 @@ class Course(object):
     def gettext(self, language, text):
         if text == "":
             return text
-        return self.get_translation_obj(language).gettext(text)
+        return self.get_translation_obj(language).gettext(text) if text else ""
 
     def get_id(self):
         """ Return the _id of this course """

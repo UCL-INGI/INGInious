@@ -136,7 +136,7 @@ class Problem(object, metaclass=ABCMeta):
     def gettext(self, language, text):
         if text == "":
             return text
-        return self.get_translation_obj(language).gettext(text)
+        return self.get_translation_obj(language).gettext(text)if text else ""
 
 
 class CodeProblem(Problem):
