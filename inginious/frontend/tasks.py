@@ -116,8 +116,6 @@ class Task(object):
         return self._translations.get(language, gettext.NullTranslations())
 
     def gettext(self, language, text):
-        if text == "":
-            return text
         return self.get_translation_obj(language).gettext(text) if text else ""
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):

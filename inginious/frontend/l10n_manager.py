@@ -18,6 +18,4 @@ class L10nManager:
         return self.translations.get(lang, gettext.NullTranslations())
 
     def gettext(self, text):
-        if text == "":
-            return text
         return self.get_translation_obj().gettext(text) if text else ""

@@ -114,8 +114,6 @@ class Course(object):
         return self._translations.get(language, gettext.NullTranslations())
 
     def gettext(self, language, text):
-        if text == "":
-            return text
         return self.get_translation_obj(language).gettext(text) if text else ""
 
     def get_id(self):
