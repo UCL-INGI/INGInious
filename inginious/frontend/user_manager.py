@@ -306,18 +306,37 @@ class UserManager:
         if user is None:
             return None
 
-        if user["password"][:9] == "argon2id-":
-            try:
-                ph = PasswordHasher()
-                if ph.verify(user["password"][9:], password):
-                    return connect_user(username, user, do_connect)
-            except VerifyMismatchError:
-                return None
+        method, db_hash = user["password"].split("-") if "-" in user["password"] else ("sha512", user["password"])
+
+        if self.verify_hash(db_hash, password, method):
+            return connect_user(username, user, do_connect)
+
+    def verify_hash(cls, db_hash, password, method="sha512"):
+        """
+        Verify a hash
+        :param db_hash: The hash to verify
+        :param password: The password to verify
+        :param method: The hash method
+        :return: A boolean if the hash is correct
+        """
+        available_methods = {"sha512": cls.verify_hash_sha512, "argon2id": cls.verify_hash_argon2id}
+
+        if method in available_methods:
+            return available_methods[method](db_hash, password)
         else:
-            if self.hash_password_sha512(password) == user["password"]:
-                return connect_user(username, user, do_connect)
-            else:
-                return None
+            raise AuthInvalidMethodException()
+
+
+    def verify_hash_sha512(cls, db_hash, password):
+        return cls.hash_password_sha512(password) == db_hash
+
+
+    def verify_hash_argon2id(cls, db_hash, password):
+        try:
+            ph = PasswordHasher()
+            return ph.verify(db_hash, password)
+        except VerifyMismatchError:
+            return False
 
 
     def is_user_activated(self, username):
