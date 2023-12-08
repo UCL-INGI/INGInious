@@ -115,8 +115,8 @@ class Task(object):
     def get_translation_obj(self, language):
         return self._translations.get(language, gettext.NullTranslations())
 
-    def gettext(self, language, *args, **kwargs):
-        return self.get_translation_obj(language).gettext(*args, **kwargs)
+    def gettext(self, language, text):
+        return self.get_translation_obj(language).gettext(text) if text else ""
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
