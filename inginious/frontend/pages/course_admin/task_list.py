@@ -63,7 +63,6 @@ class CourseTaskListPage(INGIniousAdminPage):
         task_dispenser = course.get_task_dispenser()
         data, msg = task_dispenser.check_dispenser_data(dispenser_data)
         if data:
-            dict_data_str_to_datetimes(data)
             self.course_factory.update_course_descriptor_element(course.get_id(), 'task_dispenser',
                                                                  task_dispenser.get_id())
             self.course_factory.update_course_descriptor_element(course.get_id(), 'dispenser_data', data)
