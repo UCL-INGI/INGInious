@@ -18,6 +18,8 @@ def parse_date(date, default=None):
 
     if date == "1-01-01 00:00:00":
         return datetime.min
+    if date == "9999-12-31 23:59:59":
+        return datetime.max
 
     for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H",
                         "%d/%m/%Y"]:
@@ -44,7 +46,7 @@ class AccessibleTime(object):
             if isinstance(date, str) and date != "":
                 period[key] = parse_date(date)
             elif isinstance(date, str) and date == "":
-                period[key] = None
+                period[key] = None   # don't want to transform in None ... Or maybe yes ? It could raise an error if the period given has a problem
 
         self._start = self.adapt_database_date(period["start"])
         self._end = self.adapt_database_date(period["end"])

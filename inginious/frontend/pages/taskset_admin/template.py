@@ -64,7 +64,6 @@ class TasksetTemplatePage(INGIniousAdminPage):
         task_dispenser = taskset.get_task_dispenser()
         data, msg = task_dispenser.check_dispenser_data(dispenser_data)
         if data:
-            dict_data_str_to_datetimes(data)
             self.taskset_factory.update_taskset_descriptor_element(taskset.get_id(), 'task_dispenser',
                                                                  task_dispenser.get_id())
             self.taskset_factory.update_taskset_descriptor_element(taskset.get_id(), 'dispenser_data', data)
