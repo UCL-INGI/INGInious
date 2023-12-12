@@ -8,10 +8,8 @@ import logging
 import flask
 from collections import OrderedDict
 from natsort import natsorted
-from datetime import datetime
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
-from inginious.frontend.pages.utils import dict_data_str_to_datetimes
 
 class CourseTaskListPage(INGIniousAdminPage):
     """ List informations about all tasks """

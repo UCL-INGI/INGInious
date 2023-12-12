@@ -6,11 +6,78 @@
 """ Factory for loading courses from disk """
 
 from pymongo import ReturnDocument
+from datetime import datetime
 
 from inginious.frontend.log import get_course_logger
 
 from inginious.frontend.exceptions import CourseNotFoundException, CourseAlreadyExistsException, TasksetNotFoundException
 from inginious.frontend.courses import Course
+
+
+# remove from pages/utils.py because only used here for the moment
+def dict_data_str_to_datetimes(data):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, str):
+                try:
+                    if value == "1-01-01 00:00:00":
+                        data[key] = datetime.min
+                    elif value == "9999-12-31 23:59:59":
+                        data[key] = datetime.max
+                    else:
+                        data[key] = datetime.strptime(value, '%Y-%m-%d %H:%M:%S') if (value != "") else None
+                except ValueError:
+                    pass  # If it's not a valid date string, continue without converting
+            else:
+                dict_data_str_to_datetimes(value)
+    elif isinstance(data, list):
+        for index, item in enumerate(data):
+            dict_data_str_to_datetimes(item)
+    return data
+
+
+def change_access_structure(access_data, needs_soft_end=False):
+    """
+    Transforms old access structure (course access and registration, task access) into new structure.
+    ex: "accessible" can be a boolean or a concatenation of start and end dates ("start/end").
+        It will be transformed to have this structure:
+            "accessible": {"start": ..., "end": ...}
+            "registration": {"start": ..., "end": ...}
+            "accessibility": {"start": ...,"soft_end": ..., "end": ...}
+        When one of the dates is not given in a custom access or always/never accessible, it will be set to a max or min date.
+        examples:
+            "registration": {"start": "2023-11-24 16:44:56", "end": "2023-11-24 16:44:56"}
+            "accessible": {"start": "2023-11-24 16:44:56", "end": "2023-11-24 16:44:56"}
+    :param access_data: dict, old access structure
+    :param needs_soft_end: bool, True if the new structure needs a soft_end date in the structure
+    :return: dict, new access structure
+    """
+
+    new_access_data = {"start": None, "end": None}
+    # PK pas des objets datetime ? Les datetime seraint manipulés à l'écriture en YAML (et en DB si cette fonction est appelée à l'écriture en DB)
+
+
+    if isinstance(access_data, bool):
+        new_access_data["end"] = "9999-12-31 23:59:59"
+        if needs_soft_end:
+            new_access_data["soft_end"] = "9999-12-31 23:59:59"
+        if access_data:
+            new_access_data["start"] = "0001-01-01 00:00:00"
+        else:
+            new_access_data["start"] = "9999-12-31 23:59:59"
+
+
+    elif isinstance(access_data, str) and access_data != "":
+        dates = access_data.split("/")
+        if needs_soft_end:
+            new_access_data["start"] = dates[0]
+            new_access_data["soft_end"] = dates[1]
+            new_access_data["end"] = dates[2]
+        else:
+            new_access_data["start"] = dates[0]
+            new_access_data["end"] = dates[1]
+
+    return new_access_data
 
 
 class CourseFactory(object):
@@ -98,6 +165,11 @@ class CourseFactory(object):
             if taskset.is_legacy() and not self._database.courses.find_one({"_id": tasksetid}):
                 courseids.append(tasksetid)
 
+        # look here for bad accessibilitY structure ??? -> _migrate_legacy_courses detect the courses whithout taskset (taskset id in DB and correct taskset yaml file)
+        # I can maybe also checko here if the taskset file has the right structure (task accessibilities).
+
+        # where to check for DB structure ?
+
         for courseid in courseids:
             get_course_logger(courseid).warning("Trying to migrate legacy course {}.".format(courseid))
 
@@ -113,7 +185,18 @@ class CourseFactory(object):
                     cleaned_taskset_descriptor["dispenser_data"] = taskset_descriptor.get("dispenser_data", {})
                 taskset_descriptor["tasksetid"] = courseid
                 taskset_descriptor["admins"] = taskset_descriptor.get("admins", []) + taskset_descriptor.get("tutors", [])
+                if "accessible" in taskset_descriptor:
+                    taskset_descriptor["accessible"] = change_access_structure(taskset_descriptor["accessible"])
+                if "registration" in taskset_descriptor:
+                    taskset_descriptor["registration"] = change_access_structure(taskset_descriptor["registration"])
+
+                # here transform task accessibilities ? -> no, it will be done during the migration of the taskset (import_legacy_tasks)
+                # task accessibilities are not in the course descriptor, but in the tasks descriptors (task.yaml)
+
+                taskset_descriptor = dict_data_str_to_datetimes(taskset_descriptor)
+                #cleaned_taskset_descriptor = dict_data_str_to_datetimes(cleaned_taskset_descriptor)
                 self._database.courses.update_one({"_id": courseid}, {"$set": taskset_descriptor}, upsert=True)
+                # why not set cleaned_taskset_descriptor ? -> parce qu'on transmet le taskset_descriptor pour l'enregistrer en DB
                 self._taskset_factory.update_taskset_descriptor_content(courseid, cleaned_taskset_descriptor)
             except TasksetNotFoundException as e:
                 get_course_logger(courseid).warning("No migration from taskset possible for courseid {}.".format(courseid))
