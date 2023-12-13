@@ -57,7 +57,8 @@ class Contest(TableOfContents):
     def get_accessibilities(self, taskids, usernames): # pylint: disable=unused-argument
         contest_data = self.get_contest_data()
         if contest_data['enabled']:
-            return {username: {taskid: AccessibleTime(contest_data['start'] + '/') for taskid in taskids} for username in usernames}
+            accessibility = {"start": contest_data['start'], "end": contest_data['end']}
+            return {username: {taskid: AccessibleTime(accessibility) for taskid in taskids} for username in usernames}
         else:
             return TableOfContents.get_accessibilities(self, taskids, usernames)
 
@@ -221,17 +222,17 @@ class ContestAdmin(INGIniousAdminPage):
             contest_data['end'] = new_data["end"]
 
             try:
-                start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
+                contest_data['start'] = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
             except:
                 errors.append('Invalid start date')
 
             try:
-                end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
+                contest_data['end'] = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
             except:
                 errors.append('Invalid end date')
 
             if len(errors) == 0:
-                if start >= end:
+                if contest_data['start'] >= contest_data['end']:
                     errors.append('Start date should be before end date')
 
             try:
