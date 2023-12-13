@@ -34,9 +34,9 @@ class Contest(TableOfContents):
         TableOfContents.__init__(self, task_list_func, dispenser_data.get("toc_data", {}), database, course_id)
         self._contest_settings = dispenser_data.get(
             'contest_settings',
-            {"enabled": False,
-             "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-             "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
+            {"enabled": False, # enabled false ?
+             "start": datetime.now(),
+             "end": datetime.now() + timedelta(hours=1),
              "blackout": 0,
              "penalty": 20}
         )
@@ -191,9 +191,9 @@ class ContestAdmin(INGIniousAdminPage):
 
     def save_contest_data(self, course, contest_data):
         """ Saves updated contest data for the course """
-        course_content = self.taskset_factory.get_taskset_descriptor_content(course.get_id())
+        course_content = self.course_factory.get_course_descriptor_content(course.get_id())
         course_content["dispenser_data"]["contest_settings"] = contest_data
-        self.taskset_factory.update_taskset_descriptor_content(course.get_id(), course_content)
+        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
