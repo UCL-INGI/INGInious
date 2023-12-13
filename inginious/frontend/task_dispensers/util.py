@@ -385,15 +385,3 @@ def check_task_config(task_list, config_items, data):
     except Exception as ex:
         return False, str(ex)
 
-
-def dict_data_datetimes_to_str(data):
-    if isinstance(data, dict):
-        for key, value in data.items():
-            if isinstance(value, datetime):
-                data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
-            else:
-                dict_data_datetimes_to_str(value)
-    elif isinstance(data, list):
-        for index, item in enumerate(data):
-            dict_data_datetimes_to_str(item)
-    return data
