@@ -10,8 +10,9 @@ from datetime import datetime
 import inginious
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.util import SectionConfigItem, Weight, SubmissionStorage, EvaluationMode, \
-    Categories, SubmissionLimit, Accessibility, dict_data_datetimes_to_str
+    Categories, SubmissionLimit, Accessibility
 from inginious.frontend.accessible_time import AccessibleTime
+from inginious.frontend.util import dict_data_datetimes_to_str
 
 
 class CombinatoryTest(TableOfContents):
