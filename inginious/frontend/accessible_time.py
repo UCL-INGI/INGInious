@@ -33,7 +33,7 @@ def parse_date(date, default=None):
 class AccessibleTime(object):
     """ represents the period of time when a course/task is accessible """
 
-    def __init__(self, period=None):
+    def __init__(self, period):
         """
             Used to represent the period of time when a course/task is accessible.
             :param val : bool, optionnal, if False, it is never accessible, if True, it is always accessible or limited
@@ -41,12 +41,17 @@ class AccessibleTime(object):
             :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
         """
 
+        if not isinstance(period, dict):
+            raise Exception("Wrong period given to AccessibleTime")
+
         # transforming strings into datetimes in case AccessibleTime is used in html files, where datetime objects are not supported
         for key, date in period.items():
             if isinstance(date, str) and date != "":
                 period[key] = parse_date(date)
-            elif isinstance(date, str) and date == "":
-                period[key] = None   # don't want to transform in None ... Or maybe yes ? It could raise an error if the period given has a problem
+            elif not isinstance(date, (datetime, str)):
+                raise Exception("Wrong period given to AccessibleTime")
+            elif date == "":
+                raise Exception("Empty date given to AccessibleTime")
 
         self._start = self.adapt_database_date(period["start"])
         self._end = self.adapt_database_date(period["end"])
@@ -108,21 +113,21 @@ class AccessibleTime(object):
     def get_std_start_date(self):
         """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._start != datetime.min and self._start != datetime.max:
-            return self._start.strftime("%Y-%m-%d %H:%M:%S") if self._start is not None else ""
+            return self._start.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_end_date(self):
         """ If the date is custom, return the end datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._end != datetime.max:
-            return self._end.strftime("%Y-%m-%d %H:%M:%S") if self._end is not None else ""
+            return self._end.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_soft_end_date(self):
         """ If the date is custom, return the soft datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._soft_end != datetime.max:
-            return self._soft_end.strftime("%Y-%m-%d %H:%M:%S") if self._soft_end is not None else ""
+            return self._soft_end.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
