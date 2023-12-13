@@ -11,9 +11,10 @@ from functools import reduce
 from operator import concat
 from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_config, check_task_config,\
     SectionsList, SectionConfigItem, GroupSubmission, Weight, SubmissionStorage, EvaluationMode, Categories, \
-    SubmissionLimit, Accessibility, dict_data_datetimes_to_str
+    SubmissionLimit, Accessibility
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
+from inginious.frontend.util import change_access_structure, dict_data_str_to_datetimes, dict_data_datetimes_to_str
 
 
 class TableOfContents(TaskDispenser):
