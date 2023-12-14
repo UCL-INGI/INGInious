@@ -183,7 +183,7 @@ class CodeProblem(Problem):
     def parse_problem(self, problem_content):
         # Checking problem edit inputs
         if len(problem_content["offset"]) == 0:
-            problem_content["offset"] = 1 
+            del problem_content["offset"]
         else:
             try:
                 offset = int(problem_content["offset"])
