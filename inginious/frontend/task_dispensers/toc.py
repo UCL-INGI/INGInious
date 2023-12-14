@@ -5,7 +5,6 @@
 import copy
 import inginious
 from collections import OrderedDict
-from datetime import datetime
 
 from functools import reduce
 from operator import concat
@@ -72,7 +71,6 @@ class TableOfContents(TaskDispenser):
 
     def get_accessibilities(self, taskids, usernames):
         """  Get the accessible time of this task """
-
         return {username: {taskid: AccessibleTime(Accessibility.get_value(self._task_config.get(taskid, {})))
                            for taskid in taskids } for username in usernames}
 
