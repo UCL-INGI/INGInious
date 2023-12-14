@@ -13,7 +13,6 @@ from gridfs import GridFS
 from flask import redirect, url_for
 from flask.views import MethodView
 from werkzeug.exceptions import NotFound, NotAcceptable
-from datetime import datetime
 
 from inginious.client.client import Client
 from inginious.common import custom_yaml
@@ -365,4 +364,3 @@ def register_utils(database, user_manager, template_helper: TemplateHelper):
                                                                         current_users, name, id, placeholder,
                                                                         single)
                                             )
-
