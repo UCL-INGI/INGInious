@@ -2,7 +2,6 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-import copy
 from datetime import datetime
 
 from abc import ABCMeta, abstractmethod
@@ -375,7 +374,6 @@ def parse_tasks_config(task_list, config_items, data):
 
 def check_task_config(task_list, config_items, data):
     """
-
     :param data: the raw content of the task settings
     :return:  (True, '') if the settings are valid or (False, The error message) otherwise
     """

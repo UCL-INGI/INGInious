@@ -34,7 +34,7 @@ class Contest(TableOfContents):
         TableOfContents.__init__(self, task_list_func, dispenser_data.get("toc_data", {}), database, course_id)
         self._contest_settings = dispenser_data.get(
             'contest_settings',
-            {"enabled": False, # enabled false ?
+            {"enabled": False,
              "start": datetime.now(),
              "end": datetime.now() + timedelta(hours=1),
              "blackout": 0,

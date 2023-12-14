@@ -6,15 +6,12 @@
 """ Factory for loading courses from disk """
 
 from pymongo import ReturnDocument
-from datetime import datetime
 
 from inginious.frontend.log import get_course_logger
 
 from inginious.frontend.exceptions import CourseNotFoundException, CourseAlreadyExistsException, TasksetNotFoundException
 from inginious.frontend.courses import Course
 from inginious.frontend.util import change_access_structure, dict_data_str_to_datetimes
-
-
 
 
 class CourseFactory(object):
@@ -102,11 +99,6 @@ class CourseFactory(object):
             if taskset.is_legacy() and not self._database.courses.find_one({"_id": tasksetid}):
                 courseids.append(tasksetid)
 
-        # look here for bad accessibilitY structure ??? -> _migrate_legacy_courses detect the courses whithout taskset (taskset id in DB and correct taskset yaml file)
-        # I can maybe also checko here if the taskset file has the right structure (task accessibilities).
-
-        # where to check for DB structure ?
-
         for courseid in courseids:
             get_course_logger(courseid).warning("Trying to migrate legacy course {}.".format(courseid))
 
@@ -127,13 +119,8 @@ class CourseFactory(object):
                 if "registration" in taskset_descriptor:
                     taskset_descriptor["registration"] = change_access_structure(taskset_descriptor["registration"])
 
-                # here transform task accessibilities ? -> no, it will be done during the migration of the taskset (import_legacy_tasks)
-                # task accessibilities are not in the course descriptor, but in the tasks descriptors (task.yaml)
-
                 taskset_descriptor = dict_data_str_to_datetimes(taskset_descriptor)
-                #cleaned_taskset_descriptor = dict_data_str_to_datetimes(cleaned_taskset_descriptor)
                 self._database.courses.update_one({"_id": courseid}, {"$set": taskset_descriptor}, upsert=True)
-                # why not set cleaned_taskset_descriptor ? -> parce qu'on transmet le taskset_descriptor pour l'enregistrer en DB
                 self._taskset_factory.update_taskset_descriptor_content(courseid, cleaned_taskset_descriptor)
             except TasksetNotFoundException as e:
                 get_course_logger(courseid).warning("No migration from taskset possible for courseid {}.".format(courseid))
