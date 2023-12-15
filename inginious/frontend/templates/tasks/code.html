@@ -9,4 +9,5 @@
           class="code-editor form-control {% if '/' in inputId %} single {% endif %}"
           data-x-language="{{language}}"
           data-x-lines="{{lines}}"
+          data-x-first-line="{{first_line}}"
           data-optional="{% if optional %}{{True}}{% else %}{{False}}{% endif %}">{{ default }}</textarea>

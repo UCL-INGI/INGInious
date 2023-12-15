@@ -142,6 +142,8 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Network grading
             data["network_grading"] = "network_grading" in data
+
+
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(message)})
 

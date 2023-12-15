@@ -47,3 +47,12 @@
         {% endif %}
     </div>
 </div>
+
+{% if multiline %}
+    <div class="form-group row">
+        <label for="offset-PID" class="col-sm-2 control-label">{{_("Code line offset")}}</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="offset-PID" name="problem[PID][offset]" placeholder="{{ _('Line offset for the code block. Must be a number.') }}"/>
+        </div>
+    </div>
+{% endif %}
