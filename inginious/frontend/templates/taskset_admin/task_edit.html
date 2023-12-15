@@ -1,0 +1,147 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+
+{% block title %}{{ _("Edit {}").format(taskid) }}{% endblock %}
+
+{% block column %}
+    {{ template_helper.call('taskset_admin_menu',taskset=taskset,current='settings') | safe }}
+    <button class="btn btn-primary btn-block mt-3 task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
+{% endblock %}
+
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/tasksets" title="{{ _('Tasksets') }}" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-tasks"></i></a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}">{{taskset.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">{{ _("Edit task \"{}\"").format(taskid) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+<h2>
+    {{_("Edit task \"{}\"").format(taskid)}}
+    <div class="pull-right">
+        <div class="btn-group">
+            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> <div class="d-none d-sm-inline">{{ _("Save changes") }}</div></button>
+        </div>
+    </div>
+</h2>
+
+<div id="task_edit_submit_status"></div>
+
+<form id="edit_task_form" class="edit-form" method="post" enctype="multipart/form-data" class="form-horizontal">
+    <input type="hidden" name="@action" value="edit_task"/>
+    <div class="card mb-3">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="edit_task_tabs" role="tablist">
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_basic" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                    fa-cog fa-fw"></i>&nbsp; {{_("Basic settings")}}</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_environment" class="nav-link" aria-controls="environment" role="tab" data-toggle="tab"><i class="fa
+                    fa-cube fa-fw"></i>&nbsp; {{_("Environment")}}</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_subproblems" class="nav-link" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
+                    fa-list-ul fa-fw"></i>&nbsp; {{_("Subproblems")}}</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_files" class="nav-link" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
+                    fa-edit fa-fw"></i>&nbsp; {{_("Task files")}}</a></li>
+
+                {% for tab_id, link, tab_content in additional_tabs %}
+                    <li role="presentation" class="nav-item"><a href="#{{tab_id}}" class="nav-link" aria-controls="{{tab_id}}" role="tab" data-toggle="tab">{{link | safe}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="edit_task_tabs_content" class="tab-content">
+            <div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
+                {% include "taskset_admin/edit_tabs/basic.html" %}
+            </div>
+
+            <div role="tabpanel" class="card-body tab-pane" id="tab_environment">
+                {% include "taskset_admin/edit_tabs/environment.html" %}
+            </div>
+
+            <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">
+                {% include "taskset_admin/edit_tabs/subproblems.html" %}
+            </div>
+
+            <div role="tabpanel" class="card-body tab-pane" id="tab_files">
+                <ul class="nav nav-tabs" id="edit_file_tabs" role="tablist">
+                    <li class="nav-item" >
+                        <a href="#tab_file_list" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab">
+                            <i class="fa fa-cog fa-list-ul"></i>&nbsp; {{ _("File list") }}
+                        </a>
+                    </li>
+                </ul>
+                <div id="edit_file_tabs_content" class="tab-content">
+                    {% with error=None %}
+                        {% include "taskset_admin/edit_tabs/files.html" %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            {% for tab_id, link, tab_content in additional_tabs %}
+                <div role="tabpanel" class="card-body tab-pane" id="{{tab_id}}">
+                    {{tab_content | safe}}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> {{ _("Save changes") }}</button>
+</form>
+
+<!-- Must be out of the form -->
+<div id="subproblem_templates" style="display:none">
+    {% for key, problem_type in problem_types.items() %}
+        <div id="subproblem_{{key}}">
+            <div class="card mb-3" id="subproblem_well_PID" >
+                <div class="card-header" role="tab" id="heading_PID">
+                    <div class="row">
+                        <div class="col-md-10" >
+                            <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                                <i class="fa fa-bars"></i> {{_("Problem id:")}} <span id="pid-PID">PID</span>
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="#" class="pull-right ml-2" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                            <a href="#" class="pull-right ml-2" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                            <a href="#" class="pull-right" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div id="collapse_PID" class="collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                    <div class="card-body">
+                        <input type="hidden" name="problem[PID][type]" value="{{key}}"/>
+                        <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                        <div class="form-group row">
+                            <label for="name-PID" class="col-sm-2 control-label">{{_("Name")}}</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="{{ _('A title for this question') }}"/>
+                            </div>
+                        </div>
+                        {{ problem_type.show_editbox(template_helper, key, user_manager.session_language()) | safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="subproblem_{{key}}_templates">
+            {{ problem_type.show_editbox_templates(template_helper, key, user_manager.session_language()) | safe }}
+        </div>
+    {% endfor %}
+</div>
+
+{% include "taskset_admin/edit_tabs/file_modals.html" %}
+
+<!-- Init the javascript for the subproblem tab -->
+<script type="text/javascript">
+    delete_subproblem_message = '{{_("Are you sure that you want to delete this subproblem?")}}';
+    problem_data = {{ problemdata | tojson }};
+    $(function(){ studio_load(JSON.parse(problem_data)); });
+</script>
+
+{% endblock %}

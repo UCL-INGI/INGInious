@@ -8,7 +8,8 @@ import flask
 from flask import redirect
 from werkzeug.exceptions import NotFound
 
-from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
+from inginious.common.exceptions import InvalidNameException
+from inginious.frontend.exceptions import CourseNotFoundException
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
@@ -19,7 +20,7 @@ class CourseRegisterPage(INGIniousAuthPage):
     def basic_checks(self, courseid):
         try:
             course = self.course_factory.get_course(courseid)
-        except (InvalidNameException, CourseNotFoundException, CourseUnreadableException) as e:
+        except (InvalidNameException, CourseNotFoundException) as e:
             raise NotFound(description=_("This course doesn't exist."))
 
         username = self.user_manager.session_username()

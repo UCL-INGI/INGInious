@@ -47,7 +47,7 @@ class LTIOutcomeManager(threading.Thread):
 
                     consumer_secret = course.lti_keys()[consumer_key]
 
-                    grade = self._user_manager.get_task_cache(username, task.get_course_id(), task.get_id())["grade"]
+                    grade = self._user_manager.get_task_cache(username, courseid, task.get_id())["grade"]
                     grade = grade / 100.0
                     if grade > 1:
                         grade = 1

@@ -25,7 +25,7 @@ class LocalFSProvider(FileSystemProvider):
             Only int and str are supported as types.
         """
         return {
-            "location": (str, True, "On-disk path to the directory containing courses/tasks")
+            "location": (str, True, "On-disk path to the directory containing tasksets/tasks")
         }
 
     @classmethod

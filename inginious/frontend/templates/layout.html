@@ -21,9 +21,9 @@
         <!-- INGInious Style -->
         <link href="{{get_homepath(True)}}/static/css/INGInious-rtl.css?v2" rel="stylesheet">
     {% else %}
-        <link href="{{get_homepath(True)}}/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{{get_homepath(True)}}/static/css/themes/{{user_manager.session_theme()}}/bootstrap.min.css" rel="stylesheet">
         <!-- INGInious Style -->
-        <link href="{{get_homepath(True)}}/static/css/INGInious.css?v2" rel="stylesheet">
+        <link href="{{get_homepath(True)}}/static/css/themes/{{user_manager.session_theme()}}/INGInious.css?v2" rel="stylesheet">
     {% endif %}
     <link href="{{get_homepath(True)}}/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 
@@ -33,7 +33,8 @@
 
 
     <!-- Codemirror Style -->
-    <link href="{{get_homepath(True)}}/static/css/codemirror.css" rel="stylesheet">
+    <link href="{{get_homepath(True)}}/static/css/themes/codemirror/main.css" rel="stylesheet">
+    <link href="{{get_homepath(True)}}/static/css/themes/codemirror/{{user_manager.session_codemirror_theme()}}.css" rel="stylesheet">
 
     <!-- selectize -->
     <link href="{{get_homepath(True)}}/static/css/selectize.css" rel="stylesheet">
@@ -146,12 +147,13 @@
                                     <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/marketplace"><i class="fa fa-shopping-bag fa-fw"></i> {{ _("Marketplace") }}</a>
                                 </div>
                             {% endif %}
-                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}</a>
+                            <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist"><i class="fa fa-graduation-cap fa-fw"></i> {{ _("Course list") }}</a>
                             <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="collapse" href="#collapseUserMenu" role="button" aria-expanded="false" aria-controls="collapseUserMenu">
                                 <i class="fa fa-user fa-fw"></i> {{ user_manager.session_realname() }} <span class="caret"></span>
                             </a>
                             <div class="collapse list-group-collapse" id="collapseUserMenu">
-                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/mycourses"><i class="fa fa-th-list fa-fw"></i> {{ _("My courses") }}</a>
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/mycourses"><i class="fa fa-graduation-cap fa-fw"></i> {{ _("My courses") }}</a>
+                                <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/tasksets"><i class="fa fa-th-list fa-fw"></i> {{ _("My tasksets") }}</a>
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/preferences"><i class="fa fa-gears fa-fw"></i> {{ _("Preferences") }}</a>
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/queue"><i class="fa fa-dashboard fa-fw"></i> {{ _("Service status") }}</a>
                                 <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/logout" id="logoff_button"><i class="fa fa-sign-out"></i> {{ _("Log out") }}</a>
@@ -167,7 +169,7 @@
                             </div>
 
                             <a class="list-group-item list-group-item-action" href="{{ get_homepath() }}/courselist">
-                                <i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}
+                                <i class="fa fa-graduation-cap fa-fw"></i> {{ _("Course list") }}
                             </a>
 
                             {% if allow_registration %}

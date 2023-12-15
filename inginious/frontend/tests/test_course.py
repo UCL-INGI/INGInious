@@ -11,7 +11,7 @@ import tempfile
 import shutil
 
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.frontend.course_factory import create_factories
+from inginious.frontend.taskset_factory import create_factories
 from inginious.common.tasks_problems import *
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.environment_types import register_base_env_types
@@ -27,68 +27,68 @@ def ressource(request):
     register_base_env_types()
     dir_path = tempfile.mkdtemp()
     fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-    course_factory, _ = create_factories(fs, task_dispensers, problem_types)
-    yield (course_factory, dir_path)
-    course_factory.update_course_descriptor_content("test", {"name": "Unit test 1", "admins": ["testadmin1","testadmin2"],
-                                                             "accessible": True})
+    taskset_factory, course_factory, _ = create_factories(fs, task_dispensers, problem_types)
+    yield (taskset_factory, dir_path)
+    taskset_factory.update_taskset_descriptor_content("test", {"name": "Unit test 1", "admins": ["testadmin1","testadmin2"],
+                                                             "public": True})
     shutil.rmtree(dir_path)
 
 
 class TestCourse(object):
 
-    def test_course_loading(self, ressource):
-        """Tests if a course file loads correctly"""
-        course_factory, temp_dir = ressource
-        print("\033[1m-> common-courses: course loading\033[0m")
-        c = course_factory.get_course('test')
+    def test_taskset_loading(self, ressource):
+        """Tests if a taskset file loads correctly"""
+        taskset_factory, temp_dir = ressource
+        print("\033[1m-> common-tasksets: taskset loading\033[0m")
+        c = taskset_factory.get_taskset('test')
         assert c.get_id() == 'test'
-        assert c._content['accessible'] == True
+        assert c._content['public'] == True
         assert c._content['admins'] == ['testadmin1', 'testadmin2']
         assert c._content['name'] == 'Unit test 1'
 
-        c = course_factory.get_course('test2')
+        c = taskset_factory.get_taskset('test2')
         assert c.get_id() == 'test2'
-        assert c._content['accessible'] == '1970-01-01/2033-01-01'
+        assert c._content['public'] == False
         assert c._content['admins'] == ['testadmin1']
         assert c._content['name'] == 'Unit test 2'
 
         # This one is in JSON
-        c = course_factory.get_course('test3')
+        c = taskset_factory.get_taskset('test3')
         assert c.get_id() == 'test3'
-        assert c._content['accessible'] == '1970-01-01/1970-12-31'
+        assert c._content['public'] == True
         assert c._content['admins'] == ['testadmin1', 'testadmin2']
         assert c._content['name'] == 'Unit test 3'
 
-    def test_invalid_coursename(self, ressource):
+    def test_invalid_tasksetname(self, ressource):
         try:
-            course_factory, temp_dir = ressource
-            course_factory.get_course('invalid/name')
+            taskset_factory, temp_dir = ressource
+            taskset_factory.get_taskset('invalid/name')
         except:
             return
         assert False
 
-    def test_unreadable_course(self, ressource):
+    def test_unreadable_taskset(self, ressource):
         try:
-            course_factory, temp_dir = ressource
-            course_factory.get_course('invalid_course')
+            taskset_factory, temp_dir = ressource
+            taskset_factory.get_taskset('invalid_taskset')
         except:
             return
         assert False
 
-    def test_all_courses_loading(self, ressource):
-        '''Tests if all courses are loaded by Course.get_all_courses()'''
-        print("\033[1m-> common-courses: all courses loading\033[0m")
-        course_factory, temp_dir = ressource
-        c = course_factory.get_all_courses()
+    def test_all_tasksets_loading(self, ressource):
+        '''Tests if all tasksets are loaded by Course.get_all_tasksets()'''
+        print("\033[1m-> common-tasksets: all tasksets loading\033[0m")
+        taskset_factory, temp_dir = ressource
+        c = taskset_factory.get_all_tasksets()
         assert 'test' in c
         assert 'test2' in c
         assert 'test3' in c
 
     def test_tasks_loading(self, ressource):
         '''Tests loading tasks from the get_tasks method'''
-        print("\033[1m-> common-courses: course tasks loading\033[0m")
-        course_factory, temp_dir = ressource
-        c = course_factory.get_course('test')
+        print("\033[1m-> common-tasksets: taskset tasks loading\033[0m")
+        taskset_factory, temp_dir = ressource
+        c = taskset_factory.get_taskset('test')
         t = c.get_tasks()
         assert 'task1' in t
         assert 'task2' in t
@@ -96,27 +96,27 @@ class TestCourse(object):
         assert 'task4' in t
 
     def test_tasks_loading_invalid(self, ressource):
-        course_factory, temp_dir = ressource
-        c = course_factory.get_course('test3')
+        taskset_factory, temp_dir = ressource
+        c = taskset_factory.get_taskset('test3')
         t = c.get_tasks()
         assert t == {}
 
 
 class TestCourseWrite(object):
-    """ Test the course update function """
+    """ Test the taskset update function """
 
-    def test_course_update(self, ressource):
-        course_factory, temp_dir = ressource
+    def test_taskset_update(self, ressource):
+        taskset_factory, temp_dir = ressource
         os.mkdir(os.path.join(temp_dir, "test"))
-        with open(os.path.join(temp_dir, "test", "course.yaml"), "w") as f:
+        with open(os.path.join(temp_dir, "test", "taskset.yaml"), "w") as f:
             f.write("""
                 name: "a"
                 admins: ["a"]
-                accessible: "1970-01-01/2033-01-01"
+                public: true
                         """)
-        assert dict(course_factory.get_course_descriptor_content("test")) != {"name": "a", "admins": ["a"],
-                                                                                    "accessible": "1970-01-01/2033-01-01"}
-        course_factory.update_course_descriptor_content("test", {"name": "b", "admins": ["b"],
-                                                                 "accessible": "1970-01-01/2030-01-01"})
-        assert dict(course_factory.get_course_descriptor_content("test")) == {"name": "b", "admins": ["b"],
-                                                                              "accessible": "1970-01-01/2030-01-01"}
+        assert dict(taskset_factory.get_taskset_descriptor_content("test")) != {"name": "a", "admins": ["a"],
+                                                                                    "public": True}
+        taskset_factory.update_taskset_descriptor_content("test", {"name": "b", "admins": ["b"],
+                                                                 "public": True})
+        assert dict(taskset_factory.get_taskset_descriptor_content("test")) == {"name": "b", "admins": ["b"],
+                                                                              "public": True}

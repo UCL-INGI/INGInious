@@ -29,14 +29,6 @@ def init_logging(log_level=logging.DEBUG):
     oauthlib_log.setLevel(log_level)
     oauthlib_log.addHandler(ch)
 
-def get_course_logger(coursename):
-    """
-    :param coursename: the course id
-    :return: a logger object associated to a specific course
-    """
-    return logging.getLogger("inginious.course."+coursename)
-
-
 class CustomLogMiddleware:
     """ WSGI middleware for logging the status in webpy"""
 

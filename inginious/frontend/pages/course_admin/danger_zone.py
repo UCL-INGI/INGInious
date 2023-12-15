@@ -22,7 +22,7 @@ from inginious.frontend.user_manager import UserManager
 
 class CourseDangerZonePage(INGIniousAdminPage):
     """ Course administration page: list of audiences """
-    _logger = logging.getLogger("inginious.webapp.danger_zone")
+    _logger = logging.getLogger("inginious.webapp.course.danger_zone")
 
     def wipe_course(self, courseid):
         submissions = self.database.submissions.find({"courseid": courseid})
@@ -135,7 +135,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         data = flask.request.args
 
@@ -154,7 +154,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         msg = ""
         error = False

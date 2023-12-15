@@ -309,6 +309,11 @@ body {
     transform: rotate(90deg);
   }
 }
+@media (max-width: 700px) {
+  h2 {
+    font-size: 20px;
+  }
+}
 #inginious-logo {
   display: block;
   background: #333;

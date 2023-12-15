@@ -3,14 +3,13 @@
 // more information about the licensing of this file.
 //
 
-var dispenser_deleted_tasks = [];
 var dispenser_wiped_tasks = [];
-var dispenser_new_tasks = [];
 var dragged_from;
 var draggable_sections = {};
 var draggable_tasks = {};
 var timeouts = [],  lastenter;
 var warn_before_exit = false;
+var dispenser_config = {};
 
 /*****************************
  *     Renaming Elements     *
@@ -32,6 +31,7 @@ function dispenser_util_rename_section(element, new_section) {
             draggable_tasks[section[0].id] = dispenser_util_make_tasks_list_sortable(section);
         }
         warn_before_exit = true;
+        dispenser_util_update_section_select();
     };
 
     input.focusout(quit);
@@ -62,8 +62,6 @@ function dispenser_util_create_section(parent) {
  *****************************/
 function dispenser_util_open_task_modal(target) {
     $('#add_existing_tasks').attr('data-target', target.closest('.section').id);
-    $('#add_new_task').attr('data-target', target.closest('.section').id);
-    $('#new_task_id').attr('data-target', target.closest('.section').id.to_section_id());
 
     var placed_task = [];
     $('.task').each(function () {
@@ -104,34 +102,17 @@ function dispenser_util_click_modal_task(task) {
 function dispenser_util_add_tasks_to_section(button) {
     task_id= $("#new_task_id").val();
     var selected_tasks = [];
-    var existing_task = $(button).attr("id") == "add_existing_tasks";
-    if(existing_task) {
-        $.each($("input[name='task']:checked"), function () {
-            selected_tasks.push($(this).val());
-        });
-    }
-    else {
-        if(!task_id.match(/^[a-zA-Z0-9_\-]+$/)){
-            alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-            return;
-        }
-        selected_tasks.push(task_id);
-    }
+
+    $.each($("input[name='task']:checked"), function () {
+        selected_tasks.push($(this).val());
+    });
 
     const section = $("#" + $(button).attr('data-target'));
     const content = section.children(".content");
 
     for (var i = 0; i < selected_tasks.length; i++) {
         warn_before_exit = true;
-        if(existing_task)
-            content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
-        else {
-            var new_task_clone = $("#new_task_clone").clone();
-            new_task_clone.attr("id", 'task_' + selected_tasks[i]);
-            new_task_clone.children(".task_name").append(selected_tasks[i]);
-            content.append(new_task_clone);
-            dispenser_add_task(selected_tasks[i]);
-        }
+        content.append($("#task_" + selected_tasks[i] + "_clone").clone().attr("id", 'task_' + selected_tasks[i]));
     }
 
     dispenser_util_content_modified(section);
@@ -151,18 +132,20 @@ function dispenser_util_open_delete_modal(button) {
     }
 }
 
-function dispenser_util_delete_section(button, keep_files) {
+function dispenser_util_delete_selection() {
+    $(".grouped-actions-task:checked").each(function () {
+        let button = $("#task_" + $(this).data("taskid") + " button.delete_task");
+        dispenser_util_delete_task(button, $(this).data("taskid"));
+    });
+}
+
+function dispenser_util_delete_section(button) {
     const section = $("#" + button.getAttribute('data-target'));
     const parent = section.parent().closest(".sections_list");
     const wipe = $('#delete_section_modal .wipe_tasks').prop("checked");
 
-
     section.find(".task").each(function () {
         const taskid = this.id.to_taskid();
-        if(!keep_files){
-            $("#modal_task_" + taskid).remove()
-            dispenser_delete_task(taskid)
-        }
         if(wipe){
             dispenser_wipe_task(taskid)
         }
@@ -173,16 +156,12 @@ function dispenser_util_delete_section(button, keep_files) {
     dispenser_util_content_modified(parent);
 }
 
-function dispenser_util_delete_task(button, keep_files, taskid){
+function dispenser_util_delete_task(button, taskid){
     $(button).mouseleave().focusout();
     var wipe = false;
     if(!taskid) {
         taskid = button.getAttribute('data-target').to_taskid();
         wipe = $('#delete_task_modal .wipe_tasks').prop("checked");
-    }
-    if(!keep_files){
-        $("#modal_task_" + taskid).remove()
-        dispenser_delete_task(taskid)
     }
     if(wipe){
         dispenser_wipe_task(taskid)
@@ -198,6 +177,29 @@ function dispenser_util_delete_task(button, keep_files, taskid){
 /*******************************
  *  Adapt structure to change  *
  *******************************/
+
+function dispenser_toggle_adapt_viewport() {
+    let button = $("#compact-view");
+    if(button.hasClass("active"))
+        button.removeClass("active");
+    else
+        button.addClass("active");
+    dispenser_util_adapt_viewport();
+}
+
+function dispenser_util_adapt_viewport() {
+    $("#dispenser_structure").removeAttr("style");
+    if($("#compact-view").hasClass("active")) {
+        var viewport_height = window.innerHeight;
+        var document_height = $("#main-content").innerHeight() + $("#inginious-top").innerHeight();
+        var overflow = document_height - viewport_height;
+        if (overflow > 0) {
+            $("#dispenser_structure").height($("#dispenser_structure").height() - overflow);
+            $("#dispenser_structure").css("overflow", "auto");
+        }
+    }
+}
+
 function dispenser_util_adapt_size(element) {
     const level = Number($(element).parent().closest(".sections_list").attr("data-level")) + 1;
     $(element).attr("data-level", level);
@@ -232,6 +234,8 @@ function dispenser_util_content_modified(section) {
         }
         dispenser_util_section_to_empty(section);
     }
+    dispenser_util_update_section_select();
+    dispenser_util_adapt_viewport();
 }
 
 function dispenser_util_section_to_empty(section) {
@@ -259,6 +263,33 @@ function dispenser_util_empty_to_subsections(section) {
 function dispenser_util_empty_to_tasks(section) {
     section.removeClass("sections_list");
     section.find(".section_placeholder").remove();
+}
+
+/*******************/
+/* Grouped actions */
+/*******************/
+
+function dispenser_util_update_section_select() {
+    $("#grouped-actions-section-select").find("option").remove();
+    $("#dispenser_structure .section").each(function () {
+        let id = this.id;
+        let level = $(this).data('level') - 3;
+        let title = "-".repeat(level) + " " + $(this).find(".title").first().text().trim();
+        let enabled = $(this).hasClass("tasks_list");
+        $("#grouped-actions-section-select").append($('<option>', { value: id, text: title, disabled: !enabled}));
+    });
+}
+
+function dispenser_util_move_selection() {
+    let dest = $("#grouped-actions-section-select :selected").val();
+    $(".grouped-actions-task:checked").each(function () {
+        let elem = $("#task_" + $(this).data("taskid"));
+        let source = elem.parent().parent();
+
+        elem.detach().appendTo($("#" + dest + " .list-group"));
+        dispenser_util_content_modified(source);
+    });
+    dispenser_util_content_modified($('#' + dest));
 }
 
 /****************************
@@ -349,6 +380,11 @@ function dispenser_util_make_sections_list_sortable(element) {
 /**********************
  *  Submit structure  *
  **********************/
+
+function dispenser_wipe_task(taskid) {
+    dispenser_wiped_tasks.push(taskid);
+}
+
 function dispenser_util_get_sections_list(element) {
     return element.children(".section").map(function (index) {
         const structure = {
@@ -384,107 +420,6 @@ function dispenser_util_get_section_config(element) {
     return config_list;
 }
 
-function dispenser_util_get_weight(tasks_id) {
-    $(".weight").each(function(){
-        if(this.name in tasks_id){
-            if(this.value === ""){
-                tasks_id[this.name]["weight"] = 1;
-            }else{
-                tasks_id[this.name]["weight"] = parseFloat(this.value);
-            }
-        }
-    });
-}
-
-function dispenser_util_get_no_stored_submissions(tasks_id){
-    $(".no_stored_submissions").each(function(){
-        var taskid = this.id;
-        if(taskid in tasks_id && this.checked && this.value === "store_all"){
-            tasks_id[taskid]["no_stored_submissions"] = 0;
-        }else if(taskid in tasks_id && this.checked && this.value === "store_not_all"){
-            $("#no_stored_submissions_value_"+taskid).each(function(){
-                var value = parseInt(this.value);
-                if(!isNaN(value)){
-                    tasks_id[taskid]["no_stored_submissions"] = value;
-                }else{
-                    tasks_id[taskid]["no_stored_submissions"] = 5;
-                }
-            });
-        }
-    });
-}
-
-function dispenser_util_get_evaluation_mode(tasks_id){
-    $(".evaluation_submission").each(function(){
-        var taskid = this.id;
-        if(taskid in tasks_id && this.checked && this.value === "best"){
-            tasks_id[taskid]["evaluation_mode"] = "best";
-        }else if(taskid in tasks_id && this.checked && this.value === "last"){
-            tasks_id[taskid]["evaluation_mode"] = "last"
-        }
-    });
-}
-
-function dispenser_util_get_submission_limit(tasks_id){
-    $(".submission_limit").each(function (){
-        var taskid = this.id;
-        if(taskid in tasks_id && $(this).prop("checked")) {
-            if(this.value === "none") {
-                tasks_id[taskid]["submission_limit"] = {"amount": -1, "period": -1};
-            } else if(this.value === "hard") {
-                $("#submission_limit_hard_" + taskid).each(function(){
-                    var value = parseInt(this.value);
-                    tasks_id[taskid]["submission_limit"] = {"amount": !isNaN(value) ? value: -1, "period": -1};
-                });
-            } else if(this.value === "soft") {
-                tasks_id[taskid]["submission_limit"] = {}
-                $("#submission_limit_soft_0_" + taskid).each(function(){
-                    var value = parseInt(this.value);
-                    tasks_id[taskid]["submission_limit"]["amount"] = !isNaN(value) ? value: -1;
-                });
-                $("#submission_limit_soft_1_" + taskid).each(function(){
-                    var value = parseInt(this.value);
-                    tasks_id[taskid]["submission_limit"]["period"] = !isNaN(value) ? value: -1;
-                });
-            }
-        }
-    });
-}
-
-function dispenser_util_get_group_submission(tasks_id){
-    $(".group_submission").each(function (){
-        var taskid = this.id;
-        if(taskid in tasks_id && $(this).prop("checked"))
-            tasks_id[taskid]["group_submission"] = this.value === "true";
-    });}
-
-function dispenser_util_get_accessibility(tasks_id) {
-    $(".accessibility").each(function (){
-        const taskid = this.id;
-        if(taskid in tasks_id && $(this).prop("checked")) {
-            if(this.value === "true")
-                tasks_id[taskid]["accessibility"] = true;
-            else if(this.value === "false")
-                tasks_id[taskid]["accessibility"] = false;
-            else {
-                const accessibility_start = $("#accessibility_start_" + taskid).val();
-                const accessibility_end = $("#accessibility_end_" + taskid).val();
-                const accessibility_soft_end = $("#accessibility_soft_end_" + taskid).val();
-                tasks_id[taskid]["accessibility"] = accessibility_start + '/' + accessibility_soft_end + '/' + accessibility_end;
-            }
-        }
-    });
-}
-
-function dispenser_util_get_categories(tasks_id){
-    $(".categories").each(function(){
-        var taskid = this.id;
-        if(taskid in tasks_id){
-            tasks_id[taskid]["categories"] = this.value !== "" ? this.value.split(",") : [];
-        }
-    });
-}
-
 function dispenser_util_get_tasks_list(element) {
     const tasks_list = [];
     element.children(".task").each(function () {
@@ -493,25 +428,9 @@ function dispenser_util_get_tasks_list(element) {
     return tasks_list;
 }
 
-function dispenser_delete_task(taskid) {
-    dispenser_deleted_tasks.push(taskid);
-}
-
-function dispenser_wipe_task(taskid) {
-    dispenser_wiped_tasks.push(taskid);
-}
-
-function dispenser_add_task(taskid) {
-    if(!taskid.match(/^[a-zA-Z0-9_\-]+$/)){
-        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
-        return;
-    }
-    dispenser_new_tasks.push(taskid);
-}
-
 function dispenser_util_get_task_config() {
     let tasks_config = {};
-    dispenser_util_get_tasks_list($('#course_structure .content')).forEach(function (elem) {
+    dispenser_util_get_tasks_list($('#dispenser_structure .content')).forEach(function (elem) {
         tasks_config[elem] = {};
     });
 
@@ -524,8 +443,8 @@ function dispenser_util_get_task_config() {
 
 function dispenser_util_structure() {
     return JSON.stringify({
-        "toc": dispenser_util_get_sections_list($('#course_structure').children(".content")),
-        "config": dispenser_util_get_task_config()
+        "toc": dispenser_util_get_sections_list($('#dispenser_structure').children(".content")),
+        "config": dispenser_config
     });
 }
 
@@ -541,9 +460,7 @@ function dispenser_submit(dispenser_id) {
     var structure_json = window['dispenser_structure_' + dispenser_id]();
     warn_before_exit = false;
     $("<form>").attr("method", "post").appendTo($("#dispenser_data")).hide()
-        .append($("<input>").attr("name", "course_structure").val(structure_json))
-        .append($("<input>").attr("name", "new_tasks").val(JSON.stringify(dispenser_new_tasks)))
-        .append($("<input>").attr("name", "deleted_tasks").val(JSON.stringify(dispenser_deleted_tasks)))
+        .append($("<input>").attr("name", "dispenser_structure").val(structure_json))
         .append($("<input>").attr("name", "wiped_tasks").val(JSON.stringify(dispenser_wiped_tasks))).submit();
 }
 

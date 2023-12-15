@@ -1,0 +1,5 @@
+admins:
+- testadmin1
+- testadmin2
+name: Unit test 1
+public: true

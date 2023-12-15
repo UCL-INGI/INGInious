@@ -46,7 +46,7 @@ class LTIBestSubmissionPage(INGIniousAuthPage):
         # attach the input to the submission
         best_sub = self.submission_manager.get_input_from_submission(best_sub)
 
-        task = self.course_factory.get_task(courseid, taskid)
+        task = self.taskset_factory.get_task(courseid, taskid)
         question_answer_list = []
         for problem in task.get_problems():
             answer = best_sub["input"][problem.get_id()]

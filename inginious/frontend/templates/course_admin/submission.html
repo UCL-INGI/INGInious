@@ -16,6 +16,7 @@
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-graduation-cap"></i></a></li>
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
             <li class="breadcrumb-item">
                 <a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
@@ -87,7 +88,7 @@
 <!-- Tags -->
 {% set ns = namespace(visible_tags=[]) %}
 {% for category in task_categories %}
-    {% if course_tags[category].is_visible_for_student() or user_manager.has_staff_rights_on_course(course) %}
+    {% if course_tags[category].is_visible_for_student() or user_manager.has_admin_rights_on_course(course) %}
         {% set ns.visible_tags = ns.visible_tags + [course_tags[category]] %}
     {% endif %}
 {% endfor %}

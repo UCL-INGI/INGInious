@@ -32,7 +32,6 @@ class AuthInvalidMethodException(Exception):
 
 
 class AuthMethod(object, metaclass=ABCMeta):
-
     @abstractmethod
     def get_id(self):
         """
@@ -107,6 +106,12 @@ class UserManager:
     #           User session management          #
     ##############################################
 
+    def session_theme(self):
+        return self._session.get('theme', 'default')
+    
+    def session_codemirror_theme(self):
+        return self._session.get('codemirror_theme', 'default')
+    
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """
         return "loggedin" in self._session and self._session["loggedin"] is True
@@ -184,6 +189,13 @@ class UserManager:
     def session_api_key(self):
         """ Returns the API key for the current user. Created on first demand. """
         return self.get_user_api_key(self.session_username())
+
+    def set_session_theme(self, theme):
+        self._session["theme"] = theme
+    
+
+    def set_session_codemirror_theme(self, codemirror_theme):
+        self._session["codemirror_theme"] = codemirror_theme
 
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
@@ -352,8 +364,15 @@ class UserManager:
         query = {"username": {"$in": usernames}} if usernames is not None else {}
         infos = self._database.users.find(query).skip(skip).limit(limit)
 
-        retval = {info["username"]: UserInfo(info["realname"], info["email"], info["username"], info["bindings"],
-                                             info["language"], "activate" not in info) for info in infos}
+        retval = {info["username"]: UserInfo(
+            info["realname"],
+            info["email"],
+            info["username"],
+            info["bindings"],
+            info["language"],
+            "activate" not in info
+        ) for info in infos}
+        
         return retval
 
     def get_user_info(self, username) -> Optional[UserInfo]:
@@ -666,7 +685,7 @@ class UserManager:
                                                                "submissionid": None, "state": ""}},
                                              upsert=True)
 
-    def update_user_stats(self, username, task, submission, result_str, grade, state, newsub, task_dispenser):
+    def update_user_stats(self, username, course, task, submission, result_str, grade, state, newsub, task_dispenser):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
@@ -690,13 +709,13 @@ class UserManager:
             def_sub = []
             if task_dispenser.get_evaluation_mode(task.get_id()) == 'best':  # if best, update cache consequently (with best submission)
                 def_sub = list(self._database.submissions.find(
-                    {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(),
+                    {"username": username, "courseid": course.get_id(), "taskid": task.get_id(),
                      "status": "done"}).sort(
                     [("grade", pymongo.DESCENDING), ("submitted_on", pymongo.DESCENDING)]).limit(1))
 
             elif task_dispenser.get_evaluation_mode(task.get_id()) == 'last':  # if last, update cache with last submission
                 def_sub = list(self._database.submissions.find(
-                    {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()})
+                    {"username": username, "courseid": course.get_id(), "taskid": task.get_id()})
                                .sort([("submitted_on", pymongo.DESCENDING)]).limit(1))
 
             if len(def_sub) > 0:
@@ -718,7 +737,7 @@ class UserManager:
                         "state": submission["state"]
                     }})
 
-    def task_is_visible_by_user(self, task, username=None, lti=None):
+    def task_is_visible_by_user(self, course, task, username=None, lti=None):
         """ Returns true if the task is visible and can be accessed by the user
 
         :param lti: indicates if the user is currently in a LTI session or not.
@@ -731,12 +750,11 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        course = task.get_course()
         dispenser_filter = course.get_task_dispenser().get_accessibility(task.get_id(), username).after_start()
         return (self.course_is_open_to_user(course, username, lti) and dispenser_filter) \
-               or self.has_staff_rights_on_course(task.get_course(), username)
+               or self.has_admin_rights_on_course(course, username)
 
-    def task_can_user_submit(self, task, username=None, only_check=None, lti=None):
+    def task_can_user_submit(self, course, task, username=None, only_check=None, lti=None):
         """ returns true if the user can submit his work for this task
             :param only_check : only checks for 'groups', 'tokens', or None if all checks
             :param lti: indicates if the user is currently in a LTI session or not.
@@ -748,13 +766,12 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        course = task.get_course()
         # Check if course access is ok
         course_registered = self.course_is_open_to_user(course, username, lti)
         # Check if task accessible to user
         task_accessible = course.get_task_dispenser().get_accessibility(task.get_id(), username).is_open()
         # User has staff rights ?
-        staff_right = self.has_staff_rights_on_course(course, username)
+        staff_right = self.has_admin_rights_on_course(course, username)
         # Is this task a group task .
         is_group_task = course.get_task_dispenser().get_group_submission(task.get_id())
 
@@ -778,7 +795,7 @@ class UserManager:
                 enough_tokens = True
             else:
                 # select users with a cache for this particular task
-                user_tasks = list(self._database.user_tasks.find({"courseid": task.get_course_id(),
+                user_tasks = list(self._database.user_tasks.find({"courseid": course.get_id(),
                                                                   "taskid": task.get_id(),
                                                                   "username": {"$in": students}}))
 
@@ -927,7 +944,7 @@ class UserManager:
         if lti == "auto":
             lti = self.session_lti_info() is not None
 
-        if self.has_staff_rights_on_course(course, username):
+        if self.has_admin_rights_on_course(course, username):
             return True
 
         if not course.get_accessibility().is_open():
@@ -960,7 +977,7 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        if self.has_staff_rights_on_course(course, username):
+        if self.has_admin_rights_on_course(course, username):
             return True
 
         return self._database.courses.find_one({"students": username, "_id": course.get_id()}) is not None
@@ -974,10 +991,10 @@ class UserManager:
         """
 
         course_obj = self._database.courses.find_one({"_id": course.get_id()})
-        l = course_obj["students"] if course_obj else []
+        l = course_obj.get("students", []) if course_obj else []
 
         if with_admins:
-            return list(set(l + course.get_staff()))
+            return list(set(l + course.get_admins()))
         else:
             return l
 
@@ -1015,19 +1032,6 @@ class UserManager:
             username = self.session_username()
 
         return (username in course.get_admins()) or (include_superadmins and self.user_is_superadmin(username))
-
-    def has_staff_rights_on_course(self, course, username=None, include_superadmins=True):
-        """
-        Check if a user can be considered as having staff rights for a course
-        :type course: inginious.frontend.courses.Course
-        :param username: the username. If None, the username of the currently logged in user is taken
-        :param include_superadmins: Boolean indicating if superadmins should be taken into account
-        :return: True if the user has staff rights, False else
-        """
-        if username is None:
-            username = self.session_username()
-
-        return (username in course.get_staff()) or (include_superadmins and self.user_is_superadmin(username))
 
     @classmethod
     def generate_api_key(cls):
