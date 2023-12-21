@@ -85,6 +85,25 @@ class ProfilePage(INGIniousAuthPage):
             else:
                 self.user_manager.set_session_language(language)
 
+        # Check if updating timezones
+        full_timezone = data["main_timezone"] + "/" + data["sub_timezone"]
+        if full_timezone != userdata["timezone"] and full_timezone != "/":
+            timezone = full_timezone if (data["main_timezone"] in self.app.available_timezones.keys()
+                                                and data["sub_timezone"] in self.app.available_timezones[data["main_timezone"]]) else "UTC"
+            print(data["main_timezone"])
+            print(data["sub_timezone"])
+            print(full_timezone)
+            print(timezone)
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                             {"$set": {"timezone": timezone}},
+                                                             return_document=ReturnDocument.AFTER)
+            if not result:
+                error = True
+                msg = _("Incorrect username.")
+                return result, msg, error
+            else:
+                self.user_manager.set_session_timezone(timezone)
+
         # Checks if updating name
         if len(data["realname"]) > 0:
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},

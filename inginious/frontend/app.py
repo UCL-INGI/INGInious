@@ -177,6 +177,78 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
+    available_timezones = { # timezones available for moment-timezone (cleaned)
+        'Africa':
+            ['Abidjan', 'Accra', 'Addis_Ababa', 'Algiers', 'Asmara', 'Asmera', 'Bamako', 'Bangui','Banjul', 'Bissau',
+             'Blantyre', 'Brazzaville', 'Bujumbura', 'Cairo', 'Casablanca', 'Ceuta','Conakry', 'Dakar', 'Dar_es_Salaam',
+             'Djibouti', 'Douala', 'El_Aaiun', 'Freetown', 'Gaborone','Harare', 'Johannesburg', 'Juba', 'Kampala',
+             'Khartoum', 'Kigali', 'Kinshasa', 'Lagos','Libreville', 'Lome', 'Luanda', 'Lubumbashi', 'Lusaka', 'Malabo',
+             'Maputo', 'Maseru','Mbabane', 'Mogadishu', 'Monrovia', 'Nairobi', 'Ndjamena', 'Niamey', 'Nouakchott',
+             'Ouagadougou', 'Porto-Novo', 'Sao_Tome', 'Timbuktu', 'Tripoli', 'Tunis', 'Windhoek'],
+        'America':
+            ['Adak', 'Anchorage', 'Anguilla', 'Antigua', 'Araguaina', 'Argentina/Buenos_Aires','Argentina/Catamarca',
+             'Argentina/ComodRivadavia', 'Argentina/Cordoba','Argentina/Jujuy', 'Argentina/La_Rioja',
+             'Argentina/Mendoza', 'Argentina/Rio_Gallegos','Argentina/Salta', 'Argentina/San_Juan', 'Argentina/San_Luis',
+             'Argentina/Tucuman', 'Argentina/Ushuaia', 'Aruba', 'Asuncion', 'Atikokan', 'Atka', 'Bahia', 'Bahia_Banderas',
+             'Barbados', 'Belem', 'Belize', 'Blanc-Sablon', 'Boa_Vista', 'Bogota', 'Boise','Buenos_Aires',
+             'Cambridge_Bay', 'Campo_Grande', 'Cancun', 'Caracas', 'Catamarca','Cayenne', 'Cayman', 'Chicago',
+             'Chihuahua', 'Coral_Harbour', 'Cordoba', 'Costa_Rica','Creston', 'Cuiaba', 'Curacao', 'Danmarkshavn',
+             'Dawson', 'Dawson_Creek', 'Denver','Detroit', 'Dominica', 'Edmonton', 'Eirunepe', 'El_Salvador', 'Ensenada',
+             'Fort_Nelson', 'Fort_Wayne', 'Fortaleza', 'Glace_Bay', 'Godthab', 'Goose_Bay','Grand_Turk', 'Grenada',
+             'Guadeloupe', 'Guatemala', 'Guayaquil', 'Guyana', 'Halifax','Havana', 'Hermosillo', 'Indiana/Indianapolis',
+             'Indiana/Knox', 'Indiana/Marengo','Indiana/Petersburg', 'Indiana/Tell_City', 'Indiana/Vevay',
+             'Indiana/Vincennes', 'Indiana/Winamac', 'Inuvik', 'Iqaluit', 'Jamaica', 'Jujuy', 'Juneau',
+             'Kentucky/Louisville', 'Kentucky/Monticello', 'Knox_IN', 'Kralendijk', 'La_Paz', 'Lima', 'Los_Angeles',
+             'Louisville', 'Lower_Princes', 'Maceio', 'Managua', 'Manaus','Marigot', 'Martinique', 'Matamoros',
+             'Mazatlan', 'Mendoza', 'Menominee', 'Merida','Metlakatla', 'Mexico_City', 'Miquelon', 'Moncton',
+             'Monterrey', 'Montevideo','Montreal', 'Montserrat', 'Nassau', 'New_York', 'Nipigon', 'Nome', 'Noronha',
+             'North_Dakota/Beulah', 'North_Dakota/Center', 'North_Dakota/New_Salem', 'Ojinaga','Panama', 'Pangnirtung',
+             'Paramaribo', 'Phoenix', 'Port-au-Prince', 'Port_of_Spain', 'Porto_Acre', 'Porto_Velho', 'Puerto_Rico',
+             'Punta_Arenas', 'Rainy_River', 'Rankin_Inlet', 'Recife', 'Regina', 'Resolute', 'Rio_Branco', 'Rosario',
+             'Santa_Isabel', 'Santarem', 'Santiago', 'Santo_Domingo', 'Sao_Paulo', 'Scoresbysund','Shiprock', 'Sitka',
+             'St_Barthelemy', 'St_Johns', 'St_Kitts', 'St_Lucia', 'St_Thomas','St_Vincent', 'Swift_Current',
+             'Tegucigalpa', 'Thule', 'Thunder_Bay', 'Tijuana', 'Toronto', 'Tortola', 'Vancouver', 'Virgin', 'Whitehorse',
+             'Winnipeg', 'Yakutat', 'Yellowknife'],
+        'Antarctica': ['Casey', 'Davis', 'DumontDUrville', 'Macquarie', 'Mawson', 'McMurdo', 'Palmer', 'Rothera',
+                       'South_Pole', 'Syowa', 'Troll', 'Vostok'],
+        'Arctic': ['Longyearbyen'],
+        'Asia': ['Aden', 'Almaty', 'Amman', 'Anadyr', 'Aqtau', 'Aqtobe', 'Ashgabat', 'Ashkhabad', 'Atyrau','Baghdad',
+                 'Bahrain', 'Baku', 'Bangkok', 'Barnaul', 'Beirut', 'Bishkek', 'Brunei', 'Calcutta', 'Chita',
+                 'Choibalsan', 'Chongqing', 'Chungking', 'Colombo', 'Dacca', 'Damascus', 'Dhaka', 'Dili', 'Dubai',
+                 'Dushanbe', 'Famagusta', 'Gaza', 'Harbin', 'Hebron', 'Ho_Chi_Minh', 'Hong_Kong', 'Hovd', 'Irkutsk',
+                 'Istanbul', 'Jakarta', 'Jayapura', 'Jerusalem', 'Kabul', 'Kamchatka', 'Karachi', 'Kashgar',
+                 'Kathmandu', 'Katmandu', 'Khandyga', 'Kolkata', 'Krasnoyarsk', 'Kuala_Lumpur', 'Kuching', 'Kuwait',
+                 'Macao', 'Macau', 'Magadan', 'Makassar', 'Manila', 'Muscat', 'Nicosia', 'Novokuznetsk', 'Novosibirsk',
+                 'Omsk', 'Oral', 'Phnom_Penh', 'Pontianak', 'Pyongyang', 'Qatar', 'Qyzylorda', 'Rangoon', 'Riyadh',
+                 'Saigon', 'Sakhalin', 'Samarkand', 'Seoul', 'Shanghai', 'Singapore', 'Srednekolymsk', 'Taipei',
+                 'Tashkent', 'Tbilisi', 'Tehran', 'Tel_Aviv', 'Thimbu', 'Thimphu', 'Tokyo', 'Tomsk', 'Ujung_Pandang',
+                 'Ulaanbaatar', 'Ulan_Bator', 'Urumqi', 'Ust-Nera', 'Vientiane', 'Vladivostok', 'Yakutsk', 'Yangon',
+                 'Yekaterinburg', 'Yerevan'],
+        'Atlantic': ['Azores', 'Bermuda', 'Canary', 'Cape_Verde', 'Faeroe', 'Faroe', 'Jan_Mayen', 'Madeira',
+                     'Reykjavik', 'South_Georgia', 'St_Helena', 'Stanley'],
+        'Australia': ['Adelaide', 'Brisbane', 'Broken_Hill', 'Canberra', 'Currie', 'Darwin', 'Eucla', 'Hobart',
+                      'Lindeman', 'Lord_Howe', 'Melbourne', 'North', 'Perth', 'Queensland', 'South', 'Sydney',
+                      'Tasmania', 'Victoria', 'West',  'Yancowinna'],
+        'Brazil': ['Acre', 'DeNoronha', 'East', 'West'],
+        'Canada': ['Atlantic', 'Central', 'Eastern', 'Mountain', 'Newfoundland', 'Pacific', 'Saskatchewan', 'Yukon'],
+        'Europe': ['Amsterdam', 'Andorra', 'Astrakhan', 'Athens', 'Belfast', 'Belgrade', 'Berlin', 'Bratislava',
+                   'Brussels', 'Bucharest', 'Budapest', 'Busingen', 'Chisinau', 'Copenhagen', 'Dublin', 'Gibraltar',
+                   'Guernsey', 'Helsinki', 'Isle_of_Man', 'Istanbul', 'Jersey', 'Kaliningrad', 'Kiev', 'Kirov',
+                   'Lisbon', 'Ljubljana', 'London', 'Luxembourg', 'Madrid', 'Malta', 'Mariehamn', 'Minsk', 'Monaco',
+                   'Moscow', 'Nicosia', 'Oslo', 'Paris', 'Podgorica', 'Prague', 'Riga', 'Rome', 'Samara', 'San_Marino',
+                   'Sarajevo', 'Saratov', 'Simferopol', 'Skopje', 'Sofia', 'Stockholm', 'Tallinn', 'Tirane', 'Tiraspol',
+                   'Ulyanovsk', 'Uzhgorod', 'Vaduz', 'Vatican', 'Vienna', 'Vilnius', 'Volgograd', 'Warsaw', 'Zagreb',
+                   'Zaporozhye', 'Zurich'],
+        'Indian': ['Antananarivo', 'Chagos', 'Christmas', 'Cocos', 'Comoro', 'Kerguelen', 'Mahe', 'Maldives',
+                   'Mauritius', 'Mayotte', 'Reunion'],
+        'Mexico': ['BajaNorte', 'BajaSur', 'General'],
+        'Pacific': ['Apia', 'Auckland', 'Bougainville', 'Chatham', 'Chuuk', 'Easter', 'Efate', 'Enderbury', 'Fakaofo',
+                    'Fiji', 'Funafuti', 'Galapagos', 'Gambier', 'Guadalcanal', 'Guam', 'Honolulu', 'Johnston',
+                    'Kiritimati', 'Kosrae', 'Kwajalein', 'Majuro', 'Marquesas', 'Midway', 'Nauru', 'Niue', 'Norfolk',
+                    'Noumea', 'Pago_Pago', 'Palau', 'Pitcairn', 'Pohnpei', 'Ponape', 'Port_Moresby', 'Rarotonga',
+                    'Saipan', 'Samoa', 'Tahiti', 'Tarawa', 'Tongatapu', 'Truk', 'Wake', 'Wallis', 'Yap']
+    }
+
     l10n_manager = L10nManager()
 
     l10n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
@@ -190,6 +262,7 @@ def get_app(config):
         template_helper.add_to_template_globals("get_homepath", get_homepath)
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
+        template_helper.add_to_template_globals("available_timezones", available_timezones)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
         init_flask_maintenance_mapping(flask_app)
@@ -243,6 +316,7 @@ def get_app(config):
     template_helper.add_to_template_globals("_", _)
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
+    template_helper.add_to_template_globals("available_timezones", available_timezones)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
     template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
@@ -303,6 +377,7 @@ def get_app(config):
     flask_app.allow_registration = config.get("allow_registration", True)
     flask_app.allow_deletion = config.get("allow_deletion", True)
     flask_app.available_languages = available_languages
+    flask_app.available_timezones = available_timezones
     flask_app.welcome_page = config.get("welcome_page", None)
     flask_app.terms_page = config.get("terms_page", None)
     flask_app.privacy_page = config.get("privacy_page", None)
