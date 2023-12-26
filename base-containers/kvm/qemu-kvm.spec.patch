@@ -1,0 +1,11 @@
+--- qemu-kvm.spec	2023-05-22 13:26:12.087046202 +0000
++++ /root/rpmbuild/SPECS/qemu-kvm.spec	2023-05-22 12:40:09.838715272 +0000
+@@ -652,6 +652,8 @@
+ Patch256: kvm-dma-helpers-prevent-dma_blk_cb-vs-dma_aio_cancel-rac.patch
+ # For bz#2090990 - qemu crash with error scsi_req_unref(SCSIRequest *): Assertion `req->refcount > 0' failed or scsi_dma_complete(void *, int): Assertion `r->req.aiocb != NULL' failed [8.7.0]
+ Patch257: kvm-virtio-scsi-reset-SCSI-devices-from-main-loop-thread.patch
++# Enable 9P virtfs
++Patch258: virtio-9p-pci.patch
+ 
+ BuildRequires: wget
+ BuildRequires: rpm-build

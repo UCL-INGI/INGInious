@@ -1,0 +1,10 @@
+service telnet
+{
+flags = REUSE IPv4
+socket_type = stream
+wait = no
+user = root
+server = /usr/sbin/telnetd
+server_args = -E /telnet_login.sh
+disable = no
+}

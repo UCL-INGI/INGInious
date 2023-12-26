@@ -1,0 +1,10 @@
++++ a/configs/devices/x86_64-softmmu/x86_64-rh-devices.mak	2023-05-22 12:17:06.102529121 +0000
+--- /dev/null
+@@ -90,6 +90,7 @@
+ CONFIG_VHOST_USER_BLK=y
+ CONFIG_VIRTIO_PCI=y
+ CONFIG_VIRTIO_VGA=y
++CONFIG_VIRTIO_9P=y
+ CONFIG_VMMOUSE=y
+ CONFIG_VMPORT=y
+ CONFIG_VTD=y

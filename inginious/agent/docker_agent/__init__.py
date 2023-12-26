@@ -65,7 +65,7 @@ class DockerRunningStudentContainer:
 
 class DockerAgent(Agent):
     def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider,
-                 address_host=None, external_ports=None, tmp_dir="./agent_tmp", runtimes=None, ssh_allowed=False):
+                 address_host=None, external_ports=None, tmp_dir="./agent_tmp", runtimes=None, ssh_allowed=False, kvm_allowed=False):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -78,6 +78,7 @@ class DockerAgent(Agent):
         :param type: type of the container ("docker" or "kata")
         :param runtime: runtime used by docker (the defaults are "runc" with docker or "kata-runtime" with kata)
         :param ssh_allowed: boolean to make this agent accept tasks with ssh or not
+        :param kvm_allowed: boolean to enable KVM passthrough on the agent
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
 
@@ -102,6 +103,12 @@ class DockerAgent(Agent):
 
         # Does this agent allow ssh_student ?
         self._ssh_allowed = ssh_allowed
+
+        # Does this agent allow KVM passthrough ?
+        self._kvm_allowed = kvm_allowed
+        if self._kvm_allowed and not os.path.exists('/dev/kvm'):
+            self._logger.warning("KVM passthrough seems to not be enabled on the Agent. KVM-specific tasks will be rejected.")
+            self._kvm_allowed = False
 
     async def _init_clean(self):
         """ Must be called when the agent is starting """
@@ -383,7 +390,7 @@ class DockerAgent(Agent):
                                                               sockets_path, course_common_path,
                                                               course_common_student_path,
                                                               self.__get_fd_limit(), runtime,
-                                                              ports)
+                                                              ports, self._kvm_allowed)
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
             shutil.rmtree(container_path)
@@ -493,7 +500,8 @@ class DockerAgent(Agent):
                                                                            parent_info.environment_type,
                                                                            self.__get_fd_limit(),
                                                                            parent_info.container_id if share_network else None,
-                                                                           ports)
+                                                                           ports,
+                                                                           self._kvm_allowed)
             except Exception as e:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254,

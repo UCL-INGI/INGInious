@@ -1,0 +1,25 @@
+diff --git a/virtme/architectures.py b/virtme/architectures.py
+index ba16138..6bc5e42 100644
+--- a/virtme/architectures.py
++++ b/virtme/architectures.py
+@@ -71,7 +71,7 @@ class Arch_x86(Arch):
+         ret = Arch.qemuargs(is_native)
+ 
+         # Add a watchdog.  This is useful for testing.
+-        ret.extend(['-watchdog', 'i6300esb'])
++        ret.extend(['-device', 'i6300esb', '-action', 'watchdog=pause'])
+ 
+         if is_native and os.access('/dev/kvm', os.R_OK):
+             # If we're likely to use KVM, request a full-featured CPU.
+diff --git a/virtme/commands/run.py b/virtme/commands/run.py
+index 8cecb07..9b082c0 100644
+--- a/virtme/commands/run.py
++++ b/virtme/commands/run.py
+@@ -367,6 +367,7 @@ def do_it() -> int:
+     # Set up / override baseline devices
+     qemuargs.extend(['-parallel', 'none'])
+     qemuargs.extend(['-net', 'none'])
++    qemuargs.extend(['-nic', 'user,hostfwd=tcp::2223-:23'])
+ 
+     if not args.graphics and not args.script_sh and not args.script_exec:
+         # It would be nice to use virtconsole, but it's terminally broken

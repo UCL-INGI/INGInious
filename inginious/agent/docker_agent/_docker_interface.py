@@ -110,7 +110,7 @@ class DockerInterface(object):  # pragma: no cover
             return None
 
     def create_container(self, image, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, fd_limit, runtime: str, ports=None):
+            course_common_path, course_common_student_path, fd_limit, runtime: str, ports=None, kvm: bool=False):
         """
         Creates a container.
         :param image: env to start (name/id of a docker image)
@@ -123,6 +123,7 @@ class DockerInterface(object):  # pragma: no cover
         :param fd_limit: Tuple with soft and hard limits per slot for FS
         :param runtime: name of the docker runtime to use
         :param ports: dictionary in the form {docker_port: external_port}
+        :param kvm: enable KVM passthrough in the container
         :return: the container id
         """
         task_path = os.path.abspath(task_path)
@@ -133,6 +134,20 @@ class DockerInterface(object):  # pragma: no cover
             ports = {}
 
         nofile_limit = Ulimit(name='nofile', soft=fd_limit[0], hard=fd_limit[1])
+
+        image_requires_kvm = False
+        try:
+            raw_image = self._docker.images.get(image)
+            try:
+                image_requires_kvm = raw_image.labels['org.inginious.kvm'] == '1'
+            except KeyError:
+                pass
+        except docker.errors.ImageNotFound:
+            # TODO: See https://github.com/UCL-INGI/INGInious/issues/950
+            pass
+        except docker.errors.APIError:
+            # TODO: See https://github.com/UCL-INGI/INGInious/issues/950
+            pass
 
         response = self._docker.containers.create(
             image,
@@ -150,13 +165,14 @@ class DockerInterface(object):  # pragma: no cover
                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
             runtime=runtime,
-            ulimits=[nofile_limit]
+            ulimits=[nofile_limit],
+            devices=['/dev/kvm'] if kvm and image_requires_kvm else []
         )
         return response.id
 
     def create_container_student(self, runtime: str, image: str, mem_limit, student_path,
                                  socket_path, systemfiles_path, course_common_student_path,
-                                 parent_runtime: str,fd_limit, share_network_of_container: str=None, ports=None):
+                                 parent_runtime: str,fd_limit, share_network_of_container: str=None, ports=None, kvm: bool=False):
         """
         Creates a student container
         :param fd_limit:Tuple with soft and hard limits per slot for FS
@@ -170,6 +186,7 @@ class DockerInterface(object):  # pragma: no cover
         :param share_network_of_container: (deprecated) if a container id is given, the new container will share its
                                            network stack.
         :param ports: dictionary in the form {docker_port: external_port}
+        :param kvm: enable KVM passthrough in the container
         :return: the container id
         """
         student_path = os.path.abspath(student_path)
@@ -190,10 +207,26 @@ class DockerInterface(object):  # pragma: no cover
 
         nofile_limit = Ulimit(name='nofile', soft=fd_limit[0], hard=fd_limit[1])
 
+        image_requires_kvm = False
+        try:
+            raw_image = self._docker.images.get(image)
+            try:
+                image_requires_kvm = raw_image.labels['org.inginious.kvm'] == '1'
+            except KeyError:
+                pass
+        except docker.errors.ImageNotFound:
+            # TODO: See https://github.com/UCL-INGI/INGInious/issues/950
+            pass
+        except docker.errors.APIError:
+            # TODO: See https://github.com/UCL-INGI/INGInious/issues/950
+            pass
+
+        enable_kvm = kvm and image_requires_kvm
+
         response = self._docker.containers.create(
             image,
             stdin_open=True,
-            command="_run_student_intern "+runtime + " " + parent_runtime,  # the script takes the runtimes as arguments
+            command=f"_run_student_intern {runtime} {parent_runtime} {enable_kvm}",  # the script takes the runtimes as arguments
             mem_limit=str(mem_limit) + "M",
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
@@ -208,7 +241,8 @@ class DockerInterface(object):  # pragma: no cover
                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
             runtime=runtime,
-            ulimits=[nofile_limit]
+            ulimits=[nofile_limit],
+            devices=['/dev/kvm'] if enable_kvm else []
         )
 
         return response.id
