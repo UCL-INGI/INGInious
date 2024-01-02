@@ -5,7 +5,7 @@
 
 """ Contains AccessibleTime, class that represents the period of time when a course/task is accessible """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def parse_date(date, default=None):
@@ -53,10 +53,10 @@ class AccessibleTime(object):
             elif date == "":
                 raise Exception("Empty date given to AccessibleTime")
 
-        self._start = self.adapt_database_date(period["start"])
-        self._end = self.adapt_database_date(period["end"])
+        self._start = self.adapt_database_date(period["start"]).replace(tzinfo=timezone.utc)
+        self._end = self.adapt_database_date(period["end"]).replace(tzinfo=timezone.utc)
         if "soft_end" in period:
-            self._soft_end = self.adapt_database_date(period["soft_end"])
+            self._soft_end = self.adapt_database_date(period["soft_end"]).replace(tzinfo=timezone.utc)
             if self._soft_end > self._end:
                 self._soft_end = self._end
 
@@ -80,7 +80,7 @@ class AccessibleTime(object):
     def before_start(self, when=None):
         """ Returns True if the task/course is not yet accessible """
         if when is None:
-            when = datetime.now()
+            when = datetime.now(timezone.utc)
 
         return self._start > when
 
@@ -91,14 +91,14 @@ class AccessibleTime(object):
     def is_open(self, when=None):
         """ Returns True if the course/task is still open """
         if when is None:
-            when = datetime.now()
+            when = datetime.now(timezone.utc)
 
         return self._start <= when and when <= self._end
 
     def is_open_with_soft_deadline(self, when=None):
         """ Returns True if the course/task is still open with the soft deadline """
         if when is None:
-            when = datetime.now()
+            when = datetime.now(timezone.utc)
 
         return self._start <= when and when <= self._soft_end
 
