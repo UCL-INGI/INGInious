@@ -41,6 +41,9 @@ class AccessibleTime(object):
             :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
         """
 
+        #self.utc_datetime_min = datetime.min.replace(tzinfo=timezone.utc)
+        #self.utc_datetime_max = datetime.max.replace(tzinfo=timezone.utc)
+
         if not isinstance(period, dict):
             raise Exception("Wrong period given to AccessibleTime")
 
@@ -59,6 +62,10 @@ class AccessibleTime(object):
             self._soft_end = self.adapt_database_date(period["soft_end"]).replace(tzinfo=timezone.utc)
             if self._soft_end > self._end:
                 self._soft_end = self._end
+
+
+        self.utc_datetime_min = datetime.min.replace(tzinfo=timezone.utc)
+        self.utc_datetime_max = datetime.max.replace(tzinfo=timezone.utc)
 
 
     def adapt_database_date(self, date):
@@ -104,29 +111,29 @@ class AccessibleTime(object):
 
     def is_always_accessible(self):
         """ Returns true if the course/task is always accessible """
-        return self._start == datetime.min and self._end == datetime.max
+        return self._start == self.utc_datetime_min and self._end == self.utc_datetime_max
 
     def is_never_accessible(self):
         """ Returns true if the course/task is never accessible """
-        return self._start == datetime.max and self._end == datetime.max
+        return self._start == self.utc_datetime_max and self._end == self.utc_datetime_max
 
     def get_std_start_date(self):
         """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        if self._start != datetime.min and self._start != datetime.max:
+        if self._start != self.utc_datetime_min and self._start != self.utc_datetime_max:
             return self._start.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_end_date(self):
         """ If the date is custom, return the end datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        if self._end != datetime.max:
+        if self._end != self.utc_datetime_max:
             return self._end.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_soft_end_date(self):
         """ If the date is custom, return the soft datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        if self._soft_end != datetime.max:
+        if self._soft_end != self.utc_datetime_max:
             return self._soft_end.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
