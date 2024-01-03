@@ -46,8 +46,8 @@ class AccessibleTime(object):
                             Can be a boolean, None or string if using the legacy format "start/soft_end/end"
         """
 
-        self.max = datetime.max.replace(microsecond=0)
-        self.min = datetime.min
+        self.max = datetime.max.replace(microsecond=0, tzinfo=timezone.utc)
+        self.min = datetime.min.replace(tzinfo=timezone.utc)
 
         if not isinstance(period, (dict, str, bool, type(None))):  # add None check
             raise Exception("Wrong period given to AccessibleTime")
