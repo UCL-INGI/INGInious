@@ -83,6 +83,9 @@
     $("#edit_task_modal").on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var taskid = button.data('taskid');
+
+        console.log(taskid);
+
         if (!("accessibility" in dispenser_config[taskid]))
             return;
         var accessibility = dispenser_config[taskid]["accessibility"];
@@ -96,9 +99,9 @@
         if (Object.values(accessibility).some(date => !isSpecialDate(date))) {
             value = 'custom';
 
-            $('#accessibility_start_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["start"]) ? '' : accessibility["start"]);
-            $('#accessibility_soft_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["soft_end"]) ? '' : accessibility["soft_end"]);
-            $('#accessibility_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["end"]) ? '' : accessibility["end"]);
+            $(this).find('#accessibility_start_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["start"]) ? '' : accessibility["start"]);
+            $(this).find('#accessibility_soft_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["soft_end"]) ? '' : accessibility["soft_end"]);
+            $(this).find('#accessibility_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["end"]) ? '' : accessibility["end"]);
 
         } else if (Object.values(accessibility).some(date => date == "1-01-01 00:00:00")) {
             value = 'true';
