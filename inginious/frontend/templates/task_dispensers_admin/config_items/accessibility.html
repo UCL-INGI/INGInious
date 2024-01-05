@@ -84,8 +84,6 @@
         var button = $(event.relatedTarget);
         var taskid = button.data('taskid');
 
-        console.log(taskid);
-
         if (!("accessibility" in dispenser_config[taskid]))
             return;
         var accessibility = dispenser_config[taskid]["accessibility"];
@@ -99,14 +97,19 @@
         if (Object.values(accessibility).some(date => !isSpecialDate(date))) {
             value = 'custom';
 
-            $(this).find('#accessibility_start_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["start"]) ? '' : accessibility["start"]);
-            $(this).find('#accessibility_soft_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["soft_end"]) ? '' : accessibility["soft_end"]);
-            $(this).find('#accessibility_end_picker').datetimepicker('defaultDate', isSpecialDate(accessibility["end"]) ? '' : accessibility["end"]);
-
-        } else if (Object.values(accessibility).some(date => date == "1-01-01 00:00:00")) {
-            value = 'true';
+            $(this).find('#accessibility_start_picker').datetimepicker('date', isSpecialDate(accessibility["start"]) ? null : accessibility["start"]);
+            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', isSpecialDate(accessibility["soft_end"]) ? null : accessibility["soft_end"]);
+            $(this).find('#accessibility_end_picker').datetimepicker('date', isSpecialDate(accessibility["end"]) ? null : accessibility["end"]);
         } else {
-            value = 'false';
+            if (Object.values(accessibility).some(date => date == "1-01-01 00:00:00")) {
+                value = 'true';
+            } else {
+                value = 'false';
+            }
+
+            $(this).find('#accessibility_start_picker').datetimepicker('date', null);
+            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', null);
+            $(this).find('#accessibility_end_picker').datetimepicker('date', null);
         }
 
         var field = $(this).find(".accessibility input[value=" + value + "]");
