@@ -36,7 +36,7 @@
         </div>
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
             <div class='input-group date_picker' id='accessibility_start_picker{% if grouped %}_grouped{% endif %}' data-target-input="nearest">
-                <input data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" id="accessibility_start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                <input data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" id="accessibility_start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
                 <div class="input-group-append" data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
@@ -45,7 +45,7 @@
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">{{text[1]}}</label></div>
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
             <div class='input-group date_picker' id='accessibility_end_picker{% if grouped %}_grouped{% endif %}' data-target-input="nearest">
-                <input data-target='#accessibility_end_picker{% if grouped %}_grouped{% endif %}' id="accessibility_end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                <input data-target='#accessibility_end_picker{% if grouped %}_grouped{% endif %}' id="accessibility_end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
                 <div class="input-group-append" data-target="#accessibility_end_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
@@ -61,7 +61,7 @@
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
             <div class="form-group">
                 <div class='input-group date_picker' id="accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-target-input="nearest">
-                        <input data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" id="accessibility_soft_end" data-date-format="YYYY-MM-DD HH:mm:ss"  placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input" />
+                        <input data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" id="accessibility_soft_end" data-date-format="YYYY-MM-DD HH:mm:ss"  placeholder="2014-06-29 10:00:00" type="text" class="form-control datetimepicker-input" />
                         <div class="input-group-append" data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -98,9 +98,33 @@
         if (Object.values(accessibility).some(date => !isSpecialDate(date))) {
             value = 'custom';
 
-            $(this).find('#accessibility_start_picker').datetimepicker('date', isSpecialDate(accessibility["start"]) ? null : accessibility["start"]);
-            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', isSpecialDate(accessibility["soft_end"]) ? null : accessibility["soft_end"]);
-            $(this).find('#accessibility_end_picker').datetimepicker('date', isSpecialDate(accessibility["end"]) ? null : accessibility["end"]);
+            $('#accessibility_start_picker').data('ignore-change', true);
+            $('#accessibility_soft_end_picker').data('ignore-change', true);
+            $('#accessibility_end_picker').data('ignore-change', true);
+
+            start_date = isSpecialDate(accessibility["start"]) ? null : moment.utc(accessibility["start"]);
+            soft_end_date = isSpecialDate(accessibility["soft_end"]) ? null : moment.utc(accessibility["soft_end"]);
+            end_date = isSpecialDate(accessibility["end"]) ? null : moment.utc(accessibility["end"]);
+
+            $(this).find('#accessibility_start_picker').datetimepicker('destroy');
+            $(this).find('#accessibility_soft_end_picker').datetimepicker('destroy');
+            $(this).find('#accessibility_end_picker').datetimepicker('destroy');
+
+            $(this).find('#accessibility_start').val("");
+            $(this).find('#accessibility_soft_end').val("");
+            $(this).find('#accessibility_end').val("");
+
+            $(this).find('#accessibility_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
+                                                                         defaultDate: start_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+            $(this).find('#accessibility_soft_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
+                                                                            defaultDate: soft_end_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+            $(this).find('#accessibility_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
+                                                                            defaultDate: end_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+
+            $('#accessibility_start_picker').data('ignore-change', false);
+            $('#accessibility_soft_end_picker').data('ignore-change', false);
+            $('#accessibility_end_picker').data('ignore-change', false);
+
         } else {
             if (Object.values(accessibility).some(date => date == "{{ at.min }}")) {
                 value = 'true';
@@ -108,9 +132,18 @@
                 value = 'false';
             }
 
-            $(this).find('#accessibility_start_picker').datetimepicker('date', null);
-            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', null);
-            $(this).find('#accessibility_end_picker').datetimepicker('date', null);
+            $('#accessibility_start_picker').data('ignore-change', true);
+            $('#accessibility_soft_end_picker').data('ignore-change', true);
+            $('#accessibility_end_picker').data('ignore-change', true);
+
+            $(this).find('#accessibility_start').val("");
+            $(this).find('#accessibility_soft_end').val("");
+            $(this).find('#accessibility_end').val("");
+
+            $('#accessibility_start_picker').data('ignore-change', false);
+            $('#accessibility_soft_end_picker').data('ignore-change', false);
+            $('#accessibility_end_picker').data('ignore-change', false);
+
         }
 
         var field = $(this).find(".accessibility input[value=" + value + "]");
@@ -137,9 +170,10 @@
                 dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
             } else {
                 $("#task_" + taskid + " .accessibility-custom").show();
-                var start = $("#edit_task_modal").find("#accessibility_start").val();
-                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
-                var end = $("#edit_task_modal").find("#accessibility_end").val();
+
+                var start = $("#edit_task_modal").find("#accessibility_start").datetimepicker('viewDate').clone().utc();
+                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").datetimepicker('viewDate').clone().utc();
+                var end = $("#edit_task_modal").find("#accessibility_end").datetimepicker('viewDate').clone().utc();
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -149,45 +183,54 @@
             let id = $(this).attr("id");
 
             if (id == "accessibility_start") {
-                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).val());
+                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).datetimepicker('viewDate').clone().utc());
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
             } else if(id == "accessibility_end") {
-                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).val());
+                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).datetimepicker('viewDate').clone().utc());
                 dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
             } else {
-                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).val());
+                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).datetimepicker('viewDate').clone().utc());
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
             }
         }
     });
 
     $('#accessibility_start_picker').on("change.datetimepicker", function () {
+        if ($(this).data('ignore-change')) {
+            $(this).data('ignore-change', false);
+            return;
+        }
+
         if( $("input[name='accessibility']:checked").val() != "custom")
             return;
         var taskid = $("#edit_task_modal").data("taskid");
-        let val = $("#edit_task_modal #accessibility_start").val();
-        $("#task_" + taskid + " .accessibility-custom-start").text(val);
-        var start = $("#edit_task_modal").find("#accessibility_start").val();
+        var start = $("#edit_task_modal").find("#accessibility_start_picker").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
         dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
     });
 
     $('#accessibility_end_picker').on("change.datetimepicker", function () {
+        if ($(this).data('ignore-change')) {
+            $(this).data('ignore-change', false);
+            return;
+        }
+
         if( $("input[name='accessibility']:checked").val() != "custom")
             return;
         var taskid = $("#edit_task_modal").data("taskid");
-        let val = $("#edit_task_modal #accessibility_end").val();
-        $("#task_" + taskid + " .accessibility-custom-end").text(val);
-        var end = $("#edit_task_modal").find("#accessibility_end").val();
+        var end = $("#edit_task_modal").find("#accessibility_end_picker").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
         dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
     });
 
     $('#accessibility_soft_end_picker').on("change.datetimepicker", function () {
+        if ($(this).data('ignore-change')) {
+            $(this).data('ignore-change', false);
+            return;
+        }
+
         if( $("input[name='accessibility']:checked").val() != "custom")
             return;
         var taskid = $("#edit_task_modal").data("taskid");
-        let val = $("#edit_task_modal #accessibility_soft_end").val();
-        $("#task_" + taskid + " .accessibility-custom-soft-end").text(val);
-        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end_picker").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
         dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
     });
 
