@@ -294,6 +294,10 @@
     });
 
     $('#accessibility_start_picker_grouped').on("change.datetimepicker", function () {
+        let access_type = $("#grouped-actions-edit .accessibility input:radio:checked").val();
+        if(access_type != "custom")
+            return;
+
         let val = $("#grouped-actions-edit #accessibility_start").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
@@ -302,6 +306,10 @@
         });
     });
     $('#accessibility_end_picker_grouped').on("change.datetimepicker", function () {
+        let access_type = $("#grouped-actions-edit .accessibility input:radio:checked").val();
+        if(access_type != "custom")
+            return;
+
         let val = $("#grouped-actions-edit #accessibility_end").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-end").text(val);
@@ -310,6 +318,10 @@
         });
     });
     $('#accessibility_soft_end_picker_grouped').on("change.datetimepicker", function () {
+        let access_type = $("#grouped-actions-edit .accessibility input:radio:checked").val();
+        if(access_type != "custom")
+            return;
+            
         let val = $("#grouped-actions-edit #accessibility_soft_end").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-soft-end").text(val);
