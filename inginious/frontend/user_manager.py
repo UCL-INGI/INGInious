@@ -299,17 +299,16 @@ class UserManager:
         user = self._database.users.find_one(
             {"username": username, "activate": {"$exists": False}})
 
-        def connect_user(username, user, do_connect):
-            return (user and self.connect_user(username, user["realname"], user["email"], user["language"],
-                                               user.get("tos_accepted", False)) if do_connect else user)
-
         if user is None:
             return None
 
-        method, db_hash = user["password"].split("-") if "-" in user["password"] else ("sha512", user["password"])
+        method, db_hash = user["password"].split("-", 1) if "-" in user["password"] else ("sha512", user["password"])
 
         if self.verify_hash(db_hash, password, method):
-            return connect_user(username, user, do_connect)
+            if do_connect:
+                self.connect_user(username, user["realname"], user["email"], user["language"],
+                                  user.get("tos_accepted", False))
+            return user
 
     def verify_hash(cls, db_hash, password, method="sha512"):
         """
