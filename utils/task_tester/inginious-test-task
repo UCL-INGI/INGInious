@@ -25,7 +25,7 @@ from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.frontend.course_factory import create_factories
+from inginious.frontend.taskset_factory import create_factories
 from inginious.common.filesystems import FileSystemProvider
 from inginious.frontend.parsable_text import ParsableText
 from inginious.client.client_sync import ClientSync
@@ -189,7 +189,7 @@ def get_config(configfile):
 
     return load_json_or_yaml(configfile)
 
-def launch_job(filename, data, inputfiles, task):
+def launch_job(filename, data, inputfiles, taskset, task):
     """ Re-run a submission and compare the results.
         :param filename:    The path towards the submission.
         :param data:        The submission content.
@@ -198,12 +198,12 @@ def launch_job(filename, data, inputfiles, task):
         :post:              The list of failed submission test and the number of re-runned 
                             submission have been updated.
     """
-    result, grade, problems, tests, custom, state, archive, stdout, stderr = job_manager.new_job(0, task, data["input"], "Task tester", True)
+    result, grade, problems, tests, custom, state, archive, stdout, stderr = job_manager.new_job(0, taskset, task, data["input"], "Task tester", True)
     job_done_callback({"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}, filename, inputfiles, data)
 
-def test_task(course, taskid) -> tuple[list, int]:
+def test_task(taskset, taskid) -> tuple[list, int]:
     """ Re-run submissions for a specific task.
-        :param course:  The course containing the task to test.
+        :param taskset:  The taskset containing the task to test.
         :param taskid:  The ID of the task to test.
         :return:        The list of failed submissions and the number of submissions re-executed.
         :post:          The containers for the list of failed submissions and the number of 
@@ -213,10 +213,10 @@ def test_task(course, taskid) -> tuple[list, int]:
     logger.info('-> Re-running submissions for task <%s>' % taskid)
 
     """ Get task from its id """
-    task = course.get_task(taskid)
+    task = taskset.get_task(taskid)
 
     """ Build test directory path for current task """
-    test_dir = os.path.join(course.get_fs().prefix, taskid, 'test/')
+    test_dir = os.path.join(taskset.get_fs().prefix, taskid, 'test/')
 
     """ List sample submissions for the current task """
     inputfiles = glob.glob(test_dir + '*.test')
@@ -231,7 +231,7 @@ def test_task(course, taskid) -> tuple[list, int]:
             
         with open(filename, 'r') as fd:
             submission = inginious.common.custom_yaml.load(fd)
-        launch_job(filename, submission, inputfiles, task)
+        launch_job(filename, submission, inputfiles, taskset, task)
     
     result = (job_done_callback.failed, job_done_callback.jobs_done)
 
@@ -259,31 +259,31 @@ def test_task(course, taskid) -> tuple[list, int]:
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
-        'Replay submissions of a given course to ensure that its task\'s grading processes are '
+        'Replay submissions of a given taskset to ensure that its task\'s grading processes are '
         'consistent over time.'
 
     )
-    parser.add_argument("courseid", help="Course ID of the course to test.")
+    parser.add_argument("tasksetid", help="Course ID of the taskset to test.")
     parser.add_argument("taskids", nargs='*', help="Task ID(s) of the task to test.")
     parser.add_argument("-c", "--config", help="Path towards the INGInious instance configuration"
                                                 "file.", default="")
     parser.add_argument("-v", "--verbose", help="Display more output", action='store_true')
     parser.add_argument("-p", "--plugins", nargs="*", help="Additional plugins required to replay"
-                                                            "the course's tasks.")
+                                                            "the taskset's tasks.")
     args = parser.parse_args()
 
     """ Read input argument """
     verbose = args.verbose
-    courseid = args.courseid
+    tasksetid = args.tasksetid
     taskids = args.taskids
     plugins = args.plugins
 
     logger.info('Hello from the task tester utility!')
 
-    """ Parse course configuration """
+    """ Parse taskset configuration """
     config = get_config(args.config)
 
-    """ Initialize course/task factory """
+    """ Initialize taskset/task factory """
     task_directory = config["tasks_directory"]
     task_dispensers = {TableOfContents.get_id(): TableOfContents, CombinatoryTest.get_id(): CombinatoryTest}
 
@@ -298,11 +298,11 @@ if __name__ == "__main__":
 
     """ Intialize the LocalFileSystemProvider of the instance """
     local_fsp = LocalFSProvider(task_directory)
-    course_factory, task_factory = create_factories(local_fsp, task_dispensers, task_problem_types)
+    taskset_factory, task_factory = create_factories(local_fsp, task_dispensers, task_problem_types)
 
     """ Initialize client """
     zmq_context, asyncio_thread = start_asyncio_and_zmq()
-    client = create_arch(config, local_fsp, zmq_context, course_factory)
+    client = create_arch(config, local_fsp, zmq_context, taskset_factory)
     client.start()
 
     """ Get the client synchronous """
@@ -320,8 +320,8 @@ if __name__ == "__main__":
         print('\x1b[1m.\033[0m', end='', flush=True)
     print()
 
-    course = course_factory.get_course(courseid)
-    course_fs = course.get_fs()
+    taskset = taskset_factory.get_taskset(tasksetid)
+    taskset_fs = taskset.get_fs()
 
     banned = ['.git/', '$common/', '.github/']
     total_ignored = []
@@ -330,14 +330,14 @@ if __name__ == "__main__":
     taskn = 0
 
     """ Test each specified task """
-    for taskid in taskids if len(taskids) > 0 else [task_dir[:-1] for task_dir in course_fs.list(files=False)]:
-        if taskid in banned or not course_fs.exists(os.path.join(taskid, 'task.yaml')):
+    for taskid in taskids if len(taskids) > 0 else [task_dir[:-1] for task_dir in taskset_fs.list(files=False)]:
+        if taskid in banned or not taskset_fs.exists(os.path.join(taskid, 'task.yaml')):
             continue
-        elif course_fs.exists(os.path.join(taskid, '.testignore')):
+        elif taskset_fs.exists(os.path.join(taskid, '.testignore')):
             logger.warning('-> Task <%s> explicitely ignored' % taskid)
             total_ignored.append(taskid)
         else:
-            failed, done = test_task(course, taskid)
+            failed, done = test_task(taskset, taskid)
             total_failed += failed
             total_done += done
         print()
@@ -359,7 +359,7 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         if total_done == 0:
-            logger.warning('--> No test submission found for course <%s>' % courseid)
+            logger.warning('--> No test submission found for taskset <%s>' % tasksetid)
             sys.exit(0)
         else:
             logger.success('--> All the previous submissions of the tested tasks passed')

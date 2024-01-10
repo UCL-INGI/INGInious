@@ -88,7 +88,7 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return template_helper.render("course_admin/subproblems/code.html", key=key, multiline=True)
+        return template_helper.render("taskset_admin/subproblems/code.html", key=key, multiline=True)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
@@ -117,7 +117,7 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return template_helper.render("course_admin/subproblems/code.html", key=key, multiline=False)
+        return template_helper.render("taskset_admin/subproblems/code.html", key=key, multiline=False)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
@@ -144,7 +144,7 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return template_helper.render("course_admin/subproblems/file.html", key=key)
+        return template_helper.render("taskset_admin/subproblems/file.html", key=key)
 
     def show_input(self, template_helper, language, seed):
         """ Show FileBox """
@@ -221,11 +221,11 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return template_helper.render("course_admin/subproblems/multiple_choice.html", key=key)
+        return template_helper.render("taskset_admin/subproblems/multiple_choice.html", key=key)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
-        return template_helper.render("course_admin/subproblems/multiple_choice_templates.html", key=key)
+        return template_helper.render("taskset_admin/subproblems/multiple_choice_templates.html", key=key)
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
@@ -246,7 +246,7 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key, language):
-        return template_helper.render("course_admin/subproblems/match.html", key=key)
+        return template_helper.render("taskset_admin/subproblems/match.html", key=key)
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):

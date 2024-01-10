@@ -1,0 +1,110 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% extends "layout.html" %}
+{% set task_dispenser = taskset.get_task_dispenser() %}
+
+{% block title %} {{taskset.get_name(user_manager.session_language())}} {% endblock %}
+
+{% block column %}
+    {{ template_helper.call('taskset_admin_menu',taskset=taskset,current='template') | safe }}
+{% endblock %}
+
+{% block navbar %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/tasksets" title="{{ _('Tasksets') }}" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-tasks"></i></a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}">{{taskset.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-tasks"></i> {{ _("Course template") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+<h2>{{ _("Course template") }}
+<div class="pull-right">
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-warning" data-toggle="modal" data-target="#taskDispenserModal">
+                <i class="fa fa-exchange"></i> {{_("Switch task dispenser")}}
+            </button>
+        </div>
+    </div>
+</h2>
+
+
+<div class="modal fade" id="taskDispenserModal" tabindex="-1" role="dialog" aria-labelledby="taskDispenserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskDispenserModalLabel">{{_("Switch task dispenser")}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ _("This will wipe your current taskset structure. Tasks file won't be deleted but you'll have to import them again.") }}</p>
+                    <label>{{ _("New task dispenser:") }}</label>
+                    <select class="form-control" id="new_task_dispenser" name="task_dispenser">
+                        {% for id, task_dispenser_class in task_dispensers.items() %}
+                            <option value="{{id}}" {{ 'selected' if task_dispenser_class.get_id() == task_dispenser.get_id() else '' }}>{{ task_dispenser_class.get_name(user_manager.session_language()) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{_("Cancel")}}</button>
+                    <button type="submit" class="btn btn-warning">{{_("Save changes")}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if errors %}
+    {% for error in errors %}
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{error}}
+        </div>
+    {% endfor %}
+{% elif validated %}
+    <div class="alert alert-success" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {{ _("Changes saved.") }}
+    </div>
+{% endif %}
+
+{% if task_dispenser.has_legacy_tasks(True) %}
+<div class="alert alert-warning pl-1" role="alert">
+    <form method="post">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="row">
+            <div class="col-md-8 mt-1">
+                {{ _("This taskset currently includes legacy tasks with importable data to the task dispenser settings. The taskset owner can clean the task files.") }}
+            </div>
+            <div class="col-md-2"><button type="submit" name="migrate_tasks" class="btn btn-sm btn-block btn-success"><i class="fa fa-rocket"></i> {{ _("Import settings") }}</button></div>
+            <div class="col-md-2"><button type="submit" name="clean_tasks" class="btn btn-sm btn-block btn-danger"><i class="fa fa-trash"></i> {{ _("Clean task files") }}</button></div>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div id="dispenser_data">
+    {{ task_dispenser.render_edit(template_helper, taskset, tasks, tasks_errors) | safe }}
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-6">
+        <button class="btn btn-danger btn-block" onclick="location.reload()">
+            <i class="fa fa-undo"></i> {{_("Cancel")}}
+        </button>
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-block" onclick="dispenser_submit('{{task_dispenser.get_id() }}');">
+            <i class="fa fa-save"></i> {{_("Save changes")}}
+        </button>
+    </div>
+</div>
+{% endblock %}

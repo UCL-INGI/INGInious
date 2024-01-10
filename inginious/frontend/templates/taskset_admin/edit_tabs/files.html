@@ -1,0 +1,70 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div role="tabpanel" class="tab-pane show active " id="tab_file_list">
+
+    {% if error is not none %}
+        <div class="alert alert-danger" role="alert" style="text-align: center;">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <input type="file" name="file" id="file" style="display: none;">
+    <div style="overflow-x:auto;">
+        <table class="table table-bordered table-sm upload-area">
+            <thead class="table-borderless">
+                <th class="col-sm-8">{{_("Path")}}</th>
+                <th class="col-sm-1">{{_("Download")}}</th>
+                <th class="col-sm-1">{{_("Edit")}}</th>
+                <th class="col-sm-1">{{_("Move")}}</th>
+                <th class="col-sm-1">{{_("Delete")}}</th>
+            </thead>
+            <tr>
+                <td><i class="fa fa-folder-open"></i>&nbsp;/</td>
+                <td><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}/edit/{{taskid}}/files?action=download&path=/"
+                       onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="{{ _('Download') }}"><i
+                        class="fa fa-cloud-download"></i></a></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% for level, is_directory, name, complete_name in file_list %}
+                <tr data-x-path="{{ complete_name }}">
+                    <td>
+                        {% for i in range(level+1) %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endfor %}
+                        {% if is_directory %}<i class="fa fa-folder-open"></i>&nbsp;{%endif %}
+                        {{ name }}
+                    </td>
+                    <td>
+                        <a href="{{ get_homepath() }}/taskset/{{ taskset.get_id() }}/edit/{{ taskid }}/files?action=download&path={{ complete_name }}"
+                           class="btn btn-sm btn-primary btn-block" title="{{ _('Download') }}"><i class="fa fa-cloud-download"></i></a>
+                    </td>
+                    <td>
+                        {% if not is_directory %}
+                            <a href="#" onclick="studio_task_file_open_tab('{{complete_name}}'); return false;" class="btn btn-sm btn-warning btn-block"
+                               title="{{ _('Edit') }}"><i class="fa fa-edit"></i></a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="#" onclick="studio_task_file_rename('{{complete_name}}'); return false;" class="btn btn-sm btn-info btn-block"
+                           title="{{ _('Move/Rename') }}"><i class="fa fa-exchange"></i></a>
+                    </td>
+                    <td>
+                        <a href="#" onclick="studio_task_file_delete('{{complete_name}}'); return false;" class="btn btn-sm btn-danger btn-block"
+                           title="{{ _('Delete') }}"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <th colspan="5" style="text-align:right">
+                    <a href="#" onclick="studio_task_file_create(); return false;" class="btn btn-sm btn-info">{{ _("Create a new file") }}</a>
+                    <a href="#" onclick="$('#modal_file_upload').modal('show'); return false;" class="btn btn-sm btn-info">{{ _("Upload a file") }}</a>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <script>
+    drag_drop_handler();
+    </script>
+</div>
+<p id="dragtext" class="mb-0" style="visibility: hidden;"><b>{{ _("Drag and drop a file here.") }}</b></p>

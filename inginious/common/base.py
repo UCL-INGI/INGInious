@@ -112,7 +112,7 @@ def dict_from_prefix(prefix, dictionary):
         >>> od["problem[q0][b][c]"]=2
         >>> od["problem[q1][first]"]=1
         >>> od["problem[q1][second]"]=2
-        >>> AdminCourseEditTask.dict_from_prefix("problem",od)
+        >>> dict_from_prefix("problem",od)
         OrderedDict([('q0', OrderedDict([('a', 1), ('b', OrderedDict([('c', 2)]))])), ('q1', OrderedDict([('first', 1), ('second', 2)]))])
     """
     o_dictionary = OrderedDict()

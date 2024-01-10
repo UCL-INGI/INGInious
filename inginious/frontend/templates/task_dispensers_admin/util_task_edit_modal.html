@@ -1,0 +1,36 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="modal fade" id="edit_task_modal" tabindex="-1" role="dialog" aria-labelledby="LabelModel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{_("Edit task {}").format('<span class="taskid"></span>') | safe }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="col-md-12">
+
+            {% for config_item in element.get_task_dispenser().config_items %}
+                {% include config_item.get_template() %}
+            {% endfor %}
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ _("Close") }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#edit_task_modal").on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var taskid = button.data('taskid');
+        $(this).data("taskid", taskid);
+        $(this).find(".taskid").text(taskid);
+        console.log(taskid);
+    });
+</script>

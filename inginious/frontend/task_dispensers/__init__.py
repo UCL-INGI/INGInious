@@ -2,8 +2,9 @@ from abc import ABCMeta, abstractmethod
 
 
 class TaskDispenser(metaclass=ABCMeta):
+    legacy_fields = {}
 
-    def __init__(self, task_list_func, dispenser_data, database, course_id):
+    def __init__(self, task_list_func, dispenser_data, database, element_id):
         """
         Instantiate a new TaskDispenser
         :param task_list_func: A function returning the list of available course tasks from the task factory
@@ -12,8 +13,9 @@ class TaskDispenser(metaclass=ABCMeta):
         :param course_id: A String that is the id of the course
         """
         self._task_list_func = task_list_func
+        self._dispenser_data = dispenser_data
         self._database = database
-        self._course_id = course_id
+        self._element_id = element_id
 
     @abstractmethod
     def get_no_stored_submissions(self, taskid):
@@ -72,7 +74,7 @@ class TaskDispenser(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def render_edit(self, template_helper, course, task_data):
+    def render_edit(self, template_helper, course, task_data, task_errors):
         """ Returns the formatted task list edition form """
         pass
 
@@ -110,4 +112,12 @@ class TaskDispenser(metaclass=ABCMeta):
     @abstractmethod
     def get_ordered_tasks(self):
         """ Returns a serialized version of the tasks structure as an OrderedDict"""
+        pass
+
+    def has_legacy_tasks(self):
+        """ Checks if the task files contains dispenser settings """
+        return False
+
+    def import_legacy_tasks(self):
+        """ Imports the task dispenser settings from a task file dict """
         pass

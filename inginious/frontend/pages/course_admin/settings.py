@@ -17,12 +17,12 @@ class CourseSettingsPage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         errors = []
         course_content = {}
@@ -36,9 +36,6 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['admins'] = list(map(str.strip, data['admins'].split(','))) if data['admins'].strip() else []
         if not self.user_manager.user_is_superadmin() and self.user_manager.session_username() not in course_content['admins']:
             errors.append(_('You cannot remove yourself from the administrators of this course'))
-        course_content['tutors'] = list(map(str.strip, data['tutors'].split(','))) if data['tutors'].strip() else []
-        if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
-            course_content['tutors'] = []
 
         course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
 
@@ -104,7 +101,7 @@ class CourseSettingsPage(INGIniousAdminPage):
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
-            course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
+            course, __ = self.get_course_and_check_rights(courseid)  # don't forget to reload the modified course
 
         return self.page(course, errors, errors is None)
 

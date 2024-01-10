@@ -1,0 +1,249 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{% if short %}
+    {% set at = element.get_task_dispenser().get_accessibility(taskid, user_manager.session_username()) %}
+    {{_("Accessibility")}} :
+    <span class="accessibility accessibility-never" {% if not at.is_never_accessible() %} style="display: none;" {% endif %}>{{_("Never")}}</span>
+    <span class="accessibility accessibility-always" {% if not at.is_always_accessible() %} style="display: none;" {% endif %}>{{_("Always")}}</span>
+    <span class="accessibility accessibility-custom" {% if at.is_always_accessible() or at.is_never_accessible() %} style="display: none;" {% endif %}>
+        {{ _("Custom, from: {} to: {}").format('<span class="accessibility-custom-start">' + str(at.get_std_start_date()) + '</span>', '<span class="accessibility-custom-end">' + at.get_std_end_date() + '</span>') | safe}}
+        (<span class="accessibility-custom-soft-end">{{ at.get_std_soft_end_date() }}</span>)
+    </span>
+{% else %}
+
+<div class="mt-3">{{_("Accessibility")}}</div>
+<div class="form-group row accessibility">
+
+    <div class="col-md-12">
+        <label>
+            <input class="accessibility" type="radio" value="false" name="accessibility" />
+            {{_("Never")}}
+        </label>
+    </div>
+    <div class="col-md-12">
+        <label>
+            <input class="accessibility" type="radio" value="true" name="accessibility" />
+            {{_("Always")}}
+        </label>
+    </div>
+    <div class="col-md-12 row">
+        <div class="col-xs-12 col-lg-3">
+            <label class="control-label">
+                <input class="accessibility" type="radio" value="custom" name="accessibility"/>
+                {%set text = _("Custom, from: {} to: {}").split("{}") %}
+                {{ text[0] }}</label>
+        </div>
+        <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
+            <div class='input-group date_picker' id='accessibility_start_picker{% if grouped %}_grouped{% endif %}' data-target-input="nearest">
+                <input data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" id="accessibility_start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                <div class="input-group-append" data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">{{text[1]}}</label></div>
+        <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
+            <div class='input-group date_picker' id='accessibility_end_picker{% if grouped %}_grouped{% endif %}' data-target-input="nearest">
+                <input data-target='#accessibility_end_picker{% if grouped %}_grouped{% endif %}' id="accessibility_end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                <div class="input-group-append" data-target="#accessibility_end_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 row">
+        <!-- Padding -->
+        <div class="col-xs-12 col-lg-3"></div>
+        <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4"></div>
+        <!-- End of padding -->
+        <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label" data-toggle="tooltip" data-placement="top" title="{{ _('Students can still submit after this date') }}">{{ _("Soft Deadline") }} <sup>?</sup></label></div>
+        <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
+            <div class="form-group">
+                <div class='input-group date_picker' id="accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-target-input="nearest">
+                        <input data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" id="accessibility_soft_end" data-date-format="YYYY-MM-DD HH:mm:ss"  placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input" />
+                        <div class="input-group-append" data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function() {
+           $('.date_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        });
+    </script>
+</div>
+
+{% if not grouped %}
+<script>
+    // Feed modal
+    $("#edit_task_modal").on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var taskid = button.data('taskid');
+        if (!("accessibility" in dispenser_config[taskid]))
+            return;
+        var accessibility = dispenser_config[taskid]["accessibility"];
+        var value;
+
+        if (accessibility === true) {
+            value = 'true';
+        } else if (accessibility === false) {
+            value = 'false';
+        } else {
+            value = 'custom';
+            var splitted_values = accessibility.split("/");
+            $(this).find("#accessibility_start").val(splitted_values[0]);
+            $(this).find("#accessibility_soft_end").val(splitted_values[1]);
+            $(this).find("#accessibility_end").val(splitted_values[2]);
+        }
+
+        var field = $(this).find(".accessibility input[value=" + value + "]");
+        field.prop("checked", true);
+
+    });
+
+    // Catch modal changes
+    $("#edit_task_modal .accessibility input").change(function () {
+        var taskid = $("#edit_task_modal").data("taskid");
+        let action = $(this).attr("name");
+
+        if(action == "accessibility") {
+            $("#task_" + taskid + " .accessibility").hide();
+            if($(this).val() == "true") {
+                $("#task_" + taskid + " .accessibility-always").show();
+                dispenser_config[taskid]["accessibility"] = true;
+            } else if($(this).val() == "false") {
+                $("#task_" + taskid + " .accessibility-never").show();
+                dispenser_config[taskid]["accessibility"] = false;
+            } else {
+                $("#task_" + taskid + " .accessibility-custom").show();
+                var start = $("#edit_task_modal").find("#accessibility_start").val();
+                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+                var end = $("#edit_task_modal").find("#accessibility_end").val();
+                dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+
+            }
+        } else {
+            let id = $(this).attr("id");
+            if (id == "accessibility_start")
+                $("#task_" + taskid + " .accessibility-custom-start").text($(this).val());
+            else if(id == "accessibility_end")
+                $("#task_" + taskid + " .accessibility-custom-end").text($(this).val());
+            else
+                $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).val());
+
+            var start = $("#edit_task_modal").find("#accessibility_start").val();
+            var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+            var end = $("#edit_task_modal").find("#accessibility_end").val();
+            dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+        }
+    });
+
+    $('#accessibility_start_picker').on("change.datetimepicker", function () {
+        var taskid = $("#edit_task_modal").data("taskid");
+        let val = $("#edit_task_modal #accessibility_start").val();
+        $("#task_" + taskid + " .accessibility-custom-start").text(val);
+        var start = $("#edit_task_modal").find("#accessibility_start").val();
+        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+        var end = $("#edit_task_modal").find("#accessibility_end").val();
+        dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+    });
+
+    $('#accessibility_end_picker').on("change.datetimepicker", function () {
+        var taskid = $("#edit_task_modal").data("taskid");
+        let val = $("#edit_task_modal #accessibility_end").val();
+        $("#task_" + taskid + " .accessibility-custom-end").text(val);
+        var start = $("#edit_task_modal").find("#accessibility_start").val();
+        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+        var end = $("#edit_task_modal").find("#accessibility_end").val();
+        dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+    });
+
+    $('#accessibility_soft_end_picker').on("change.datetimepicker", function () {
+        var taskid = $("#edit_task_modal").data("taskid");
+        let val = $("#edit_task_modal #accessibility_soft_end").val();
+        $("#task_" + taskid + " .accessibility-custom-soft-end").text(val);
+        var start = $("#edit_task_modal").find("#accessibility_start").val();
+        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+        var end = $("#edit_task_modal").find("#accessibility_end").val();
+        dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+    });
+
+    // Catch grouped action changes
+    $("#grouped-actions-edit .accessibility input").change(function () {
+        let value = $(this).val();
+        let action = $(this).attr("name");
+        let id = $(this).attr("id");
+        $(".grouped-actions-task:checked").each(function () {
+            var taskid = $(this).data("taskid");
+
+            if(action == "accessibility") {
+                $("#task_" + taskid + " .accessibility").hide();
+                if(value == "true") {
+                    $("#task_" + taskid + " .accessibility-always").show();
+                    dispenser_config[taskid]["accessibility"] = true;
+                } else if(value== "false") {
+                    $("#task_" + taskid + " .accessibility-never").show();
+                    dispenser_config[taskid]["accessibility"] = false;
+                } else {
+                    $("#task_" + taskid + " .accessibility-custom").show();
+                    var start = $("#grouped-actions-edit #accessibility_start").val();
+                    var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+                    var end = $("#grouped-actions-edit #accessibility_end").val();
+                    dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+
+                }
+            } else {
+                if (id == "accessibility_start")
+                    $("#task_" + taskid + " .accessibility-custom-start").text(value);
+                else if(id == "accessibility_end")
+                    $("#task_" + taskid + " .accessibility-custom-end").text(value);
+                else
+                    $("#task_" + taskid + " .accessibility-custom-soft-end").text(value);
+
+                var start = $("#grouped-actions-edit #accessibility_start").val();
+                var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+                var end = $("#grouped-actions-edit #accessibility_end").val();
+                dispenser_config[taskid]["accessibility"] = start + "/" + soft_end + "/" + end;
+            }
+        });
+    });
+
+    $('#accessibility_start_picker_grouped').on("change.datetimepicker", function () {
+        let val = $("#grouped-actions-edit #accessibility_start").val();
+        $(".grouped-actions-task:checked").each(function () {
+            $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
+            var start = $("#grouped-actions-edit #accessibility_start").val();
+            var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+            var end = $("#grouped-actions-edit #accessibility_end").val();
+            dispenser_config[$(this).data("taskid")]["accessibility"] = start + "/" + soft_end + "/" + end;
+        });
+    });
+    $('#accessibility_end_picker_grouped').on("change.datetimepicker", function () {
+        let val = $("#grouped-actions-edit #accessibility_end").val();
+        $(".grouped-actions-task:checked").each(function () {
+            $("#task_" + $(this).data("taskid") + " .accessibility-custom-end").text(val);
+            var start = $("#grouped-actions-edit #accessibility_start").val();
+            var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+            var end = $("#grouped-actions-edit #accessibility_end").val();
+            dispenser_config[$(this).data("taskid")]["accessibility"] = start + "/" + soft_end + "/" + end;
+        });
+    });
+    $('#accessibility_soft_end_picker_grouped').on("change.datetimepicker", function () {
+        let val = $("#grouped-actions-edit #accessibility_soft_end").val();
+        $(".grouped-actions-task:checked").each(function () {
+            $("#task_" + $(this).data("taskid") + " .accessibility-custom-soft-end").text(val);
+            var start = $("#grouped-actions-edit #accessibility_start").val();
+            var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+            var end = $("#grouped-actions-edit #accessibility_end").val();
+            dispenser_config[$(this).data("taskid")]["accessibility"] = start + "/" + soft_end + "/" + end;
+        });
+    });
+
+</script>
+{% endif %}
+
+{% endif %}

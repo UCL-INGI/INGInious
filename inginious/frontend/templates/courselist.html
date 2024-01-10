@@ -11,19 +11,13 @@
         <div class="alert alert-warning" role="alert">
             {{ _("This page lists all the courses that are available now. If you are a course administrator, go to your 'My courses' page to see all of them.") }}
         </div>
-        <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{{get_homepath()}}/mycourses">
-                <i class="fa fa-fw fa-th-list"></i>
-                {{ _("My courses") }}
-            </a>
-        </div>
         {{ template_helper.call('main_menu', template_helper=template_helper) | safe }}
     {% endif %}
 {% endblock %}
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list fa-fw"></i> {{ _("Course list") }}
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-graduation-cap fa-fw"></i> {{ _("Course list") }}
                 <span class="sr-only">{{_("(current)")}}</span></a></li>
         </ol>
     </nav>

@@ -1,0 +1,62 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{# Prints a terminal section and the tasks it contains #}
+
+<div id="{{id}}" class="section tasks_list card mb-4" data-level="{{level}}" >
+    <div class="section_header handle card-header d-flex justify-content-between pr-3">
+
+        <span class="title mt-auto mb-auto">
+            <input type="checkbox" class="grouped-actions grouped-actions-section mr-3" data-section="{{ id }}" />
+            {{ section.get_title() }}
+        </span>
+        <span style="display: none" class="divider"></span>
+        {% with tasks_list_option=True, sections_list_option=False %}
+            {% include "task_dispensers_admin/section_menu.html" %}
+        {% endwith %}
+    </div>
+    {% if config_fields %}
+        <div class="config card-body bg-light pb-2">
+            {% with section_config=section.get_config(), config_fields=config_fields %}
+               {% include "task_dispensers_admin/section_config.html" %}
+            {% endwith %}
+        </div>
+    {% endif %}
+    <div class="content list-group list-group-flush">
+        {% for taskid in section.get_tasks() %}
+            {% if taskid in tasks %}
+                <div id="task_{{taskid}}" class="task handle list-group-item list-group-item-action d-flex">
+                    <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" data-taskid="{{ taskid }}" />
+                    <div class="task_name mt-auto mb-auto">
+                        <p class="m-0 font-weight-bold">{{ tasks[taskid]["name"] }}</p>
+                        {% for config_item in element.get_task_dispenser().config_items %}
+                        <p class="m-0 font-italic pills pills-{{ config_item.get_id() }}" style="display: none;">
+                            {% with short=True %}
+                                {% include config_item.get_template() %}
+                            {% endwith %}
+                        </p>
+                        {% endfor %}
+                    </div>
+                    {% include "task_dispensers_admin/task_buttons.html" %}
+                </div>
+            {% else %}
+                <div id="task_{{taskid}}" class="task handle list-group-item list-group-item-action d-flex bg-danger">
+                    <input type="checkbox" class="grouped-actions grouped-actions-task mt-auto mb-auto mr-3" data-taskid="{{ taskid }}" />
+                    <div class="task_name mt-auto mb-auto">
+                        {% if taskid in task_errors %}
+                            <p class="m-0 font-weight-bold">{{ _("Error in task with id {} :".format(taskid)) }} {{ task_errors[taskid] }} </p>
+                        {% else %}
+                            <p class="m-0 font-weight-bold">{{ _("No valid task with id:") }} {{ taskid }} </p>
+                        {% endif %}
+                    </div>
+                    <div class="ml-auto">
+                        <button class="delete_task btn btn-sm btn-warning" onclick="dispenser_util_delete_task(this, '{{ taskid }}')"
+                                title="{{ _('Delete invalid task') }}" style="font-size: 1em;" data-toggle="tooltip" data-placement="bottom">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

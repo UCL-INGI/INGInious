@@ -1,0 +1,40 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div id="delete_{{type}}_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+                <div class="modal-header">
+                    {% if type == "section" %}
+                        <h4 class="modal-title">{{ _("Delete section") }}</h4>
+                    {% elif type == "task" %}
+                        <h4 class="modal-title">{{ _("Delete task") }}</h4>
+                    {% else %}
+                        <h4 class="modal-title">{{ _("Delete selected tasks") }}</h4>
+                    {% endif %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    {% if type == "section" %}
+                        <p>{{ _("Once saved, this will delete this section, all its subsections.") | safe }}</p>
+                    {% else %}
+                        <p>{{ _("Once saved, this will remove the task.") | safe }}</p>
+                    {% endif %}
+                    <div class="form-check">
+                        <input class="wipe_tasks form-check-input" type="checkbox">
+                        <label  class="form-check-label">{{_("Wipe all submissions")}}</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">{{_("Cancel")}}</button>
+                    {% if type == "section" %}
+                        <button class="btn btn-warning submit" data-dismiss="modal" onclick="dispenser_util_delete_section(this)">{{ _("Delete section") }}</button>
+                    {% elif type == "task" %}
+                        <button class="btn btn-warning submit" data-dismiss="modal" onclick="dispenser_util_delete_task(this, '')">{{ _("Delete task") }}</button>
+                    {% else %}
+                        <button class="btn btn-warning submit" data-dismiss="modal" onclick="dispenser_util_delete_selection()">{{ _("Delete tasks") }}</button>
+                    {% endif %}
+                </div>
+        </div>
+    </div>
+</div>

@@ -110,7 +110,7 @@ class DockerInterface(object):  # pragma: no cover
             return None
 
     def create_container(self, image, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, fd_limit, runtime: str, ports=None):
+                         taskset_common_path, taskset_common_student_path, fd_limit, runtime: str, ports=None):
         """
         Creates a container.
         :param image: env to start (name/id of a docker image)
@@ -118,8 +118,8 @@ class DockerInterface(object):  # pragma: no cover
         :param mem_limit: in Mo
         :param task_path: path to the task directory that will be mounted in the container
         :param sockets_path: path to the socket directory that will be mounted in the container
-        :param course_common_path:
-        :param course_common_student_path:
+        :param taskset_common_path:
+        :param taskset_common_student_path:
         :param fd_limit: Tuple with soft and hard limits per slot for FS
         :param runtime: name of the docker runtime to use
         :param ports: dictionary in the form {docker_port: external_port}
@@ -127,8 +127,8 @@ class DockerInterface(object):  # pragma: no cover
         """
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
-        course_common_path = os.path.abspath(course_common_path)
-        course_common_student_path = os.path.abspath(course_common_student_path)
+        taskset_common_path = os.path.abspath(taskset_common_path)
+        taskset_common_student_path = os.path.abspath(taskset_common_student_path)
         if ports is None:
             ports = {}
 
@@ -146,8 +146,8 @@ class DockerInterface(object):  # pragma: no cover
             volumes={
                 task_path: {'bind': '/task'},
                 sockets_path: {'bind': '/sockets'},
-                course_common_path: {'bind': '/course/common', 'mode': 'ro'},
-                course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
+                taskset_common_path: {'bind': '/course/common', 'mode': 'ro'},
+                taskset_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
             runtime=runtime,
             ulimits=[nofile_limit]
@@ -155,7 +155,7 @@ class DockerInterface(object):  # pragma: no cover
         return response.id
 
     def create_container_student(self, runtime: str, image: str, mem_limit, student_path,
-                                 socket_path, systemfiles_path, course_common_student_path,
+                                 socket_path, systemfiles_path, taskset_common_student_path,
                                  parent_runtime: str,fd_limit, share_network_of_container: str=None, ports=None):
         """
         Creates a student container
@@ -166,7 +166,7 @@ class DockerInterface(object):  # pragma: no cover
         :param student_path: path to the task directory that will be mounted in the container
         :param socket_path: path to the socket that will be mounted in the container
         :param systemfiles_path: path to the systemfiles folder containing files that can override partially some defined system files
-        :param course_common_student_path:
+        :param taskset_common_student_path:
         :param share_network_of_container: (deprecated) if a container id is given, the new container will share its
                                            network stack.
         :param ports: dictionary in the form {docker_port: external_port}
@@ -175,7 +175,7 @@ class DockerInterface(object):  # pragma: no cover
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
-        course_common_student_path = os.path.abspath(course_common_student_path)
+        taskset_common_student_path = os.path.abspath(taskset_common_student_path)
         secured_scripts_path = student_path+"/scripts"
 
         if ports is None:
@@ -205,7 +205,7 @@ class DockerInterface(object):  # pragma: no cover
                 secured_scripts_path: {'bind': '/task/student/scripts'},
                 socket_path: {'bind': '/__parent.sock'},
                 systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
-                course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
+                taskset_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             },
             runtime=runtime,
             ulimits=[nofile_limit]

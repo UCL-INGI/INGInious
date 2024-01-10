@@ -1,0 +1,29 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+{# Prints an empty section #}
+
+<div style="{{ 'display: none' if hidden else 'display: block' }}" id="{{id}}" class="section tasks_list sections_list card mb-4" data-level="{{level}}">
+    <div class="section_header handle card-header d-flex justify-content-between pr-3">
+        <span class="title">
+            <input type="checkbox" class="grouped-actions grouped-actions-section mr-3" data-section="{{id}}" />
+            {{ title }}
+        </span>
+        <span style="display: none" class="divider"></span>
+        {% with tasks_list_option=True, sections_list_option=True %}
+            {% include "task_dispensers_admin/section_menu.html" %}
+        {% endwith %}
+    </div>
+    {% if config_fields %}
+        <div class="config card-body bg-light">
+            {% with section_config=config, config_fields=config_fields %}
+               {% include "task_dispensers_admin/section_config.html" %}
+            {% endwith %}
+        </div>
+    {% endif %}
+    <div data-level="0" class="content list-group list-group-flush">
+        <p class="section_placeholder text-center align-middle m-2">
+            {{ _("Drag tasks or section here.") }}
+        </p>
+    </div>
+</div>

@@ -12,6 +12,7 @@
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-graduation-cap"></i></a></li>
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
@@ -53,7 +54,7 @@
     <div class="tab-content">
         <div role="tabpanel" class="card-body tab-pane active" id="tab_students">
             {% set len_all_users = user_data|length %}
-            {% set len_staff = course.get_staff()|length %}
+            {% set len_staff = course.get_admins()|length %}
             {% with user_data=user_data[len_staff:len_all_users], is_staff=False %}
                 <p>{{ _("Number of students") }} : {{ user_data | length }}</p>
                 {% include "course_admin/student_list_table.html" %}
@@ -62,7 +63,7 @@
                 <form method="post">
                     <div class="form-group row">
                         <div class="col-sm-9">
-                            {{ user_selection_box(course_id=course.get_id(), current_users=[], name="username", id="username_search", placeholder=_("Enter something here to search for a user"), single=True) | safe }}
+                            {{ user_selection_box(current_users=[], name="username", id="username_search", placeholder=_("Enter something here to search for a user"), single=True) | safe }}
                         </div>
                         <div class="col-sm-3"><button name="register_student" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i>{{ _("Add student") }}</button></div>
                     </div>
@@ -70,7 +71,7 @@
             {% endif %}
         </div>
         <div role="tabpanel" class="card-body tab-pane" id="tab_staff">
-            {% with user_data=user_data[0:(course.get_staff()|length)], is_staff=True %}
+            {% with user_data=user_data[0:(course.get_admins()|length)], is_staff=True %}
                 {% include "course_admin/student_list_table.html" %}
             {% endwith %}
         </div>

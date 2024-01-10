@@ -9,7 +9,6 @@ import copy
 import gettext
 import re
 from typing import List
-from collections import OrderedDict
 
 from inginious.frontend.user_settings.course_user_setting import CourseUserSetting
 from inginious.common.tags import Tag
@@ -17,81 +16,61 @@ from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
 from inginious.frontend.user_manager import UserInfo
 from inginious.frontend.task_dispensers.toc import TableOfContents
-
-
-def _migrate_from_v_0_6(content, task_list):
-    if 'task_dispenser' not in content:
-        content["task_dispenser"] = "toc"
-        if 'toc' in content:
-            content['dispenser_data'] = {"toc": content["toc"]}
-        else:
-            ordered_tasks = OrderedDict(sorted(list(task_list.items()),
-                                               key=lambda t: (int(t[1]._data.get('order', -1)), t[1].get_id())))
-            content['dispenser_data'] = {"toc": [{"id": "tasks-list", "title": _("List of exercises"),
-                                          "rank": 0, "tasks_list": list(ordered_tasks.keys())}], "config": {}}
+from inginious.frontend.tasksets import _migrate_from_v_0_6
 
 
 class Course(object):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, course_fs, task_factory, plugin_manager, task_dispensers, database):
+    def __init__(self, courseid, content, taskset_factory, task_factory, plugin_manager, database):
         self._id = courseid
         self._content = content
-        self._fs = course_fs
+        self._taskset_factory = taskset_factory
         self._task_factory = task_factory
         self._plugin_manager = plugin_manager
-
         self._translations = {}
-        translations_fs = self._fs.from_subfolder("$i18n")
-        if translations_fs.exists():
-            for f in translations_fs.list(folders=False, files=True, recursive=False):
-                lang = f[0:len(f) - 3]
-                if translations_fs.exists(lang + ".mo"):
-                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
-                else:
-                    self._translations[lang] = gettext.NullTranslations()
 
         try:
             self._name = self._content['name']
+            self._tasksetid = self._content['tasksetid']
+            self._taskset = taskset_factory.get_taskset(self._tasksetid)
         except:
-            raise Exception("Course has an invalid name: " + self.get_id())
+            raise Exception("Course has an invalid name or tasksetid: " + self.get_id())
 
-        if self._content.get('nofrontend', False):
-            raise Exception("That course is not allowed to be displayed directly in the webapp")
+        _migrate_from_v_0_6(content, self._task_factory.get_all_tasks(self._taskset))
 
-        _migrate_from_v_0_6(content, self._task_factory.get_all_tasks(self))
-
+        self._admins = self._content.get('admins', [])
+        self._description = self._content.get('description', '')
+        self._accessible = AccessibleTime(self._content.get("accessible", None))
+        self._registration = AccessibleTime(self._content.get("registration", None))
+        self._registration_password = self._content.get('registration_password', None)
+        self._registration_ac = self._content.get('registration_ac', None)
+        if self._registration_ac not in [None, "username", "binding", "email"]:
+            raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
+        self._registration_ac_accept = self._content.get('registration_ac_accept', True)
+        self._registration_ac_list = self._content.get('registration_ac_list', [])
+        self._groups_student_choice = self._content.get("groups_student_choice", False)
+        self._allow_unregister = self._content.get('allow_unregister', True)
+        self._allow_preview = self._content.get('allow_preview', False)
+        self._is_lti = self._content.get('is_lti', False)
+        self._lti_url = self._content.get('lti_url', '')
+        self._lti_keys = self._content.get('lti_keys', {})
+        self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
+        self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
+        self._course_user_setting = {key: CourseUserSetting(key,
+                                                            field_dict["description"],
+                                                            field_dict["type"])
+                                     for key, field_dict in self._content.get("fields", {}).items()}
+        task_dispensers = self._taskset_factory.get_task_dispensers()
+        task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'), TableOfContents)
+        # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
+        # to avoid them to be cached along with the course object. Passing the task factory as argument
+        # would require to pass the course too, and have a useless reference back.
         try:
-            self._admins = self._content.get('admins', [])
-            self._tutors = self._content.get('tutors', [])
-            self._description = self._content.get('description', '')
-            self._accessible = AccessibleTime(self._content.get("accessible", None))
-            self._registration = AccessibleTime(self._content.get("registration", None))
-            self._registration_password = self._content.get('registration_password', None)
-            self._registration_ac = self._content.get('registration_ac', None)
-            if self._registration_ac not in [None, "username", "binding", "email"]:
-                raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
-            self._registration_ac_accept = self._content.get('registration_ac_accept', True)
-            self._registration_ac_list = self._content.get('registration_ac_list', [])
-            self._groups_student_choice = self._content.get("groups_student_choice", False)
-            self._allow_unregister = self._content.get('allow_unregister', True)
-            self._allow_preview = self._content.get('allow_preview', False)
-            self._is_lti = self._content.get('is_lti', False)
-            self._lti_url = self._content.get('lti_url', '')
-            self._lti_keys = self._content.get('lti_keys', {})
-            self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
-            self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
-            self._course_user_setting = {key: CourseUserSetting(key,
-                                                                field_dict["description"],
-                                                                field_dict["type"])
-                                         for key, field_dict in self._content.get("fields", {}).items()}
-            task_dispenser_class = task_dispensers.get(self._content.get('task_dispenser', 'toc'), TableOfContents)
-            # Here we use a lambda to encourage the task dispenser to pass by the task_factory to fetch course tasks
-            # to avoid them to be cached along with the course object. Passing the task factory as argument
-            # would require to pass the course too, and have a useless reference back.
-            self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self), self._content.get("dispenser_data", ''), database, self.get_id())
-        except:
-            raise Exception("Course has an invalid YAML spec: " + self.get_id())
+            self._task_dispenser = task_dispenser_class(lambda: self._task_factory.get_all_tasks(self._taskset),
+                                                        self._content.get("dispenser_data", ''), database, self.get_id())
+        except Exception as e:
+            raise
 
         # Force some parameters if LTI is active
         if self.is_lti():
@@ -120,29 +99,20 @@ class Course(object):
         """ Return the _id of this course """
         return self._id
 
-    def get_fs(self):
-        """ Returns a FileSystemProvider which points to the folder of this course """
-        return self._fs
+    def get_taskset(self):
+        return self._taskset
 
     def get_task(self, taskid):
         """ Returns a Task object """
-        return self._task_factory.get_task(self, taskid)
+        return self._task_factory.get_task(self._taskset, taskid)
 
     def get_descriptor(self):
         """ Get (a copy) the description of the course """
         return copy.deepcopy(self._content)
 
-    def get_staff(self):
-        """ Returns a list containing the usernames of all the staff users """
-        return list(set(self.get_tutors() + self.get_admins()))
-
     def get_admins(self):
         """ Returns a list containing the usernames of the administrators of this course """
         return self._admins
-
-    def get_tutors(self):
-        """ Returns a list containing the usernames of the tutors assigned to this course """
-        return self._tutors
 
     def is_open_to_non_staff(self):
         """ Returns true if the course is accessible by users that are not administrator of this course """
@@ -170,7 +140,7 @@ class Course(object):
         return self._registration
 
     def get_tasks(self, ordered=False):
-        return self._task_dispenser.get_ordered_tasks() if ordered else self._task_factory.get_all_tasks(self)
+        return self._task_dispenser.get_ordered_tasks() if ordered else self._task_factory.get_all_tasks(self._taskset)
 
     def get_access_control_method(self):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """

@@ -1,0 +1,40 @@
+{# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for #}
+{# more information about the licensing of this file. #}
+
+<div class="ml-auto btn-group btn-group-sm" role="group">
+    <a class="task_settings btn btn-primary m-auto" data-toggle="modal" data-target="#edit_task_modal" data-taskid="{{taskid}}"
+            title="{{ _('Task settings') }}">
+        <i class="fa fa-cogs" aria-hidden="true"></i>
+    </a>
+    {% if course is not none %}
+        <a class="view_task btn btn-success m-auto" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"
+                title="{{ _('View task') }}" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-eye" ></i>
+        </a>
+    {% endif %}
+    {% if taskset is none %}
+        {% set taskset = course.get_taskset() %}
+    {% endif %}
+    {% if user_manager.session_username() in taskset.get_admins() or user_manager.user_is_superadmin() %}
+        <a class="edit_task btn btn-info m-auto" href="{{get_homepath()}}/taskset/{{taskset.get_id()}}/edit/{{taskid}}"
+                title="{{ _('Edit task') }}" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-pencil"></i>
+        </a>
+        {% endif %}
+    {% if course is not none %}
+        <a class="rename_task btn btn-secondary m-auto" href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?tasks={{taskid}}"
+                title="{{ _('View submissions') }}"  data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-file-code-o fa-fw"></i>
+        </a>
+    {% endif %}
+
+    <button class="delete_task btn btn-warning m-auto"
+            {% if course is not none %}
+                data-toggle="modal" data-target="#delete_task_modal" onclick="dispenser_util_open_delete_modal(this)"
+            {% else %}
+                onclick="dispenser_util_delete_task(this, '{{taskid}}')"
+            {% endif %}
+            title="{{ _('Delete task') }}">
+        <i class="fa fa-trash"></i>
+    </button>
+</div>

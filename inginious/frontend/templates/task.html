@@ -6,7 +6,7 @@
 {% block title %} {{task.get_name(user_manager.session_language()) }} - {{ course.get_name(user_manager.session_language()) }}{% endblock %}
 
 {% set registered = user_manager.course_is_user_registered(course) %}
-{% set staff = user_manager.has_staff_rights_on_course(course) %}
+{% set staff = user_manager.has_admin_rights_on_course(course) %}
 {% set task_dispenser = course.get_task_dispenser() %}
 
 {% block column %}
@@ -141,7 +141,7 @@
                 <i class="fa fa-files-o fa-fw"></i>&nbsp; {{ _("View submissions") }}
             </a>
             {% if user_manager.has_admin_rights_on_course(course) %}
-                <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/admin/{{course.get_id()}}/edit/task/{{task.get_id()}}">
+                <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/taskset/{{course.get_taskset().get_id()}}/edit/{{task.get_id()}}">
                     <i class="fa fa-edit fa-fw"></i>&nbsp;{{ _("Edit task") }}
                 </a>
                 <a href="#" class="list-group-item list-group-item-action list-group-item-info" data-toggle="modal" data-target="#modal-debug">
@@ -258,9 +258,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             {% if registered %}
-                <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+                <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-graduation-cap"></i></a></li>
             {% else %}
-                <li class="breadcrumb-item"><a href="{{ get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+                <li class="breadcrumb-item"><a href="{{ get_homepath() }}/courselist" title="{{ _('Course list') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-graduation-cap"></i></a></li>
             {% endif %}
             <li class="breadcrumb-item"><a href="{{ get_homepath() }}/course/{{ course.get_id() }}">{{ course.get_name(user_manager.session_language()) }}</a></li>
             <li class="breadcrumb-item active"><a href="#">{{ task.get_name(user_manager.session_language()) }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
@@ -383,8 +383,8 @@
         </div>
     {% endfor %}
     {# no need to check with lti=True/False here as it was already checked by the calling python script. #}
-    {% set groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups') %}
-    {% set tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens') %}
+    {% set groups_ok = user_manager.task_can_user_submit(course, task, user_manager.session_username(), 'groups') %}
+    {% set tokens_ok = user_manager.task_can_user_submit(course, task, user_manager.session_username(), 'tokens') %}
 
     {% if not registered %}
         <button type="submit" class="btn btn-secondary btn-lg btn-block center-block" disabled="disabled">{{ _("Please enroll in the course to submit.") }}</button>

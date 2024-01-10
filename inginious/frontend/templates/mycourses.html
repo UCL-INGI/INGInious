@@ -7,7 +7,7 @@
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list"></i> {{ _("My courses") }}
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-graduation-cap"></i> {{ _("My courses") }}
                 <span class="sr-only">{{ _("(current)") }}</span></a>
             </li>
         </ol>
@@ -19,30 +19,27 @@
     <div class="alert alert-warning" role="alert">
         {{ _("This page lists all the courses you are currently enrolled in. You can find new courses on the course list page.") }}
     </div>
-    <div class="list-group mb-3">
-        <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/courselist">
-            <i class="fa fa-fw fa-th-list"></i>
-            {{ _("Course list") }}
-        </a>
-    </div>
 
     <h3>{{ _("Last tried exercises") }}</h3>
     <div class="list-group">
         {% if submissions %}
             {% for submission in submissions %}
-                <a class="list-group-item list-group-item-action
-                    {% if submission['status'] == 'done' and submission['result'] == 'success' %}
-                        list-group-item-success
-                    {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
-                        list-group-item-info
-                    {% elif submission['status'] == 'waiting' %}
-                        list-group-item-warning
-                    {% else %}
-                        list-group-item-danger
-                    {% endif %}"
-                    href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
-                    <b>{{ submission["task"].get_course().get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
-                </a>
+                {% if submission['courseid'] in open_courses %}
+                    {% set course = open_courses[submission['courseid']] %}
+                    <a class="list-group-item list-group-item-action
+                        {% if submission['status'] == 'done' and submission['result'] == 'success' %}
+                            list-group-item-success
+                        {% elif submission['status'] == 'done' and submission['result'] == 'save' %}
+                            list-group-item-info
+                        {% elif submission['status'] == 'waiting' %}
+                            list-group-item-warning
+                        {% else %}
+                            list-group-item-danger
+                        {% endif %}"
+                        href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                        <b>{{ course.get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
+                    </a>
+                {% endif %}
             {% endfor %}
         {% else %}
             <a class="list-group-item list-group-item-action disabled submission-empty">{{ _("No submissions") }}</a>
@@ -77,8 +74,6 @@
 
                             {% if username in course.get_admins() or user_manager.user_is_superadmin() %}
                                 {{ _("Administrator") }}
-                            {% elif username in course.get_tutors() %}
-                                {{ _("Tutor") }}
                             {% elif user_manager.course_is_user_registered(course) %}
                                 {{ _("Student") }}
                             {% endif %}
@@ -91,27 +86,4 @@
         <a href="#register" class="list-group-item list-group-item-action disabled">{{ _("You are not registered to any course") }}</a>
     {% endif %}
 </div>
-{% if user_manager.user_is_superadmin() %}
-    <hr/>
-    {% if success == True %}
-        <div class="alert alert-success alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            {{ _("Course created.") }}
-        </div>
-    {% elif success == False %}
-        <div class="alert alert-danger alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            {{ _("Failed to create the course.") }}
-        </div>
-    {% endif %}
-    <form class="form row" role="form" method="post">
-        <div class="form-group col-sm-8">
-            <label class="sr-only" for="new_courseid">{{ _("Course") }}</label>
-            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="{{ _('New course id') }}">
-        </div>
-        <div class="form-group col-sm-4">
-            <button type="submit" class="btn btn-block btn-primary">{{ _("Create new course") }}</button>
-        </div>
-    </form>
-{% endif %}
 {% endblock %}

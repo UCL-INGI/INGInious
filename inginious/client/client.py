@@ -47,7 +47,7 @@ class AbstractClient(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
+    def new_job(self, priority, taskset, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
         """ Add a new job. Every callback will be called once and only once.
 
         :type task: Task
@@ -97,7 +97,7 @@ class AbstractClient(object, metaclass=ABCMeta):
                 - job_id is a job id. It may be from another client.
                 - is_current_client_job is a boolean indicating if the client that asked the request has started the job
                 - agent_name is the agent name
-                - info is "courseid/taskid"
+                - info is "tasksetid/taskid"
                 - launcher is the name of the launcher, which may be anything
                 - started_at the time (in seconds since UNIX epoch) at which the job started
                 - max_time the maximum time that can be used, or -1 if no timeout is set
@@ -108,7 +108,7 @@ class AbstractClient(object, metaclass=ABCMeta):
 
                     - job_id is a job id. It may be from another client.
                     - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-                    - info is "courseid/taskid"
+                    - info is "tasksetid/taskid"
                     - launcher is the name of the launcher, which may be anything
                     - max_time the maximum time that can be used, or -1 if no timeout is set
 
@@ -269,10 +269,11 @@ class Client(BetterParanoidPirateClient):
         """
         return self._available_environments
 
-    def new_job(self, priority, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
+    def new_job(self, priority, taskset, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
         """ Add a new job. Every callback will be called once and only once.
         :param priority: Priority of the job
-        :type task: Task
+        :param taskset : Taskset
+        :param task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
         :param callback: a function that will be called asynchronously in the client's process, with the results.
@@ -297,7 +298,7 @@ class Client(BetterParanoidPirateClient):
         safe_callback = _callable_once(callback)
 
         if debug == "ssh" and ssh_callback is None:
-            self._logger.error("SSH callback not set in %s/%s", task.get_course_id(), task.get_id())
+            self._logger.error("SSH callback not set in %s/%s", taskset.get_id(), task.get_id())
             safe_callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None, "", "")
             return None
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
@@ -307,7 +308,7 @@ class Client(BetterParanoidPirateClient):
         environment = task.get_environment_id()
 
         if environment_type not in self._available_environments or environment not in self._available_environments[environment_type]:
-            self._logger.warning("Env %s/%s not available for task %s/%s", environment_type, environment, task.get_course_id(),
+            self._logger.warning("Env %s/%s not available for task %s/%s", environment_type, environment, taskset.get_id(),
                                  task.get_id())
             ssh_callback(None, None, None, None)  # ssh_callback must be called once
             safe_callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
@@ -315,7 +316,7 @@ class Client(BetterParanoidPirateClient):
 
         environment_parameters = task.get_environment_parameters()
 
-        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), task.get_problems_dict(), inputdata,
+        msg = ClientNewJob(job_id, priority, taskset.get_id(), task.get_id(), task.get_problems_dict(), inputdata,
                            environment_type, environment, environment_parameters, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future,
                                         self._create_transaction(msg, task=task, callback=safe_callback,
