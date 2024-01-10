@@ -171,9 +171,9 @@
             } else {
                 $("#task_" + taskid + " .accessibility-custom").show();
 
-                var start = $("#edit_task_modal").find("#accessibility_start").datetimepicker('viewDate').clone().utc();
-                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").datetimepicker('viewDate').clone().utc();
-                var end = $("#edit_task_modal").find("#accessibility_end").datetimepicker('viewDate').clone().utc();
+                var start = $("#edit_task_modal").find("#accessibility_start").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var end = $("#edit_task_modal").find("#accessibility_end").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -183,13 +183,13 @@
             let id = $(this).attr("id");
 
             if (id == "accessibility_start") {
-                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).datetimepicker('viewDate').clone().utc());
+                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss'));
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
             } else if(id == "accessibility_end") {
-                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).datetimepicker('viewDate').clone().utc());
+                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss'));
                 dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
             } else {
-                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).datetimepicker('viewDate').clone().utc());
+                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss'));
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
             }
         }
@@ -240,6 +240,7 @@
         let action = $(this).attr("name");
         let id = $(this).attr("id");
         $(".grouped-actions-task:checked").each(function () {
+            var taskid = $(this).data("taskid");
 
             if(action == "accessibility") {
                 $("#task_" + taskid + " .accessibility").hide();
@@ -255,9 +256,19 @@
                     dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
                 } else {
                     $("#task_" + taskid + " .accessibility-custom").show();
+
                     var start = $("#grouped-actions-edit #accessibility_start").val();
+                    if (start !== "") {
+                        var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                    }
                     var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+                    if (soft_end !== "") {
+                        var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                    }
                     var end = $("#grouped-actions-edit #accessibility_end").val();
+                    if (end !== "") {
+                        var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                    }
 
                     dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                     dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -271,9 +282,9 @@
                 else
                     $("#task_" + taskid + " .accessibility-custom-soft-end").text(value);
 
-                var start = $("#grouped-actions-edit #accessibility_start").val();
-                var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
-                var end = $("#grouped-actions-edit #accessibility_end").val();
+                var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -286,7 +297,7 @@
         let val = $("#grouped-actions-edit #accessibility_start").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
-            var start = $("#grouped-actions-edit #accessibility_start").val();
+            var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
             dispenser_config[$(this).data("taskid")]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
         });
     });
@@ -294,7 +305,7 @@
         let val = $("#grouped-actions-edit #accessibility_end").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-end").text(val);
-            var end = $("#grouped-actions-edit #accessibility_end").val();
+            var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
             dispenser_config[$(this).data("taskid")]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
         });
     });
@@ -302,7 +313,7 @@
         let val = $("#grouped-actions-edit #accessibility_soft_end").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-soft-end").text(val);
-            var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
+            var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
             dispenser_config[$(this).data("taskid")]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
         });
     });
