@@ -59,15 +59,18 @@ class ProfilePage(INGIniousAuthPage):
 
             if "password" in userdata:
                 user = self.user_manager.auth_user(self.user_manager.session_username(), data["oldpasswd"], False)
-                if user is None:
-                    error = True
-                    msg = _("Incorrect old password.")
-                    return result, msg, error
-                else:
-                    passwd_hash = UserManager.hash_password(data["passwd"])
-                    result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                                     {"$set": {"password": passwd_hash}},
-                                                                     return_document=ReturnDocument.AFTER)
+            else:
+                user = self.database.users.find_one({"username": userdata["username"]})
+
+            if user is None:
+                error = True
+                msg = _("Incorrect old password.")
+                return result, msg, error
+            else:
+                passwd_hash = UserManager.hash_password(data["passwd"])
+                result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                                 {"$set": {"password": passwd_hash}},
+                                                                 return_document=ReturnDocument.AFTER)
 
         # Check if updating language
         if data["language"] != userdata["language"]:
