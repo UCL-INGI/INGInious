@@ -3,10 +3,13 @@
 
 <script>
     $(function() {
+        let before_date = "{{old_params['date_before']}}" ? moment.utc("{{old_params['date_before']}}") : null;
+        let after_date = "{{old_params['date_after']}}" ? moment.utc("{{old_params['date_after']}}") : null;
+
         $('#date_before_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', timeZone: '{{user_manager.session_timezone()}}',
-                                                defaultDate: "{{old_params.get('date_before', '')}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                                                defaultDate: before_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
         $('#date_after_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', timeZone: '{{user_manager.session_timezone()}}',
-                                                defaultDate: "{{old_params.get('date_after', '')}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                                                defaultDate: after_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
 
         $('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
         {
@@ -185,7 +188,7 @@
                                 <div class="col-xs-12 col-sm-6">
                                     <label class="col-xs-12">{{ _("After date") }}</label>
                                     <div class="input-group date" id="date_after_picker" data-target-input="nearest">
-                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <input data-target='#date_after_picker' name="date_after" id="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
                                         <div class="input-group-append" data-target="#date_after_picker" data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
@@ -194,7 +197,7 @@
                                 <div class="col-xs-12 col-sm-6">
                                     <label class="col-xs-12">{{ _("Before date") }}</label>
                                     <div class="input-group date" id="date_before_picker" data-target-input="nearest">
-                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
+                                        <input data-target="#date_before_picker" name="date_before" id="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type="text" class="form-control datetimepicker-input">
                                         <div class="input-group-append" data-target="#date_before_picker" data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
@@ -257,5 +260,25 @@
                 </button>
             </div>
         </form>
+
+        <script type="text/javascript">
+
+            $('#select_form').on('submit', function(event) {
+                event.preventDefault();
+
+                var originalAfterDatetime = $("#date_after_picker").datetimepicker('date');
+                var originalBeforeDatetime = $("#date_before_picker").datetimepicker('date');
+
+                var modifiedAfterDatetime = originalAfterDatetime !== null ? originalAfterDatetime.clone().utc().format('YYYY-MM-DD HH:mm:ss') : null;
+                var modifiedBeforeDatetime = originalBeforeDatetime !== null ? originalBeforeDatetime.clone().utc().format('YYYY-MM-DD HH:mm:ss') : null;
+
+                $("#date_after").val(modifiedAfterDatetime);
+                $("#date_before").val(modifiedBeforeDatetime);
+
+                this.submit();
+            });
+
+        </script>
+
     </div>
 </div>
