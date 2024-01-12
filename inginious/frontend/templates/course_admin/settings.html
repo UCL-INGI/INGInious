@@ -530,9 +530,9 @@
         var datetimePickerTargets = ['#accessible_start_picker', '#accessible_end_picker', '#registration_start_picker', '#registration_end_picker'];
 
         datetimePickerTargets.forEach(function(target) {
-            var selectedDatetime = $(target).datetimepicker('viewDate');
-            var modifiedDatetime = selectedDatetime.clone().utc();
-            $('[data-target="' + target + '"]').val(modifiedDatetime.format('YYYY-MM-DD HH:mm:ss'));
+            var selectedDatetime = $(target).datetimepicker('date');
+            var modifiedDatetime = selectedDatetime !== null ? selectedDatetime.clone().utc().format('YYYY-MM-DD HH:mm:ss') : null;
+            $('[data-target="' + target + '"]').val(modifiedDatetime);
         });
 
         this.submit();
