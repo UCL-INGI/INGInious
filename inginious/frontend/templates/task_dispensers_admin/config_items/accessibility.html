@@ -106,20 +106,9 @@
             soft_end_date = isSpecialDate(accessibility["soft_end"]) ? null : moment.utc(accessibility["soft_end"]);
             end_date = isSpecialDate(accessibility["end"]) ? null : moment.utc(accessibility["end"]);
 
-            $(this).find('#accessibility_start_picker').datetimepicker('destroy');
-            $(this).find('#accessibility_soft_end_picker').datetimepicker('destroy');
-            $(this).find('#accessibility_end_picker').datetimepicker('destroy');
-
-            $(this).find('#accessibility_start').val("");
-            $(this).find('#accessibility_soft_end').val("");
-            $(this).find('#accessibility_end').val("");
-
-            $(this).find('#accessibility_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                                         defaultDate: start_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-            $(this).find('#accessibility_soft_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                                            defaultDate: soft_end_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-            $(this).find('#accessibility_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                                            defaultDate: end_date, sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+            $(this).find('#accessibility_start_picker').datetimepicker('date', start_date);
+            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', soft_end_date);
+            $(this).find('#accessibility_end_picker').datetimepicker('date', end_date);
 
             $('#accessibility_start_picker').data('ignore-change', false);
             $('#accessibility_soft_end_picker').data('ignore-change', false);
@@ -136,9 +125,9 @@
             $('#accessibility_soft_end_picker').data('ignore-change', true);
             $('#accessibility_end_picker').data('ignore-change', true);
 
-            $(this).find('#accessibility_start').val("");
-            $(this).find('#accessibility_soft_end').val("");
-            $(this).find('#accessibility_end').val("");
+            $(this).find('#accessibility_start_picker').datetimepicker('date', null);
+            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', null);
+            $(this).find('#accessibility_end_picker').datetimepicker('date', null);
 
             $('#accessibility_start_picker').data('ignore-change', false);
             $('#accessibility_soft_end_picker').data('ignore-change', false);
@@ -171,9 +160,13 @@
             } else {
                 $("#task_" + taskid + " .accessibility-custom").show();
 
-                var start = $("#edit_task_modal").find("#accessibility_start").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
-                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
-                var end = $("#edit_task_modal").find("#accessibility_end").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var start = $("#edit_task_modal").find("#accessibility_start").datetimepicker('date');
+                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").datetimepicker('date');
+                var end = $("#edit_task_modal").find("#accessibility_end").datetimepicker('date');
+
+                start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -183,13 +176,16 @@
             let id = $(this).attr("id");
 
             if (id == "accessibility_start") {
-                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss'));
+                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).datetimepicker('date'));
+                start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
             } else if(id == "accessibility_end") {
-                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss'));
+                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).datetimepicker('date'));
+                end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
                 dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
             } else {
-                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss'));
+                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).datetimepicker('date'));
+                soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
             }
         }
@@ -204,7 +200,8 @@
         if( $("input[name='accessibility']:checked").val() != "custom")
             return;
         var taskid = $("#edit_task_modal").data("taskid");
-        var start = $("#edit_task_modal").find("#accessibility_start_picker").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+        var start = $("#edit_task_modal").find("#accessibility_start_picker").datetimepicker('date');
+        start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
         dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
     });
 
@@ -217,7 +214,8 @@
         if( $("input[name='accessibility']:checked").val() != "custom")
             return;
         var taskid = $("#edit_task_modal").data("taskid");
-        var end = $("#edit_task_modal").find("#accessibility_end_picker").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+        var end = $("#edit_task_modal").find("#accessibility_end_picker").datetimepicker('date');
+        end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
         dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
     });
 
@@ -230,7 +228,8 @@
         if( $("input[name='accessibility']:checked").val() != "custom")
             return;
         var taskid = $("#edit_task_modal").data("taskid");
-        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end_picker").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end_picker").datetimepicker('date');
+        soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
         dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
     });
 
@@ -239,6 +238,7 @@
         let value = $(this).val();
         let action = $(this).attr("name");
         let id = $(this).attr("id");
+
         $(".grouped-actions-task:checked").each(function () {
             var taskid = $(this).data("taskid");
 
@@ -259,15 +259,18 @@
 
                     var start = $("#grouped-actions-edit #accessibility_start").val();
                     if (start !== "") {
-                        var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                        var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('date');
+                        start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
                     }
                     var soft_end = $("#grouped-actions-edit #accessibility_soft_end").val();
                     if (soft_end !== "") {
-                        var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                        var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('date');
+                        soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
                     }
                     var end = $("#grouped-actions-edit #accessibility_end").val();
                     if (end !== "") {
-                        var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                        var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('date');
+                        end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
                     }
 
                     dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
@@ -282,9 +285,12 @@
                 else
                     $("#task_" + taskid + " .accessibility-custom-soft-end").text(value);
 
-                var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
-                var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
-                var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('date');
+                start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('date');
+                soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('date');
+                end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -301,8 +307,9 @@
         let val = $("#grouped-actions-edit #accessibility_start").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-start").text(val);
-            var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
-            dispenser_config[$(this).data("taskid")]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
+            var start = $("#grouped-actions-edit #accessibility_start_picker_grouped").datetimepicker('date');
+            start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+            dispenser_config[$(this).data("taskid")]["accessibility"]["start"] = start == "" ? "1-01-01 00:00:00" : start;
         });
     });
     $('#accessibility_end_picker_grouped').on("change.datetimepicker", function () {
@@ -313,7 +320,8 @@
         let val = $("#grouped-actions-edit #accessibility_end").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-end").text(val);
-            var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+            var end = $("#grouped-actions-edit #accessibility_end_picker_grouped").datetimepicker('date');
+            end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
             dispenser_config[$(this).data("taskid")]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
         });
     });
@@ -325,7 +333,8 @@
         let val = $("#grouped-actions-edit #accessibility_soft_end").val();
         $(".grouped-actions-task:checked").each(function () {
             $("#task_" + $(this).data("taskid") + " .accessibility-custom-soft-end").text(val);
-            var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('viewDate').clone().utc().format('YYYY-MM-DD HH:mm:ss');
+            var soft_end = $("#grouped-actions-edit #accessibility_soft_end_picker_grouped").datetimepicker('date');
+            soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
             dispenser_config[$(this).data("taskid")]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
         });
     });
