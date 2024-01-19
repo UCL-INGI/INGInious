@@ -219,6 +219,6 @@ To restrict container availability to *NVIDIA* (recommended), add the following 
 Share what you created
 ----------------------
 
-If you created a Dockerfile for INGInious, feel free to make a pull request in the repository associated: https://github.com/UCL-INGI/INGInious-containers
+If you created a Dockerfile for INGInious, feel free to make a pull request in the repository associated: https://github.com/INGInious/containers
 
 .. _Docker: https://www.docker.com/
