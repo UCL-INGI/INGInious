@@ -401,7 +401,7 @@ class Installer:
             docker_connection = docker.from_env()
             for image in docker_connection.images.list():
                 for tag in image.attrs["RepoTags"]:
-                    if re.match(r"^ingi/inginious-c-(base|default):v" + __version__, tag):
+                    if re.match(r"^ghcr.io/inginious/env-(base|default):v" + __version__, tag):
                         stock_images.append(tag)
         except:
             self._display_info(FAIL + "Cannot connect to Docker!" + ENDC)
@@ -427,9 +427,9 @@ class Installer:
                     dev = False
                 self._display_info("Downloading containers for version:" + containers_version)
                 self._retrieve_and_extract_tarball(tarball_url, tmpdirname)
-                self._build_container("ingi/inginious-c-base",
+                self._build_container("ghcr.io/inginious/env-base",
                                       os.path.join(tmpdirname, "base-containers", "base"))
-                self._build_container("ingi/inginious-c-default",
+                self._build_container("ghcr.io/inginious/env-default",
                                       os.path.join(tmpdirname, "base-containers", "default"))
                 if dev:
                     self._display_info("If you modified files in base-containers folder, don't forget to rebuild manually to make these changes effective !")
@@ -439,18 +439,26 @@ class Installer:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 self._display_info("Downloading the other containers source directory...")
                 self._retrieve_and_extract_tarball(
-                    "https://api.github.com/repos/UCL-INGI/INGInious-containers/tarball", tmpdirname)
-
-                todo = {"ingi/inginious-c-base": None, "ingi/inginious-c-default": "ingi/inginious-c-base"}
+                    "https://api.github.com/repos/INGInious/containers/tarball", tmpdirname)
+                # As the add_container function recursively calls itself before adding the entry,
+                # the wanted build order.
+                todo = ["ghcr.io/inginious/env-base", "ghcr.io/inginious/env-default"]
                 available_containers = set(os.listdir(os.path.join(tmpdirname, 'grading')))
                 self._display_info("Done.")
 
-                def add_container(container):
+                def __add_container(container):
+                    """
+                        Add container to the dict of container to build.
+                        :param: container : The prefixed name of the container.
+                    """
+                    if not container.startswith("ghcr.io/inginious/env-"):
+                        container = "ghcr.io/inginious/env-" + container
+
                     if container in todo:
                         return
                     line_from = \
                         [l for l in
-                         open(os.path.join(tmpdirname, 'grading', container, 'Dockerfile')).read().split("\n")
+                         open(os.path.join(tmpdirname, 'grading', container[22:], 'Dockerfile')).read().split("\n")
                          if
                          l.startswith("FROM")][0]
                     supercontainer = line_from.strip()[4:].strip().split(":")[0]
@@ -475,20 +483,15 @@ class Installer:
                         self._display_info("Ok, I'll build container {}".format(answer))
                         add_container(answer)
 
-                done = {"ingi/inginious-c-base", "ingi/inginious-c-default"}
-                del todo["ingi/inginious-c-base"]
-                del todo["ingi/inginious-c-default"]
-                while len(todo) != 0:
-                    todo_now = [x for x, y in todo.items() if y is None or y in done]
-                    for x in todo_now:
-                        del todo[x]
-                    for container in todo_now:
-                        try:
-                            self._build_container("ingi/inginious-c-{}".format(container),
-                                                  os.path.join(tmpdirname, 'grading', container))
-                        except BuildError:
-                            self._display_error(
-                                "An error occured while building the container. Please retry manually.")
+                todo.remove("ghcr.io/inginious/env-base")
+                todo.remove("ghcr.io/inginious/env-default")
+                for container in todo:
+                    try:
+                        self._build_container(container,
+                                              os.path.join(tmpdirname, 'grading', container[22:]))
+                    except BuildError:
+                        self._display_error(
+                            "An error occured while building the container. Please retry manually.")
         except Exception as e:
             self._display_error("An error occurred while copying the directory: {}".format(e))
 
