@@ -5,7 +5,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
 
-LABEL org.opencontainers.image.source=https://github.com/UCL-INGI/INGInious-containers
+LABEL org.opencontainers.image.source=https://github.com/INGInious/containers
 LABEL org.opencontainers.image.description="Base INGInious grading environment."
 
 LABEL org.inginious.grading.agent_version=3
