@@ -35,19 +35,21 @@
                 {{ text[0] }}</label>
         </div>
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-            <div class='input-group date_picker' id='accessibility_start_picker{% if grouped %}_grouped{% endif %}' data-target-input="nearest">
-                <input data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" id="accessibility_start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
-                <div class="input-group-append" data-target="#accessibility_start_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+
+            <div class="input-group date" id="accessibility_start_picker{% if grouped %}_grouped{% endif %}" data-wrap="true" data-clickOpens="false">
+                <input id="accessibility_start{% if grouped %}_grouped{% endif %}"  data-input data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                <div class="input-group-append" title="toggle" data-toggle>
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
             </div>
+
         </div>
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">{{text[1]}}</label></div>
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-            <div class='input-group date_picker' id='accessibility_end_picker{% if grouped %}_grouped{% endif %}' data-target-input="nearest">
-                <input data-target='#accessibility_end_picker{% if grouped %}_grouped{% endif %}' id="accessibility_end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
-                <div class="input-group-append" data-target="#accessibility_end_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+            <div class="input-group date" id="accessibility_end_picker{% if grouped %}_grouped{% endif %}" data-wrap="true" data-clickOpens="false">
+                <input id="accessibility_end{% if grouped %}_grouped{% endif %}"  data-input data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                <div class="input-group-append" title="toggle" data-toggle>
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
             </div>
         </div>
@@ -60,26 +62,47 @@
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label" data-toggle="tooltip" data-placement="top" title="{{ _('Students can still submit after this date') }}">{{ _("Soft Deadline") }} <sup>?</sup></label></div>
         <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
             <div class="form-group">
-                <div class='input-group date_picker' id="accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-target-input="nearest">
-                        <input data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" id="accessibility_soft_end" data-date-format="YYYY-MM-DD HH:mm:ss"  placeholder="2014-06-29 10:00:00" type="text" class="form-control datetimepicker-input" />
-                        <div class="input-group-append" data-target="#accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-
+                <div class="input-group date" id="accessibility_soft_end_picker{% if grouped %}_grouped{% endif %}" data-wrap="true" data-clickOpens="false">
+                    <input id="accessibility_soft_end{% if grouped %}_grouped{% endif %}"  data-input data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                    <div class="input-group-append" title="toggle" data-toggle>
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <script type="text/javascript">
         $(function() {
-           $('.date_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                        sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+            /*
+            $(".input-group .date").each(function() {
+                flatpickr(this, {
+                    // Your Flatpickr options here
+                });
+            });
+            */
+
+            $(".input-group.date").flatpickr({
+                wrap: true,
+                clickOpens: false,
+                enableTime: true,
+                enableSeconds: true,
+                dateFormat: "Y-m-d H:i:S",
+                allowInput: true,
+                time_24hr: true,
+                minuteIncrement: 1,
+                secondIncrement: 1,
+                locale: {
+                    firstDayOfWeek: 1,
+                },
+            });
         });
     </script>
 </div>
 
 {% if not grouped %}
 <script>
+    const timezone = "{{user_manager.session_timezone()}}";
+
     // Feed modal
     $("#edit_task_modal").on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
@@ -98,21 +121,13 @@
         if (Object.values(accessibility).some(date => !isSpecialDate(date))) {
             value = 'custom';
 
-            $('#accessibility_start_picker').data('ignore-change', true);
-            $('#accessibility_soft_end_picker').data('ignore-change', true);
-            $('#accessibility_end_picker').data('ignore-change', true);
+            start_date = isSpecialDate(accessibility["start"]) ? "" : moment.utc(accessibility["start"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
+            soft_end_date = isSpecialDate(accessibility["soft_end"]) ? "" : moment.utc(accessibility["soft_end"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
+            end_date = isSpecialDate(accessibility["end"]) ? "" : moment.utc(accessibility["end"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
 
-            start_date = isSpecialDate(accessibility["start"]) ? null : moment.utc(accessibility["start"]);
-            soft_end_date = isSpecialDate(accessibility["soft_end"]) ? null : moment.utc(accessibility["soft_end"]);
-            end_date = isSpecialDate(accessibility["end"]) ? null : moment.utc(accessibility["end"]);
-
-            $(this).find('#accessibility_start_picker').datetimepicker('date', start_date);
-            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', soft_end_date);
-            $(this).find('#accessibility_end_picker').datetimepicker('date', end_date);
-
-            $('#accessibility_start_picker').data('ignore-change', false);
-            $('#accessibility_soft_end_picker').data('ignore-change', false);
-            $('#accessibility_end_picker').data('ignore-change', false);
+            $("#accessibility_start").val(start_date);
+            $("#accessibility_soft_end").val(soft_end_date);
+            $("#accessibility_end").val(end_date);
 
         } else {
             if (Object.values(accessibility).some(date => date == "{{ at.min }}")) {
@@ -121,17 +136,9 @@
                 value = 'false';
             }
 
-            $('#accessibility_start_picker').data('ignore-change', true);
-            $('#accessibility_soft_end_picker').data('ignore-change', true);
-            $('#accessibility_end_picker').data('ignore-change', true);
-
-            $(this).find('#accessibility_start_picker').datetimepicker('date', null);
-            $(this).find('#accessibility_soft_end_picker').datetimepicker('date', null);
-            $(this).find('#accessibility_end_picker').datetimepicker('date', null);
-
-            $('#accessibility_start_picker').data('ignore-change', false);
-            $('#accessibility_soft_end_picker').data('ignore-change', false);
-            $('#accessibility_end_picker').data('ignore-change', false);
+            $(this).find('#accessibility_start').val("");
+            $(this).find('#accessibility_soft_end').val("");
+            $(this).find('#accessibility_end').val("");
 
         }
 
@@ -160,13 +167,13 @@
             } else {
                 $("#task_" + taskid + " .accessibility-custom").show();
 
-                var start = $("#edit_task_modal").find("#accessibility_start").datetimepicker('date');
-                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").datetimepicker('date');
-                var end = $("#edit_task_modal").find("#accessibility_end").datetimepicker('date');
+                var start = $("#edit_task_modal").find("#accessibility_start").val();
+                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
+                var end = $("#edit_task_modal").find("#accessibility_end").val();
 
-                start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
-                soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
-                end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                start = start !== "" ? moment.tz(start, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                soft_end = soft_end !== "" ? moment.tz(soft_end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                end = end !== "" ? moment.tz(end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -176,62 +183,24 @@
             let id = $(this).attr("id");
 
             if (id == "accessibility_start") {
-                var start = $("#task_" + taskid + " .accessibility-custom-start").text($(this).datetimepicker('date'));
-                start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var start = $("#edit_task_modal").find("#accessibility_start").val()
+                $("#task_" + taskid + " .accessibility-custom-start").text(start);
+                start = start !== "" ? moment.tz(start, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
             } else if(id == "accessibility_end") {
-                var end = $("#task_" + taskid + " .accessibility-custom-end").text($(this).datetimepicker('date'));
-                end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var end = $("#edit_task_modal").find("#accessibility_end").val()
+                $("#task_" + taskid + " .accessibility-custom-end").text(end);
+                end = end !== "" ? moment.tz(end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
             } else {
-                var soft_end = $("#task_" + taskid + " .accessibility-custom-soft-end").text($(this).datetimepicker('date'));
-                soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
+                var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val()
+                $("#task_" + taskid + " .accessibility-custom-soft-end").text(soft_end);
+                soft_end = soft_end !== "" ? moment.tz(soft_end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
             }
         }
     });
 
-    $('#accessibility_start_picker').on("change.datetimepicker", function () {
-        if ($(this).data('ignore-change')) {
-            $(this).data('ignore-change', false);
-            return;
-        }
-
-        if( $("input[name='accessibility']:checked").val() != "custom")
-            return;
-        var taskid = $("#edit_task_modal").data("taskid");
-        var start = $("#edit_task_modal").find("#accessibility_start_picker").datetimepicker('date');
-        start = start == null ? "" : start.clone().utc().format('YYYY-MM-DD HH:mm:ss');
-        dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
-    });
-
-    $('#accessibility_end_picker').on("change.datetimepicker", function () {
-        if ($(this).data('ignore-change')) {
-            $(this).data('ignore-change', false);
-            return;
-        }
-
-        if( $("input[name='accessibility']:checked").val() != "custom")
-            return;
-        var taskid = $("#edit_task_modal").data("taskid");
-        var end = $("#edit_task_modal").find("#accessibility_end_picker").datetimepicker('date');
-        end = end == null ? "" : end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
-        dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
-    });
-
-    $('#accessibility_soft_end_picker').on("change.datetimepicker", function () {
-        if ($(this).data('ignore-change')) {
-            $(this).data('ignore-change', false);
-            return;
-        }
-
-        if( $("input[name='accessibility']:checked").val() != "custom")
-            return;
-        var taskid = $("#edit_task_modal").data("taskid");
-        var soft_end = $("#edit_task_modal").find("#accessibility_soft_end_picker").datetimepicker('date');
-        soft_end = soft_end == null ? "" : soft_end.clone().utc().format('YYYY-MM-DD HH:mm:ss');
-        dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
-    });
 
     // Catch grouped action changes
     $("#grouped-actions-edit .accessibility input").change(function () {
