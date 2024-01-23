@@ -72,6 +72,8 @@
     </div>
     <script type="text/javascript">
         $(function() {
+            language = "{{user_manager.session_language()}}";
+
             $(".input-group.date").flatpickr({
                 wrap: true,
                 clickOpens: false,
@@ -82,9 +84,7 @@
                 time_24hr: true,
                 minuteIncrement: 1,
                 secondIncrement: 1,
-                locale: {
-                    firstDayOfWeek: 1,
-                },
+                locale: language
             });
         });
     </script>

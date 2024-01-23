@@ -184,7 +184,7 @@ class UserManager:
         return self._session.get("language", "en")
 
     def session_timezone(self):
-        """ Returns the current session language """
+        """ Returns the current session timezone """
         return self._session.get("timezone", "UTC")
 
     def session_api_key(self):

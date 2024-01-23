@@ -6,6 +6,7 @@
         let before_date = "{{old_params['date_before']}}" ? moment.utc("{{old_params['date_before']}}") : null;
         let after_date = "{{old_params['date_after']}}" ? moment.utc("{{old_params['date_after']}}") : null;
         timezone = "{{user_manager.session_timezone()}}";
+        language = "{{user_manager.session_language()}}";
 
         $("#date_before_picker").flatpickr({
                                 wrap: true,
@@ -15,9 +16,7 @@
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : before_date ? moment.utc(before_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
 
@@ -29,9 +28,7 @@
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : after_date ? moment.utc(after_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
 

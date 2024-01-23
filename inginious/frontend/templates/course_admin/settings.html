@@ -186,6 +186,7 @@
                             let start_date = "{{at.get_std_start_date()}}"
                             let end_date = "{{at.get_std_end_date()}}"
                             timezone = "{{user_manager.session_timezone()}}";
+                            language = "{{user_manager.session_language()}}";
 
                             $("#accessible_start_picker").flatpickr({
                                 wrap: true,
@@ -195,9 +196,7 @@
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
 
@@ -209,9 +208,7 @@
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
 
@@ -275,6 +272,7 @@
                             let start_date = "{{at.get_std_start_date()}}";
                             let end_date = "{{at.get_std_end_date()}}";
                             timezone = "{{user_manager.session_timezone()}}";
+                            language = "{{user_manager.session_language()}}";
 
                             $("#registration_start_picker").flatpickr({
                                 wrap: true,
@@ -284,9 +282,7 @@
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
 
@@ -299,9 +295,7 @@
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
                         });
