@@ -94,6 +94,13 @@
     {% endif %}
     <script src="{{get_homepath(True)}}/static/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/flatpickr.min.js" type="text/javascript" charset="utf-8"></script>
+
+
+
+    {% for code, language in available_languages.items() %}
+        <script src="{{get_homepath(True)}}/static/js/libs/flatpickr-l10n/{{code}}.js" type="text/javascript" charset="utf-8"></script>
+    {% endfor %}
+
     <script src='{{get_homepath(True)}}/static/js/libs/Sortable.min.js' type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/jquery.twbsPagination.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/selectize.min.js" type="text/javascript" charset="utf-8"></script>
