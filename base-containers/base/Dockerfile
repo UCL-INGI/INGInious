@@ -12,7 +12,7 @@ LABEL org.inginious.grading.agent_version=3
 
 # Install python, needed for scripts used in INGInious + locale support
 RUN     dnf clean metadata && \
-        dnf -y install langpacks-en && \
+        dnf -y install langpacks-en glibc-langpack-en && \
         dnf -y install epel-release && \
         dnf -y upgrade && \
         dnf -y install python38 python38-pip python38-devel zip unzip tar sed openssh-server openssl bind-utils iproute file jq procps-ng man curl net-tools screen nano bc  && \
