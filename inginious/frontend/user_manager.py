@@ -11,8 +11,7 @@ from typing import Dict, Optional
 
 from werkzeug.exceptions import NotFound
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from functools import reduce
 from natsort import natsorted
 from collections import OrderedDict, namedtuple
@@ -819,7 +818,7 @@ class UserManager:
 
         # Check for token availability
         enough_tokens = True
-        timenow = datetime.now()
+        timenow = datetime.now(timezone.utc)
         submission_limit = course.get_task_dispenser().get_submission_limit(task.get_id())
         if not only_check or only_check == 'tokens':
             if submission_limit == {"amount": -1, "period": -1}:
@@ -842,7 +841,7 @@ class UserManager:
                     if date_limited and need_reset:
                         # time limit for the tokens is reached; reset the tokens
                         self._database.user_tasks.find_one_and_update(user_task, {
-                            "$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+                            "$set": {"tokens": {"amount": 0, "date": datetime.now(timezone.utc)}}})
                         return True
                     elif tokens_ok:
                         return True

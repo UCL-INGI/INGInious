@@ -9,7 +9,7 @@ from collections import OrderedDict
 import flask
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousSubmissionsAdminPage
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
@@ -192,7 +192,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
             msgs.append(_("Invalid dates"))
 
         if daterange[0] is None or daterange[1] is None:
-            now = datetime.now().replace(minute=0, second=0, microsecond=0)
+            now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
             daterange = [now - timedelta(days=14), now]
 
         params["date_before"] = daterange[1].strftime("%4Y-%m-%d %H:%M:%S")
