@@ -7,7 +7,7 @@
 
 import copy
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pymongo
 import flask
@@ -35,8 +35,8 @@ class Contest(TableOfContents):
         self._contest_settings = dispenser_data.get(
             'contest_settings',
             {"enabled": False,
-             "start": datetime.now(),
-             "end": datetime.now() + timedelta(hours=1),
+             "start": datetime.now(timezone.utc),
+             "end": datetime.now(timezone.utc) + timedelta(hours=1),
              "blackout": 0,
              "penalty": 20}
         )

@@ -10,7 +10,7 @@ import gettext
 import flask
 import tidylib
 
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlparse
 from docutils import core, nodes
 from docutils.parsers.rst import directives, Directive
@@ -70,7 +70,7 @@ class HiddenUntilDirective(Directive, object):
         force_show = self.state.document.settings.force_show_hidden_until
         translation = _get_inginious_translation()
 
-        after_deadline = hidden_until <= datetime.now()
+        after_deadline = hidden_until <= datetime.now(timezone.utc)
         if after_deadline or force_show:
             output = []
 
