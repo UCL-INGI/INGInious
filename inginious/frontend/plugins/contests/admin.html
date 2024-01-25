@@ -60,14 +60,9 @@ accessibility date of the course &lt; registration start date &lt; registration 
             </div>
             <script type="text/javascript">
                 $(function() {
-                /*
-                    $('#start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', timeZone: '{{user_manager.session_timezone()}}',
-                                                        defaultDate: "{{data['start']}}", sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                */
-
-                var start_date = "{{data['start']}}";
-                console.log(start_date);
-                timezone = "{{user_manager.session_timezone()}}";
+                    language = "{{user_manager.session_language()}}";
+                    var start_date = "{{data['start']}}";
+                    timezone = "{{user_manager.session_timezone()}}";
 
                     $("#start_picker").flatpickr({
                                 wrap: true,
@@ -77,9 +72,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
                                 dateFormat: "Y-m-d H:i:S",
                                 allowInput: true,
                                 time_24hr: true,
-                                locale: {
-                                    firstDayOfWeek: 1,
-                                },
+                                locale: language,
                                 defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
                             });
                 });
@@ -97,11 +90,9 @@ accessibility date of the course &lt; registration start date &lt; registration 
             </div>
             <script type="text/javascript">
                 $(function() {
-                language = "{{user_manager.session_language()}}";
-
-                var end_date = "{{data['end']}}";
-                console.log(end_date);
-                timezone = "{{user_manager.session_timezone()}}";
+                    language = "{{user_manager.session_language()}}";
+                    var end_date = "{{data['end']}}";
+                    timezone = "{{user_manager.session_timezone()}}";
 
                     $("#end_picker").flatpickr({
                                 wrap: true,
