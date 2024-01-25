@@ -95,7 +95,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
             cur += increment
 
         for entry in stats_graph:
-            c = datetime(entry["_id"]["year"], entry["_id"]["month"], entry["_id"]["day"], 0 if method == "day" else entry["_id"]["hour"])
+            c = datetime(entry["_id"]["year"], entry["_id"]["month"], entry["_id"]["day"], 0 if method == "day" else entry["_id"]["hour"], tzinfo=timezone.utc)
             all_submissions[c] += entry["submissions"]
             valid_submissions[c] += entry["validSubmissions"]
 
