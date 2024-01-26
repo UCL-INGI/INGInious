@@ -9,8 +9,8 @@
                 <i class="fa fa-info fa-fw"></i>
             </div>
             <div class="col-sm-11" style="margin-left:-10px;">
-                Contest starts: {{ start.strftime('%d/%m/%Y %H:%M:%S') }}<br/>
-                Contest ends: {{ end.strftime('%d/%m/%Y %H:%M:%S') }}
+                Contest starts: <div class="datetime-display">{{ start }}</div><br/>
+                Contest ends: <div class="datetime-display">{{ end }}</div>
             </div>
         </div>
     </div>

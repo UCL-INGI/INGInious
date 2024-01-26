@@ -220,5 +220,23 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {{ template_helper.call('javascript_footer') | safe }}
+
+    <script>
+        $(document).ready(function() {
+
+            var timezone = "{{user_manager.session_timezone()}}";
+            $(".datetime-display").each(function() {
+                var date = $(this).text();
+
+                // check the date has a correct structure
+                if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
+                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).toDate()
+                    $(this).text(moment(updatedDate).format('YYYY-MM-DD HH:mm:ss'));
+                }
+            });
+
+        });
+
+    </script>
 </body>
 </html>
