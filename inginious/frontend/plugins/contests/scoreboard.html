@@ -16,7 +16,7 @@
 
 {% block head %}
 	{{ super() }}
-	{% if end > end.now() %}
+	{% if end > end.utcnow() %}
 		<meta http-equiv="refresh" content="30" />
 	{% endif %}
 {% endblock %}
@@ -31,8 +31,8 @@
 			Contest ends: <div class="datetime-display">{{end}}</div><br/>
         </div>
         <div class="col-md-4" style="margin-top:2px;">
-            {% if start > start.now() %}
-                <span class="contest_starting_time" starts-at="{{start.strftime('%4Y-%m-%d %H:%M:%S')}}"></span>
+            {% if start > start.utcnow() %}
+                <span class="contest_starting_time" starts-at="{{start.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
             {% else %}
                 <span class="contest_remaining_time" ends-at="{{end.strftime('%4Y-%m-%d %H:%M:%S')}}"></span>
                 {% if blackout != end %}
@@ -41,14 +41,14 @@
 			{% endif %}
 		</div>
         <div class="col-md-4" style="margin-top:2px;">
-            {% if end > end.now() %}
+            {% if end > end.utcnow() %}
                 The scoreboard will refresh every 30 seconds.
 			{% endif %}
         </div>
     </div>
 </div>
 
-{% if start <= start.now() %}
+{% if start <= start.utcnow() %}
 	<table class="contest_scoreboard mb-3">
 	    <thead>
 	        <th class="contest_rank">Rank</th>
