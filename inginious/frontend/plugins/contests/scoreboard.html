@@ -30,7 +30,7 @@
             Contest starts: <div class="datetime-display">{{start}}</div><br/>
 			Contest ends: <div class="datetime-display">{{end}}</div><br/>
         </div>
-        <div class="col-md-4" style="margin-top:2px;">
+        <div class="col-md-4 access_countdown" style="margin-top:2px;" timezone="{{user_manager.session_timezone()}}">
             {% if start > start.utcnow() %}
                 <span class="contest_starting_time" starts-at="{{start.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
             {% else %}
