@@ -94,11 +94,6 @@ accessibility date of the course &lt; registration start date &lt; registration 
                     var end_date = "{{data['end']}}";
                     timezone = "{{user_manager.session_timezone()}}";
 
-                    console.log(timezone);
-                    console.log(end_date);
-                    console.log(moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone));
-                    console.log(end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '');
-
                     $("#end_picker").flatpickr({
                                 wrap: true,
                                 clickOpens: false,

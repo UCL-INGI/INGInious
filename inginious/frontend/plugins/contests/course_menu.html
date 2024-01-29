@@ -19,7 +19,7 @@
             <div class="col-sm-1">
                 <i class="fa fa-info fa-fw"></i>
             </div>
-            <div class="col-sm-11" style="margin-left:-10px;">
+            <div class="col-sm-11 access_countdown" style="margin-left:-10px;" timezone="{{user_manager.session_timezone()}}">
                 {% if start > start.utcnow() %}
                     <span class="contest_starting_time" starts-at="{{ start.strftime('%Y-%m-%d %H:%M:%S') }}"></span>
                 {% else %}
