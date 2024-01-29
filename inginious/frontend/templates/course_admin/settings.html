@@ -197,7 +197,7 @@
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
+                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
                             });
 
                             $("#accessible_end_picker").flatpickr({
@@ -209,7 +209,7 @@
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
+                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
                             });
 
 
@@ -283,7 +283,7 @@
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
+                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
                             });
 
 
@@ -296,7 +296,7 @@
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
+                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
                             });
                         });
                     </script>

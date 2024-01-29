@@ -14,6 +14,9 @@ function contest_starting_time()
 		if(event.offset.totalDays > 0) {
 			format = '%-D day%!D ' + format;
 		}
+		console.log(event);
+		console.log(event.strftime(format));
+
 		$(this).html("Contest starts in: "+event.strftime(format));
 	}).on('finish.countdown', function(event)
 	{
@@ -30,6 +33,9 @@ function contest_remaining_time()
 		if(event.offset.totalDays > 0) {
 			format = '%-D day%!D ' + format;
 		}
+		console.log(event);
+		console.log(event.strftime(format));
+
 		$(this).html("Time remaining: "+event.strftime(format));
 	}).on('finish.countdown', function(event)
 	{

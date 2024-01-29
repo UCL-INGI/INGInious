@@ -17,7 +17,7 @@
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : before_date ? moment.utc(before_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
+                                defaultDate : before_date ? moment.utc(before_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
                             });
 
         $("#date_after_picker").flatpickr({
@@ -29,7 +29,7 @@
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : after_date ? moment.utc(after_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).toDate() : '',
+                                defaultDate : after_date ? moment.utc(after_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
                             });
 
         $('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
