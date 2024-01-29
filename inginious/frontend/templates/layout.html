@@ -230,7 +230,7 @@
 
                 // check the date has a correct structure
                 if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
-                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).toDate()
+                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
                     $(this).text(moment(updatedDate).format('YYYY-MM-DD HH:mm:ss'));
                 }
             });
