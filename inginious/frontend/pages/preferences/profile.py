@@ -89,7 +89,7 @@ class ProfilePage(INGIniousAuthPage):
         full_timezone = data["main_timezone"] + "/" + data["sub_timezone"]
         if full_timezone != userdata["timezone"] and full_timezone != "/":
             timezone = full_timezone if (data["main_timezone"] in self.app.available_timezones.keys()
-                                                and data["sub_timezone"] in self.app.available_timezones[data["main_timezone"]]) else "UTC"
+                                                and data["sub_timezone"] in self.app.available_timezones[data["main_timezone"]]) else "None"
             print(data["main_timezone"])
             print(data["sub_timezone"])
             print(full_timezone)

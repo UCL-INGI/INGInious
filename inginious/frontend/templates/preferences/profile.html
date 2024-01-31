@@ -73,7 +73,7 @@
         <div class="col-sm-6">
             <label class="control-label">{{ _("Timezone :") }} </label>
             <select id="main_timezone" name="main_timezone" class="form-control">
-                <option hidden value="" {% if user_manager.session_timezone() == "UTC" %} selected {% endif %}>No Timezone Selected</option>
+                <option hidden value= "" {% if user_manager.session_timezone() == "None" %} selected {% endif %}>No Timezone Selected</option>
                 {% for main_timezone in available_timezones.keys() %}
                     <option value="{{main_timezone}}" {% if main_timezone == user_manager.session_timezone().split("/")[0] %} selected {% endif %}>{{ main_timezone.replace("_", " ") }}</option>
                 {% endfor %}
@@ -82,7 +82,7 @@
         <div class="col-sm-6">
             <label class="control-label">{{ _("Timezone (locality) :") }} </label>
             <select id="sub_timezone" name="sub_timezone" class="form-control">
-                <option hidden value="" {% if user_manager.session_timezone() == "UTC" %} selected {% endif %}>No sub timezone selected</option>
+                <option hidden value="" {% if user_manager.session_timezone() == "None" %} selected {% endif %}>No sub timezone selected</option>
                 {% for sub_timezone in available_timezones[user_manager.session_timezone().split("/")[0]] %}
                     <option value="{{sub_timezone}}" {% if sub_timezone == "/".join(user_manager.session_timezone().split("/")[1:]) %} selected {% endif %}>{{ sub_timezone.replace("_", " ") }}</option>
                 {% endfor %}

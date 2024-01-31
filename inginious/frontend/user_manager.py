@@ -184,7 +184,7 @@ class UserManager:
 
     def session_timezone(self):
         """ Returns the current session timezone """
-        return self._session.get("timezone", "UTC")
+        return self._session.get("timezone", "None")
 
     def session_api_key(self):
         """ Returns the API key for the current user. Created on first demand. """
@@ -527,9 +527,9 @@ class UserManager:
                                                  "email": email,
                                                  "bindings": {auth_id: [username, additional]},
                                                  "language": self._session.get("language", "en"),
-                                                 "timezone": self._session.get("timezone", "UTC")})
+                                                 "timezone": self._session.get("timezone", "None")})
                 self.connect_user("", realname, email, self._session.get("language", "en"),
-                                  self._session.get("timezone", "UTC"),False)
+                                  self._session.get("timezone", "None"),False)
 
         return True
 
@@ -591,7 +591,7 @@ class UserManager:
                                          "password": self.hash_password(values["password"]),
                                          "bindings": {},
                                          "language": "en",
-                                         "timezone": "UTC"})
+                                         "timezone": "None"})
         return None
 
     ##############################################
