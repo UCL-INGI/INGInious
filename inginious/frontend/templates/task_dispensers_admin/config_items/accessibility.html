@@ -92,7 +92,7 @@
 
 {% if not grouped %}
 <script>
-    const timezone = "{{user_manager.session_timezone()}}";
+    const timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // Feed modal
     $("#edit_task_modal").on('show.bs.modal', function (event) {

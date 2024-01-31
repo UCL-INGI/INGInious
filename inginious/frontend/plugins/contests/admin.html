@@ -62,7 +62,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
                 $(function() {
                     language = "{{user_manager.session_language()}}";
                     var start_date = "{{data['start']}}";
-                    timezone = "{{user_manager.session_timezone()}}";
+                    timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
 
                     $("#start_picker").flatpickr({
                                 wrap: true,
@@ -92,7 +92,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
                 $(function() {
                     language = "{{user_manager.session_language()}}";
                     var end_date = "{{data['end']}}";
-                    timezone = "{{user_manager.session_timezone()}}";
+                    timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
 
                     $("#end_picker").flatpickr({
                                 wrap: true,
@@ -130,7 +130,7 @@ accessibility date of the course &lt; registration start date &lt; registration 
 
                 var originalStartDatetime = $("#start").val();
                 var originalEndDatetime = $("#end").val();
-                let timezone = "{{user_manager.session_timezone()}}";
+                timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
 
                 var modifiedStartDatetime = originalStartDatetime !== "" ? moment.tz(originalStartDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 var modifiedEndDatetime = originalEndDatetime !== "" ? moment.tz(originalEndDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";

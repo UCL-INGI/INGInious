@@ -1,7 +1,7 @@
 //Various functions to display remaining times
 $(function()
 {
-    var timezone = $('.access_countdown').attr('timezone') // does not work when defining timezone here and passing as parameter
+    var timezone = $('.access_countdown').attr('timezone')
 
 	$('.contest_starting_time').each(function(){
 	    contest_starting_time.call(this, timezone);

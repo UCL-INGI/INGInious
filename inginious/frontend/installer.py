@@ -569,7 +569,7 @@ class Installer:
                                    "password": UserManager.hash_password(password),
                                    "bindings": {},
                                    "language": "en",
-                                   "timezone": "UTC"})
+                                   "timezone": "None"})
 
         options["superadmins"].append(username)
 

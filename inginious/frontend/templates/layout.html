@@ -224,7 +224,7 @@
     <script>
         $(document).ready(function() {
 
-            var timezone = "{{user_manager.session_timezone()}}";
+            var timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
             $(".datetime-display").each(function() {
                 var date = $(this).text();
 
