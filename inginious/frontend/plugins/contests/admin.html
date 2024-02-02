@@ -63,17 +63,19 @@ accessibility date of the course &lt; registration start date &lt; registration 
                     language = "{{user_manager.session_language()}}";
                     var start_date = "{{data['start']}}";
                     timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+                    js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
                     $("#start_picker").flatpickr({
                                 wrap: true,
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: flatpickr_datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
+                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
                             });
                 });
             </script>
@@ -93,17 +95,19 @@ accessibility date of the course &lt; registration start date &lt; registration 
                     language = "{{user_manager.session_language()}}";
                     var end_date = "{{data['end']}}";
                     timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+                    js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
                     $("#end_picker").flatpickr({
                                 wrap: true,
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: flatpickr_datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
+                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
                             });
                 });
             </script>
@@ -131,9 +135,10 @@ accessibility date of the course &lt; registration start date &lt; registration 
                 var originalStartDatetime = $("#start").val();
                 var originalEndDatetime = $("#end").val();
                 timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
-                var modifiedStartDatetime = originalStartDatetime !== "" ? moment.tz(originalStartDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                var modifiedEndDatetime = originalEndDatetime !== "" ? moment.tz(originalEndDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                var modifiedStartDatetime = originalStartDatetime !== "" ? moment(originalStartDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                var modifiedEndDatetime = originalEndDatetime !== "" ? moment(originalEndDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                 $("#start").val(modifiedStartDatetime);
                 $("#end").val(modifiedEndDatetime);
