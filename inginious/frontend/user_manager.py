@@ -72,7 +72,7 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
 
-UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language", "timezone", "activated"])
+UserInfo = namedtuple("UserInfo", ["realname", "email", "username", "bindings", "language", "timezone", "datetime_format", "activated"])
 
 
 class UserManager:
@@ -186,6 +186,10 @@ class UserManager:
         """ Returns the current session timezone """
         return self._session.get("timezone", "None")
 
+    def session_datetime_format(self):
+        """ Returns the current session date and time format """
+        return self._session.get("datetime_format", "Y-m-d H:i:S")
+
     def session_api_key(self):
         """ Returns the API key for the current user. Created on first demand. """
         return self.get_user_api_key(self.session_username())
@@ -211,7 +215,10 @@ class UserManager:
     def set_session_timezone(self, timezone):
         self._session["timezone"] = timezone
 
-    def _set_session(self, username, realname, email, language, timezone, tos_signed):
+    def set_session_datetime_format(self, datetime_format):
+        self._session["datetime_format"] = datetime_format
+
+    def _set_session(self, username, realname, email, language, timezone, datetime_format, tos_signed):
         """ Init the session. Preserves potential LTI information. """
         self._session["loggedin"] = True
         self._session["email"] = email
@@ -219,6 +226,7 @@ class UserManager:
         self._session["realname"] = realname
         self._session["language"] = language
         self._session["timezone"] = timezone
+        self._session["datetime_format"] = datetime_format
         self._session["tos_signed"] = tos_signed
         self._session["token"] = None
         if "lti" not in self._session:
@@ -232,6 +240,7 @@ class UserManager:
         self._session["realname"] = None
         self._session["language"] = None
         self._session["timezone"] = None
+        self._session["datetime_format"] = None
         self._session["token"] = None
         self._session["lti"] = None
         self._session["tos_signed"] = None
@@ -356,7 +365,7 @@ class UserManager:
             {"username": username, "activate": {"$exists": True, "$nin": [None]}})
         return user is None
 
-    def connect_user(self, username, realname, email, language, timezone, tos_accepted):
+    def connect_user(self, username, realname, email, language, timezone, datetime_format, tos_accepted):
         """ Opens a session for the user
 
         :param username: Username
@@ -366,11 +375,11 @@ class UserManager:
 
         self._database.users.update_one({"email": email},
                                         {"$set": {"realname": realname, "username": username, "language": language,
-                                                  "timezone": timezone}},
+                                                  "timezone": timezone, "datetime_format": datetime_format}},
                                         upsert=True)
         ip = flask.request.remote_addr
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, ip)
-        self._set_session(username, realname, email, language, timezone, tos_accepted)
+        self._set_session(username, realname, email, language, timezone, datetime_format, tos_accepted)
         return True
 
     def disconnect_user(self):
@@ -399,7 +408,8 @@ class UserManager:
         infos = self._database.users.find(query).skip(skip).limit(limit)
 
         retval = {info["username"]: UserInfo(info["realname"], info["email"], info["username"], info["bindings"],
-                                             info["language"], info["timezone"], "activate" not in info) for info in infos}
+                                             info["language"], info["timezone"], info["datetime_format"],
+                                             "activate" not in info) for info in infos}
         return retval
 
     def get_user_info(self, username) -> Optional[UserInfo]:
@@ -497,7 +507,7 @@ class UserManager:
         if user_profile and not self.session_logged_in():
             # Sign in
             self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"],
-                              user_profile["language"], user_profile["timezone"],
+                              user_profile["language"], user_profile["timezone"], user_profile["datetime_format"],
                               user_profile.get("tos_accepted", False))
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
@@ -527,9 +537,10 @@ class UserManager:
                                                  "email": email,
                                                  "bindings": {auth_id: [username, additional]},
                                                  "language": self._session.get("language", "en"),
-                                                 "timezone": self._session.get("timezone", "None")})
+                                                 "timezone": self._session.get("timezone", "None"),
+                                                 "datetime_format": self._session.get("datetime_format", "Y-m-d H:i:S")})
                 self.connect_user("", realname, email, self._session.get("language", "en"),
-                                  self._session.get("timezone", "None"),False)
+                                  self._session.get("timezone", "None"), self._session.get("datetime_format", "Y-m-d H:i:S"),False)
 
         return True
 
@@ -591,7 +602,8 @@ class UserManager:
                                          "password": self.hash_password(values["password"]),
                                          "bindings": {},
                                          "language": "en",
-                                         "timezone": "None"})
+                                         "timezone": "None",
+                                         "datetime_format": "Y-m-d H:i:S"})
         return None
 
     ##############################################

@@ -88,6 +88,19 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="col-sm-6">
+            <label class="control-label">{{ _("Date format :") }} </label>
+            <select id="datetime_format" name="datetime_format" class="form-control">
+                {% for format in available_datetime_formats.keys() %}
+                    <script>
+                        console.log("{{available_datetime_formats[format]}}");
+                        console.log("{{format}}");
+                        //console.log(available_datetime_formats[format] == user_manager.session_datetime_format().split(" ")[0]);
+                    </script>
+                    <option value="{{available_datetime_formats[format]}}" {% if available_datetime_formats[format] == user_manager.session_datetime_format() %} selected {% endif %}>{{ format}}</option>
+                {% endfor %}
+            </select>
+        </div>
 
         <script>
             $(document).ready(function() {

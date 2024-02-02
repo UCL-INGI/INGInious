@@ -177,6 +177,16 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
+    # remove following
+    available_datetime_formats = {"YYYY-MM-DD hh:mm:ss": "Y-m-d H:i:S", "DD-MM-YYYY hh:mm:ss": "d-m-Y H:i:S",
+                                  "YYYY-DD-MM hh:mm:ss": "Y-d-m H:i:S", "MM-DD-YYYY hh:mm:ss": "m-d-Y H:i:S",
+                                  "hh:mm:ss YYYY-MM-DD": "H:i:S Y-m-d", "hh:mm:ss DD-MM-YYYY": "H:i:S d-m-Y",
+                                  "hh:mm:ss YYYY-DD-MM": "H:i:S Y-d-m", "hh:mm:ss MM-DD-YYYY": "H:i:S m-d-Y"}
+
+    # have date format only here and add the option of choosing if the time is before or after the date ?
+  #  available_datetime_formats = {"date_after": {"YYYY-MM-DD": "Y-m-d H:i:S", "DD-MM-YYYY": "d-m-Y H:i:S", "YYYY-DD-MM": "Y-d-m H:i:S", "MM-DD-YYYY": "m-d-Y H:i:S"},
+  #                            "date_before": {"YYYY-MM-DD": "H:i:S Y-m-d", "DD-MM-YYYY": "H:i:S d-m-Y", "YYYY-DD-MM": "H:i:S Y-d-m", "MM-DD-YYYY": "H:i:S m-d-Y"}}
+
     available_timezones = { # timezones available for moment-timezone (cleaned)
         'Africa':
             ['Abidjan', 'Accra', 'Addis_Ababa', 'Algiers', 'Asmara', 'Asmera', 'Bamako', 'Bangui','Banjul', 'Bissau',
@@ -263,6 +273,7 @@ def get_app(config):
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("available_timezones", available_timezones)
+        template_helper.add_to_template_globals("available_datetime_formats", available_datetime_formats)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
         init_flask_maintenance_mapping(flask_app)
@@ -317,6 +328,7 @@ def get_app(config):
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("available_timezones", available_timezones)
+    template_helper.add_to_template_globals("available_datetime_formats", available_datetime_formats)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
     template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
@@ -378,6 +390,7 @@ def get_app(config):
     flask_app.allow_deletion = config.get("allow_deletion", True)
     flask_app.available_languages = available_languages
     flask_app.available_timezones = available_timezones
+    flask_app.available_datetime_formats = available_datetime_formats
     flask_app.welcome_page = config.get("welcome_page", None)
     flask_app.terms_page = config.get("terms_page", None)
     flask_app.privacy_page = config.get("privacy_page", None)
