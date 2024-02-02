@@ -73,13 +73,14 @@
     <script type="text/javascript">
         $(function() {
             language = "{{user_manager.session_language()}}";
+            flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
 
             $(".input-group.date_picker").flatpickr({
                 wrap: true,
                 clickOpens: false,
                 enableTime: true,
                 enableSeconds: true,
-                dateFormat: "Y-m-d H:i:S",
+                dateFormat: flatpickr_datetime_format,
                 allowInput: true,
                 time_24hr: true,
                 minuteIncrement: 1,
@@ -93,6 +94,8 @@
 {% if not grouped %}
 <script>
     const timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}"; // do i need that ? No, I only need to change date format before giving it to the date picker
+    js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
     // Feed modal
     $("#edit_task_modal").on('show.bs.modal', function (event) {
@@ -112,9 +115,9 @@
         if (Object.values(accessibility).some(date => !isSpecialDate(date))) {
             value = 'custom';
 
-            start_date = isSpecialDate(accessibility["start"]) ? "" : moment.utc(accessibility["start"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
-            soft_end_date = isSpecialDate(accessibility["soft_end"]) ? "" : moment.utc(accessibility["soft_end"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
-            end_date = isSpecialDate(accessibility["end"]) ? "" : moment.utc(accessibility["end"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
+            start_date = isSpecialDate(accessibility["start"]) ? "" : moment.utc(accessibility["start"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format);
+            soft_end_date = isSpecialDate(accessibility["soft_end"]) ? "" : moment.utc(accessibility["soft_end"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format);
+            end_date = isSpecialDate(accessibility["end"]) ? "" : moment.utc(accessibility["end"], 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format );
 
             $("#accessibility_start").val(start_date);
             $("#accessibility_soft_end").val(soft_end_date);
@@ -162,9 +165,9 @@
                 var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val();
                 var end = $("#edit_task_modal").find("#accessibility_end").val();
 
-                start = start !== "" ? moment.tz(start, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                soft_end = soft_end !== "" ? moment.tz(soft_end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                end = end !== "" ? moment.tz(end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                start = start !== "" ? moment(start, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -176,17 +179,17 @@
             if (id == "accessibility_start") {
                 var start = $("#edit_task_modal").find("#accessibility_start").val()
                 $("#task_" + taskid + " .accessibility-custom-start").text(start);
-                start = start !== "" ? moment.tz(start, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                start = start !== "" ? moment(start, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
             } else if(id == "accessibility_end") {
                 var end = $("#edit_task_modal").find("#accessibility_end").val()
                 $("#task_" + taskid + " .accessibility-custom-end").text(end);
-                end = end !== "" ? moment.tz(end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
             } else {
                 var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val()
                 $("#task_" + taskid + " .accessibility-custom-soft-end").text(soft_end);
-                soft_end = soft_end !== "" ? moment.tz(soft_end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
             }
         }
@@ -221,9 +224,9 @@
                     var soft_end = $("#grouped-actions-edit #accessibility_soft_end_grouped").val();
                     var end = $("#grouped-actions-edit #accessibility_end_grouped").val();
 
-                    start = start !== "" ? moment.tz(start, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                    soft_end = soft_end !== "" ? moment.tz(soft_end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                    end = end !== "" ? moment.tz(end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                    start = start !== "" ? moment(start, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                    soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                    end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                     dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
                     dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
@@ -241,9 +244,9 @@
                 var soft_end = $("#grouped-actions-edit #accessibility_soft_end_grouped").val();
                 var end = $("#grouped-actions-edit #accessibility_end_grouped").val();
 
-                start = start !== "" ? moment.tz(start, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                soft_end = soft_end !== "" ? moment.tz(soft_end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                end = end !== "" ? moment.tz(end, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                start = start !== "" ? moment(start, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                 if ($("input[value='custom']").is(":checked")) {
                     dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
