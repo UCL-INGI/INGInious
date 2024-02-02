@@ -90,10 +90,7 @@ class ProfilePage(INGIniousAuthPage):
         if full_timezone != userdata["timezone"] and full_timezone != "/":
             timezone = full_timezone if (data["main_timezone"] in self.app.available_timezones.keys()
                                                 and data["sub_timezone"] in self.app.available_timezones[data["main_timezone"]]) else "None"
-            print(data["main_timezone"])
-            print(data["sub_timezone"])
-            print(full_timezone)
-            print(timezone)
+
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"timezone": timezone}},
                                                              return_document=ReturnDocument.AFTER)
@@ -103,6 +100,19 @@ class ProfilePage(INGIniousAuthPage):
                 return result, msg, error
             else:
                 self.user_manager.set_session_timezone(timezone)
+
+        # Checks if updating date and time format
+        if data["datetime_format"] != userdata["datetime_format"]:
+            datetime_format = data["datetime_format"] if data["datetime_format"] in self.app.available_datetime_formats.values() else "Y-m-d H:i:S"
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                             {"$set": {"datetime_format": datetime_format}},
+                                                             return_document=ReturnDocument.AFTER)
+            if not result:
+                error = True
+                msg = _("Incorrect username.")
+                return result, msg, error
+            else:
+                self.user_manager.set_session_datetime_format(datetime_format)
 
         # Checks if updating name
         if len(data["realname"]) > 0:

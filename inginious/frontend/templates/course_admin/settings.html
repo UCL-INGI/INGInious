@@ -187,13 +187,14 @@
                             let end_date = "{{at.get_std_end_date()}}"
                             timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
                             language = "{{user_manager.session_language()}}";
+                            datetime_format = "{{user_manager.session_datetime_format()}}";
 
                             $("#accessible_start_picker").flatpickr({
                                 wrap: true,
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
@@ -205,7 +206,7 @@
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
@@ -273,13 +274,14 @@
                             let end_date = "{{at.get_std_end_date()}}";
                             timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
                             language = "{{user_manager.session_language()}}";
+                            datetime_format = "{{user_manager.session_datetime_format()}}";
 
                             $("#registration_start_picker").flatpickr({
                                 wrap: true,
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
@@ -292,7 +294,7 @@
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
@@ -569,10 +571,12 @@
         event.preventDefault();
         var datetimePickerTargets = ['#accessible_start', '#accessible_end', '#registration_start', '#registration_end'];
         timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+        datetime_format = "{{user_manager.session_datetime_format()}}";
 
         datetimePickerTargets.forEach(function(target) {
             var selectedDatetime = $(target).val();
-            var modifiedDatetime = selectedDatetime !== "" ? moment.tz(selectedDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+            var modifiedDatetime = selectedDatetime !== "" ? moment(selectedDatetime).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+            console.log(modifiedDatetime);
             $(target).val(modifiedDatetime);
         });
 
