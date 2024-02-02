@@ -187,7 +187,7 @@ class UserManager:
         return self._session.get("timezone", "None")
 
     def session_datetime_format(self):
-        """ Returns the current session date and time format """
+        """ Returns the current session date and time format in flatpickr format (saved in database) """
         return self._session.get("datetime_format", "Y-m-d H:i:S")
 
     def session_api_key(self):

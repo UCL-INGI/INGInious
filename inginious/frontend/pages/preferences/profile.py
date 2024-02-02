@@ -103,7 +103,7 @@ class ProfilePage(INGIniousAuthPage):
 
         # Checks if updating date and time format
         if data["datetime_format"] != userdata["datetime_format"]:
-            datetime_format = data["datetime_format"] if data["datetime_format"] in self.app.available_datetime_formats.values() else "Y-m-d H:i:S"
+            datetime_format = data["datetime_format"] if data["datetime_format"] in self.app.available_datetime_formats.keys() else "Y-m-d H:i:S"
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"datetime_format": datetime_format}},
                                                              return_document=ReturnDocument.AFTER)

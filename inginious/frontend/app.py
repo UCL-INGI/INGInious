@@ -177,15 +177,11 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
-    # remove following
-    available_datetime_formats = {"YYYY-MM-DD hh:mm:ss": "Y-m-d H:i:S", "DD-MM-YYYY hh:mm:ss": "d-m-Y H:i:S",
-                                  "YYYY-DD-MM hh:mm:ss": "Y-d-m H:i:S", "MM-DD-YYYY hh:mm:ss": "m-d-Y H:i:S",
-                                  "hh:mm:ss YYYY-MM-DD": "H:i:S Y-m-d", "hh:mm:ss DD-MM-YYYY": "H:i:S d-m-Y",
-                                  "hh:mm:ss YYYY-DD-MM": "H:i:S Y-d-m", "hh:mm:ss MM-DD-YYYY": "H:i:S m-d-Y"}
-
-    # have date format only here and add the option of choosing if the time is before or after the date ?
-  #  available_datetime_formats = {"date_after": {"YYYY-MM-DD": "Y-m-d H:i:S", "DD-MM-YYYY": "d-m-Y H:i:S", "YYYY-DD-MM": "Y-d-m H:i:S", "MM-DD-YYYY": "m-d-Y H:i:S"},
-  #                            "date_before": {"YYYY-MM-DD": "H:i:S Y-m-d", "DD-MM-YYYY": "H:i:S d-m-Y", "YYYY-DD-MM": "H:i:S Y-d-m", "MM-DD-YYYY": "H:i:S m-d-Y"}}
+    # other way around to avoid the need of difficult translations in html
+    available_datetime_formats = {'Y-m-d H:i:S': 'YYYY-MM-DD hh:mm:ss', 'd-m-Y H:i:S': 'DD-MM-YYYY hh:mm:ss',
+                                  'Y-d-m H:i:S': 'YYYY-DD-MM hh:mm:ss', 'm-d-Y H:i:S': 'MM-DD-YYYY hh:mm:ss',
+                                  'H:i:S Y-m-d': 'hh:mm:ss YYYY-MM-DD', 'H:i:S d-m-Y': 'hh:mm:ss DD-MM-YYYY',
+                                  'H:i:S Y-d-m': 'hh:mm:ss YYYY-DD-MM', 'H:i:S m-d-Y': 'hh:mm:ss MM-DD-YYYY'}
 
     available_timezones = { # timezones available for moment-timezone (cleaned)
         'Africa':
