@@ -7,17 +7,19 @@
         let after_date = "{{old_params['date_after']}}" ? moment.utc("{{old_params['date_after']}}") : null;
         timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
         language = "{{user_manager.session_language()}}";
+        flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+        js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
         $("#date_before_picker").flatpickr({
                                 wrap: true,
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: flatpickr_datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : before_date ? moment.utc(before_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
+                                defaultDate : before_date ? moment.utc(before_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
                             });
 
         $("#date_after_picker").flatpickr({
@@ -25,11 +27,11 @@
                                 clickOpens: false,
                                 enableTime: true,
                                 enableSeconds: true,
-                                dateFormat: "Y-m-d H:i:S",
+                                dateFormat: flatpickr_datetime_format,
                                 allowInput: true,
                                 time_24hr: true,
                                 locale: language,
-                                defaultDate : after_date ? moment.utc(after_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format('YYYY-MM-DD HH:mm:ss') : '',
+                                defaultDate : after_date ? moment.utc(after_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
                             });
 
         $('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
@@ -290,9 +292,10 @@
                 var originalAfterDatetime = $("#date_after").val();
                 var originalBeforeDatetime = $("#date_before").val();
                 timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
-                var modifiedAfterDatetime = originalAfterDatetime !== "" ? moment.tz(originalAfterDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                var modifiedBeforeDatetime = originalBeforeDatetime !== "" ? moment.tz(originalBeforeDatetime, timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                var modifiedAfterDatetime = originalAfterDatetime !== "" ? moment(originalAfterDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                var modifiedBeforeDatetime = originalBeforeDatetime !== "" ? moment(originalBeforeDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                 $("#date_after").val(modifiedAfterDatetime);
                 $("#date_before").val(modifiedBeforeDatetime);
