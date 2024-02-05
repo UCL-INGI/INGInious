@@ -223,15 +223,16 @@
 
     <script>
         $(document).ready(function() {
-
             var timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+            js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
             $(".datetime-display").each(function() {
                 var date = $(this).text();
 
                 // check the date has a correct structure
                 if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
-                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
-                    $(this).text(moment(updatedDate).format('YYYY-MM-DD HH:mm:ss'));
+                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).format(js_datetime_format);
+                    $(this).text(updatedDate);
                 }
             });
 
