@@ -29,6 +29,7 @@ install_requires = [
     "Werkzeug==3.0.1",
     "WsgiDAV==4.3.0",
     "zipstream==1.1.4"
+    "argon2-cffi == 23.1.0"
 ]
 
 test_requires = [
