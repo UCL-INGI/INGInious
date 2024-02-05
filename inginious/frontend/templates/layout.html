@@ -226,13 +226,23 @@
             var timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
             js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
+            // Update datetime display
             $(".datetime-display").each(function() {
                 var date = $(this).text();
 
-                // check the date has a correct structure
                 if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
                     var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).format(js_datetime_format);
                     $(this).text(updatedDate);
+                }
+            });
+
+            // Update datetime input placeholder to correct format
+            $(".datetimepicker-input").each(function() {
+                var date = $(this).attr('placeholder');
+
+                if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
+                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss').format(js_datetime_format);
+                    $(this).attr('placeholder', updatedDate);
                 }
             });
 
