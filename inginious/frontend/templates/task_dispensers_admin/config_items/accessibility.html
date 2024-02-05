@@ -7,8 +7,8 @@
     <span class="accessibility accessibility-never" {% if not at.is_never_accessible() %} style="display: none;" {% endif %}>{{_("Never")}}</span>
     <span class="accessibility accessibility-always" {% if not at.is_always_accessible() %} style="display: none;" {% endif %}>{{_("Always")}}</span>
     <span class="accessibility accessibility-custom" {% if at.is_always_accessible() or at.is_never_accessible() %} style="display: none;" {% endif %}>
-        {{ _("Custom, from: {} to: {}").format('<span class="accessibility-custom-start">' + str(at.get_std_start_date()) + '</span>', '<span class="accessibility-custom-end">' + at.get_std_end_date() + '</span>') | safe}}
-        (<span class="accessibility-custom-soft-end">{{ at.get_std_soft_end_date() }}</span>)
+        {{ _("Custom, from: {} to: {}").format('<span class="accessibility-custom-start datetime-display">' + str(at.get_std_start_date()) + '</span>', '<span class="accessibility-custom-end datetime-display">' + at.get_std_end_date() + '</span>') | safe}}
+        (<span class="accessibility-custom-soft-end datetime-display">{{ at.get_std_soft_end_date() }}</span>)
     </span>
 {% else %}
 
@@ -94,7 +94,6 @@
 {% if not grouped %}
 <script>
     const timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
-    //flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}"; // do i need that ? No, I only need to change date format before giving it to the date picker
     js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
 
     // Feed modal
