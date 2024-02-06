@@ -50,8 +50,9 @@ class CombinatoryTest(TableOfContents):
         taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
 
-        return template_helper.render("task_dispensers_admin/combinatory_test.html",  element=element, course=course, taskset=taskset,
-                                      dispenser_structure=self._toc, tasks=task_data, task_errors=task_errors, config_fields=config_fields,
+        return template_helper.render("task_dispensers_admin/combinatory_test.html",  element=element, course=course,
+                                      taskset=taskset, dispenser_structure=self._toc, dispenser_config=self._task_config,
+                                      tasks=task_data, task_errors=task_errors, config_fields=config_fields,
                                       config_items_funcs=["dispenser_util_get_" + config_item.get_id() for config_item in self.config_items])
 
     def render(self, template_helper, course, tasks_data, tag_list, username):
