@@ -219,7 +219,7 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             d["best"] = d["_id"] in best_submissions_list  # mark best submissions
 
         if limit is not None:
-            number_of_pages = submissions_count // limit + (submissions_count % limit > 0)
+            number_of_pages = max(submissions_count // limit + (submissions_count % limit > 0), 1)
             return out, submissions_count, number_of_pages
         else:
             return out
