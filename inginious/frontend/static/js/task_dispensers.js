@@ -437,10 +437,6 @@ function dispenser_util_get_task_config() {
         tasks_config[elem] = {};
     });
 
-    for(const config_func of task_config_funcs) {
-        config_func(tasks_config);
-    }
-
     return tasks_config;
 }
 

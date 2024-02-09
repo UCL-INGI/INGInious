@@ -81,7 +81,7 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
 
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
-        firstLineNumber: firstline,
+        firstLineNumber: parseInt(firstline),
         mode:              mode["mime"],
         foldGutter:        true,
         styleActiveLine:   true,
