@@ -27,8 +27,9 @@ install_requires = [
     "sh==2.0.6",
     "watchdog==3.0.0",
     "Werkzeug==3.0.1",
+    "MarkupSafe==2.1.1",
     "WsgiDAV==4.3.0",
-    "zipstream==1.1.4"
+    "zipstream==1.1.4",
     "argon2-cffi == 23.1.0"
 ]
 
