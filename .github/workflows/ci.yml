@@ -19,6 +19,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
+    with:
+      python-version: '3.8'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -32,10 +34,6 @@ jobs:
           pip3 install coverage==7.4.1 pytest==8.0.0 virtualenv==20.25.0
           pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
 
-      - name: Start services
-        run: |
-          sudo systemctl start mongod
-          sudo systemctl start docker
 
       - name: Install INGInious
         run: pip3 install .
