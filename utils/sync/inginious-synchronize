@@ -23,7 +23,7 @@ def print_output(text):
 
 # Change current dir for source file dir
 scriptdir = os.path.dirname(os.path.abspath(__file__))
-sh.cd(scriptdir)
+os.chdir(scriptdir)
 
 # Open configuration file
 try:
@@ -46,7 +46,7 @@ for repo in config['repos']:
     print('\x1b[33;1m-> Synchronizing course repository : ' + repo['course'] + ' \033[0m')
     # Add private key with ssh add
     print('\x1b[1m--> Add private key with ssh-add \033[0m')
-    sh.cd(scriptdir)
+    os.chdir(scriptdir)
     try:
         out = ssh_add(os.path.abspath(repo['keyfile']))
         print_output(out.stderr.decode('utf-8'))
@@ -64,7 +64,7 @@ for repo in config['repos']:
         print('\x1b[1m--> Synchronizing repository\033[0m')
         
         # Change working dir to the repo path
-        sh.cd(maindir + "/" + repo['course'])
+        os.chdir(maindir + "/" + repo['course'])
         
         # Add all the files to git and commit
         out = git.add("-A", '.')
@@ -91,7 +91,7 @@ for repo in config['repos']:
         
     # Remove private key with ssh add
     print('\x1b[1m--> Remove private key with ssh-add \033[0m')
-    sh.cd(scriptdir)
+    os.chdir(scriptdir)
     out = ssh_add("-d", os.path.abspath(repo['keyfile']))
     print_output(out.stderr.decode('utf-8'))
     if not out.exit_code == 0:
