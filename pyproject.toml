@@ -58,7 +58,7 @@ dependencies = [
     "WsgiDAV==4.3.0",
     "zipstream==1.1.4",
     "argon2-cffi == 23.1.0",
-    
+
     # testing requirements and doc requirements
     "INGInious[doc]",
 ]
@@ -91,9 +91,9 @@ inginious-webapp = "inginious.webapp:main"
 inginious-webdav = "inginious.webdav:main"
 inginious-install = "inginious.install:main"
 inginious-autotest = "inginious.autotest:main"
-inginious-synchronize = "utils.sync.inginious-synchronize:main"
-inginious-container-update = "utils.container_update.inginious-container-update:main"
-inginious-database-update = "utils.database_updater.inginious-database-update:main"
+inginious-synchronize = "utils.sync:main"
+inginious-container-update = "utils.container_update:main"
+inginious-database-update = "utils.database_updater:main"
 
 
 [project.urls]
