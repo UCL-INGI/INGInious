@@ -5,20 +5,34 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "INGInious"
-dynamic = ["version"] # check if works, need a _version.py file? (see scm github readme)
+dynamic = ["version"]
 authors = [
     {name = "INGInious contributors", email = "inginious@info.ucl.ac.be"},
 ]
 description = "An intelligent grader that allows secured and automated testing of code made by students."
 readme = "README.rst"
-requires-python = ">=3.8" # needed ? -> could work with other versions
+requires-python = ">=3.8"
 keywords = ["autograder", "programming", "training", "learning", "education",
     "mooc", "autograding", "evaluation", "grading", "exercise", "interview",
     "assessment", "lti", "learn-to-code", "programming-exercise", "e-assessment",
     "technical-coding-interview", "coding-interviews", "inginious" ]
 license = {text = "AGPL 3"}
-classifiers = [ # add classifiers
+classifiers = [ # https://pypi.org/classifiers/
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: JavaScript",
+    "Framework :: Flask",
+    "Framework :: Pytest",
+    "Framework :: Setuptools Plugin",
+    "Framework :: Sphinx",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Topic :: Education",
+    "Topic :: Education :: Computer Aided Instruction (CAI)",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    #"Operating System :: OS Independent",
 ]
 
 dependencies = [
@@ -44,8 +58,8 @@ dependencies = [
     "WsgiDAV==4.3.0",
     "zipstream==1.1.4",
     "argon2-cffi == 23.1.0",
-
-    # testing requirements and doc requirements -> needed here ?
+    
+    # testing requirements and doc requirements
     "INGInious[doc]",
 ]
 
@@ -69,21 +83,17 @@ doc = [
 ]
 
 
-#[project.scripts]  # in windows scripts need a terminal. If launched from gui it will open one. To prevent this : use [project.gui-scripts] instead
-#
-## no way to add condition in TOML ?
-## -> define scripts in setup.py so I can use os.environ.get("INGINIOUS_COMPOSE") to conditionnaly add scripts
-#
-#inginious-agent-docker = "inginious.agent.docker:main"
-#inginious-agent-mcq = "inginious.agent.mcq:main"
-#inginious-backend = "inginious.backend:main"
-#inginious-webapp = "inginious.webapp:main"
-#inginious-webdav = "inginious.webdav:main"
-#inginious-install = "inginious.install:main"
-#inginious-autotest = "inginious.autotest:main"
-#inginious-synchronize = "utils.sync.inginious-synchronize:main"
-#inginious-container-update = "utils.container_update.inginious-container-update:main"
-#inginious-database-update = "utils.database_updater.inginious-database-update:main"
+[project.scripts]  # in windows scripts need a terminal. If launched from gui it will open one. To prevent this : use [project.gui-scripts] instead
+inginious-agent-docker = "inginious.agent.docker:main"
+inginious-agent-mcq = "inginious.agent.mcq:main"
+inginious-backend = "inginious.backend:main"
+inginious-webapp = "inginious.webapp:main"
+inginious-webdav = "inginious.webdav:main"
+inginious-install = "inginious.install:main"
+inginious-autotest = "inginious.autotest:main"
+inginious-synchronize = "utils.sync.inginious-synchronize:main"
+inginious-container-update = "utils.container_update.inginious-container-update:main"
+inginious-database-update = "utils.database_updater.inginious-database-update:main"
 
 
 [project.urls]
@@ -93,10 +103,9 @@ Repository = "https://github.com/UCL-INGI/INGInious"
 Issues ="https://github.com/UCL-INGI/INGInious/issues"
 
 
-# enables setuptools_scm, can be empty
+# enables setuptools_scm
 [tool.setuptools_scm]
 
 
 # automatically find packages in the project
 [tool.setuptools.packages.find]
-# possibility to include, exclude define the folders containing packages, ...
