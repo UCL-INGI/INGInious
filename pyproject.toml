@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools==69.1.0", "setuptools-scm==8.0.4"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "INGInious"
+dynamic = ["version"]
+authors = [
+    {name = "INGInious contributors", email = "inginious@info.ucl.ac.be"},
+]
+description = "An intelligent grader that allows secured and automated testing of code made by students."
+readme = "README.rst"
+requires-python = ">=3.8"
+keywords = ["autograder", "programming", "training", "learning", "education",
+    "mooc", "autograding", "evaluation", "grading", "exercise", "interview",
+    "assessment", "lti", "learn-to-code", "programming-exercise", "e-assessment",
+    "technical-coding-interview", "coding-interviews", "inginious" ]
+license = {text = "AGPL 3"}
+classifiers = [ # https://pypi.org/classifiers/
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: JavaScript",
+    "Framework :: Flask",
+    "Framework :: Pytest",
+    "Framework :: Setuptools Plugin",
+    "Framework :: Sphinx",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Topic :: Education",
+    "Topic :: Education :: Computer Aided Instruction (CAI)",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    #"Operating System :: OS Independent",
+]
+
+dependencies = [
+    "docker==7.0.0",
+    "docutils==0.20.1",
+    "Flask==3.0.2",
+    "Flask-Mail==0.9.1",
+    "itsdangerous==2.1.2",
+    "Jinja2==3.1.3",
+    "lti==0.9.5",
+    "msgpack==1.0.7",
+    "natsort==8.4.0",
+    "psutil==5.9.8",
+    "pymongo==4.6.1",
+    "pytidylib==0.3.2",
+    "PyYAML==6.0.1",
+    "pyzmq==25.1.2",
+    "requests-oauthlib==1.3.1",
+    "sh==2.0.6",
+    "watchdog==4.0.0",
+    "Werkzeug==3.0.1",
+    "MarkupSafe==2.1.5",
+    "WsgiDAV==4.3.0",
+    "zipstream==1.1.4",
+    "argon2-cffi == 23.1.0",
+
+    # testing requirements and doc requirements
+    "INGInious[doc]",
+]
+
+
+[project.optional-dependencies]
+cgi = ["flup==1.0.3"]
+ldap = ["ldap3==2.9.1"]
+saml2 = ["python3-saml==1.16.0"]
+uwsgi = ["uwsgi==2.0.24"]
+test = [
+    "pytest==8.0.0",
+    "coverage==7.4.1"
+]
+doc = [
+    "ipython==8.21.0",
+    "sphinx==7.2.6",
+    "sphinx-autodoc-typehints==2.0.0",
+    "sphinx-rtd-theme==2.0.0",
+    "sphinx-tabs==3.4.5",
+    "INGInious[test]"
+]
+
+
+[project.scripts]  # in windows scripts need a terminal. If launched from gui it will open one. To prevent this : use [project.gui-scripts] instead
+inginious-agent-docker = "inginious.agent.docker:main"
+inginious-agent-mcq = "inginious.agent.mcq:main"
+inginious-backend = "inginious.backend:main"
+inginious-webapp = "inginious.webapp:main"
+inginious-webdav = "inginious.webdav:main"
+inginious-install = "inginious.install:main"
+inginious-autotest = "inginious.autotest:main"
+inginious-synchronize = "utils.sync:main"
+inginious-container-update = "utils.container_update:main"
+inginious-database-update = "utils.database_updater:main"
+
+
+[project.urls]
+Homepage = "https://inginious.org/"
+Documentation = "https://docs.inginious.org"
+Repository = "https://github.com/UCL-INGI/INGInious"
+Issues ="https://github.com/UCL-INGI/INGInious/issues"
+
+
+# enables setuptools_scm
+[tool.setuptools_scm]
+
+
+# automatically find packages in the project
+[tool.setuptools.packages.find]
