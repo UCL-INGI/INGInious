@@ -77,11 +77,36 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
 
     var is_single = $(textarea).hasClass('single');
 
+    // hardcoded identation user settings, to move to
+    let ident = {"2" : {"indentUnit": 2, "tabSize": 2, "indentWithTabs": false},
+                 "3": {"indentUnit": 3, "tabSize": 3, "indentWithTabs": false},
+                 "4": {"indentUnit": 4, "tabSize": 4, "indentWithTabs": false},
+                 "tab": {"indentUnit": 4, "tabSize": 4, "indentWithTabs": true},
+                 }
+
+     let user_indent_id = "tab";
+     let user_indent = ident[user_indent_id];
+
+
+     var keyMappings = {
+        'Ctrl-Enter': function() {
+                                 $('body,html').animate({
+                                   scrollTop: $('#task-submit').offset().top
+                                 }, 'fast');
+                               }
+     }
+
+    if (user_indent_id == "tab") {
+        keyMappings["Tab"] = function(cm) { cm.execCommand("insertSoftTab"); let text = cm.getSearchCursor('    '); while(text.find()){text.replace("\t");}; };
+    } else {
+        keyMappings["Tab"] = function(cm) { cm.execCommand("insertSoftTab");};
+    }
+
 
 
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
-        firstLineNumber: parseInt(firstline),
+        firstLineNumber:   parseInt(firstline),
         mode:              mode["mime"],
         foldGutter:        true,
         styleActiveLine:   true,
@@ -89,19 +114,15 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
         autoCloseBrackets: true,
         lineWrapping:      true,
         gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        4,
+        indentUnit:        user_indent["indentUnit"],
+        indentWithTabs:    user_indent["indentWithTabs"],
+        tabSize:           user_indent["tabSize"],
         viewportMargin:    Infinity,
         lint:              function()
                            {
                                return []
                            },
-        extraKeys:         {
-                               'Ctrl-Enter': function() {
-                                 $('body,html').animate({
-                                   scrollTop: $('#task-submit').offset().top
-                                 }, 'fast');
-                               },
-                           },
+        extraKeys:         keyMappings
     });
 
     if(is_single)
