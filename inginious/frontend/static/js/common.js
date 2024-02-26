@@ -77,17 +77,6 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
 
     var is_single = $(textarea).hasClass('single');
 
-    // hardcoded identation user settings, to move to
-    let ident = {"2" : {"indentUnit": 2, "tabSize": 2, "indentWithTabs": false},
-                 "3": {"indentUnit": 3, "tabSize": 3, "indentWithTabs": false},
-                 "4": {"indentUnit": 4, "tabSize": 4, "indentWithTabs": false},
-                 "tab": {"indentUnit": 4, "tabSize": 4, "indentWithTabs": true},
-                 }
-
-     let user_indent_id = "tab";
-     let user_indent = ident[user_indent_id];
-
-
      var keyMappings = {
         'Ctrl-Enter': function() {
                                  $('body,html').animate({
@@ -96,7 +85,7 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
                                }
      }
 
-    if (user_indent_id == "tab") {
+    if (user_indentation_type["text"] == "tabs") {
         keyMappings["Tab"] = function(cm) { cm.execCommand("insertSoftTab"); let text = cm.getSearchCursor('    '); while(text.find()){text.replace("\t");}; };
     } else {
         keyMappings["Tab"] = function(cm) { cm.execCommand("insertSoftTab");};
@@ -114,9 +103,9 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
         autoCloseBrackets: true,
         lineWrapping:      true,
         gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        user_indent["indentUnit"],
-        indentWithTabs:    user_indent["indentWithTabs"],
-        tabSize:           user_indent["tabSize"],
+        indentUnit:        user_indentation_type["indentUnit"],
+        indentWithTabs:    user_indentation_type["indentWithTabs"],
+        tabSize:           user_indentation_type["tabSize"],
         viewportMargin:    Infinity,
         lint:              function()
                            {
