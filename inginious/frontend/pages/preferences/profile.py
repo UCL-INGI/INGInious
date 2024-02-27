@@ -72,7 +72,7 @@ class ProfilePage(INGIniousAuthPage):
                                                                  return_document=ReturnDocument.AFTER)
 
         # Check if updating language
-        if data["language"] != userdata["language"]:
+        if data["language"] != userdata.get("language", "en"):
             language = data["language"] if data["language"] in self.app.available_languages else "en"
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"language": language}},

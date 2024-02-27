@@ -368,10 +368,9 @@ class UserManager:
             - realname
             - email
             - username
-            - language => to be removed with removal from DB
         """
 
-        if not all(key in user for key in ["realname", "email", "username", "language"]):
+        if not all(key in user for key in ["realname", "email", "username"]):
             raise AuthInvalidInputException()
 
         ip = flask.request.remote_addr
@@ -597,8 +596,7 @@ class UserManager:
                                          "realname": values["realname"],
                                          "email": values["email"],
                                          "password": self.hash_password(values["password"]),
-                                         "bindings": {},
-                                         "language": "en"})
+                                         "bindings": {}})
         return None
 
     ##############################################

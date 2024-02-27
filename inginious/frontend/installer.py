@@ -567,8 +567,7 @@ class Installer:
                                    "realname": realname,
                                    "email": email,
                                    "password": UserManager.hash_password(password),
-                                   "bindings": {},
-                                   "language": "en"})
+                                   "bindings": {}})
 
         options["superadmins"].append(username)
 
