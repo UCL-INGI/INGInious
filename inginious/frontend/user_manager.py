@@ -196,6 +196,11 @@ class UserManager:
         if self.session_logged_in():
             self._session["token"] = token
 
+    def set_session_username(self, username):
+        """ Sets the username of the current user in the session, if one is open."""
+        if self.session_logged_in():
+            self._session["username"] = username
+
     def set_session_realname(self, realname):
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
@@ -212,15 +217,15 @@ class UserManager:
     def set_session_code_indentation(self, code_indentation):
         self._session["code_indentation"] = code_indentation
 
-    def _set_session(self, username, realname, email, language,code_indentation, tos_signed):
+    def _set_session(self, user): # pass all data as dict and .get() with fallback values
         """ Init the session. Preserves potential LTI information. """
         self._session["loggedin"] = True
-        self._session["email"] = email
-        self._session["username"] = username
-        self._session["realname"] = realname
-        self._session["language"] = language
-        self._session["code_indentation"] = code_indentation
-        self._session["tos_signed"] = tos_signed
+        self._session["email"] = user["email"]
+        self._session["username"] = user["username"]
+        self._session["realname"] = user["realname"]
+        self._session["language"] = user.get("language", "en")
+        self._session["code_indentation"] = user.get("code_indentation", "4")
+        self._session["tos_signed"] = user.get("tos_signed", False)
         self._session["token"] = None
         if "lti" not in self._session:
             self._session["lti"] = None
@@ -315,8 +320,7 @@ class UserManager:
 
         if self.verify_hash(db_hash, password, method):
             if do_connect:
-                self.connect_user(username, user["realname"], user["email"], user["language"], user["code_indentation"],
-                                  user.get("tos_accepted", False))
+                self.connect_user(user)
             return user
 
     def verify_hash(cls, db_hash, password, method="sha512"):
@@ -356,21 +360,23 @@ class UserManager:
             {"username": username, "activate": {"$exists": True, "$nin": [None]}})
         return user is None
 
-    def connect_user(self, username, realname, email, language, code_indentation, tos_accepted):
+    def connect_user(self, user):
         """ Opens a session for the user
 
-        :param username: Username
-        :param realname: User real name
-        :param email: User email
+        :param user : a dict representing the user, it contains the data of the user.
+            It must at least contain the following fields:
+            - realname
+            - email
+            - username
+            - language => to be removed with removal from DB
         """
 
-        self._database.users.update_one({"email": email},
-                                        {"$set": {"realname": realname, "username": username, "language": language,
-                                                  "code_indentation": code_indentation}},
-                                        upsert=True)
+        if not all(key in user for key in ["realname", "email", "username", "language"]):
+            raise AuthInvalidInputException()
+
         ip = flask.request.remote_addr
-        self._logger.info("User %s connected - %s - %s - %s", username, realname, email, ip)
-        self._set_session(username, realname, email, language, code_indentation, tos_accepted)
+        self._logger.info("User %s connected - %s - %s - %s", user["username"], user["realname"], user["email"], ip)
+        self._set_session(user)
         return True
 
     def disconnect_user(self):
@@ -497,8 +503,7 @@ class UserManager:
 
         if user_profile and not self.session_logged_in():
             # Sign in
-            self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"],
-                              user_profile["language"], user_profile["code_indentation"], user_profile.get("tos_accepted", False))
+            self.connect_user(user_profile)
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
             self._database.users.find_one_and_update({"username": self.session_username()},
@@ -522,13 +527,17 @@ class UserManager:
                 return False
             else:
                 # New user, create an account using email address
-                self._database.users.insert_one({"username": "",
-                                                 "realname": realname,
-                                                 "email": email,
-                                                 "bindings": {auth_id: [username, additional]},
-                                                 "language": self.session_language(),
-                                                 "code_indentation": self.session_code_indentation()})
-                self.connect_user("", realname, email, self.session_language(), self.session_code_indentation(),False)
+                user_profile = {"username": "", "realname": realname, "email": email,
+                                "bindings": {auth_id: [username, additional]}, "language": self.session_language(),
+                                "code_indentation": self.session_code_indentation(), "tos_accepted": False}
+
+                self._database.users.insert_one({"username": user["username"],
+                                                 "realname": user["realname"],
+                                                 "email": user["email"],
+                                                 "bindings": user["bindings"],
+                                                 "language": user["language"],
+                                                 "code_indentation": user["code_indentation"]})
+                self.connect_user(user_profile)
 
         return True
 
@@ -589,8 +598,7 @@ class UserManager:
                                          "email": values["email"],
                                          "password": self.hash_password(values["password"]),
                                          "bindings": {},
-                                         "language": "en",
-                                         "code_indentation": "4"})
+                                         "language": "en"})
         return None
 
     ##############################################

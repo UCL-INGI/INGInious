@@ -43,8 +43,7 @@ class ProfilePage(INGIniousAuthPage):
                     msg = _("Incorrect email.")
                     return result, msg, error
                 else:
-                    self.user_manager.connect_user(result["username"], result["realname"], result["email"],
-                                                   result["language"], result.get("tos_accepted", False)) # why language changed ????
+                    self.user_manager.set_session_username(data["username"])
 
         # Check if updating the password.
         if self.app.allow_registration and len(data["passwd"]) in range(1, 6):
@@ -86,7 +85,7 @@ class ProfilePage(INGIniousAuthPage):
                 self.user_manager.set_session_language(language)
 
         # check if updating code indentation
-        if data["code_indentation"] != userdata["code_indentation"]:
+        if data["code_indentation"] != userdata.get("code_indentation", "4"):
             code_indentation = data["code_indentation"] if data["code_indentation"] in self.app.available_indentation_types.keys() else "4"
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"code_indentation": code_indentation}},
