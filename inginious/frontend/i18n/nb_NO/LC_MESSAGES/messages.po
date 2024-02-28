@@ -8,146 +8,151 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2024-02-28 14:24+0000\n"
+"Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
+"Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
+"inginious/frontend/nb_NO/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.14\n"
 "Generated-By: Babel 2.11.0\n"
 
 #: inginious/frontend/courses.py:30
 msgid "List of exercises"
-msgstr ""
+msgstr "Øvingsliste"
 
 #: inginious/frontend/parsable_text.py:37
 msgid "[no content]"
-msgstr ""
+msgstr "[Uten innhold]"
 
 #: inginious/frontend/parsable_text.py:81
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "Tilbakemeldingen under vil bli gjemt frem til {}."
 
 #: inginious/frontend/parsable_text.py:96
 msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"En del av denne tilbakemeldingen er gjemt frem til {}. Vennligst kom tilbake "
+"senere og oppdater innleveringen for å få full tilbakemelding."
 
 #: inginious/frontend/parsable_text.py:271
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr ""
+msgstr "<b>Parsing feilet</b>: <pre>{}</pre>"
 
 #: inginious/frontend/submission_manager.py:420
 msgid "Feedback is badly formatted."
-msgstr ""
+msgstr "Tilbakemeldingen er ikke korrekt formatert."
 
 #: inginious/frontend/task_problems.py:75
 msgid "code"
-msgstr ""
+msgstr "Kildekode"
 
 #: inginious/frontend/task_problems.py:108
 msgid "single-line code"
-msgstr ""
+msgstr "Kildekodelinje"
 
 #: inginious/frontend/task_problems.py:134
 msgid "file upload"
-msgstr ""
+msgstr "Filopplasting"
 
 #: inginious/frontend/task_problems.py:168
 msgid "multiple choice"
-msgstr ""
+msgstr "Flervalgsoppgave"
 
 #: inginious/frontend/task_problems.py:238
 msgid "match"
-msgstr ""
+msgstr "Treff"
 
 #: inginious/frontend/tasks.py:86
 msgid "Environment type {0} is unknown"
-msgstr ""
+msgstr "Miljøtype {0} er ukjent"
 
 #: inginious/frontend/user_manager.py:436
 msgid "Auth method not found."
-msgstr ""
+msgstr "Finner ikke autentiseringsmetode."
 
 #: inginious/frontend/pages/preferences/bindings.py:42
 #: inginious/frontend/user_manager.py:487
 msgid "Incorrect authentication binding."
-msgstr ""
+msgstr "Ugyldig autentiseringskobling."
 
 #: inginious/frontend/user_manager.py:497
 msgid "You must set a password before removing all bindings."
-msgstr ""
+msgstr "Du må sette passord før du fjerner alle koblinger."
 
 #: inginious/frontend/user_manager.py:528
 msgid "User could not be created."
-msgstr ""
+msgstr "Kunne ikke opprette bruker."
 
 #: inginious/frontend/environment_types/docker.py:12
 msgid "Standard container (Docker)"
-msgstr ""
+msgstr "Standardcontainer (Docker)"
 
 #: inginious/frontend/environment_types/kata.py:11
 msgid "Container running as root (Kata)"
-msgstr ""
+msgstr "Container kjører som root (Kata)"
 
 #: inginious/frontend/environment_types/mcq.py:11
 msgid "Multiple Choice Question solver"
-msgstr ""
+msgstr "Flervalgsoppgaveløser"
 
 #: inginious/frontend/environment_types/nvidia.py:11
 msgid "Container with GPUs (NVIDIA)"
-msgstr ""
+msgstr "Container med GPU (NVIDIA)"
 
 #: inginious/frontend/pages/course.py:37
 msgid "Course not found."
-msgstr ""
+msgstr "Finner ikke kurs."
 
 #: inginious/frontend/pages/course_register.py:23
 msgid "This course doesn't exist."
-msgstr ""
+msgstr "Dette kurset finnes ikke."
 
 #: inginious/frontend/pages/group.py:32
 msgid "You can't access this page as a member of the staff."
-msgstr ""
+msgstr "Du får ikke tilgang til denne siden som medlem av staben."
 
 #: inginious/frontend/pages/group.py:53
 msgid "Couldn't register to the specified group."
-msgstr ""
+msgstr "Kunne ikke melde brukeren inn i den spesifiserte gruppen."
 
 #: inginious/frontend/pages/group.py:58 inginious/frontend/pages/group.py:70
 msgid "You are not allowed to change group."
-msgstr ""
+msgstr "Du har ikke tilgang til å endre gruppe."
 
 #: inginious/frontend/pages/group.py:67
 msgid "You're not registered in a group."
-msgstr ""
+msgstr "Du er ikke registrert i noen gruppe."
 
 #: inginious/frontend/pages/lti.py:25 inginious/frontend/pages/lti.py:33
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:137
 msgid "No LTI data available."
-msgstr ""
+msgstr "Ingen LTI-data tilgjengelig."
 
 #: inginious/frontend/pages/lti.py:69 inginious/frontend/pages/lti.py:84
 msgid "Missing LTI session id"
-msgstr ""
+msgstr "Mangler LTI sesjons-id"
 
 #: inginious/frontend/pages/lti.py:75 inginious/frontend/pages/lti.py:90
 msgid "Invalid LTI session id"
-msgstr ""
+msgstr "Ugyldig LTI sesjons-id"
 
 #: inginious/frontend/pages/lti.py:98
 msgid "Invalid LTI data"
-msgstr ""
+msgstr "Ugyldig LTI data"
 
 #: inginious/frontend/pages/lti.py:120
 msgid "Your account is already bound with this context."
-msgstr ""
+msgstr "Din konto er allerede koblet med denne konteksten."
 
 #: inginious/frontend/pages/lti.py:198
 msgid "Error while parsing the LTI request"
-msgstr ""
+msgstr "Feil under parsing av LTI forespørsel"
 
 #: inginious/frontend/pages/lti.py:213
 msgid ""
@@ -155,89 +160,92 @@ msgid ""
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-"
 "launch-request. Please contact your administrator."
 msgstr ""
+"For å kunne sende karakter tilbake til TC må INGInious ha parametrene "
+"lis_outcome_service_url og lis_outcome_result_id i LTI basic-launch-request. "
+"Vennligst kontakt din administrator."
 
 #: inginious/frontend/pages/lti.py:233
 msgid "Couldn't validate LTI request"
-msgstr ""
+msgstr "Kunne ikke validere LTI forespørsel"
 
 #: inginious/frontend/pages/marketplace.py:32
 msgid "You don't have superadmin rights on this course."
-msgstr ""
+msgstr "Du har ikke superadmin-tilgang i dette faget."
 
 #: inginious/frontend/pages/marketplace.py:39
 #: inginious/frontend/pages/marketplace_course.py:33
 #: inginious/frontend/pages/marketplace_course.py:42
 msgid "You're not allowed to do that"
-msgstr ""
+msgstr "Du har ikke tilgang til å gjøre dette"
 
 #: inginious/frontend/pages/course_admin/student_list.py:204
 #: inginious/frontend/pages/marketplace.py:51
 msgid "User returned an invalid form."
-msgstr ""
+msgstr "Brukeren returnerte et ugyldig skjema."
 
 #: inginious/frontend/pages/marketplace.py:75
 msgid "Couldn't clone course into your instance"
-msgstr ""
+msgstr "Kunne ikke klone kurset inn i din instans"
 
 #: inginious/frontend/pages/marketplace.py:96
 msgid "An error occur while editing the course description"
-msgstr ""
+msgstr "En feil oppsto under redigering av kursbeskrivelsen"
 
 #: inginious/frontend/pages/marketplace_course.py:25
 msgid "Course unavailable."
-msgstr ""
+msgstr "Kurs utilgjengelig."
 
 #: inginious/frontend/pages/register.py:30
 #: inginious/frontend/pages/register.py:198
 msgid "You're not allow to register."
-msgstr ""
+msgstr "Du har ikke tilgang til å registrere deg."
 
 #: inginious/frontend/pages/register.py:39
 msgid "Invalid activation hash."
-msgstr ""
+msgstr "Ugyldig aktiverings-hash."
 
 #: inginious/frontend/pages/register.py:39
 msgid "User successfully activated."
-msgstr ""
+msgstr "Bruker registrert."
 
 #: inginious/frontend/pages/preferences/profile.py:29
 #: inginious/frontend/pages/register.py:70
 msgid "Invalid username format."
-msgstr ""
+msgstr "Ugyldig format på brukernavn."
 
 #: inginious/frontend/pages/register.py:73
 #: inginious/frontend/pages/register.py:138
 msgid "Invalid email format."
-msgstr ""
+msgstr "Ugyldig format på epostadresse."
 
 #: inginious/frontend/pages/preferences/profile.py:50
 #: inginious/frontend/pages/register.py:76
 #: inginious/frontend/pages/register.py:177
 msgid "Password too short."
-msgstr ""
+msgstr "Passordet er for kort."
 
 #: inginious/frontend/pages/preferences/profile.py:54
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:180
 msgid "Passwords don't match !"
-msgstr ""
+msgstr "Passordene er ikke like!"
 
 #: inginious/frontend/pages/register.py:82
 #: inginious/frontend/templates/preferences/profile.html:47
 msgid "Please accept the Terms of Service and Data Privacy"
-msgstr ""
+msgstr "Vennligst aksepter betingelsene"
 
 #: inginious/frontend/pages/register.py:90
 msgid "This username is already taken !"
-msgstr ""
+msgstr "Brukernavnet er allerede tatt!"
 
 #: inginious/frontend/pages/register.py:92
 msgid "This email address is already in use !"
-msgstr ""
+msgstr "Denne epostadressen er allerede i bruk!"
 
 #: inginious/frontend/pages/register.py:106
 msgid "Welcome on INGInious"
-msgstr ""
+msgstr "Velkommen til INGInious"
 
 #: inginious/frontend/pages/register.py:107
 msgid ""
@@ -245,26 +253,33 @@ msgid ""
 "\n"
 "To activate your account, please click on the following link :\n"
 msgstr ""
+"Velkommen til INGInious !\n"
+"\n"
+"For å aktivisere din konto, vennligst klikk på følgende lenke:\n"
 
 #: inginious/frontend/pages/register.py:116
 msgid ""
 "You are succesfully registered. An email has been sent to you for "
 "activation."
 msgstr ""
+"Du er nå registrert. En epost har blitt sendt til deg for å aktivisere din "
+"konto."
 
 #: inginious/frontend/pages/register.py:121
 msgid ""
 "Something went wrong while sending you activation email. Please contact "
 "the administrator."
 msgstr ""
+"Noe gikk galt under sending av aktiviseringsepost. Vennligst kontakt "
+"administrator."
 
 #: inginious/frontend/pages/register.py:146
 msgid "This email address was not found in database."
-msgstr ""
+msgstr "Denne eposten ble ikke funnet i databasen."
 
 #: inginious/frontend/pages/register.py:149
 msgid "INGInious password recovery"
-msgstr ""
+msgstr "Gjenopprettelse av INGInious-passord"
 
 #: inginious/frontend/pages/register.py:151
 msgid ""
@@ -273,60 +288,68 @@ msgid ""
 "Someone (probably you) asked to reset your INGInious password. If this "
 "was you, please click on the following link :\n"
 msgstr ""
+"Kjære {realname},\n"
+"\n"
+"Noen (sannsynligvis du) spurte om å endre ditt INGInious-passord. Hvis dette "
+"var deg, vennligst klikk på følgende lenke:\n"
 
 #: inginious/frontend/pages/register.py:161
 msgid "An email has been sent to you to reset your password."
-msgstr ""
+msgstr "En epost har blitt sendt til deg for å endre ditt passord."
 
 #: inginious/frontend/pages/register.py:164
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
 msgstr ""
+"Noe gikk galt under sending av gjenopprettelsesepost. Vennligst kontakt "
+"administratoren."
 
 #: inginious/frontend/pages/register.py:189
 msgid "Invalid reset hash."
-msgstr ""
+msgstr "Ugyldig gjenopprettelses-hash."
 
 #: inginious/frontend/pages/register.py:191
 msgid "Your password has been successfully changed."
-msgstr ""
+msgstr "Ditt passord har blitt endret."
 
 #: inginious/frontend/pages/social.py:18
 msgid "Auth method doesn't exist"
-msgstr ""
+msgstr "Autentiseringsmetode finnes ikke"
 
 #: inginious/frontend/pages/social.py:39
 msgid "Auth method doesn't exist."
-msgstr ""
+msgstr "Autentiseringsmetode finnes ikke."
 
 #: inginious/frontend/pages/tasks.py:93 inginious/frontend/pages/tasks.py:264
 msgid "Submission doesn't exist."
-msgstr ""
+msgstr "Besvarelse finnes ikke."
 
 #: inginious/frontend/pages/tasks.py:176 inginious/frontend/pages/tasks.py:184
 #: inginious/frontend/pages/tasks.py:202 inginious/frontend/pages/tasks.py:224
 #: inginious/frontend/pages/tasks.py:231 inginious/frontend/pages/tasks.py:248
 msgid "Error"
-msgstr ""
+msgstr "Feil"
 
 #: inginious/frontend/pages/tasks.py:176
 msgid "You are not allowed to submit for this task."
-msgstr ""
+msgstr "Du har ikke tilgang til å besvare denne oppgaven."
 
 #: inginious/frontend/pages/tasks.py:184
 msgid "Your task has been regenerated. This current task is outdated."
-msgstr ""
+msgstr "Din oppgave har blitt regenerert. Denne oppgaven er utdatert."
 
 #: inginious/frontend/pages/tasks.py:203
 msgid ""
 "Please answer to all the questions and verify the extensions of the files"
 " you want to upload. Your responses were not tested."
 msgstr ""
+"Vennligst besvar alle spørsmålene og sjekk filtyper på filer du har lastet "
+"opp. Ditt svar har ikke blitt sjekket."
 
 #: inginious/frontend/pages/tasks.py:220 inginious/frontend/pages/tasks.py:329
 msgid "<b>Your submission has been sent...</b>"
-msgstr ""
+msgstr "<b>Din besvarelse har blitt sendt...</b>"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:209
 #: inginious/frontend/pages/course_admin/task_edit_file.py:230
@@ -335,63 +358,65 @@ msgstr ""
 #: inginious/frontend/templates/internalerror.html:5
 #: inginious/frontend/templates/task.html:325
 msgid "Internal error"
-msgstr ""
+msgstr "Intern feil"
 
 #: inginious/frontend/pages/tasks.py:298
 msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
-msgstr ""
+msgstr "<b>INGInious sjekker nå dine svar.</b> (nesten ferdig)"
 
 #: inginious/frontend/pages/tasks.py:300
 msgid ""
 "<b>INGInious is currently grading your answers.</b> (Approx. wait time: "
 "{} seconds)"
-msgstr ""
+msgstr "<b>INGInious sjekker nå dine svar.</b> (ca ventetid: {} sekunder)"
 
 #: inginious/frontend/pages/tasks.py:303
 msgid "<b>You are next in the waiting queue!</b>"
-msgstr ""
+msgstr "<b>Du er neste i køen!</b>"
 
 #: inginious/frontend/pages/tasks.py:305
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Det er én besvarelse foran deg i køen.</b>"
 
 #: inginious/frontend/pages/tasks.py:307
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Det er {} besvarelse før deg i køen.</b>"
 
 #: inginious/frontend/pages/tasks.py:331
 msgid "There are some errors in your answer. Your score is {score}%."
-msgstr ""
+msgstr "Det er noen feil i din besvarelse. Du fikk {score}%."
 
 #: inginious/frontend/pages/tasks.py:333
 msgid "Your answer passed the tests! Your score is {score}%."
-msgstr ""
+msgstr "Din besvarelse passerte testen! Du fikk {score}%."
 
 #: inginious/frontend/pages/tasks.py:335
 msgid "Your submission timed out. Your score is {score}%."
-msgstr ""
+msgstr "Din innlevering brukte for lang tid. Du fikk {score}%."
 
 #: inginious/frontend/pages/tasks.py:337
 msgid "Your submission made an overflow. Your score is {score}%."
-msgstr ""
+msgstr "Din innlevering brukte for mye minne. Du fikk {score}%."
 
 #: inginious/frontend/pages/tasks.py:339
 msgid "Your submission was killed."
-msgstr ""
+msgstr "Din innlevering ble avbrutt."
 
 #: inginious/frontend/pages/tasks.py:341
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, "
 "send an email to the course administrator."
 msgstr ""
+"Intern feil. Vennligst prøv igjen senere. Hvis feilen fortsetter, send en "
+"epost til kursadministratoren."
 
 #: inginious/frontend/pages/tasks.py:344
 msgid "[Submission #{submissionid} (<b>{submissionDate}</b>)]"
-msgstr ""
+msgstr "[Innlevering #{submissionid} (<b>{submissionDate}</b>)]"
 
 #: inginious/frontend/pages/tasks.py:379 inginious/frontend/pages/tasks.py:381
 msgid " <truncated>"
-msgstr ""
+msgstr " <ukomplett>"
 
 #: inginious/frontend/pages/utils.py:192
 msgid ""
@@ -399,6 +424,9 @@ msgid ""
 "service. For security reasons, please log in via another method and bind "
 "your account in your profile."
 msgstr ""
+"En konto med denne eposten finnes allerede og er ikke koblet med denne "
+"tjenesten. Av sikkerhetsgrunner må du logge på med en annen metode og koble "
+"din konto i profilinnstillingene."
 
 #: inginious/frontend/pages/utils.py:195
 msgid ""
@@ -406,314 +434,318 @@ msgid ""
 "the provided permissions (name, email) and contact your INGInious "
 "administrator if the error persists."
 msgstr ""
+"Kunne ikke hente nødvendig informasjon fra tjenesten. Vennligst sjekk de "
+"oppgitte tillatelser (navn, epostadresse) og kontakt din INGInious-"
+"administrator hvis feilen fortsetter."
 
 #: inginious/frontend/pages/utils.py:221
 msgid "Invalid login/password"
-msgstr ""
+msgstr "Ugyldig brukernavn/passord"
 
 #: inginious/frontend/pages/utils.py:249
 #: inginious/frontend/templates/forbidden.html:5
 #: inginious/frontend/templates/forbidden.html:9
 msgid "Forbidden"
-msgstr ""
+msgstr "Ingen tilgang"
 
 #: inginious/frontend/pages/utils.py:263
 msgid "You have not sufficient right to see this part."
-msgstr ""
+msgstr "Du har ikke rettigheter til å se denne delen."
 
 #: inginious/frontend/pages/utils.py:312
 msgid "File doesn't exist."
-msgstr ""
+msgstr "Fil finnes ikke."
 
 #: inginious/frontend/pages/admin/admin.py:47
 msgid "User not found"
-msgstr ""
+msgstr "Finner ikke bruker"
 
 #: inginious/frontend/pages/admin/admin.py:50
 msgid "Impossible to delete this user"
-msgstr ""
+msgstr "Umulig å slette denne brukeren"
 
 #: inginious/frontend/pages/admin/admin.py:69
 msgid "Unknown action."
-msgstr ""
+msgstr "Ukjent handling."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:49
 msgid "This audience doesn't exist."
-msgstr ""
+msgstr "Dette publikummet finnes ikke."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:79
 msgid "Audience with id {} not found."
-msgstr ""
+msgstr "Finner ikke publikum med id {}."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:88
 #: inginious/frontend/pages/course_admin/audience_edit.py:110
 #: inginious/frontend/pages/course_admin/student_list.py:333
 msgid "Audience updated."
-msgstr ""
+msgstr "Publikum oppdatert."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:98
 msgid "User not found : {}"
-msgstr ""
+msgstr "Finner ikke bruker: {}"
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:146
 msgid "This file doesn't exist."
-msgstr ""
+msgstr "Denne filen finnes ikke."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:164
 msgid "Operation aborted due to invalid token."
-msgstr ""
+msgstr "Operasjon avbrutt på grunn av ugyldig sjetong."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:168
 #: inginious/frontend/pages/course_admin/danger_zone.py:191
 msgid "Wrong course id."
-msgstr ""
+msgstr "Feil kurs-id."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:173
 msgid "All course data have been deleted."
-msgstr ""
+msgstr "Alle kursdata har blitt slettet."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:175
 msgid "An error occurred while dumping course from database: {}"
-msgstr ""
+msgstr "En feil oppsto under databasedump: {}"
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:185
 msgid "Course restored to date : {}."
-msgstr ""
+msgstr "Kurs gjenopprettet til dato: {}."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:187
 msgid "An error occurred while restoring backup: {}"
-msgstr ""
+msgstr "En feil har oppstått under gjenopprettelse av sikkerhetskopi: {}"
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:198
 msgid "An error occurred while deleting the course data: {}"
-msgstr ""
+msgstr "En feil har oppstått under sletting av kursdata: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:34
 msgid "Invalid name"
-msgstr ""
+msgstr "Ugyldig navn"
 
 #: inginious/frontend/pages/course_admin/settings.py:38
 msgid "You cannot remove yourself from the administrators of this course"
-msgstr ""
+msgstr "Du kan ikke fjerne deg selv som administrator av dette kurset"
 
 #: inginious/frontend/pages/course_admin/settings.py:55
 msgid "Invalid accessibility dates"
-msgstr ""
+msgstr "Ugyldige tilgangdatoer"
 
 #: inginious/frontend/pages/course_admin/settings.py:70
 msgid "Invalid registration dates"
-msgstr ""
+msgstr "Ugyldige registreringsdatoer"
 
 #: inginious/frontend/pages/course_admin/settings.py:78
 msgid "Invalid ACL value"
-msgstr ""
+msgstr "Ugyldig ACL-verdi"
 
 #: inginious/frontend/pages/course_admin/settings.py:92
 msgid "LTI keys must be alphanumerical."
-msgstr ""
+msgstr "LTI-nøkler må være alfanumeriske."
 
 #: inginious/frontend/pages/course_admin/settings.py:129
 msgid "Some tag fields were missing."
-msgstr ""
+msgstr "Noen felter mangler."
 
 #: inginious/frontend/pages/course_admin/settings.py:132
 msgid "Invalid tag id: {}"
-msgstr ""
+msgstr "Ugyldig etikett-id: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:151
 msgid "Invalid type value: {}"
-msgstr ""
+msgstr "Ugyldig typeverdi: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:153
 msgid "Invalid id: {}"
-msgstr ""
+msgstr "Ugyldig id: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:167
 msgid "Some datas have the same id! The id must be unique."
-msgstr ""
+msgstr "Noen data har samme id! Id må være unik."
 
 #: inginious/frontend/pages/course_admin/statistics.py:192
 #: inginious/frontend/pages/course_admin/submissions.py:138
 msgid "Invalid dates"
-msgstr ""
+msgstr "Ugyldige datoer"
 
 #: inginious/frontend/pages/course_admin/statistics.py:299
 msgid "Number of submissions"
-msgstr ""
+msgstr "Antall innleveringer"
 
 #: inginious/frontend/pages/course_admin/statistics.py:300
 msgid "Evaluation submissions (Total)"
-msgstr ""
+msgstr "Evaluering av innleveringer (total)"
 
 #: inginious/frontend/pages/course_admin/statistics.py:301
 msgid "Evaluation submissions (Succeeded)"
-msgstr ""
+msgstr "Evaluering av innleveringer (fullførte)"
 
 #: inginious/frontend/pages/course_admin/statistics.py:302
 msgid "Evaluation submissions (Failed)"
-msgstr ""
+msgstr "Evaluering av innleveringer (feilet)"
 
 #: inginious/frontend/pages/course_admin/student_list.py:200
 msgid "New audience created."
-msgstr ""
+msgstr "Nytt publikum opprettet."
 
 #: inginious/frontend/pages/course_admin/student_list.py:224
 msgid "File wrongly formatted."
-msgstr ""
+msgstr "Fil er feil formatert."
 
 #: inginious/frontend/pages/course_admin/student_list.py:239
 msgid "Field was not recognized: "
-msgstr ""
+msgstr "Felt ikke gjenkjent: "
 
 #: inginious/frontend/pages/course_admin/student_list.py:243
 msgid "Unknown role: "
-msgstr ""
+msgstr "Ugyldig rolle: "
 
 #: inginious/frontend/pages/course_admin/student_list.py:250
 msgid "User was not found: "
-msgstr ""
+msgstr "Bruker ikke funnet: "
 
 #: inginious/frontend/pages/course_admin/student_list.py:293
 #: inginious/frontend/pages/course_admin/student_list.py:362
 msgid "An error occurred while parsing the data."
-msgstr ""
+msgstr "En feil oppsto under parsing av data."
 
 #: inginious/frontend/pages/course_admin/student_list.py:353
 msgid "Changes couldn't be applied for following students :"
-msgstr ""
+msgstr "Endringer kunne ikke utføres for følgende studenter:"
 
 #: inginious/frontend/pages/course_admin/student_list.py:360
 msgid "Groups updated."
-msgstr ""
+msgstr "Grupper oppdaterte."
 
 #: inginious/frontend/pages/course_admin/submission.py:24
 #: inginious/frontend/pages/course_admin/submissions.py:35
 msgid "This submission doesn't exist."
-msgstr ""
+msgstr "Denne innleveringen finnes ikke."
 
 #: inginious/frontend/pages/course_admin/submission.py:27
 msgid "Invalid ObjectId."
-msgstr ""
+msgstr "Ugyldig objekt-id."
 
 #: inginious/frontend/pages/course_admin/submissions.py:62
 msgid "The following submission could not be prepared for download: {}"
-msgstr ""
+msgstr "Følgende innlevering kunne ikke bli klargjort for nedlasting: {}"
 
 #: inginious/frontend/pages/course_admin/submissions.py:67
 #: inginious/frontend/pages/course_admin/utils.py:43
 msgid "You don't have admin rights on this course."
-msgstr ""
+msgstr "Du har ikke admin-rettigheter til dette kurset."
 
 #: inginious/frontend/pages/course_admin/submissions.py:72
 msgid "{0} selected submissions were set for replay."
-msgstr ""
+msgstr "{0} valgte innleveringer satt til gjenkjøring."
 
 #: inginious/frontend/pages/course_admin/submissions.py:101
 msgid "The submission doesn't exist."
-msgstr ""
+msgstr "Innleveringen finnes ikke."
 
 #: inginious/frontend/pages/course_admin/task_edit.py:34
 #: inginious/frontend/pages/course_admin/task_edit_file.py:24
 #: inginious/frontend/pages/course_admin/task_edit_file.py:45
 #: inginious/frontend/pages/course_admin/task_edit_file.py:264
 msgid "Invalid task id"
-msgstr ""
+msgstr "Ugyldig oppgave-id"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:87
 msgid "Invalid course/task id"
-msgstr ""
+msgstr "Ugyldig kurs- eller oppgave-id"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:117
 msgid "Invalid file type: {}"
-msgstr ""
+msgstr "Ugyldig filtype: {}"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:135
 msgid "The number of random inputs must be an integer!"
-msgstr ""
+msgstr "Antall tilfeldige input må være et heltall!"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:137
 msgid "The number of random inputs must be positive!"
-msgstr ""
+msgstr "Antall tilfeldige input må være positivt!"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:146
 msgid "Your browser returned an invalid form ({})"
-msgstr ""
+msgstr "Din nettleser returnerte et ugyldig skjema ({})"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:152
 msgid "Error while reading course's informations"
-msgstr ""
+msgstr "Feil under lesing av kursinformasjon"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:176
 msgid "Invalid data: {}"
-msgstr ""
+msgstr "Ugyldig data: {}"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:182
 msgid "Cannot read zip file. Files were not modified"
-msgstr ""
+msgstr "Kan ikke lese zip-fil. Ingen filer endret"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:189
 msgid ""
 "There was a problem while extracting the zip archive. Some files may have"
 " been modified"
 msgstr ""
+"Det er et problem med oppakking av zip-fil. Noen filer kan ha blitt endret"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:168
 #: inginious/frontend/pages/course_admin/task_edit_file.py:188
 #: inginious/frontend/pages/course_admin/task_edit_file.py:213
 msgid "Invalid new path"
-msgstr ""
+msgstr "Ugyldig ny sti"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:174
 msgid "An error occurred while writing the file"
-msgstr ""
+msgstr "En feil har oppstått under skriving til fil"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:219
 msgid "An error occurred while moving the files"
-msgstr ""
+msgstr "En feil har oppstått under flytting av filer"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:240
 msgid "An error occurred while deleting the files"
-msgstr ""
+msgstr "En feil har oppstått under sletting av filer"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:247
 msgid "This path doesn't exist."
-msgstr ""
+msgstr "Denne stien finnes ikke."
 
 #: inginious/frontend/pages/course_admin/task_list.py:36
 msgid "Invalid task dispenser"
-msgstr ""
+msgstr "Ugyldig oppgavehåndterer"
 
 #: inginious/frontend/pages/course_admin/task_list.py:45
 msgid "Invalid course structure: "
-msgstr ""
+msgstr "Ugyldig kursstruktur: "
 
 #: inginious/frontend/pages/course_admin/task_list.py:47
 msgid "Something wrong happened: "
-msgstr ""
+msgstr "Noe galt skjedde: "
 
 #: inginious/frontend/pages/course_admin/task_list.py:54
 msgid "Couldn't create task {} : "
-msgstr ""
+msgstr "Kunne ikke lage oppgave {}: "
 
 #: inginious/frontend/pages/course_admin/task_list.py:59
 msgid "Couldn't delete task {} : "
-msgstr ""
+msgstr "Kunne ikke slette oppgave {} : "
 
 #: inginious/frontend/pages/course_admin/task_list.py:64
 msgid "Couldn't wipe task {} : "
-msgstr ""
+msgstr "Kunne ikke rense oppgave {} : "
 
 #: inginious/frontend/pages/course_admin/utils.py:40
 msgid "You don't have staff rights on this course."
-msgstr ""
+msgstr "Du har ikke stabsrettigheter på dette kurset."
 
 #: inginious/frontend/pages/course_admin/utils.py:50
 msgid "This course is unreachable"
-msgstr ""
+msgstr "Dette kurset kan ikke nås"
 
 #: inginious/frontend/pages/course_admin/utils.py:144
 msgid "List not valid."
-msgstr ""
+msgstr "Listen er ikke gyldig."
 
 #: inginious/frontend/pages/course_admin/utils.py:343
 #: inginious/frontend/templates/course_admin/settings.html:18
@@ -721,20 +753,20 @@ msgstr ""
 #: inginious/frontend/templates/course_user_settings.html:47
 #: inginious/frontend/templates/course_user_settings.html:57
 msgid "Course settings"
-msgstr ""
+msgstr "Kursinnstillinger"
 
 #: inginious/frontend/pages/course_admin/utils.py:345
 #: inginious/frontend/templates/course_admin/stats.html:27
 #: inginious/frontend/templates/course_admin/stats.html:35
 #: inginious/frontend/templates/course_admin/submissions_query.html:211
 msgid "Statistics"
-msgstr ""
+msgstr "Statistikk"
 
 #: inginious/frontend/pages/course_admin/utils.py:346
 #: inginious/frontend/templates/course_admin/student_list.html:20
 #: inginious/frontend/templates/course_admin/student_list.html:28
 msgid "User management"
-msgstr ""
+msgstr "Brukerhåndtering"
 
 #: inginious/frontend/pages/course_admin/utils.py:349
 #: inginious/frontend/templates/course_admin/stats.html:49
@@ -743,7 +775,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_list.html:19
 #: inginious/frontend/templates/course_admin/task_list.html:25
 msgid "Tasks"
-msgstr ""
+msgstr "Oppgaver"
 
 #: inginious/frontend/pages/course_admin/utils.py:351
 #: inginious/frontend/templates/course_admin/stats.html:43
@@ -752,74 +784,74 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/submissions.html:18
 #: inginious/frontend/templates/course_admin/submissions.html:26
 msgid "Submissions"
-msgstr ""
+msgstr "Innleveringer"
 
 #: inginious/frontend/pages/course_admin/utils.py:354
 #: inginious/frontend/templates/course_admin/danger_zone.html:6
 #: inginious/frontend/templates/course_admin/danger_zone.html:18
 #: inginious/frontend/templates/course_admin/danger_zone.html:24
 msgid "Danger zone"
-msgstr ""
+msgstr "Faresone"
 
 #: inginious/frontend/pages/preferences/bindings.py:32
 msgid "User doesn't exist."
-msgstr ""
+msgstr "Bruker finnes ikke."
 
 #: inginious/frontend/pages/preferences/delete.py:27
 msgid "The specified email is incorrect."
-msgstr ""
+msgstr "Den spesifiserte epostadressen er ugyldig."
 
 #: inginious/frontend/pages/preferences/delete.py:37
 msgid "User unavailable or deletion is forbidden."
-msgstr ""
+msgstr "Bruker ikke tilgjengelig, eller det er ikke tilgang til å slette den."
 
 #: inginious/frontend/pages/preferences/delete.py:46
 msgid "User unavailable or deletion forbidden."
-msgstr ""
+msgstr "Bruker ikke tilgjengelig eller det er ikke tilgang til å slette den."
 
 #: inginious/frontend/pages/preferences/profile.py:33
 msgid "Username already taken"
-msgstr ""
+msgstr "Brukernavn er allerede tatt"
 
 #: inginious/frontend/pages/preferences/profile.py:41
 msgid "Incorrect email."
-msgstr ""
+msgstr "Ugyldig epostadresse."
 
 #: inginious/frontend/pages/preferences/profile.py:69
 msgid "Incorrect old password."
-msgstr ""
+msgstr "Det gamle passordet er feil."
 
 #: inginious/frontend/pages/preferences/profile.py:80
 #: inginious/frontend/pages/preferences/profile.py:92
 msgid "Incorrect username."
-msgstr ""
+msgstr "Feil brukernavn."
 
 #: inginious/frontend/pages/preferences/profile.py:98
 msgid "Name is too short."
-msgstr ""
+msgstr "Navnet er for kort."
 
 #: inginious/frontend/pages/preferences/profile.py:101
 msgid "Profile updated."
-msgstr ""
+msgstr "Profil oppdatert."
 
 #: inginious/frontend/pages/preferences/profile.py:115
 #: inginious/frontend/pages/preferences/profile.py:125
 msgid "User unavailable."
-msgstr ""
+msgstr "Brukeren er ikke tilgjengelig."
 
 #: inginious/frontend/pages/preferences/utils.py:15
 #: inginious/frontend/templates/preferences/profile.html:5
 #: inginious/frontend/templates/preferences/profile.html:17
 #: inginious/frontend/templates/preferences/profile.html:23
 msgid "My profile"
-msgstr ""
+msgstr "Min profil"
 
 #: inginious/frontend/pages/preferences/utils.py:16
 #: inginious/frontend/templates/preferences/bindings.html:5
 #: inginious/frontend/templates/preferences/bindings.html:17
 #: inginious/frontend/templates/preferences/bindings.html:23
 msgid "Authentication bindings"
-msgstr ""
+msgstr "Autentiseringskoblinger"
 
 #: inginious/frontend/pages/preferences/utils.py:19
 #: inginious/frontend/templates/preferences/delete.html:6
@@ -829,34 +861,34 @@ msgstr ""
 #: inginious/frontend/templates/preferences/delete.html:52
 #: inginious/frontend/templates/preferences/delete.html:60
 msgid "Delete my account"
-msgstr ""
+msgstr "Slett min konto"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:6
 msgid "Login"
-msgstr ""
+msgstr "Logg inn"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:25
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:26
 #: inginious/frontend/templates/course_admin/task_dispensers/util_task_edit_modal.html:22
 msgid "Close"
-msgstr ""
+msgstr "Lukk"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:26
 msgid "Authentication failed"
-msgstr ""
+msgstr "Autentisering feilet"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:31
 #: inginious/frontend/templates/auth.html:21
 #: inginious/frontend/templates/course_admin/task_list.html:78
 msgid "Username"
-msgstr ""
+msgstr "Brukernavn"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:34
 #: inginious/frontend/templates/auth.html:24
 #: inginious/frontend/templates/course_admin/task_list.html:79
 #: inginious/frontend/templates/course_register.html:29
 msgid "Password"
-msgstr ""
+msgstr "Passord"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:36
 #: inginious/frontend/templates/auth.html:26
@@ -864,40 +896,40 @@ msgstr ""
 #: inginious/frontend/templates/signin_button.html:4
 #: inginious/frontend/templates/signin_button.html:11
 msgid "Sign in"
-msgstr ""
+msgstr "Logg inn"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:72
 msgid "Empty password"
-msgstr ""
+msgstr "Tomt passord"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:90
 msgid "Cannot contact host"
-msgstr ""
+msgstr "Kan ikke kontakte verten"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:102
 msgid "Unknown user"
-msgstr ""
+msgstr "Ukjent bruker"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:118
 msgid "Can't get field {} from your LDAP server"
-msgstr ""
+msgstr "Kan ikke få felt {} fra din LDAP-tjener"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:122
 msgid "Can't get some user fields"
-msgstr ""
+msgstr "Kan ikke få alle brukerfelt"
 
 #: inginious/frontend/plugins/auth/ldap_auth.py:135
 msgid "Incorrect password"
-msgstr ""
+msgstr "Feil passord"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:5
 msgid "Urgent tasks"
-msgstr ""
+msgstr "Oppgaver som haster"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:10
 #: inginious/frontend/plugins/upcoming_tasks/templates/main_menu.html:2
 msgid "Upcoming Tasks"
-msgstr ""
+msgstr "Neste oppgaver"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:11
 #: inginious/frontend/templates/admin/admin_users.html:13
@@ -925,17 +957,19 @@ msgstr ""
 #: inginious/frontend/templates/queue.html:11
 #: inginious/frontend/templates/task.html:266
 msgid "(current)"
-msgstr ""
+msgstr "(gjeldende)"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:18
 msgid "Upcoming tasks"
-msgstr ""
+msgstr "Neste oppgaver"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:20
 msgid ""
 "This page lists the coming tasks ordered on deadlines for courses you are"
 " registered in."
 msgstr ""
+"Denne siden lister de neste oppgavene (sortert på frist) for kurs du er "
+"registrert i."
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:25
 #: inginious/frontend/templates/course.html:101
@@ -950,43 +984,43 @@ msgstr ""
 #: inginious/frontend/templates/mycourses.html:25
 #: inginious/frontend/templates/task.html:263
 msgid "Course list"
-msgstr ""
+msgstr "Kursliste"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:29
 #: inginious/frontend/templates/course.html:21
 #: inginious/frontend/templates/group.html:19
 #: inginious/frontend/templates/mycourses.html:29
 msgid "Last tried exercises"
-msgstr ""
+msgstr "De forrige oppgavene du prøvde deg på"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:48
 #: inginious/frontend/templates/course.html:40
 #: inginious/frontend/templates/group.html:39
 #: inginious/frontend/templates/mycourses.html:48
 msgid "No submissions"
-msgstr ""
+msgstr "Ingen innleveringer"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:56
 msgid "My Upcoming Tasks"
-msgstr ""
+msgstr "Mine neste oppgaver"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:60
 msgid "Switch time planner"
-msgstr ""
+msgstr "Bytt tidsplanlegger"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:71
 msgid "Modify time planner"
-msgstr ""
+msgstr "Endre tidsplanlegger"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:77
 msgid ""
 "This allows to display only the tasks whose deadline is in a certain "
 "temporal proximity."
-msgstr ""
+msgstr "Dette tillater å vise bare oppgaver med nærliggende frister."
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:78
 msgid "Number of days:"
-msgstr ""
+msgstr "Antall dager:"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:86
 #: inginious/frontend/templates/admin/admin_users.html:111
@@ -1008,7 +1042,7 @@ msgstr ""
 #: inginious/frontend/templates/queue.html:112
 #: inginious/frontend/templates/unregister_modal.html:19
 msgid "Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:87
 #: inginious/frontend/templates/course_admin/settings.html:486
@@ -1018,91 +1052,91 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_list.html:57
 #: inginious/frontend/templates/course_admin/task_list.html:113
 msgid "Save changes"
-msgstr ""
+msgstr "Lagre endringer"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:102
 msgid "You have no upcoming tasks"
-msgstr ""
+msgstr "Du har ingen kommende oppgaver"
 
 #: inginious/frontend/task_dispensers/combinatory_test.py:22
 msgid "Combinatory test"
-msgstr ""
+msgstr "Kombinatorisk oppgave"
 
 #: inginious/frontend/task_dispensers/combinatory_test.py:45
 msgid "Amount of tasks to be displayed"
-msgstr ""
+msgstr "Antall oppgaver å vise"
 
 #: inginious/frontend/task_dispensers/toc.py:40
 msgid "Table of contents"
-msgstr ""
+msgstr "Innhold"
 
 #: inginious/frontend/task_dispensers/toc.py:103
 msgid "Closed by default"
-msgstr ""
+msgstr "Lukket som standard"
 
 #: inginious/frontend/task_dispensers/util.py:49
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/groups.html:4
 msgid "Submission mode"
-msgstr ""
+msgstr "Innleveringsmodus"
 
 #: inginious/frontend/task_dispensers/util.py:72
 msgid "Weight"
-msgstr ""
+msgstr "Vekt"
 
 #: inginious/frontend/task_dispensers/util.py:97
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_storage.html:4
 msgid "Submission storage"
-msgstr ""
+msgstr "Innleveringslagerplass"
 
 #: inginious/frontend/task_dispensers/util.py:122
 msgid "Evaluation mode"
-msgstr ""
+msgstr "Evalueringsmodus"
 
 #: inginious/frontend/task_dispensers/util.py:145
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/categories.html:4
 msgid "Categories"
-msgstr ""
+msgstr "Kategorier"
 
 #: inginious/frontend/task_dispensers/util.py:168
 #: inginious/frontend/templates/task.html:82
 msgid "Submission limit"
-msgstr ""
+msgstr "Innleveringsgrense"
 
 #: inginious/frontend/task_dispensers/util.py:193
 #: inginious/frontend/templates/course_admin/settings.html:43
 #: inginious/frontend/templates/course_admin/settings.html:140
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:4
 msgid "Accessibility"
-msgstr ""
+msgstr "Tilgjengelighet"
 
 #: inginious/frontend/task_dispensers/util.py:219
 msgid "One section don't contain a sections list nor a tasks list"
-msgstr ""
+msgstr "En seksjon har verken seksjonsliste eller oppgaveliste"
 
 #: inginious/frontend/task_dispensers/util.py:251
 msgid "No title for one section"
-msgstr ""
+msgstr "Ingen tittel for en seksjon"
 
 #: inginious/frontend/task_dispensers/util.py:304
 msgid "One task id contains non alphanumerical characters"
-msgstr ""
+msgstr "En oppgave-id inneholder ikke-alfanumeriske tegn"
 
 #: inginious/frontend/templates/auth.html:5
 msgid "Welcome"
-msgstr ""
+msgstr "Velkommen"
 
 #: inginious/frontend/templates/auth.html:24
 msgid "Lost password?"
-msgstr ""
+msgstr "Glemt passordet?"
 
 #: inginious/frontend/templates/auth.html:39
 msgid "Sign in with"
-msgstr ""
+msgstr "Logg inn med"
 
 #: inginious/frontend/templates/course.html:14
 #: inginious/frontend/templates/group.html:11
 msgid "Current grade"
-msgstr ""
+msgstr "Gjeldende karakter"
 
 #: inginious/frontend/templates/course.html:48
 #: inginious/frontend/templates/course_user_settings.html:13
@@ -1111,34 +1145,36 @@ msgid ""
 "modifying the \"accessibility\" option in the configuration of the "
 "course."
 msgstr ""
+"Dette kurset er usynlig for studenter. Du kan endre dette i "
+"kursinnstillingene."
 
 #: inginious/frontend/templates/course.html:53
 #: inginious/frontend/templates/course.html:71
 #: inginious/frontend/templates/course_user_settings.html:33
 msgid "Course Settings"
-msgstr ""
+msgstr "Kursinnstillinger"
 
 #: inginious/frontend/templates/course.html:56
 #: inginious/frontend/templates/course_user_settings.html:18
 msgid "Course administration"
-msgstr ""
+msgstr "Kursadministrasjon"
 
 #: inginious/frontend/templates/course.html:65
 #: inginious/frontend/templates/course_user_settings.html:27
 #: inginious/frontend/templates/task.html:166
 msgid "Group : {}"
-msgstr ""
+msgstr "Gruppe: {}"
 
 #: inginious/frontend/templates/course.html:67
 #: inginious/frontend/templates/course_user_settings.html:29
 #: inginious/frontend/templates/task.html:168
 msgid "Group management"
-msgstr ""
+msgstr "Gruppeadministrasjon"
 
 #: inginious/frontend/templates/course.html:75
 #: inginious/frontend/templates/group.html:45
 msgid "Unregister from this course"
-msgstr ""
+msgstr "Meld deg av dette kurset"
 
 #: inginious/frontend/templates/course.html:82
 #: inginious/frontend/templates/course.html:89
@@ -1146,12 +1182,12 @@ msgstr ""
 #: inginious/frontend/templates/task.html:243
 #: inginious/frontend/templates/task.html:250
 msgid "Enroll in the course"
-msgstr ""
+msgstr "Meld deg på kurset"
 
 #: inginious/frontend/templates/course.html:85
 #: inginious/frontend/templates/task.html:246
 msgid "Please enroll in the course to be able to submit answers to problems."
-msgstr ""
+msgstr "Vennligst meld deg på kurset for å kunne levere inn svar på oppgavene."
 
 #: inginious/frontend/templates/course.html:99
 #: inginious/frontend/templates/course_user_settings.html:42
@@ -1164,132 +1200,140 @@ msgstr ""
 #: inginious/frontend/templates/mycourses.html:55
 #: inginious/frontend/templates/task.html:261
 msgid "My courses"
-msgstr ""
+msgstr "Mine kurs"
 
 #: inginious/frontend/templates/course.html:117
 msgid "Filter tasks by category"
-msgstr ""
+msgstr "Filtrer oppgaver på kategori"
 
 #: inginious/frontend/templates/course.html:131
 msgid "About this course"
-msgstr ""
+msgstr "Om kurset"
 
 #: inginious/frontend/templates/course_register.html:5
 msgid "Register to course '{}'"
-msgstr ""
+msgstr "Meld deg på kurs '{}'"
 
 #: inginious/frontend/templates/course_register.html:11
 #: inginious/frontend/templates/layout.html:175
 #: inginious/frontend/templates/register.html:5
 msgid "Register"
-msgstr ""
+msgstr "Registrer"
 
 #: inginious/frontend/templates/course_register.html:19
 msgid "Enroll in the course '{}'"
-msgstr ""
+msgstr "Meld deg på kurs '{}'"
 
 #: inginious/frontend/templates/course_register.html:20
 msgid "This will enroll you in the course {}"
-msgstr ""
+msgstr "Dette vil melde deg på kurset {}"
 
 #: inginious/frontend/templates/course_register.html:23
 msgid "Invalid password."
-msgstr ""
+msgstr "Ugyldig passord."
 
 #: inginious/frontend/templates/course_unavailable.html:5
 #: inginious/frontend/templates/course_unavailable.html:10
 msgid "Course unavailable"
-msgstr ""
+msgstr "Kurset er ikke tilgjengelig"
 
 #: inginious/frontend/templates/course_unavailable.html:19
 #: inginious/frontend/templates/task_unavailable.html:9
 msgid "Error 403"
-msgstr ""
+msgstr "Feil 403"
 
 #: inginious/frontend/templates/course_unavailable.html:21
 msgid "This course is closed."
-msgstr ""
+msgstr "Dette kurset er lukket."
 
 #: inginious/frontend/templates/course_unavailable.html:23
 msgid ""
 "This course must be accessed on an external platform. Read the course "
 "description or contact the teaching team for more information."
 msgstr ""
+"Dette kurset må brukes fra en ekstern plattform. Les kursbeskrivelsen eller "
+"kontakt fagstaben for mer informasjon."
 
 #: inginious/frontend/templates/course_unavailable.html:25
 msgid "You are not registered to this course."
-msgstr ""
+msgstr "Du er ikke meldt på dette kurset."
 
 #: inginious/frontend/templates/course_user_settings.html:59
 msgid "There is no customizable option for this course"
-msgstr ""
+msgstr "Det finnes ingen valg for dette kurset"
 
 #: inginious/frontend/templates/course_user_settings.html:70
 msgid "Save data"
-msgstr ""
+msgstr "Lagre"
 
 #: inginious/frontend/templates/courselist.html:10
 msgid "Public courses"
-msgstr ""
+msgstr "Offentlig kurs"
 
 #: inginious/frontend/templates/courselist.html:12
 msgid ""
 "This page lists all the courses that are available now. If you are a "
 "course administrator, go to your 'My courses' page to see all of them."
 msgstr ""
+"Denne siden lister alle kurs som er tilgjengelige nå. Hvis du er "
+"kursadministrator, gå til \"Mine kurs\" for å se alle kurs."
 
 #: inginious/frontend/templates/courselist.html:62
 msgid "External platform"
-msgstr ""
+msgstr "Ekstern plattform"
 
 #: inginious/frontend/templates/courselist.html:66
 msgid "Auto-registration"
-msgstr ""
+msgstr "Autopåmelding"
 
 #: inginious/frontend/templates/courselist.html:70
 msgid "Password needed"
-msgstr ""
+msgstr "Passord kreves"
 
 #: inginious/frontend/templates/group.html:57
 msgid "Register for a group"
-msgstr ""
+msgstr "Meld deg inn i gruppe"
 
 #: inginious/frontend/templates/course_admin/student_list.html:48
 #: inginious/frontend/templates/course_admin/student_list.html:208
 #: inginious/frontend/templates/group.html:59
 #: inginious/frontend/templates/group.html:68
 msgid "Groups"
-msgstr ""
+msgstr "Grupper"
 
 #: inginious/frontend/templates/group.html:84
 msgid "My group : {}"
-msgstr ""
+msgstr "Mine grupper: {}"
 
 #: inginious/frontend/templates/group.html:87
 msgid "Quit group"
-msgstr ""
+msgstr "Gå ut av gruppen"
 
 #: inginious/frontend/templates/group.html:100
 #: inginious/frontend/templates/group.html:163
 msgid "Send an email"
-msgstr ""
+msgstr "Send en epost"
 
 #: inginious/frontend/templates/group.html:114
 msgid ""
 "No set group in this course. If you think this is a mistake, please "
 "contact the course administrator."
 msgstr ""
+"Ingen valgt gruppe for dette kurset. Hvis du tror det er en feil, kontakt "
+"kursadministrator."
 
 #: inginious/frontend/templates/group.html:118
 msgid ""
 "Groups have been set up but you're not allowed to register in anyone. "
 "Please contact the course administrator."
 msgstr ""
+"Grupper har blitt satt opp men du har ikke tillatelse til å melde deg inn i "
+"noen. Kontakt kursadministrator."
 
 #: inginious/frontend/templates/group.html:121
 #: inginious/frontend/templates/group.html:126
 msgid "My group"
-msgstr ""
+msgstr "Min gruppe"
 
 #: inginious/frontend/templates/group.html:123
 msgid ""
@@ -1297,44 +1341,51 @@ msgid ""
 "the group below to take part in all course activities. If no more group "
 "is available, please contact the course administrator."
 msgstr ""
+"Du er ikke innmeldt i noen gruppe. Vurder å melde deg inn i en av gruppene "
+"under for å være med i alle kursaktiviteter. Hvis ingen flere grupper er "
+"tilgjengelige så kontakt kursadministrator."
 
 #: inginious/frontend/templates/group.html:128
 msgid ""
 "You're not yet registered to a group. Please contact the course "
 "administrator for more information."
 msgstr ""
+"Du er ikke medlem av noen gruppe. Kontakt kursadministrator for mer "
+"informasjon."
 
 #: inginious/frontend/templates/group.html:133
 msgid "All groups"
-msgstr ""
+msgstr "Alle grupper"
 
 #: inginious/frontend/templates/group.html:145
 msgid "(available : {})"
-msgstr ""
+msgstr "(tilgjengelige: {})"
 
 #: inginious/frontend/templates/group.html:147
 msgid "Join in"
-msgstr ""
+msgstr "Delta"
 
 #: inginious/frontend/templates/group.html:156
 msgid "No registered member."
-msgstr ""
+msgstr "Ingen medlemmer."
 
 #: inginious/frontend/templates/internalerror.html:9
 msgid ""
 "<b>Internal error</b> Something bad happened. The error has been logged, "
 "please contact your administrator if the error persists."
 msgstr ""
+"<b>Intern feil</b> Noe galt har skjedd. Feilen har blitt loggført, vennligst "
+"kontakt din administrator hvis feilen fortsetter."
 
 #: inginious/frontend/templates/layout.html:19
 #: inginious/frontend/templates/layout.html:76
 #: inginious/frontend/templates/layout.html:88
 msgid "__is_rtl"
-msgstr ""
+msgstr "__is_rtl"
 
 #: inginious/frontend/templates/layout.html:124
 msgid "Open menu"
-msgstr ""
+msgstr "Åpne meny"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:16
 #: inginious/frontend/templates/course_admin/danger_zone.html:16
@@ -1349,12 +1400,12 @@ msgstr ""
 #: inginious/frontend/templates/layout.html:142
 #: inginious/frontend/templates/task.html:128
 msgid "Administration"
-msgstr ""
+msgstr "Administrasjon"
 
 #: inginious/frontend/templates/course_admin/stats.html:260
 #: inginious/frontend/templates/layout.html:145
 msgid "Users"
-msgstr ""
+msgstr "Brukere"
 
 #: inginious/frontend/templates/layout.html:146
 #: inginious/frontend/templates/marketplace.html:5
@@ -1362,26 +1413,26 @@ msgstr ""
 #: inginious/frontend/templates/marketplace.html:32
 #: inginious/frontend/templates/marketplace_course.html:45
 msgid "Marketplace"
-msgstr ""
+msgstr "Markedsplass"
 
 #: inginious/frontend/templates/layout.html:155
 #: inginious/frontend/templates/preferences/bindings.html:15
 #: inginious/frontend/templates/preferences/delete.html:16
 #: inginious/frontend/templates/preferences/profile.html:15
 msgid "Preferences"
-msgstr ""
+msgstr "Preferanser"
 
 #: inginious/frontend/templates/layout.html:156
 msgid "Service status"
-msgstr ""
+msgstr "Service-status"
 
 #: inginious/frontend/templates/layout.html:157
 msgid "Log out"
-msgstr ""
+msgstr "Logg ut"
 
 #: inginious/frontend/templates/layout.html:161
 msgid "English"
-msgstr ""
+msgstr "Norsk (bokmål)"
 
 #: inginious/frontend/templates/layout.html:195
 msgid ""
@@ -1389,92 +1440,100 @@ msgid ""
 "target=\"_blank\">INGInious</a> v.{} , a free and open-source grading "
 "tool."
 msgstr ""
+"Kjører <a href=\"http://www.inginious.org\" target=\"_blank\">INGInious</a> "
+"v.{} , et fritt og gratis verktøy med åpen kildekode."
 
 #: inginious/frontend/templates/layout.html:197
 msgid "Running INGInious v.{}"
-msgstr ""
+msgstr "Kjører INGInious v.{}"
 
 #: inginious/frontend/templates/layout.html:199
 msgid "INGInious is distributed under AGPL license"
-msgstr ""
+msgstr "INGInious distribueres med AGPL-lisens"
 
 #: inginious/frontend/templates/layout.html:203
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Personvern"
 
 #: inginious/frontend/templates/lti_bind.html:5
 msgid "Bind LTI"
-msgstr ""
+msgstr "Koble LTI"
 
 #: inginious/frontend/templates/lti_bind.html:7
 msgid "Binding to an existing LMS"
-msgstr ""
+msgstr "Koble til en eksisterende LMS"
 
 #: inginious/frontend/templates/lti_bind.html:16
 msgid "Authorization required"
-msgstr ""
+msgstr "Autorisering påkrevd"
 
 #: inginious/frontend/templates/lti_bind.html:18
 msgid ""
 "You are going to bind your INGInious account <strong>{realname} "
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
+"Du er i ferd med å koble din INGInious-konto <strong>{realname} "
+"[{username}]</strong> med følgende LTI-verktøy og kontekst:"
 
 #: inginious/frontend/templates/lti_bind.html:20
 msgid "Tool name:"
-msgstr ""
+msgstr "Verktøynavn:"
 
 #: inginious/frontend/templates/lti_bind.html:21
 msgid "Tool description:"
-msgstr ""
+msgstr "Verktøybeskrivelse:"
 
 #: inginious/frontend/templates/lti_bind.html:22
 msgid "Tool URL:"
-msgstr ""
+msgstr "Verktøy URL:"
 
 #: inginious/frontend/templates/lti_bind.html:23
 msgid "Tool context:"
-msgstr ""
+msgstr "Verktøy kontekst:"
 
 #: inginious/frontend/templates/lti_bind.html:24
 msgid "Tool identifiers:"
-msgstr ""
+msgstr "Verktøyidentifikasjon:"
 
 #: inginious/frontend/templates/lti_bind.html:31
 msgid "Bind my account"
-msgstr ""
+msgstr "Koble min konto"
 
 #: inginious/frontend/templates/lti_login.html:13
 msgid "Hello!"
-msgstr ""
+msgstr "Hei!"
 
 #: inginious/frontend/templates/lti_login.html:14
 msgid "Welcome on the INGInious platform."
-msgstr ""
+msgstr "Velkommen til INGInious-plattformen."
 
 #: inginious/frontend/templates/lti_login.html:26
 msgid ""
 "In order to use INGInious via this platform, please bind your existing "
 "account or create a new one."
 msgstr ""
+"For å bruke INGInious gjennom denne plattformen må du koble din eksisterende "
+"konto eller lage en ny."
 
 #: inginious/frontend/templates/lti_login.html:32
 msgid "Bind your INGInious account"
-msgstr ""
+msgstr "Koble din INGIniouskonto"
 
 #: inginious/frontend/templates/lti_login.html:33
 msgid "Refresh"
-msgstr ""
+msgstr "Oppdater"
 
 #: inginious/frontend/templates/maintenance.html:9
 msgid ""
 "<b>This INGInious instance is currently under maintenance.</b> Please "
 "come back in a few minutes!"
 msgstr ""
+"<b>Denne INGInious-instansen gjennomgår vedlikehold. </b> Kom tilbake om "
+"noen minutter!"
 
 #: inginious/frontend/templates/marketplace.html:10
 msgid "How to use"
-msgstr ""
+msgstr "Hvordan bruke"
 
 #: inginious/frontend/templates/marketplace.html:12
 msgid ""
@@ -1483,140 +1542,148 @@ msgid ""
 " be admin of this new course and it will contain all the tasks and the "
 "structure of the imported course"
 msgstr ""
+"Denne siden lister alle kurs som er offentlig tilgjengelig. Når du klikker "
+"importér vil det opprettes et nytt kurs på din INGInious-instans. Du vil bli "
+"administrator og det vil ha alle oppgaver og samme struktur som det "
+"importerte kurset"
 
 #: inginious/frontend/templates/marketplace.html:56
 #: inginious/frontend/templates/marketplace_course.html:68
 msgid "Import course"
-msgstr ""
+msgstr "Importér kurs"
 
 #: inginious/frontend/templates/marketplace.html:74
 msgid "No public courses available"
-msgstr ""
+msgstr "Ingen offentlige kurs er tilgjengelige"
 
 #: inginious/frontend/templates/marketplace.html:84
 msgid "Import this course"
-msgstr ""
+msgstr "Importér dette kurset"
 
 #: inginious/frontend/templates/marketplace.html:89
 msgid ""
 "This will create a new course with the ID bellow. This new course will "
 "contain the tasks and structure of the selected course"
 msgstr ""
+"Dette vil lage et nytt kurs med ID vist under. Det nye kurset vil inneholde "
+"oppgaver og struktur fra det valgte kurset"
 
 #: inginious/frontend/templates/marketplace.html:90
 msgid "Course ID"
-msgstr ""
+msgstr "Kurs-ID"
 
 #: inginious/frontend/templates/marketplace.html:94
 msgid "Create course"
-msgstr ""
+msgstr "Opprett kurs"
 
 #: inginious/frontend/templates/marketplace_course.html:7
 #: inginious/frontend/templates/task.html:13
 msgid "Information"
-msgstr ""
+msgstr "Informasjon"
 
 #: inginious/frontend/templates/marketplace_course.html:11
 msgid "Language(s)"
-msgstr ""
+msgstr "Språk"
 
 #: inginious/frontend/templates/marketplace_course.html:17
 msgid "License"
-msgstr ""
+msgstr "Lisens"
 
 #: inginious/frontend/templates/marketplace_course.html:23
 msgid "Maintainer(s)"
-msgstr ""
+msgstr "Vedlikeholder(e)"
 
 #: inginious/frontend/templates/marketplace_course.html:29
 #: inginious/frontend/templates/task.html:17
 msgid "Author(s)"
-msgstr ""
+msgstr "Forfatter(e)"
 
 #: inginious/frontend/templates/marketplace_course.html:35
 msgid "Link"
-msgstr ""
+msgstr "Lenke"
 
 #: inginious/frontend/templates/marketplace_course.html:65
 #: inginious/frontend/templates/mycourses.html:110
 msgid "New course id"
-msgstr ""
+msgstr "Ny kurs-ID"
 
 #: inginious/frontend/templates/mycourses.html:20
 msgid ""
 "This page lists all the courses you are currently enrolled in. You can "
 "find new courses on the course list page."
 msgstr ""
+"Denne siden lister alle kurs du er påmeldt. Du kan finne nye kurs på "
+"kurslistesiden."
 
 #: inginious/frontend/templates/mycourses.html:73
 msgid "LTI course"
-msgstr ""
+msgstr "LTI-kurs"
 
 #: inginious/frontend/templates/mycourses.html:75
 msgid "Hidden course"
-msgstr ""
+msgstr "Gjemt kurs"
 
 #: inginious/frontend/templates/mycourses.html:79
 msgid "Administrator"
-msgstr ""
+msgstr "Administrator"
 
 #: inginious/frontend/templates/mycourses.html:81
 msgid "Tutor"
-msgstr ""
+msgstr "Lærer"
 
 #: inginious/frontend/templates/mycourses.html:83
 msgid "Student"
-msgstr ""
+msgstr "Student"
 
 #: inginious/frontend/templates/mycourses.html:91
 msgid "You are not registered to any course"
-msgstr ""
+msgstr "Du er ikke meldt på noe kurs"
 
 #: inginious/frontend/templates/mycourses.html:99
 msgid "Course created."
-msgstr ""
+msgstr "Kurs opprettet."
 
 #: inginious/frontend/templates/mycourses.html:104
 msgid "Failed to create the course."
-msgstr ""
+msgstr "Feil under opprettelse av kurs."
 
 #: inginious/frontend/templates/mycourses.html:109
 msgid "Course"
-msgstr ""
+msgstr "Kurs"
 
 #: inginious/frontend/templates/mycourses.html:113
 msgid "Create new course"
-msgstr ""
+msgstr "Lag nytt kurs"
 
 #: inginious/frontend/templates/notfound.html:5
 #: inginious/frontend/templates/notfound.html:10
 msgid "Error 404"
-msgstr ""
+msgstr "Feil 404"
 
 #: inginious/frontend/templates/queue.html:5
 #: inginious/frontend/templates/queue.html:10
 #: inginious/frontend/templates/queue.html:18
 msgid "Job queue"
-msgstr ""
+msgstr "Jobbkø"
 
 #: inginious/frontend/templates/queue.html:19
 msgid "This page shows a <strong>snapshot</strong> of the job queue."
-msgstr ""
+msgstr "Denne siden viser et <strong>øyeblikksbilde</strong> av jobbkøen."
 
 #: inginious/frontend/templates/queue.html:21
 msgid "Running jobs"
-msgstr ""
+msgstr "Kjørende jobber"
 
 #: inginious/frontend/templates/course_admin/subproblems/code.html:19
 #: inginious/frontend/templates/course_admin/subproblems/file.html:23
 #: inginious/frontend/templates/queue.html:25
 #: inginious/frontend/templates/queue.html:66
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: inginious/frontend/templates/queue.html:26
 msgid "Agent name"
-msgstr ""
+msgstr "Agentnavn"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:5
 #: inginious/frontend/templates/course_admin/settings.html:62
@@ -1624,92 +1691,92 @@ msgstr ""
 #: inginious/frontend/templates/queue.html:27
 #: inginious/frontend/templates/queue.html:67
 msgid "Name"
-msgstr ""
+msgstr "Navn"
 
 #: inginious/frontend/templates/queue.html:28
 #: inginious/frontend/templates/queue.html:68
 msgid "Launcher name"
-msgstr ""
+msgstr "Navn på oppstarter"
 
 #: inginious/frontend/templates/queue.html:29
 msgid "Started at"
-msgstr ""
+msgstr "Startet"
 
 #: inginious/frontend/templates/queue.html:30
 msgid "Timeout at"
-msgstr ""
+msgstr "Overskred tidsfristen"
 
 #: inginious/frontend/templates/queue.html:31
 #: inginious/frontend/templates/queue.html:70
 msgid "Action"
-msgstr ""
+msgstr "Handling"
 
 #: inginious/frontend/templates/queue.html:44
 #: inginious/frontend/templates/queue.html:81
 msgid "No timeout set"
-msgstr ""
+msgstr "Ingen tidsfrist satt"
 
 #: inginious/frontend/templates/queue.html:59
 msgid "There are no jobs running"
-msgstr ""
+msgstr "Det er ingen kjørende jobber"
 
 #: inginious/frontend/templates/queue.html:62
 msgid "Jobs in queue"
-msgstr ""
+msgstr "Jobber i køen"
 
 #: inginious/frontend/templates/queue.html:69
 msgid "Maximum runtime in seconds"
-msgstr ""
+msgstr "Maksimal kjøretid i sekunder"
 
 #: inginious/frontend/templates/queue.html:96
 msgid "There are no jobs waiting in queue"
-msgstr ""
+msgstr "Det er ingen jobber i køen"
 
 #: inginious/frontend/templates/queue.html:103
 msgid "Kill job"
-msgstr ""
+msgstr "Drep jobb"
 
 #: inginious/frontend/templates/queue.html:107
 #: inginious/frontend/templates/unregister_modal.html:16
 msgid "Are you sure ?"
-msgstr ""
+msgstr "Er du sikker?"
 
 #: inginious/frontend/templates/queue.html:113
 msgid "Kill"
-msgstr ""
+msgstr "Drep"
 
 #: inginious/frontend/templates/register.html:23
 msgid "Register in INGInious"
-msgstr ""
+msgstr "Registrer i INGInious"
 
 #: inginious/frontend/templates/admin/admin_users.html:149
 #: inginious/frontend/templates/register.html:27
 msgid "Username (min. 4 alphanumerical characters) :"
-msgstr ""
+msgstr "Brukernavn (minimum fire alfanumeriske tegn):"
 
 #: inginious/frontend/templates/admin/admin_users.html:153
 #: inginious/frontend/templates/preferences/profile.html:58
 #: inginious/frontend/templates/register.html:31
 msgid "Complete name :"
-msgstr ""
+msgstr "Komplett navn:"
 
 #: inginious/frontend/templates/admin/admin_users.html:157
 #: inginious/frontend/templates/preferences/profile.html:62
 #: inginious/frontend/templates/register.html:35
 #: inginious/frontend/templates/register.html:62
 msgid "Email address :"
-msgstr ""
+msgstr "Epostadresse:"
 
 #: inginious/frontend/templates/admin/admin_users.html:161
 #: inginious/frontend/templates/register.html:39
 #: inginious/frontend/templates/register.html:85
 msgid "Password (min. 6 characters) :"
-msgstr ""
+msgstr "Passord (minimum seks tegn):"
 
 #: inginious/frontend/templates/register.html:43
 #: inginious/frontend/templates/register.html:89
 msgid "Confirm password :"
-msgstr ""
+msgstr "Bekreft passord:"
 
 #: inginious/frontend/templates/preferences/profile.html:90
 #: inginious/frontend/templates/register.html:48
@@ -1717,117 +1784,125 @@ msgid ""
 "I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy"
 " policy{a2end}."
 msgstr ""
+"Jeg har lest {a1start}tjenestebetingelser{a1end} og informasjon om "
+"{a2start}personvern{a2end}."
 
 #: inginious/frontend/templates/register.html:52
 msgid "Sign up"
-msgstr ""
+msgstr "Meld på"
 
 #: inginious/frontend/templates/register.html:58
 msgid "Lost password ?"
-msgstr ""
+msgstr "Glemt passord?"
 
 #: inginious/frontend/templates/register.html:66
 msgid "Reset my password"
-msgstr ""
+msgstr "Lag nytt passord"
 
 #: inginious/frontend/templates/register.html:94
 msgid "Set new password"
-msgstr ""
+msgstr "Sett nytt passord"
 
 #: inginious/frontend/templates/signin_button.html:6
 msgid ""
 "Please register or sign in to see the complete list of courses and be "
 "able to submit answers to problems."
 msgstr ""
+"Vennligst lag bruker eller logg inn for å se komplett liste over kurs, og "
+"for å sende inn svar på oppgaver."
 
 #: inginious/frontend/templates/task.html:23
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:49
 #: inginious/frontend/templates/task.html:24
 msgid "Contact link"
-msgstr ""
+msgstr "Kontaktlenke"
 
 #: inginious/frontend/templates/task.html:32
 msgid "Deadline"
-msgstr ""
+msgstr "Frist"
 
 #: inginious/frontend/templates/task.html:36
 msgid "No deadline"
-msgstr ""
+msgstr "Ingen frist"
 
 #: inginious/frontend/templates/task.html:38
 msgid "It's too late"
-msgstr ""
+msgstr "For sent"
 
 #: inginious/frontend/templates/task.html:47
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: inginious/frontend/templates/task.html:50
 msgid "Not yet attempted"
-msgstr ""
+msgstr "Fremdeles ikke forsøkt"
 
 #: inginious/frontend/templates/course_admin/student_info.html:73
 #: inginious/frontend/templates/course_admin/submissions.html:133
 #: inginious/frontend/templates/task.html:52
 msgid "Succeeded"
-msgstr ""
+msgstr "Gjennomført"
 
 #: inginious/frontend/templates/task.html:61
 msgid "Waiting for verification"
-msgstr ""
+msgstr "Venter på verifikasjon"
 
 #: inginious/frontend/templates/course_admin/student_info.html:76
 #: inginious/frontend/templates/course_admin/submissions.html:137
 #: inginious/frontend/templates/task.html:63
 msgid "Failed"
-msgstr ""
+msgstr "Feilet"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:223
 #: inginious/frontend/templates/task.html:69
 msgid "Grade"
-msgstr ""
+msgstr "Karakter"
 
 #: inginious/frontend/templates/task.html:75
 msgid "Attempts"
-msgstr ""
+msgstr "Forsøk"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_limit.html:7
 #: inginious/frontend/templates/task.html:86
 msgid "No limitation"
-msgstr ""
+msgstr "Ingen begrensning"
 
 #: inginious/frontend/templates/task.html:89
 msgid "{nb_submissions} submissions<br /> every {nb_hours} hour(s)"
-msgstr ""
+msgstr "{nb_submissions} innleveringer<br/> hver {nb_hours} time(r)"
 
 #: inginious/frontend/templates/task.html:91
 msgid "{nb_submissions} submissions"
-msgstr ""
+msgstr "{nb_submissions} innleveringer"
 
 #: inginious/frontend/templates/task.html:104
 msgid "Category tags"
-msgstr ""
+msgstr "Kategorimerkelapper"
 
 #: inginious/frontend/templates/course_admin/settings.html:49
 #: inginious/frontend/templates/course_admin/submission.html:98
 #: inginious/frontend/templates/task.html:114
 msgid "Tags"
-msgstr ""
+msgstr "Merkelapper"
 
 #: inginious/frontend/templates/task.html:131
 msgid ""
 "This course is currently invisible for students.  You can change this by "
 "modifying the \"accessible\" option in the configuration of the course."
 msgstr ""
+"Dette kurset er usynlig for studenter. Du kan endre dette ved å endre "
+"\"tilgjengelighet\" i kursinnstillingene."
 
 #: inginious/frontend/templates/task.html:136
 msgid ""
 "This task is currently invisible for students. You can change this by "
 "modifying the \"accessible\" option in the configuration of the task."
 msgstr ""
+"Denne oppgaven er usynlig for studenter. Du kan endre dette ved å endre "
+"\"tilgjengelighet\" i oppgavekonfigurasjonen."
 
 #: inginious/frontend/templates/course_admin/stats.html:81
 #: inginious/frontend/templates/course_admin/student_list.html:185
@@ -1835,92 +1910,92 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:18
 #: inginious/frontend/templates/task.html:141
 msgid "View submissions"
-msgstr ""
+msgstr "Vis innleveringer"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:14
 #: inginious/frontend/templates/task.html:145
 msgid "Edit task"
-msgstr ""
+msgstr "Redigér oppgave"
 
 #: inginious/frontend/templates/task.html:148
 #: inginious/frontend/templates/task.html:336
 msgid "Debug information"
-msgstr ""
+msgstr "Avlusningsinformasjon"
 
 #: inginious/frontend/templates/task.html:153
 msgid "Submitting as"
-msgstr ""
+msgstr "Leverer som"
 
 #: inginious/frontend/templates/task.html:157
 msgid "Group"
-msgstr ""
+msgstr "Gruppe"
 
 #: inginious/frontend/templates/task.html:176
 msgid "For evaluation"
-msgstr ""
+msgstr "For evaluering"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/evaluation_mode.html:15
 #: inginious/frontend/templates/task.html:180
 msgid "Last submission"
-msgstr ""
+msgstr "Forrige innlevering"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/evaluation_mode.html:9
 #: inginious/frontend/templates/task.html:182
 msgid "Best submission"
-msgstr ""
+msgstr "Beste innlevering"
 
 #: inginious/frontend/templates/task.html:191
 #: inginious/frontend/templates/task.html:236
 msgid "No submission"
-msgstr ""
+msgstr "Ingen innlevering"
 
 #: inginious/frontend/templates/task.html:195
 msgid "Submission history"
-msgstr ""
+msgstr "Innleveringshistorie"
 
 #: inginious/frontend/templates/task.html:279
 msgid "Load my work from memory"
-msgstr ""
+msgstr "Last mitt arbeid fra minnet"
 
 #: inginious/frontend/templates/task.html:280
 msgid "Save my work in memory"
-msgstr ""
+msgstr "Lagre mitt arbeid til minnet"
 
 #: inginious/frontend/templates/task.html:281
 msgid "Collapse context"
-msgstr ""
+msgstr "Kollapsér kontekst"
 
 #: inginious/frontend/templates/task.html:283
 msgid "Previous task"
-msgstr ""
+msgstr "Forrige oppgave"
 
 #: inginious/frontend/templates/task.html:286
 msgid "Next task"
-msgstr ""
+msgstr "Neste oppgave"
 
 #: inginious/frontend/templates/task.html:315
 msgid "Alternatively, you can also paste this command into your terminal:"
-msgstr ""
+msgstr "Alternativt kan du lime inn denne kommandoen i din terminal:"
 
 #: inginious/frontend/templates/task.html:317
 msgid "Paste this command into your terminal:"
-msgstr ""
+msgstr "Lim denne kommandoen inn i din terminal:"
 
 #: inginious/frontend/templates/task.html:321
 msgid "The password to connect is {}"
-msgstr ""
+msgstr "Passord for å koble til er {}"
 
 #: inginious/frontend/templates/task.html:324
 msgid "Please answer to all the questions."
-msgstr ""
+msgstr "Vennligst svar på alle spørsmål."
 
 #: inginious/frontend/templates/task.html:326
 msgid "{} has not a valid extension."
-msgstr ""
+msgstr "{} har ikke gyldig filetternavn."
 
 #: inginious/frontend/templates/task.html:327
 msgid "{} is too heavy."
-msgstr ""
+msgstr "{} veier for mye."
 
 #: inginious/frontend/templates/task.html:340
 msgid ""
@@ -1928,90 +2003,94 @@ msgid ""
 "debug the task.<br/> This box is only displayed because you are an "
 "administrator of this course. It is not displayed to students."
 msgstr ""
+"Rådata fra container vises her, til hjelp ved avlusning av oppgaven. <br/> "
+"Denne boksen vises bare fordi du er en administrator for kurset, den vises "
+"ikke til studenter."
 
 #: inginious/frontend/templates/task.html:373
 msgid "Question {}"
-msgstr ""
+msgstr "Spørsmål {}"
 
 #: inginious/frontend/templates/task.html:390
 msgid "Please enroll in the course to submit."
-msgstr ""
+msgstr "Vennligst meld deg på kurset for å sende inn svar."
 
 #: inginious/frontend/templates/task.html:396
 #: inginious/frontend/templates/task.html:406
 msgid "Submit"
-msgstr ""
+msgstr "Send inn"
 
 #: inginious/frontend/templates/task.html:400
 msgid "Start remote SSH console with this input"
-msgstr ""
+msgstr "Start SSH-konsoll"
 
 #: inginious/frontend/templates/task.html:409
 msgid "The deadline is over, you cannot submit anymore"
-msgstr ""
+msgstr "Fristen er over, du kan ikke sende inn"
 
 #: inginious/frontend/templates/task.html:411
 msgid "Please register in a group"
-msgstr ""
+msgstr "Vennligst meld deg inn i en gruppe"
 
 #: inginious/frontend/templates/task.html:414
 msgid "You have reached the submission limit."
-msgstr ""
+msgstr "Du har nådd innleveringsgrensen."
 
 #: inginious/frontend/templates/task.html:414
 msgid "Your group have reached the submission limit."
-msgstr ""
+msgstr "Din gruppe har nådd innleveringsgrensen."
 
 #: inginious/frontend/templates/task.html:416
 msgid "It will be refilled within the next {} hour(s)"
-msgstr ""
+msgstr "Det blir fyllt inn innen de(n) neste {} timen(e)"
 
 #: inginious/frontend/templates/task.html:420
 msgid "You are not allowed to submit"
-msgstr ""
+msgstr "Du har ikke tilgang til å sende inn"
 
 #: inginious/frontend/templates/task_unavailable.html:5
 #: inginious/frontend/templates/task_unavailable.html:9
 msgid "Task unavailable"
-msgstr ""
+msgstr "Oppgave utilgjengelig"
 
 #: inginious/frontend/templates/unregister_modal.html:9
 msgid "Unregister from {}"
-msgstr ""
+msgstr "Meld av fra {}"
 
 #: inginious/frontend/templates/unregister_modal.html:15
 msgid "This will keep your submissions saved but will remove you from your group."
 msgstr ""
+"Dette vil holde dine innleveringer lagret men vil melde deg ut av gruppen."
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:77
 #: inginious/frontend/templates/unregister_modal.html:20
 msgid "Unregister"
-msgstr ""
+msgstr "Utmelding"
 
 #: inginious/frontend/templates/admin/admin_users.html:5
 #: inginious/frontend/templates/admin/admin_users.html:20
 msgid "Users Administration"
-msgstr ""
+msgstr "Brukeradministrasjon"
 
 #: inginious/frontend/templates/admin/admin_users.html:12
 msgid "Users Admin"
-msgstr ""
+msgstr "Brukeradmin"
 
 #: inginious/frontend/templates/admin/admin_users.html:32
 #: inginious/frontend/templates/course_admin/student_list_table.html:12
 msgid "member"
-msgstr ""
+msgstr "Medlem"
 
 #: inginious/frontend/templates/admin/admin_users.html:33
 #: inginious/frontend/templates/course_admin/student_list_table.html:16
 #: inginious/frontend/templates/course_admin/submissions.html:55
 msgid "username"
-msgstr ""
+msgstr "Brukernavn"
 
 #: inginious/frontend/templates/admin/admin_users.html:34
 #: inginious/frontend/templates/course_admin/student_list_table.html:17
 msgid "email address"
-msgstr ""
+msgstr "Epostadresse"
 
 #: inginious/frontend/templates/admin/admin_users.html:38
 #: inginious/frontend/templates/course_admin/stats.html:61
@@ -2020,11 +2099,11 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/student_list_table.html:26
 #: inginious/frontend/templates/course_admin/submissions.html:78
 msgid "Download CSV"
-msgstr ""
+msgstr "Last ned CSV"
 
 #: inginious/frontend/templates/admin/admin_users.html:68
 msgid "Bindings"
-msgstr ""
+msgstr "Koblinger"
 
 #: inginious/frontend/templates/admin/admin_users.html:102
 #: inginious/frontend/templates/course_admin/edit_tabs/files.html:19
@@ -2032,59 +2111,59 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/subproblems/multiple_choice_templates.html:31
 #: inginious/frontend/templates/course_admin/task_dispensers/section_menu.html:21
 msgid "Delete"
-msgstr ""
+msgstr "Slett"
 
 #: inginious/frontend/templates/admin/admin_users.html:107
 msgid "This will delete {}. Are you sure ?"
-msgstr ""
+msgstr "Dette vil slette {}. Er du sikker?"
 
 #: inginious/frontend/templates/admin/admin_users.html:112
 msgid "Remove"
-msgstr ""
+msgstr "Fjern"
 
 #: inginious/frontend/templates/admin/admin_users.html:122
 #: inginious/frontend/templates/admin/admin_users.html:132
 msgid "Activate"
-msgstr ""
+msgstr "Aktivér"
 
 #: inginious/frontend/templates/admin/admin_users.html:127
 msgid "This will activate {}."
-msgstr ""
+msgstr "Dette vil aktivere {}."
 
 #: inginious/frontend/templates/admin/admin_users.html:142
 msgid "Add user"
-msgstr ""
+msgstr "Legg til bruker"
 
 #: inginious/frontend/templates/admin/admin_users.html:168
 #: inginious/frontend/templates/course_admin/edit_tabs/subproblems.html:22
 #: inginious/frontend/templates/course_admin/task_dispensers/util.html:103
 msgid "Add"
-msgstr ""
+msgstr "Legg til"
 
 #: inginious/frontend/templates/admin/admin_users.html:178
 msgid "Available bindings"
-msgstr ""
+msgstr "Tilgjengelige koblinger"
 
 #: inginious/frontend/templates/admin/admin_users.html:250
 #: inginious/frontend/templates/preferences/bindings.html:47
 msgid "Revoke access"
-msgstr ""
+msgstr "Fjern tilgang"
 
 #: inginious/frontend/templates/admin/admin_users.html:258
 msgid "Identifier :"
-msgstr ""
+msgstr "Identifikator:"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:18
 #: inginious/frontend/templates/course_admin/student_list.html:43
 #: inginious/frontend/templates/course_admin/student_list.html:78
 #: inginious/frontend/templates/course_admin/student_list.html:110
 msgid "Audiences"
-msgstr ""
+msgstr "Publikum"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:20
 #: inginious/frontend/templates/course_admin/audience_edit.html:26
 msgid "Edit audience {}"
-msgstr ""
+msgstr "Redigér publikum {}"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:44
 #: inginious/frontend/templates/course_admin/audience_edit.html:63
@@ -2092,57 +2171,57 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/student_list.html:257
 #: inginious/frontend/templates/course_admin/student_list.html:276
 msgid "Add student"
-msgstr ""
+msgstr "Legg til student"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:51
 msgid "Choose student :"
-msgstr ""
+msgstr "Velg student:"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:55
 #: inginious/frontend/templates/course_admin/settings.html:70
 #: inginious/frontend/templates/course_admin/settings.html:76
 #: inginious/frontend/templates/course_admin/student_list.html:65
 msgid "Enter something here to search for a user"
-msgstr ""
+msgstr "Skriv noe her for å søke etter en bruker"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:74
 #: inginious/frontend/templates/course_admin/task_edit.html:46
 msgid "Basic settings"
-msgstr ""
+msgstr "Elementære innstillinger"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:78
 #: inginious/frontend/templates/course_admin/audience_edit.html:82
 msgid "Audience description"
-msgstr ""
+msgstr "Publikumsbeskrivelse"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:85
 msgid "Delete audience"
-msgstr ""
+msgstr "Slett publikum"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:92
 msgid "Tutor list"
-msgstr ""
+msgstr "Lærerliste"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:124
 msgid "Add tutor"
-msgstr ""
+msgstr "Legg til lærer"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:137
 msgid "Student list"
-msgstr ""
+msgstr "Studentliste"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:153
 msgid "Remove student"
-msgstr ""
+msgstr "Fjern student"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:164
 #: inginious/frontend/templates/course_admin/student_list.html:435
 msgid "Update"
-msgstr ""
+msgstr "Oppdatér"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:41
 msgid "Archive data"
-msgstr ""
+msgstr "Arkivér data"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:44
 #: inginious/frontend/templates/course_admin/danger_zone.html:138
@@ -2150,12 +2229,12 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/danger_zone.html:159
 #: inginious/frontend/templates/course_admin/danger_zone.html:167
 msgid "Delete course"
-msgstr ""
+msgstr "Slett kurs"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:52
 #: inginious/frontend/templates/course_admin/danger_zone.html:63
 msgid "Archive course data"
-msgstr ""
+msgstr "Arkivér kursdata"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:55
 msgid ""
@@ -2163,35 +2242,38 @@ msgid ""
 "groups, user statistics) from the database.</p><p>To confirm your will, "
 "please type the course id below :</p>"
 msgstr ""
+"<p>Dette vil resette og sikkerhetskopiere alle kursdata (innleveringer, "
+"publikum, grupper, brukerstatistikk) fra databasen.</p><p> For å bekrefte, "
+"vennligst skriv inn kurs-ID under:</p>"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:75
 msgid "Restore backup from {}"
-msgstr ""
+msgstr "Gjenopprett sikkerhetskopi fra {}"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:79
 msgid "<p>This will restore your course data to {}. Are you sure ?</p>"
-msgstr ""
+msgstr "<p>Dette vil gjenopprette dine kursdata til {}. Er du sikker?</p>"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:86
 #: inginious/frontend/templates/course_admin/danger_zone.html:110
 msgid "Restore backup"
-msgstr ""
+msgstr "Gjenopprett sikkerhetskopi"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:94
 msgid "Backups"
-msgstr ""
+msgstr "Sikkerhetskopi"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:99
 msgid "backup date"
-msgstr ""
+msgstr "Dato til sikkerhetskopi"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:100
 msgid "download"
-msgstr ""
+msgstr "Last ned"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:114
 msgid "Download backup"
-msgstr ""
+msgstr "Last ned sikkerhetskopi"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:141
 msgid ""
@@ -2199,68 +2281,73 @@ msgid ""
 "(including tasks and backups) from INGInious.</p><p>To confirm your will,"
 " please type the course id below :</p>"
 msgstr ""
+"<p>Dette vil <b>permanent</b> fjerne kurset og alle dets data (inkludert "
+"oppgaver og sikkerhetskopier) fra INGInious. </p><p>For å bekrefte, skriv "
+"inn kurs-ID under:</p>"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:163
 msgid ""
 "<p>This will <b>permanently</b> remove the course and all its data "
 "(including tasks and backups) from INGInious. Are you really sure ?</p>"
 msgstr ""
+"<p>Dette vil <b>permanent</b> fjerne kurset og alle dets data (inkludert "
+"oppgaver og sikkerhetskopier) fra INGInious. Er du virkelig sikker?</p>"
 
 #: inginious/frontend/templates/course_admin/menu.html:15
 msgid "How to create a task?"
-msgstr ""
+msgstr "Hvordan lage en oppgave?"
 
 #: inginious/frontend/templates/course_admin/menu.html:16
 msgid "Documentation"
-msgstr ""
+msgstr "Dokumentasjon"
 
 #: inginious/frontend/templates/course_admin/settings.html:6
 msgid "Settings"
-msgstr ""
+msgstr "Innstillinger"
 
 #: inginious/frontend/templates/course_admin/settings.html:32
 msgid "Settings saved."
-msgstr ""
+msgstr "Innstillinger lagret."
 
 #: inginious/frontend/templates/course_admin/settings.html:40
 msgid "Base"
-msgstr ""
+msgstr "Base"
 
 #: inginious/frontend/templates/course_admin/settings.html:46
 msgid "LTI"
-msgstr ""
+msgstr "LTI"
 
 #: inginious/frontend/templates/course_admin/settings.html:52
 msgid "User Settings"
-msgstr ""
+msgstr "Brukerinnstillinger"
 
 #: inginious/frontend/templates/course_admin/settings.html:68
 msgid "Administrators"
-msgstr ""
+msgstr "Administratorer"
 
 #: inginious/frontend/templates/course_admin/settings.html:74
 msgid "Tutors"
-msgstr ""
+msgstr "Lærere"
 
 #: inginious/frontend/templates/course_admin/settings.html:80
 msgid "Description"
-msgstr ""
+msgstr "Beskrivelse"
 
 #: inginious/frontend/templates/course_admin/settings.html:86
 msgid "Group attribution"
-msgstr ""
+msgstr "Gruppetildeling"
 
 #: inginious/frontend/templates/course_admin/settings.html:93
 msgid "Staff only"
-msgstr ""
+msgstr "Kun stab"
 
 #: inginious/frontend/templates/course_admin/settings.html:100
 msgid "Staff and students"
-msgstr ""
+msgstr "Stab og studenter"
 
 #: inginious/frontend/templates/course_admin/settings.html:105
 msgid "Enable LTI"
-msgstr ""
+msgstr "Skru på LTI"
 
 #: inginious/frontend/templates/course_admin/settings.html:112
 msgid ""
@@ -2268,134 +2355,143 @@ msgid ""
 "Learning Management Systems (LMS) such as Moodle or edX. Note that this "
 "will deactivate the group system."
 msgstr ""
+"Skru på denne for å tillate ditt INGInious-kurs til å bli brukt i et "
+"eksternt \"Learning Management System\" (LMS) slik som Moodle eller edX. "
+"Merk at dette vil deaktivere gruppesystemet."
 
 #: inginious/frontend/templates/course_admin/settings.html:121
 msgid "Course preview"
-msgstr ""
+msgstr "Forhåndsvisning av kurs"
 
 #: inginious/frontend/templates/course_admin/settings.html:128
 msgid "Allowed (read-only for non-registered users)"
-msgstr ""
+msgstr "Tillatt (kun lesetilgang for brukere som ikke er påmeldt)"
 
 #: inginious/frontend/templates/course_admin/settings.html:135
 msgid "Not allowed"
-msgstr ""
+msgstr "Ikke tillatt"
 
 #: inginious/frontend/templates/course_admin/settings.html:148
 msgid "Course hidden from students"
-msgstr ""
+msgstr "Kurs usynlig for studenter"
 
 #: inginious/frontend/templates/course_admin/settings.html:155
 msgid "Always accessible"
-msgstr ""
+msgstr "Alltid tilgjengelig"
 
 #: inginious/frontend/templates/course_admin/settings.html:162
 #: inginious/frontend/templates/course_admin/settings.html:222
 msgid "Custom:"
-msgstr ""
+msgstr "Personalisér:"
 
 #: inginious/frontend/templates/course_admin/settings.html:166
 #: inginious/frontend/templates/course_admin/settings.html:226
 msgid "From"
-msgstr ""
+msgstr "Fra"
 
 #: inginious/frontend/templates/course_admin/settings.html:179
 #: inginious/frontend/templates/course_admin/settings.html:238
 msgid "To"
-msgstr ""
+msgstr "Til"
 
 #: inginious/frontend/templates/course_admin/settings.html:201
 msgid "Registration"
-msgstr ""
+msgstr "Påmelding"
 
 #: inginious/frontend/templates/course_admin/settings.html:208
 msgid "Closed"
-msgstr ""
+msgstr "Lukket"
 
 #: inginious/frontend/templates/course_admin/settings.html:215
 msgid "Always open"
-msgstr ""
+msgstr "Alltid åpen"
 
 #: inginious/frontend/templates/course_admin/settings.html:260
 msgid "Allow auto-unregistration"
-msgstr ""
+msgstr "Tillat auto-avmelding"
 
 #: inginious/frontend/templates/course_admin/settings.html:268
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: inginious/frontend/templates/course_admin/settings.html:275
 msgid "No"
-msgstr ""
+msgstr "Nei"
 
 #: inginious/frontend/templates/course_admin/settings.html:280
 msgid "Registration password"
-msgstr ""
+msgstr "Registreringspassord"
 
 #: inginious/frontend/templates/course_admin/settings.html:283
 msgid ""
 "Password needed for registration. Leave blank if you don't want to set a "
 "password."
 msgstr ""
+"Passord er påkrevd for registrering. La være tom hvis du ikke vil sette et "
+"passord."
 
 #: inginious/frontend/templates/course_admin/settings.html:288
 msgid "Access control"
-msgstr ""
+msgstr "Tilgangskontroll"
 
 #: inginious/frontend/templates/course_admin/settings.html:295
 msgid "No access control (everyone can register)"
-msgstr ""
+msgstr "Ingen tilgangskontroll (alle kan registrere)"
 
 #: inginious/frontend/templates/course_admin/settings.html:302
 msgid "Check by username"
-msgstr ""
+msgstr "Verifisér med brukernavn"
 
 #: inginious/frontend/templates/course_admin/settings.html:309
 msgid "Check by authentication binding"
-msgstr ""
+msgstr "Verifisér med autentiseringskobling"
 
 #: inginious/frontend/templates/course_admin/settings.html:316
 msgid "Check by email"
-msgstr ""
+msgstr "Verifisér med epost"
 
 #: inginious/frontend/templates/course_admin/settings.html:321
 msgid "Access control type"
-msgstr ""
+msgstr "Tilgangskontrolltype"
 
 #: inginious/frontend/templates/course_admin/settings.html:328
 msgid "Accept"
-msgstr ""
+msgstr "Tillat"
 
 #: inginious/frontend/templates/course_admin/settings.html:335
 msgid "Deny"
-msgstr ""
+msgstr "Ikke tillat"
 
 #: inginious/frontend/templates/course_admin/settings.html:340
 msgid "Access control list"
-msgstr ""
+msgstr "Tilgangskontrolliste"
 
 #: inginious/frontend/templates/course_admin/settings.html:342
 msgid "Only used if access control is activated. Separate users by new lines."
 msgstr ""
+"Bare bruk hvis tilgangskontroll er aktivert. Skriv inn brukere på hver sin "
+"linje."
 
 #: inginious/frontend/templates/course_admin/settings.html:348
 #: inginious/frontend/templates/course_admin/settings.html:350
 msgid "External platform URL"
-msgstr ""
+msgstr "URL til ekstern plattform"
 
 #: inginious/frontend/templates/course_admin/settings.html:354
 msgid "LTI keys"
-msgstr ""
+msgstr "LTI-nøkler"
 
 #: inginious/frontend/templates/course_admin/settings.html:356
 msgid ""
 "LTI keys in the form name:key, separated by newlines. Please ensure keys "
 "are long enough and random."
 msgstr ""
+"LTI-nøkler på formen navn:nøkkel, separert med linjeskift. Vennligst "
+"forsikre deg om at nøklene er lange nok og tilfeldige."
 
 #: inginious/frontend/templates/course_admin/settings.html:361
 msgid "Send back grades"
-msgstr ""
+msgstr "Send tilbake karakterer"
 
 #: inginious/frontend/templates/course_admin/settings.html:368
 msgid ""
@@ -2404,213 +2500,217 @@ msgid ""
 "to the course and tasks from the web application when enabled. Tasks will"
 " be only available from the LTI interface."
 msgstr ""
+"Velg dette for å sende tilbake karakterer til den kallende verktøysforbruker "
+"(som, mesteparten av tiden, er din LMS). INGInious vil daktivere studentenes "
+"tilgang til kurset og oppgaver fra webapplikasjonen. Oppgaver vil bare være "
+"tilgjengelige fra LTI-grensesnittet."
 
 #: inginious/frontend/templates/course_admin/settings.html:383
 msgid "New tag"
-msgstr ""
+msgstr "Ny merkelapp"
 
 #: inginious/frontend/templates/course_admin/settings.html:388
 #: inginious/frontend/templates/course_admin/settings.html:447
 #: inginious/frontend/templates/course_admin/submissions.html:66
 msgid "id"
-msgstr ""
+msgstr "id"
 
 #: inginious/frontend/templates/course_admin/settings.html:389
 msgid "name"
-msgstr ""
+msgstr "navn"
 
 #: inginious/frontend/templates/course_admin/settings.html:390
 #: inginious/frontend/templates/course_admin/settings.html:448
 msgid "description"
-msgstr ""
+msgstr "beskrivelse"
 
 #: inginious/frontend/templates/course_admin/settings.html:391
 msgid "show to students"
-msgstr ""
+msgstr "vis til studenter"
 
 #: inginious/frontend/templates/course_admin/settings.html:392
 #: inginious/frontend/templates/course_admin/settings.html:449
 msgid "type "
-msgstr ""
+msgstr "type "
 
 #: inginious/frontend/templates/course_admin/settings.html:405
 #: inginious/frontend/templates/course_admin/settings.html:423
 msgid "Skill"
-msgstr ""
+msgstr "Ferdighet"
 
 #: inginious/frontend/templates/course_admin/settings.html:406
 #: inginious/frontend/templates/course_admin/settings.html:424
 msgid "Misconception"
-msgstr ""
+msgstr "Misforståelse"
 
 #: inginious/frontend/templates/course_admin/settings.html:412
 msgid "Unknown name"
-msgstr ""
+msgstr "Ukjent navn"
 
 #: inginious/frontend/templates/course_admin/settings.html:442
 msgid "New field"
-msgstr ""
+msgstr "Nytt felt"
 
 #: inginious/frontend/templates/course_admin/stats.html:40
 msgid "Student progress"
-msgstr ""
+msgstr "Studentfremgang"
 
 #: inginious/frontend/templates/course_admin/stats.html:53
 #: inginious/frontend/templates/course_admin/submissions.html:60
 msgid "task name"
-msgstr ""
+msgstr "Oppgavenavn"
 
 #: inginious/frontend/templates/course_admin/stats.html:54
 msgid "# student viewed"
-msgstr ""
+msgstr "# studenter vist"
 
 #: inginious/frontend/templates/course_admin/stats.html:55
 msgid "# student attempted"
-msgstr ""
+msgstr "# studenter prøvd"
 
 #: inginious/frontend/templates/course_admin/stats.html:56
 msgid "# student succeeded"
-msgstr ""
+msgstr "# studenter fullført"
 
 #: inginious/frontend/templates/course_admin/stats.html:57
 msgid "# attempts"
-msgstr ""
+msgstr "# forsøk"
 
 #: inginious/frontend/templates/course_admin/stats.html:64
 #: inginious/frontend/templates/course_admin/student_info.html:42
 #: inginious/frontend/templates/course_admin/student_info.html:82
 #: inginious/frontend/templates/course_admin/student_list.html:161
 msgid "View all submissions"
-msgstr ""
+msgstr "Vis alle innleveringer"
 
 #: inginious/frontend/templates/course_admin/stats.html:105
 msgid "Global statistics"
-msgstr ""
+msgstr "Global statistikk"
 
 #: inginious/frontend/templates/course_admin/stats.html:109
 msgid "Submissions statistics"
-msgstr ""
+msgstr "Innleveringsstatistikk"
 
 #: inginious/frontend/templates/course_admin/stats.html:127
 msgid "Tag statistics"
-msgstr ""
+msgstr "Merkelappstatistikk"
 
 #: inginious/frontend/templates/course_admin/stats.html:132
 msgid "Tag"
-msgstr ""
+msgstr "Merkelapp"
 
 #: inginious/frontend/templates/course_admin/stats.html:133
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_storage.html:9
 msgid "All submissions"
-msgstr ""
+msgstr "Alle innleveringer"
 
 #: inginious/frontend/templates/course_admin/stats.html:134
 msgid "Best submissions"
-msgstr ""
+msgstr "Beste innleveringer"
 
 #: inginious/frontend/templates/course_admin/stats.html:262
 msgid "user"
-msgstr ""
+msgstr "bruker"
 
 #: inginious/frontend/templates/course_admin/stats.html:262
 #: inginious/frontend/templates/course_admin/student_info.html:36
 msgid "# submissions"
-msgstr ""
+msgstr "# innleveringer"
 
 #: inginious/frontend/templates/course_admin/stats.html:262
 msgid "# valid submissions"
-msgstr ""
+msgstr "# gyldige innleveringer"
 
 #: inginious/frontend/templates/course_admin/student_info.html:20
 #: inginious/frontend/templates/course_admin/student_list.html:35
 #: inginious/frontend/templates/course_admin/student_list.html:396
 #: inginious/frontend/templates/course_admin/submission.html:26
 msgid "Students"
-msgstr ""
+msgstr "Studenter"
 
 #: inginious/frontend/templates/course_admin/student_info.html:29
 msgid "Statistics for student {realname} ({username})"
-msgstr ""
+msgstr "Statistikk for student {realname} ({username})"
 
 #: inginious/frontend/templates/course_admin/student_info.html:34
 msgid "task"
-msgstr ""
+msgstr "oppgave"
 
 #: inginious/frontend/templates/course_admin/student_info.html:35
 msgid "status"
-msgstr ""
+msgstr "status"
 
 #: inginious/frontend/templates/course_admin/student_info.html:62
 msgid "Not served by the task dispenser"
-msgstr ""
+msgstr "Ikke betjent av oppgavebehandler"
 
 #: inginious/frontend/templates/course_admin/student_info.html:68
 msgid "Not viewed"
-msgstr ""
+msgstr "Ikke vist"
 
 #: inginious/frontend/templates/course_admin/student_info.html:70
 msgid "Not attempted (viewed)"
-msgstr ""
+msgstr "Ikke forsøkt (vist)"
 
 #: inginious/frontend/templates/course_admin/student_info.html:72
 #: inginious/frontend/templates/course_admin/student_info.html:75
 msgid "View evaluation submission"
-msgstr ""
+msgstr "Vis evalueringsinnlevering"
 
 #: inginious/frontend/templates/course_admin/student_info.html:85
 msgid "Reset state"
-msgstr ""
+msgstr "Resett tilstand"
 
 #: inginious/frontend/templates/course_admin/student_info.html:98
 msgid "Reset State"
-msgstr ""
+msgstr "Reset tilstand"
 
 #: inginious/frontend/templates/course_admin/student_info.html:102
 msgid "This will reset the state for {}. Are you sure ?"
-msgstr ""
+msgstr "Dette vil resette tilstand for {}. Er du sikker?"
 
 #: inginious/frontend/templates/course_admin/student_info.html:107
 #: inginious/frontend/templates/course_admin/submissions_query.html:251
 msgid "Reset"
-msgstr ""
+msgstr "Resett"
 
 #: inginious/frontend/templates/course_admin/student_list.html:39
 msgid "Teaching staff"
-msgstr ""
+msgstr "Lærere"
 
 #: inginious/frontend/templates/course_admin/student_list.html:58
 msgid "Number of students"
-msgstr ""
+msgstr "Antall studenter"
 
 #: inginious/frontend/templates/course_admin/student_list.html:81
 msgid "Upload audiences"
-msgstr ""
+msgstr "Last opp publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:82
 #: inginious/frontend/templates/course_admin/student_list.html:212
 msgid "Download structure"
-msgstr ""
+msgstr "Last ned struktur"
 
 #: inginious/frontend/templates/course_admin/student_list.html:104
 msgid "Upload audience creation"
-msgstr ""
+msgstr "Last opp publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:108
 #: inginious/frontend/templates/course_admin/student_list.html:226
 msgid "Note : Please refer to documentation for file format"
-msgstr ""
+msgstr "Merk: Vennligst les dokumentasjonen for filformat"
 
 #: inginious/frontend/templates/course_admin/student_list.html:115
 msgid "Upload (will erase current repartition)"
-msgstr ""
+msgstr "Last opp (vil slette gjeldende fordeling)"
 
 #: inginious/frontend/templates/course_admin/student_list.html:127
 msgid "Download audiences structure"
-msgstr ""
+msgstr "Last ned publikumsstruktur"
 
 #: inginious/frontend/templates/course_admin/student_list.html:132
 msgid "Prefered field"
-msgstr ""
+msgstr "Foretrukket felt"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/files.html:16
 #: inginious/frontend/templates/course_admin/edit_tabs/files.html:24
@@ -2618,326 +2718,326 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/student_list.html:141
 #: inginious/frontend/templates/course_admin/submissions.html:250
 msgid "Download"
-msgstr ""
+msgstr "Last ned"
 
 #: inginious/frontend/templates/course_admin/student_list.html:152
 msgid "audience"
-msgstr ""
+msgstr "publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:153
 msgid "# students"
-msgstr ""
+msgstr "# studenter"
 
 #: inginious/frontend/templates/course_admin/student_list.html:154
 #: inginious/frontend/templates/course_admin/student_list_table.html:18
 msgid "# task tried"
-msgstr ""
+msgstr "# forsøkte oppgaver"
 
 #: inginious/frontend/templates/course_admin/student_list.html:155
 #: inginious/frontend/templates/course_admin/student_list_table.html:19
 msgid "# task done"
-msgstr ""
+msgstr "# fullførte oppgaver"
 
 #: inginious/frontend/templates/course_admin/student_list.html:167
 msgid "My audience(s)"
-msgstr ""
+msgstr "Mitt/mine publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:167
 msgid "Other audience(s)"
-msgstr ""
+msgstr "Andre publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:183
 msgid "Edit audience"
-msgstr ""
+msgstr "Rediger publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:200
 msgid "New audience description"
-msgstr ""
+msgstr "Ny publikumsbeskrivelse"
 
 #: inginious/frontend/templates/course_admin/student_list.html:201
 msgid "New audience"
-msgstr ""
+msgstr "Nytt publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:211
 msgid "Upload structure"
-msgstr ""
+msgstr "Last opp struktur"
 
 #: inginious/frontend/templates/course_admin/student_list.html:222
 msgid "Upload course structure"
-msgstr ""
+msgstr "Last opp kursstruktur"
 
 #: inginious/frontend/templates/course_admin/student_list.html:228
 msgid "Course structure"
-msgstr ""
+msgstr "Kursstruktur"
 
 #: inginious/frontend/templates/course_admin/student_list.html:233
 msgid "Upload (will erase current settings)"
-msgstr ""
+msgstr "Last opp (vil slette gjeldende innstillinger)"
 
 #: inginious/frontend/templates/course_admin/student_list.html:265
 msgid "Student username (will be registered) :"
-msgstr ""
+msgstr "Studentbrukernavn (blir registrert):"
 
 #: inginious/frontend/templates/course_admin/student_list.html:268
 msgid "Student username"
-msgstr ""
+msgstr "Studentbrukernavn"
 
 #: inginious/frontend/templates/course_admin/student_list.html:286
 msgid "Ungrouped students"
-msgstr ""
+msgstr "Ugrupperte studenter"
 
 #: inginious/frontend/templates/course_admin/student_list.html:312
 #: inginious/frontend/templates/course_admin/student_list.html:333
 msgid "Group description"
-msgstr ""
+msgstr "Gruppebeskrivelse"
 
 #: inginious/frontend/templates/course_admin/student_list.html:312
 #: inginious/frontend/templates/course_admin/student_list.html:420
 msgid "New group"
-msgstr ""
+msgstr "Ny gruppe"
 
 #: inginious/frontend/templates/course_admin/student_list.html:315
 #: inginious/frontend/templates/course_admin/student_list.html:336
 msgid "Max group size :"
-msgstr ""
+msgstr "Maks gruppestørrelse:"
 
 #: inginious/frontend/templates/course_admin/student_list.html:321
 #: inginious/frontend/templates/course_admin/student_list.html:342
 msgid "Delete group"
-msgstr ""
+msgstr "Slett gruppe"
 
 #: inginious/frontend/templates/course_admin/student_list.html:353
 msgid "Restrict to audiences"
-msgstr ""
+msgstr "Begrens til publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:365
 msgid "Add audience"
-msgstr ""
+msgstr "Legg til publikum"
 
 #: inginious/frontend/templates/course_admin/student_list.html:425
 msgid "Clean groups"
-msgstr ""
+msgstr "Rens grupper"
 
 #: inginious/frontend/templates/course_admin/student_list.html:430
 msgid "Delete all groups"
-msgstr ""
+msgstr "Slett all grupper"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:14
 msgid "student"
-msgstr ""
+msgstr "student"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:20
 msgid "current grade"
-msgstr ""
+msgstr "gjeldende karakter"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:21
 msgid "The current grade is computed over the tasks that are visible for users."
-msgstr ""
+msgstr "Gjeldende karakter er beregnet fra oppgavene synlige for brukerne."
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:28
 msgid "View  all submissions"
-msgstr ""
+msgstr "Se alle innleveringer"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:30
 msgid "Unregister all"
-msgstr ""
+msgstr "Avregistrer alle"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:81
 msgid "This will remove {} from the course. Are you sure ?"
-msgstr ""
+msgstr "Dette vil fjerne {} fra kurset. Er du sikker?"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:87
 msgid "Remove {}"
-msgstr ""
+msgstr "Fjern {}"
 
 #: inginious/frontend/templates/course_admin/submission.html:43
 msgid "Submission {}"
-msgstr ""
+msgstr "Innlevering {}"
 
 #: inginious/frontend/templates/course_admin/submission.html:45
 msgid ""
 "This page show what was shown to the student when (s)he made his/her "
 "submission."
-msgstr ""
+msgstr "Denne siden viser hva som ble vist til studenten ved innlevering."
 
 #: inginious/frontend/templates/course_admin/submission.html:50
 msgid "Click here to hide/display context informations"
-msgstr ""
+msgstr "Klikk her for å skjule/vise kontekstinformasjon"
 
 #: inginious/frontend/templates/course_admin/submission.html:56
 msgid "Download full submission"
-msgstr ""
+msgstr "Last ned hele innleveringen"
 
 #: inginious/frontend/templates/course_admin/submission.html:63
 #: inginious/frontend/templates/course_admin/submissions.html:183
 msgid "Replay submission"
-msgstr ""
+msgstr "Kjør innlevering på nytt"
 
 #: inginious/frontend/templates/course_admin/submission.html:69
 msgid "Replay as {}"
-msgstr ""
+msgstr "Send inn på nytt som {}"
 
 #: inginious/frontend/templates/course_admin/submission.html:75
 msgid "Replay/debug as {}"
-msgstr ""
+msgstr "Kjør på nytt / avlus som {}"
 
 #: inginious/frontend/templates/course_admin/submission.html:135
 msgid "This problem id is not defined in the task."
-msgstr ""
+msgstr "Denne problem-ID er ikke definert i oppgaven."
 
 #: inginious/frontend/templates/course_admin/submission.html:137
 msgid "This problem is not present in the submission."
-msgstr ""
+msgstr "Dette problemet finnes ikke i innleveringen."
 
 #: inginious/frontend/templates/course_admin/submissions.html:43
 msgid "submissions selected"
-msgstr ""
+msgstr "innleveringer valgt"
 
 #: inginious/frontend/templates/course_admin/submissions.html:53
 msgid "student name"
-msgstr ""
+msgstr "studentnavn"
 
 #: inginious/frontend/templates/course_admin/submissions.html:62
 msgid "taskid"
-msgstr ""
+msgstr "oppgave-id"
 
 #: inginious/frontend/templates/course_admin/submissions.html:68
 msgid "submitted on"
-msgstr ""
+msgstr "levert"
 
 #: inginious/frontend/templates/course_admin/submissions.html:69
 msgid "replayed on"
-msgstr ""
+msgstr "kjørt på nytt"
 
 #: inginious/frontend/templates/course_admin/submissions.html:70
 msgid "result"
-msgstr ""
+msgstr "resultat"
 
 #: inginious/frontend/templates/course_admin/submissions.html:72
 msgid "tags"
-msgstr ""
+msgstr "merkelapper"
 
 #: inginious/frontend/templates/course_admin/submissions.html:80
 msgid "Download current selection"
-msgstr ""
+msgstr "Last ned gjeldende valg"
 
 #: inginious/frontend/templates/course_admin/submissions.html:83
 msgid "Replay current selection"
-msgstr ""
+msgstr "Kjør valgte på nytt"
 
 #: inginious/frontend/templates/course_admin/submissions.html:135
 #: inginious/frontend/templates/course_admin/submissions.html:267
 msgid "Waiting"
-msgstr ""
+msgstr "Venter"
 
 #: inginious/frontend/templates/course_admin/submissions.html:179
 msgid "View submission"
-msgstr ""
+msgstr "Vis innlevering"
 
 #: inginious/frontend/templates/course_admin/submissions.html:180
 msgid "Download submission"
-msgstr ""
+msgstr "Last ned innlevering"
 
 #: inginious/frontend/templates/course_admin/submissions.html:226
 msgid "Download format"
-msgstr ""
+msgstr "Last ned format"
 
 #: inginious/frontend/templates/course_admin/submissions.html:230
 msgid "Folder format"
-msgstr ""
+msgstr "Mappeformat"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "taskid/username"
-msgstr ""
+msgstr "oppgave-id/brukernavn"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "taskid/audience"
-msgstr ""
+msgstr "oppgave-id/publikum"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "username/taskid"
-msgstr ""
+msgstr "brukernavn/oppgave-id"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "audience/taskid"
-msgstr ""
+msgstr "publikum/oppgave-id"
 
 #: inginious/frontend/templates/course_admin/submissions.html:240
 #: inginious/frontend/templates/course_admin/submissions_query.html:154
 msgid "Only evaluation submissions"
-msgstr ""
+msgstr "Kun evalueringsinnleveringer"
 
 #: inginious/frontend/templates/course_admin/submissions.html:244
 msgid "Simplified file tree"
-msgstr ""
+msgstr "Forenklet filtre"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:21
 msgid "Query submissions"
-msgstr ""
+msgstr "Innleveringsspørring"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:34
 msgid "Select students"
-msgstr ""
+msgstr "Velg studenter"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:38
 msgid "Select audiences"
-msgstr ""
+msgstr "Velg publikum"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:42
 #: inginious/frontend/templates/course_admin/submissions_query.html:98
 #: inginious/frontend/templates/course_admin/submissions_query.html:125
 msgid "Select all"
-msgstr ""
+msgstr "Velg alle"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:45
 #: inginious/frontend/templates/course_admin/submissions_query.html:101
 #: inginious/frontend/templates/course_admin/submissions_query.html:128
 msgid "Deselect all"
-msgstr ""
+msgstr "Velg ingen"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:50
 msgid "Tutored only"
-msgstr ""
+msgstr "Kun underviste"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:59
 msgid "No user to display"
-msgstr ""
+msgstr "Ingen bruker å vise"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:73
 msgid "No audience to display"
-msgstr ""
+msgstr "Ingen publikum å vise"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:95
 msgid "Select tasks"
-msgstr ""
+msgstr "Velg oppgaver"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:122
 msgid "Select category"
-msgstr ""
+msgstr "Velg kategori"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:149
 msgid "Advanced query"
-msgstr ""
+msgstr "Avansert spørring"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:155
 msgid "Only timeouts and crashes"
-msgstr ""
+msgstr "Kun timeouts og krasj"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:156
 msgid "Show Tags"
-msgstr ""
+msgstr "Vis merkelapper"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:157
 msgid "Show submission id"
-msgstr ""
+msgstr "Vis innleverings-ID"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:158
 msgid "Show task name"
-msgstr ""
+msgstr "Vis oppgavenavn"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:159
 msgid "Show student name"
-msgstr ""
+msgstr "Vis studentnavn"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:173
 msgid "Min grade"
