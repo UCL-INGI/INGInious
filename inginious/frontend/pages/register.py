@@ -99,8 +99,6 @@ class RegistrationPage(INGIniousPage):
                                                 "password": passwd_hash,
                                                 "activate": activate_hash,
                                                 "bindings": {},
-                                                "language": self.user_manager.session_language(),
-                                                "code_indentation": self.user_manager.session_code_indentation(),
                                                 "tos_accepted": True
                                                 })
                 try:

@@ -215,9 +215,11 @@ class UserManager:
         self._session["language"] = language
 
     def set_session_code_indentation(self, code_indentation):
-        self._session["code_indentation"] = code_indentation
+        """ Sets the code indentation of the current user in the session, if one is open."""
+        if self.session_logged_in():
+            self._session["code_indentation"] = code_indentation
 
-    def _set_session(self, user): # pass all data as dict and .get() with fallback values
+    def _set_session(self, user):
         """ Init the session. Preserves potential LTI information. """
         self._session["loggedin"] = True
         self._session["email"] = user["email"]
