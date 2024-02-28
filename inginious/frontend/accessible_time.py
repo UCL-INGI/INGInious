@@ -17,14 +17,14 @@ def parse_date(date, default=None):
             raise Exception("Unknown format for " + date)
 
     if date == "1-01-01 00:00:00":
-        return datetime.min
+        return datetime.min.replace(tzinfo=timezone.utc)
     if date == "9999-12-31 23:59:59":
-        return datetime.max
+        return datetime.max.replace(tzinfo=timezone.utc)
 
     for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H",
                         "%d/%m/%Y"]:
         try:
-            return datetime.strptime(date, format_type)
+            return datetime.strptime(date, format_type).replace(tzinfo=timezone.utc)
         except ValueError:
             pass
     raise Exception("Unknown format for " + date)
@@ -41,8 +41,6 @@ class AccessibleTime(object):
             :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
         """
 
-        #self.utc_datetime_min = datetime.min.replace(tzinfo=timezone.utc)
-        #self.utc_datetime_max = datetime.max.replace(tzinfo=timezone.utc)
 
         if not isinstance(period, dict):
             raise Exception("Wrong period given to AccessibleTime")
@@ -56,10 +54,10 @@ class AccessibleTime(object):
             elif date == "":
                 raise Exception("Empty date given to AccessibleTime")
 
-        self._start = self.adapt_database_date(period["start"]).replace(tzinfo=timezone.utc)
-        self._end = self.adapt_database_date(period["end"]).replace(tzinfo=timezone.utc)
+        self._start = self.adapt_database_date(period["start"])
+        self._end = self.adapt_database_date(period["end"])
         if "soft_end" in period:
-            self._soft_end = self.adapt_database_date(period["soft_end"]).replace(tzinfo=timezone.utc)
+            self._soft_end = self.adapt_database_date(period["soft_end"])
             if self._soft_end > self._end:
                 self._soft_end = self._end
 
@@ -77,11 +75,11 @@ class AccessibleTime(object):
             :param date: datetime object coming from the database
         """
         if date == datetime(1, 1, 1, 0, 0, 0, 000000):
-            return datetime.min
+            return datetime.min.replace(tzinfo=timezone.utc)
         elif date == datetime(9999, 12, 31, 23, 59, 59, 999000):
-            return datetime.max
+            return datetime.max.replace(tzinfo=timezone.utc)
         else:
-            return date
+            return date.replace(tzinfo=timezone.utc)
 
 
     def before_start(self, when=None):
