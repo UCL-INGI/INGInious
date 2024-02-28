@@ -7,22 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-04-04 15:06+0200\n"
+"POT-Creation-Date: 2024-02-28 12:12+0100\n"
 "PO-Revision-Date: 2023-02-11 10:12+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
-"Language-Team: Hebrew <https://weblate.info.ucl.ac.be/projects/inginious/"
-"frontend/he/>\n"
 "Language: he\n"
+"Language-Team: Hebrew "
+"<https://weblate.info.ucl.ac.be/projects/inginious/frontend/he/>\n"
+"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 "
+"&& n % 10 == 0) ? 2 : 3));\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
-"n % 10 == 0) ? 2 : 3));\n"
-"Generated-By: Babel 2.11.0\n"
-
-#: inginious/frontend/courses.py:30
-msgid "List of exercises"
-msgstr "רשימת תרגולים"
+"Generated-By: Babel 2.13.0\n"
 
 #: inginious/frontend/parsable_text.py:37
 msgid "[no content]"
@@ -44,55 +40,76 @@ msgstr ""
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
 msgstr "<b>הפענוח נכשל</b>:‏ <pre>{}</pre>"
 
-#: inginious/frontend/submission_manager.py:420
+#: inginious/frontend/submission_manager.py:91
+msgid ""
+"Maximum submission size exceeded. Check feedback, stdout, stderr and "
+"state."
+msgstr ""
+
+#: inginious/frontend/submission_manager.py:432
 msgid "Feedback is badly formatted."
 msgstr ""
 
-#: inginious/frontend/task_problems.py:75
+#: inginious/frontend/task_problems.py:76
 msgid "code"
 msgstr "קוד"
 
-#: inginious/frontend/task_problems.py:108
+#: inginious/frontend/task_problems.py:109
 msgid "single-line code"
 msgstr "קוד בשורה אחת"
 
-#: inginious/frontend/task_problems.py:134
+#: inginious/frontend/task_problems.py:135
 msgid "file upload"
 msgstr "העלאת קובץ"
 
-#: inginious/frontend/task_problems.py:168
+#: inginious/frontend/task_problems.py:169
 msgid "multiple choice"
 msgstr "שאלון אמריקאי"
 
-#: inginious/frontend/task_problems.py:238
+#: inginious/frontend/task_problems.py:239
 msgid "match"
 msgstr "התאמה"
 
-#: inginious/frontend/tasks.py:86
+#: inginious/frontend/tasks.py:85
 msgid "Environment type {0} is unknown"
 msgstr "סוג הסביבה {} אינו ידוע"
 
-#: inginious/frontend/user_manager.py:436
+#: inginious/frontend/tasksets.py:24
+msgid "List of exercises"
+msgstr "רשימת תרגולים"
+
+#: inginious/frontend/user_manager.py:482
 msgid "Auth method not found."
 msgstr "שיטת האימות לא נמצאה."
 
 #: inginious/frontend/pages/preferences/bindings.py:42
-#: inginious/frontend/user_manager.py:487
+#: inginious/frontend/user_manager.py:533
 msgid "Incorrect authentication binding."
 msgstr "איגוד האימות שגוי."
 
-#: inginious/frontend/user_manager.py:497
+#: inginious/frontend/user_manager.py:543
 msgid "You must set a password before removing all bindings."
 msgstr "עליך להגדיר סיסמה בטרם הסרת כל האיגודים."
 
-#: inginious/frontend/user_manager.py:528
+#: inginious/frontend/user_manager.py:574
 #, fuzzy
 msgid "User could not be created."
 msgstr "נוצר קהל חדש."
 
 #: inginious/frontend/environment_types/docker.py:12
-msgid "Standard container (Docker)"
+#, fuzzy
+msgid "Standard container + SSH"
 msgstr "קונטיינר רגיל (Docker)"
+
+#: inginious/frontend/environment_types/docker.py:12
+#, fuzzy
+msgid "Standard container"
+msgstr "קונטיינר רגיל (Docker)"
+
+#: inginious/frontend/environment_types/kata.py:11
+#, fuzzy
+msgid "Container running as root (Kata) + SSH"
+msgstr "קונטיינר שמופעל כמשתמש על (Kata)"
 
 #: inginious/frontend/environment_types/kata.py:11
 msgid "Container running as root (Kata)"
@@ -103,6 +120,10 @@ msgid "Multiple Choice Question solver"
 msgstr "פותר שאלות אמריקאיות"
 
 #: inginious/frontend/environment_types/nvidia.py:11
+msgid "Container with GPUs (NVIDIA) + SSH"
+msgstr ""
+
+#: inginious/frontend/environment_types/nvidia.py:11
 msgid "Container with GPUs (NVIDIA)"
 msgstr ""
 
@@ -110,7 +131,7 @@ msgstr ""
 msgid "Course not found."
 msgstr "הקורס לא נמצא."
 
-#: inginious/frontend/pages/course_register.py:23
+#: inginious/frontend/pages/course_register.py:24
 msgid "This course doesn't exist."
 msgstr "הקורס הזה לא קיים."
 
@@ -158,43 +179,47 @@ msgstr "שגיאה בפענוח בקשת שילוב כלי הלמידה (LTI)"
 #: inginious/frontend/pages/lti.py:213
 msgid ""
 "In order to send grade back to the TC, INGInious needs the parameters "
-"lis_outcome_service_url and lis_outcome_result_id in the LTI basic-launch-"
-"request. Please contact your administrator."
+"lis_outcome_service_url and lis_outcome_result_id in the LTI basic-"
+"launch-request. Please contact your administrator."
 msgstr ""
 "כדי לשלוח את הציון בחזרה לכלי הלקוח (TC), דרושים ל־INGInious המשתנים "
-"lis_outcome_service_url ו־lis_outcome_result_id ב־basic-launch-request של "
-"שילוב כלי הלמידה (LTI). נא ליצור קשר עם הנהלת המערכת."
+"lis_outcome_service_url ו־lis_outcome_result_id ב־basic-launch-request של"
+" שילוב כלי הלמידה (LTI). נא ליצור קשר עם הנהלת המערכת."
 
 #: inginious/frontend/pages/lti.py:233
 msgid "Couldn't validate LTI request"
 msgstr "לא ניתן לאמת את בקשת שילוב כלי הלמידה (LTI)"
 
-#: inginious/frontend/pages/marketplace.py:32
-msgid "You don't have superadmin rights on this course."
+#: inginious/frontend/pages/marketplace.py:33
+#, fuzzy
+msgid "You don't have superadmin rights on this taskset."
 msgstr "אין לך הרשאות ניהול על לקורס הזה."
 
-#: inginious/frontend/pages/marketplace.py:39
-#: inginious/frontend/pages/marketplace_course.py:33
-#: inginious/frontend/pages/marketplace_course.py:42
+#: inginious/frontend/pages/marketplace.py:40
+#: inginious/frontend/pages/marketplace_taskset.py:33
+#: inginious/frontend/pages/marketplace_taskset.py:42
 msgid "You're not allowed to do that"
 msgstr "אסור לך לעשות את זה"
 
 #: inginious/frontend/pages/course_admin/student_list.py:204
-#: inginious/frontend/pages/marketplace.py:51
+#: inginious/frontend/pages/marketplace.py:52
 msgid "User returned an invalid form."
 msgstr "המשתמש החזיר צורה שגויה."
 
-#: inginious/frontend/pages/marketplace.py:75
-msgid "Couldn't clone course into your instance"
+#: inginious/frontend/pages/marketplace.py:76
+#, fuzzy
+msgid "Couldn't clone taskset into your instance"
 msgstr "לא ניתן לשכפל את הקורס לעותק שלך"
 
-#: inginious/frontend/pages/marketplace.py:96
-msgid "An error occur while editing the course description"
+#: inginious/frontend/pages/marketplace.py:97
+#, fuzzy
+msgid "An error occur while editing the taskset description"
 msgstr "אירעה שגיאה בעת עריכת תיאור הקורס"
 
-#: inginious/frontend/pages/marketplace_course.py:25
-msgid "Course unavailable."
-msgstr "הקורס לא זמין."
+#: inginious/frontend/pages/marketplace_taskset.py:25
+#, fuzzy
+msgid "Taskset unavailable."
+msgstr "המשימה לא זמינה"
 
 #: inginious/frontend/pages/register.py:30
 #: inginious/frontend/pages/register.py:198
@@ -209,7 +234,7 @@ msgstr "גיבוב ההרשמה שגוי."
 msgid "User successfully activated."
 msgstr ""
 
-#: inginious/frontend/pages/preferences/profile.py:29
+#: inginious/frontend/pages/preferences/profile.py:31
 #: inginious/frontend/pages/register.py:70
 msgid "Invalid username format."
 msgstr "תבנית שם המשתמש שגויה."
@@ -219,13 +244,13 @@ msgstr "תבנית שם המשתמש שגויה."
 msgid "Invalid email format."
 msgstr "תבנית הדוא״ל שגויה."
 
-#: inginious/frontend/pages/preferences/profile.py:50
+#: inginious/frontend/pages/preferences/profile.py:52
 #: inginious/frontend/pages/register.py:76
 #: inginious/frontend/pages/register.py:177
 msgid "Password too short."
 msgstr "הסיסמה קצרה מדי."
 
-#: inginious/frontend/pages/preferences/profile.py:54
+#: inginious/frontend/pages/preferences/profile.py:56
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:180
 msgid "Passwords don't match !"
@@ -260,15 +285,17 @@ msgstr ""
 
 #: inginious/frontend/pages/register.py:116
 msgid ""
-"You are succesfully registered. An email has been sent to you for activation."
+"You are succesfully registered. An email has been sent to you for "
+"activation."
 msgstr "נרשמת בהצלחה. נשלחה אליך הודעת הפעלה בדוא״ל."
 
 #: inginious/frontend/pages/register.py:121
 msgid ""
-"Something went wrong while sending you activation email. Please contact the "
-"administrator."
+"Something went wrong while sending you activation email. Please contact "
+"the administrator."
 msgstr ""
-"משהו השתבש במהלך שליחת הודעת ההפעלה שלך בדוא״ל. נא ליצור קשר עם הנהלת המערכת."
+"משהו השתבש במהלך שליחת הודעת ההפעלה שלך בדוא״ל. נא ליצור קשר עם הנהלת "
+"המערכת."
 
 #: inginious/frontend/pages/register.py:146
 msgid "This email address was not found in database."
@@ -282,13 +309,13 @@ msgstr "שחזור סיסמה של INGInious"
 msgid ""
 "Dear {realname},\n"
 "\n"
-"Someone (probably you) asked to reset your INGInious password. If this was "
-"you, please click on the following link :\n"
+"Someone (probably you) asked to reset your INGInious password. If this "
+"was you, please click on the following link :\n"
 msgstr ""
 "לכבוד {realname},\n"
 "\n"
-"גורם כלשהו (כנראה שמדובר בך) ביקש לאפס את הסיסמה שלך ב־INGInious. אם הבקשה "
-"הזאת הגיעה ממך נא ללחוץ על הקישור הבא:\n"
+"גורם כלשהו (כנראה שמדובר בך) ביקש לאפס את הסיסמה שלך ב־INGInious. אם "
+"הבקשה הזאת הגיעה ממך נא ללחוץ על הקישור הבא:\n"
 
 #: inginious/frontend/pages/register.py:161
 msgid "An email has been sent to you to reset your password."
@@ -298,8 +325,7 @@ msgstr "נשלחה אליך הודעה בדוא״ל לאיפוס הסיסמה ש
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
-msgstr ""
-"משהו השתבש במהלך שליחת הודעת האיפוס בדוא״ל. נא ליצור קשר עם הנהלת המערכת."
+msgstr "משהו השתבש במהלך שליחת הודעת האיפוס בדוא״ל. נא ליצור קשר עם הנהלת המערכת."
 
 #: inginious/frontend/pages/register.py:189
 msgid "Invalid reset hash."
@@ -313,142 +339,168 @@ msgstr "הסיסמה שלך הוחלפה בהצלחה."
 msgid "Auth method doesn't exist"
 msgstr "שיטת האימות לא קיימת"
 
-#: inginious/frontend/pages/social.py:39
+#: inginious/frontend/pages/social.py:38
 msgid "Auth method doesn't exist."
 msgstr "שיטת האימות לא קיימת."
 
-#: inginious/frontend/pages/tasks.py:93 inginious/frontend/pages/tasks.py:264
+#: inginious/frontend/pages/tasks.py:96 inginious/frontend/pages/tasks.py:266
 msgid "Submission doesn't exist."
 msgstr "ההגשה לא קיימת."
 
-#: inginious/frontend/pages/tasks.py:176 inginious/frontend/pages/tasks.py:184
-#: inginious/frontend/pages/tasks.py:202 inginious/frontend/pages/tasks.py:224
-#: inginious/frontend/pages/tasks.py:231 inginious/frontend/pages/tasks.py:248
+#: inginious/frontend/pages/tasks.py:178 inginious/frontend/pages/tasks.py:186
+#: inginious/frontend/pages/tasks.py:204 inginious/frontend/pages/tasks.py:226
+#: inginious/frontend/pages/tasks.py:233 inginious/frontend/pages/tasks.py:250
 msgid "Error"
 msgstr "שגיאה"
 
-#: inginious/frontend/pages/tasks.py:176
+#: inginious/frontend/pages/tasks.py:178
 msgid "You are not allowed to submit for this task."
 msgstr "אסור לך להגיש למשימה הזאת."
 
-#: inginious/frontend/pages/tasks.py:184
+#: inginious/frontend/pages/tasks.py:186
 msgid "Your task has been regenerated. This current task is outdated."
 msgstr "המשימה שלך נוצרה מחדש. תוקף המשימה הנוכחית פג."
 
-#: inginious/frontend/pages/tasks.py:203
+#: inginious/frontend/pages/tasks.py:205
 msgid ""
-"Please answer to all the questions and verify the extensions of the files "
-"you want to upload. Your responses were not tested."
+"Please answer to all the questions and verify the extensions of the files"
+" you want to upload. Your responses were not tested."
 msgstr ""
-"נא לענות על כל השאלות ולאמת את סיומות הקבצים המיועדים לשליחה. התשובות שלך לא "
-"נבדקו."
+"נא לענות על כל השאלות ולאמת את סיומות הקבצים המיועדים לשליחה. התשובות שלך"
+" לא נבדקו."
 
-#: inginious/frontend/pages/tasks.py:220 inginious/frontend/pages/tasks.py:329
+#: inginious/frontend/pages/tasks.py:222 inginious/frontend/pages/tasks.py:331
 msgid "<b>Your submission has been sent...</b>"
 msgstr "<b>ההגשה שלך נשלחה…</b>"
 
-#: inginious/frontend/pages/course_admin/task_edit_file.py:209
-#: inginious/frontend/pages/course_admin/task_edit_file.py:230
-#: inginious/frontend/pages/course_admin/task_edit_file.py:234
-#: inginious/frontend/pages/tasks.py:231 inginious/frontend/pages/tasks.py:248
+#: inginious/frontend/pages/tasks.py:233 inginious/frontend/pages/tasks.py:250
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:205
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:226
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:230
 #: inginious/frontend/templates/internalerror.html:5
 #: inginious/frontend/templates/task.html:325
 msgid "Internal error"
 msgstr "שגיאה פנימית"
 
-#: inginious/frontend/pages/tasks.py:298
+#: inginious/frontend/pages/tasks.py:300
 msgid "<b>INGInious is currently grading your answers.</b> (almost done)"
 msgstr "<b>INGInious מדרג כעת את התשובות שלך.</b> (התהליך כמעט הסתיים)"
 
-#: inginious/frontend/pages/tasks.py:300
+#: inginious/frontend/pages/tasks.py:302
 msgid ""
-"<b>INGInious is currently grading your answers.</b> (Approx. wait time: {} "
-"seconds)"
-msgstr ""
-"<b>INGInious מדרג כעת את התשובות שלך.</b> (זמן המתנה המשוערך: {} שניות)"
+"<b>INGInious is currently grading your answers.</b> (Approx. wait time: "
+"{} seconds)"
+msgstr "<b>INGInious מדרג כעת את התשובות שלך.</b> (זמן המתנה המשוערך: {} שניות)"
 
-#: inginious/frontend/pages/tasks.py:303
+#: inginious/frontend/pages/tasks.py:305
 msgid "<b>You are next in the waiting queue!</b>"
 msgstr "<b>תורך הוא הבא ברשימת ההמתנה!</b>"
 
-#: inginious/frontend/pages/tasks.py:305
+#: inginious/frontend/pages/tasks.py:307
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
 msgstr "<b>יש משימה נוספת לפניך בתור ההמתנה.</b>"
 
-#: inginious/frontend/pages/tasks.py:307
+#: inginious/frontend/pages/tasks.py:309
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
 msgstr "<b>ישנן {} לפניך בתור ההמתנה.</b>"
 
-#: inginious/frontend/pages/tasks.py:331
+#: inginious/frontend/pages/tasks.py:333
 msgid "There are some errors in your answer. Your score is {score}%."
 msgstr "יש שגיאות כלשהן בתשובה שלך. הניקוד שלך הוא {score}%."
 
-#: inginious/frontend/pages/tasks.py:333
+#: inginious/frontend/pages/tasks.py:335
 msgid "Your answer passed the tests! Your score is {score}%."
 msgstr "התשובה שלך עברה את הבדיקות! הניקוד שלך הוא {score}%."
 
-#: inginious/frontend/pages/tasks.py:335
+#: inginious/frontend/pages/tasks.py:337
 msgid "Your submission timed out. Your score is {score}%."
 msgstr "תם הזמן המוקצב להגשה שלך. הניקוד שלך הוא {score}%."
 
-#: inginious/frontend/pages/tasks.py:337
+#: inginious/frontend/pages/tasks.py:339
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr "ההגשה שלך גרמה להצפה. הניקוד שלך הוא {score}%."
 
-#: inginious/frontend/pages/tasks.py:339
+#: inginious/frontend/pages/tasks.py:341
 msgid "Your submission was killed."
 msgstr "ההגשה שלך נקטעה."
 
-#: inginious/frontend/pages/tasks.py:341
+#: inginious/frontend/pages/tasks.py:343
 msgid ""
-"An internal error occurred. Please retry later. If the error persists, send "
-"an email to the course administrator."
+"An internal error occurred. Please retry later. If the error persists, "
+"send an email to the course administrator."
 msgstr ""
-"אירעה שגיאה פנימית. נא לנסות שוב מאוחר יותר. אם השגיאה נשנית, יש לשלוח דוא״ל "
-"להנהלת הקורס."
+"אירעה שגיאה פנימית. נא לנסות שוב מאוחר יותר. אם השגיאה נשנית, יש לשלוח "
+"דוא״ל להנהלת הקורס."
 
-#: inginious/frontend/pages/tasks.py:344
+#: inginious/frontend/pages/tasks.py:346
 #, fuzzy
 msgid "[Submission #{submissionid} (<b>{submissionDate}</b>)]"
 msgstr "[הגשה מס׳ {submissionid}]"
 
-#: inginious/frontend/pages/tasks.py:379 inginious/frontend/pages/tasks.py:381
+#: inginious/frontend/pages/tasks.py:381 inginious/frontend/pages/tasks.py:383
 msgid " <truncated>"
 msgstr " <מקוצר>"
 
-#: inginious/frontend/pages/utils.py:192
+#: inginious/frontend/pages/tasksets.py:45
+msgid "Course with id {} successfully instantiated from taskset {}"
+msgstr ""
+
+#: inginious/frontend/pages/tasksets.py:48
+#, fuzzy
+msgid "You are not allowed to instantiate a course from this taskset."
+msgstr "אסור לך להגיש למשימה הזאת."
+
+#: inginious/frontend/pages/tasksets.py:51
+msgid "A course with id {} already exists."
+msgstr ""
+
+#: inginious/frontend/pages/tasksets.py:54
+msgid "Couldn't instantiate course with id {} : "
+msgstr ""
+
+#: inginious/frontend/pages/tasksets.py:61
+#, fuzzy
+msgid "Taskset created."
+msgstr "נוצר קורס."
+
+#: inginious/frontend/pages/tasksets.py:64
+#, fuzzy
+msgid "Failed to create the taskset."
+msgstr "יצירת הקורס נכשלה."
+
+#: inginious/frontend/pages/utils.py:197
 msgid ""
 "An account using this email already exists and is not bound with this "
 "service. For security reasons, please log in via another method and bind "
 "your account in your profile."
 msgstr ""
-"כבר קיים חשבון שמשתמש בכתובת הדוא״ל הזו והוא אינו מאוגד לשירות. מטעמי אבטחה, "
-"נא להיכנס בשיטה אחרת ולאגד את החשבון דרך הפרופיל שלך."
+"כבר קיים חשבון שמשתמש בכתובת הדוא״ל הזו והוא אינו מאוגד לשירות. מטעמי "
+"אבטחה, נא להיכנס בשיטה אחרת ולאגד את החשבון דרך הפרופיל שלך."
 
-#: inginious/frontend/pages/utils.py:195
+#: inginious/frontend/pages/utils.py:200
 msgid ""
-"Couldn't fetch the required information from the service. Please check the "
-"provided permissions (name, email) and contact your INGInious administrator "
-"if the error persists."
+"Couldn't fetch the required information from the service. Please check "
+"the provided permissions (name, email) and contact your INGInious "
+"administrator if the error persists."
 msgstr ""
-"לא ניתן למשוך את המידע הנחוץ מהשירות. נא לבדוק את ההרשאות שסופקו (שם, דוא״ל) "
-"וליצור קשר עם ההנהלה של ה־INGInious הזה אם השגיאה חוזרת על עצמה."
+"לא ניתן למשוך את המידע הנחוץ מהשירות. נא לבדוק את ההרשאות שסופקו (שם, "
+"דוא״ל) וליצור קשר עם ההנהלה של ה־INGInious הזה אם השגיאה חוזרת על עצמה."
 
-#: inginious/frontend/pages/utils.py:221
+#: inginious/frontend/pages/utils.py:226
 msgid "Invalid login/password"
 msgstr "שם משתמש/סיסמה שגויים"
 
-#: inginious/frontend/pages/utils.py:249
+#: inginious/frontend/pages/utils.py:254
 #: inginious/frontend/templates/forbidden.html:5
 #: inginious/frontend/templates/forbidden.html:9
 msgid "Forbidden"
 msgstr "אסור"
 
-#: inginious/frontend/pages/utils.py:263
+#: inginious/frontend/pages/utils.py:268
 msgid "You have not sufficient right to see this part."
 msgstr ""
 
-#: inginious/frontend/pages/utils.py:312
+#: inginious/frontend/pages/utils.py:317
 msgid "File doesn't exist."
 msgstr "הקובץ לא קיים."
 
@@ -489,6 +541,7 @@ msgid "This file doesn't exist."
 msgstr "קובץ זה לא קיים."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:164
+#: inginious/frontend/pages/taskset_admin/danger_zone.py:50
 msgid "Operation aborted due to invalid token."
 msgstr "המשימה בוטלה עקב אסימון שגוי."
 
@@ -517,49 +570,50 @@ msgstr "אירעה שגיאה במהלך שחזור הגיבוי: {}"
 msgid "An error occurred while deleting the course data: {}"
 msgstr "אירעה שגיאה במהלך מחיקת נתוני הקורס: {}"
 
-#: inginious/frontend/pages/course_admin/settings.py:34
+#: inginious/frontend/pages/course_admin/settings.py:35
+#: inginious/frontend/pages/taskset_admin/settings.py:48
 msgid "Invalid name"
 msgstr "שם שגוי"
 
-#: inginious/frontend/pages/course_admin/settings.py:38
+#: inginious/frontend/pages/course_admin/settings.py:39
 msgid "You cannot remove yourself from the administrators of this course"
 msgstr "אסור לך להסיר את עצמך מהנהלת הקורס הזה"
 
-#: inginious/frontend/pages/course_admin/settings.py:55
+#: inginious/frontend/pages/course_admin/settings.py:56
 msgid "Invalid accessibility dates"
 msgstr "תאריכי נגישות שגויים"
 
-#: inginious/frontend/pages/course_admin/settings.py:70
+#: inginious/frontend/pages/course_admin/settings.py:74
 msgid "Invalid registration dates"
 msgstr "תאריכי רישום שגויים"
 
-#: inginious/frontend/pages/course_admin/settings.py:78
+#: inginious/frontend/pages/course_admin/settings.py:82
 msgid "Invalid ACL value"
 msgstr "ערך בקרת גישה שגוי"
 
-#: inginious/frontend/pages/course_admin/settings.py:92
+#: inginious/frontend/pages/course_admin/settings.py:96
 msgid "LTI keys must be alphanumerical."
 msgstr "מפתחות כלי שילוב למידה (LTI) חייבים להיות אלפנומריים."
 
-#: inginious/frontend/pages/course_admin/settings.py:129
+#: inginious/frontend/pages/course_admin/settings.py:133
 msgid "Some tag fields were missing."
 msgstr "חלק משדות התגית חסרים."
 
-#: inginious/frontend/pages/course_admin/settings.py:132
+#: inginious/frontend/pages/course_admin/settings.py:136
 msgid "Invalid tag id: {}"
 msgstr "מזהה תגית שגוי: {}"
 
-#: inginious/frontend/pages/course_admin/settings.py:151
+#: inginious/frontend/pages/course_admin/settings.py:155
 #, fuzzy
 msgid "Invalid type value: {}"
 msgstr "סוג קובץ שגוי: {}"
 
-#: inginious/frontend/pages/course_admin/settings.py:153
+#: inginious/frontend/pages/course_admin/settings.py:157
 #, fuzzy
 msgid "Invalid id: {}"
 msgstr "מזהה תגית שגוי: {}"
 
-#: inginious/frontend/pages/course_admin/settings.py:167
+#: inginious/frontend/pages/course_admin/settings.py:171
 #, fuzzy
 msgid "Some datas have the same id! The id must be unique."
 msgstr "לחלק מהתגיות יש את אותו המזהה! מזהה תגית חייב להיות ייחודי."
@@ -634,7 +688,7 @@ msgid "The following submission could not be prepared for download: {}"
 msgstr "לא ניתן להכין את ההגשה הבאה להורדה: {}"
 
 #: inginious/frontend/pages/course_admin/submissions.py:67
-#: inginious/frontend/pages/course_admin/utils.py:43
+#: inginious/frontend/pages/course_admin/utils.py:38
 msgid "You don't have admin rights on this course."
 msgstr "אין לך הרשאות לניהול הקורס הזה."
 
@@ -646,153 +700,79 @@ msgstr "{0} הגשות נבחרות הוגדרה להפעלה מחדש."
 msgid "The submission doesn't exist."
 msgstr "ההגשה לא קיימת."
 
-#: inginious/frontend/pages/course_admin/task_edit.py:34
-#: inginious/frontend/pages/course_admin/task_edit_file.py:24
-#: inginious/frontend/pages/course_admin/task_edit_file.py:45
-#: inginious/frontend/pages/course_admin/task_edit_file.py:264
-msgid "Invalid task id"
-msgstr "מזהה תהליך שגוי"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:87
-msgid "Invalid course/task id"
-msgstr "מזהה קורס/משימה שגוי"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:117
-msgid "Invalid file type: {}"
-msgstr "סוג קובץ שגוי: {}"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:135
-msgid "The number of random inputs must be an integer!"
-msgstr ""
-
-#: inginious/frontend/pages/course_admin/task_edit.py:137
-#, fuzzy
-msgid "The number of random inputs must be positive!"
-msgstr "מספר ההגשות המאוחסנות חייב להיות חיובי!"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:146
-msgid "Your browser returned an invalid form ({})"
-msgstr "הדפדפן שלך החזיר צורה שגויה ({})"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:152
-msgid "Error while reading course's informations"
-msgstr "שגיאה בקריאת פרטי הקורס"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:176
-msgid "Invalid data: {}"
-msgstr "נתונים שגויים: {}"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:182
-msgid "Cannot read zip file. Files were not modified"
-msgstr "לא ניתן לקרוא קובץ zip. הקבצים לא השתנו"
-
-#: inginious/frontend/pages/course_admin/task_edit.py:189
-msgid ""
-"There was a problem while extracting the zip archive. Some files may have "
-"been modified"
-msgstr "אירעה שגיאה בחילוץ ארכיון ה־zip. אולי חלק מהקבצים השתנו"
-
-#: inginious/frontend/pages/course_admin/task_edit_file.py:168
-#: inginious/frontend/pages/course_admin/task_edit_file.py:188
-#: inginious/frontend/pages/course_admin/task_edit_file.py:213
-msgid "Invalid new path"
-msgstr "נתיב חדש שגוי"
-
-#: inginious/frontend/pages/course_admin/task_edit_file.py:174
-msgid "An error occurred while writing the file"
-msgstr "אירעה שגיאה בכתיבת הקובץ"
-
-#: inginious/frontend/pages/course_admin/task_edit_file.py:219
-msgid "An error occurred while moving the files"
-msgstr "אירעה שגיאה בהעברת הקבצים"
-
-#: inginious/frontend/pages/course_admin/task_edit_file.py:240
-msgid "An error occurred while deleting the files"
-msgstr "אירעה שגיאה במחיקת הקבצים"
-
-#: inginious/frontend/pages/course_admin/task_edit_file.py:247
-msgid "This path doesn't exist."
-msgstr "הנתיב הזה לא קיים."
-
 #: inginious/frontend/pages/course_admin/task_list.py:36
+#: inginious/frontend/pages/taskset_admin/template.py:37
 msgid "Invalid task dispenser"
 msgstr "מנפק משימות שגוי"
 
-#: inginious/frontend/pages/course_admin/task_list.py:45
-msgid "Invalid course structure: "
-msgstr "מבנה קורס שגוי: "
-
-#: inginious/frontend/pages/course_admin/task_list.py:47
+#: inginious/frontend/pages/course_admin/task_list.py:46
+#: inginious/frontend/pages/course_admin/task_list.py:51
+#: inginious/frontend/pages/taskset_admin/template.py:47
+#: inginious/frontend/pages/taskset_admin/template.py:52
+#: inginious/frontend/pages/taskset_admin/template.py:57
 msgid "Something wrong happened: "
 msgstr "משהו השתבש: "
 
-#: inginious/frontend/pages/course_admin/task_list.py:54
-msgid "Couldn't create task {} : "
-msgstr "לא ניתן ליצור משימה {}: "
-
-#: inginious/frontend/pages/course_admin/task_list.py:59
-msgid "Couldn't delete task {} : "
-msgstr "לא ניתן למחוק משימה {}: "
-
-#: inginious/frontend/pages/course_admin/task_list.py:64
+#: inginious/frontend/pages/course_admin/task_list.py:57
 msgid "Couldn't wipe task {} : "
 msgstr "לא ניתן לנפות משימה {}: "
 
-#: inginious/frontend/pages/course_admin/utils.py:40
-msgid "You don't have staff rights on this course."
-msgstr "אין לך הרשאות סגל לקורס הזה."
+#: inginious/frontend/pages/course_admin/task_list.py:72
+msgid "Invalid course structure: "
+msgstr "מבנה קורס שגוי: "
 
-#: inginious/frontend/pages/course_admin/utils.py:50
+#: inginious/frontend/pages/course_admin/utils.py:45
 msgid "This course is unreachable"
 msgstr "קורס זה אינו נגיש"
 
-#: inginious/frontend/pages/course_admin/utils.py:144
+#: inginious/frontend/pages/course_admin/utils.py:139
 msgid "List not valid."
 msgstr "הרשימה לא תקנית."
 
-#: inginious/frontend/pages/course_admin/utils.py:343
-#: inginious/frontend/templates/course_admin/settings.html:18
-#: inginious/frontend/templates/course_admin/settings.html:25
-#: inginious/frontend/templates/course_user_settings.html:47
-#: inginious/frontend/templates/course_user_settings.html:57
+#: inginious/frontend/pages/course_admin/utils.py:338
+#: inginious/frontend/templates/course_admin/settings.html:19
+#: inginious/frontend/templates/course_admin/settings.html:26
 msgid "Course settings"
 msgstr "הגדרות קורס"
 
-#: inginious/frontend/pages/course_admin/utils.py:345
-#: inginious/frontend/templates/course_admin/stats.html:27
-#: inginious/frontend/templates/course_admin/stats.html:35
+#: inginious/frontend/pages/course_admin/utils.py:340
+#: inginious/frontend/templates/course_admin/stats.html:28
+#: inginious/frontend/templates/course_admin/stats.html:36
 #: inginious/frontend/templates/course_admin/submissions_query.html:211
 msgid "Statistics"
 msgstr "סטטיסטיקה"
 
-#: inginious/frontend/pages/course_admin/utils.py:346
-#: inginious/frontend/templates/course_admin/student_list.html:20
-#: inginious/frontend/templates/course_admin/student_list.html:28
+#: inginious/frontend/pages/course_admin/utils.py:341
+#: inginious/frontend/templates/course_admin/student_list.html:21
+#: inginious/frontend/templates/course_admin/student_list.html:29
 msgid "User management"
 msgstr "ניהול משתמשים"
 
-#: inginious/frontend/pages/course_admin/utils.py:349
-#: inginious/frontend/templates/course_admin/stats.html:49
-#: inginious/frontend/templates/course_admin/stats.html:248
-#: inginious/frontend/templates/course_admin/task_edit.html:19
-#: inginious/frontend/templates/course_admin/task_list.html:19
-#: inginious/frontend/templates/course_admin/task_list.html:25
+#: inginious/frontend/pages/course_admin/utils.py:344
+#: inginious/frontend/templates/course_admin/stats.html:50
+#: inginious/frontend/templates/course_admin/stats.html:249
+#: inginious/frontend/templates/course_admin/task_list.html:20
+#: inginious/frontend/templates/course_admin/task_list.html:26
 msgid "Tasks"
 msgstr "משימות"
 
-#: inginious/frontend/pages/course_admin/utils.py:351
-#: inginious/frontend/templates/course_admin/stats.html:43
-#: inginious/frontend/templates/course_admin/stats.html:168
+#: inginious/frontend/pages/course_admin/utils.py:346
+#: inginious/frontend/templates/course_admin/stats.html:44
+#: inginious/frontend/templates/course_admin/stats.html:169
 #: inginious/frontend/templates/course_admin/submissions.html:6
-#: inginious/frontend/templates/course_admin/submissions.html:18
-#: inginious/frontend/templates/course_admin/submissions.html:26
+#: inginious/frontend/templates/course_admin/submissions.html:19
+#: inginious/frontend/templates/course_admin/submissions.html:27
 msgid "Submissions"
 msgstr "הגשות"
 
-#: inginious/frontend/pages/course_admin/utils.py:354
+#: inginious/frontend/pages/course_admin/utils.py:349
+#: inginious/frontend/pages/taskset_admin/utils.py:63
 #: inginious/frontend/templates/course_admin/danger_zone.html:6
-#: inginious/frontend/templates/course_admin/danger_zone.html:18
-#: inginious/frontend/templates/course_admin/danger_zone.html:24
+#: inginious/frontend/templates/course_admin/danger_zone.html:19
+#: inginious/frontend/templates/course_admin/danger_zone.html:25
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:6
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:19
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:25
 msgid "Danger zone"
 msgstr "אזור סכנה"
 
@@ -812,33 +792,33 @@ msgstr "המשתמש לא זמין או שאסור למחוק."
 msgid "User unavailable or deletion forbidden."
 msgstr "משתמש לא זמין או שאסור למחוק."
 
-#: inginious/frontend/pages/preferences/profile.py:33
+#: inginious/frontend/pages/preferences/profile.py:35
 msgid "Username already taken"
 msgstr "שם המשתמש כבר תפוס"
 
-#: inginious/frontend/pages/preferences/profile.py:41
+#: inginious/frontend/pages/preferences/profile.py:43
 msgid "Incorrect email."
 msgstr "כתובת דוא״ל שגויה."
 
-#: inginious/frontend/pages/preferences/profile.py:69
+#: inginious/frontend/pages/preferences/profile.py:67
 msgid "Incorrect old password."
 msgstr "סיסמה ישנה שגויה."
 
-#: inginious/frontend/pages/preferences/profile.py:80
-#: inginious/frontend/pages/preferences/profile.py:92
+#: inginious/frontend/pages/preferences/profile.py:83
+#: inginious/frontend/pages/preferences/profile.py:95
 msgid "Incorrect username."
 msgstr "שם משתמש שגוי."
 
-#: inginious/frontend/pages/preferences/profile.py:98
+#: inginious/frontend/pages/preferences/profile.py:101
 msgid "Name is too short."
 msgstr "השם קצר מדי."
 
-#: inginious/frontend/pages/preferences/profile.py:101
+#: inginious/frontend/pages/preferences/profile.py:104
 msgid "Profile updated."
 msgstr "הפרופיל עודכן."
 
-#: inginious/frontend/pages/preferences/profile.py:115
-#: inginious/frontend/pages/preferences/profile.py:125
+#: inginious/frontend/pages/preferences/profile.py:118
+#: inginious/frontend/pages/preferences/profile.py:128
 msgid "User unavailable."
 msgstr "המשתמש לא זמין."
 
@@ -866,13 +846,141 @@ msgstr "איגודי אימות"
 msgid "Delete my account"
 msgstr "מחיקת החשבון שלי"
 
+#: inginious/frontend/pages/taskset_admin/danger_zone.py:54
+#, fuzzy
+msgid "Wrong taskset id."
+msgstr "מזהה קורס שגוי."
+
+#: inginious/frontend/pages/taskset_admin/danger_zone.py:59
+msgid "One or more course(s) rely on the current taskset."
+msgstr ""
+
+#: inginious/frontend/pages/taskset_admin/danger_zone.py:63
+#, fuzzy
+msgid "An error occurred while deleting the taskset data: {}"
+msgstr "אירעה שגיאה במהלך מחיקת נתוני הקורס: {}"
+
+#: inginious/frontend/pages/taskset_admin/settings.py:33
+#, fuzzy
+msgid "Invalid taskid : {}"
+msgstr "מזהה תגית שגוי: {}"
+
+#: inginious/frontend/pages/taskset_admin/settings.py:42
+msgid "Couldn't create task {} : "
+msgstr "לא ניתן ליצור משימה {}: "
+
+#: inginious/frontend/pages/taskset_admin/settings.py:53
+#, fuzzy
+msgid "You cannot remove yourself from the administrators of this taskset"
+msgstr "אסור לך להסיר את עצמך מהנהלת הקורס הזה"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:34
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:24
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:45
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:260
+msgid "Invalid task id"
+msgstr "מזהה תהליך שגוי"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:87
+#, fuzzy
+msgid "Invalid taskset/task id"
+msgstr "מזהה קורס/משימה שגוי"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:117
+msgid "Invalid file type: {}"
+msgstr "סוג קובץ שגוי: {}"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:135
+msgid "The number of random inputs must be an integer!"
+msgstr ""
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:137
+#, fuzzy
+msgid "The number of random inputs must be positive!"
+msgstr "מספר ההגשות המאוחסנות חייב להיות חיובי!"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:148
+msgid "Your browser returned an invalid form ({})"
+msgstr "הדפדפן שלך החזיר צורה שגויה ({})"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:154
+#, fuzzy
+msgid "Error while reading taskset data"
+msgstr "שגיאה בקריאת פרטי הקורס"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:178
+msgid "Invalid data: {}"
+msgstr "נתונים שגויים: {}"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:184
+msgid "Cannot read zip file. Files were not modified"
+msgstr "לא ניתן לקרוא קובץ zip. הקבצים לא השתנו"
+
+#: inginious/frontend/pages/taskset_admin/task_edit.py:191
+msgid ""
+"There was a problem while extracting the zip archive. Some files may have"
+" been modified"
+msgstr "אירעה שגיאה בחילוץ ארכיון ה־zip. אולי חלק מהקבצים השתנו"
+
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:164
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:184
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:209
+msgid "Invalid new path"
+msgstr "נתיב חדש שגוי"
+
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:170
+msgid "An error occurred while writing the file"
+msgstr "אירעה שגיאה בכתיבת הקובץ"
+
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:215
+msgid "An error occurred while moving the files"
+msgstr "אירעה שגיאה בהעברת הקבצים"
+
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:236
+msgid "An error occurred while deleting the files"
+msgstr "אירעה שגיאה במחיקת הקבצים"
+
+#: inginious/frontend/pages/taskset_admin/task_edit_file.py:243
+msgid "This path doesn't exist."
+msgstr "הנתיב הזה לא קיים."
+
+#: inginious/frontend/pages/taskset_admin/template.py:72
+#, fuzzy
+msgid "Invalid taskset structure: "
+msgstr "מבנה קורס שגוי: "
+
+#: inginious/frontend/pages/taskset_admin/utils.py:34
+#, fuzzy
+msgid "You don't have admin rights on this taskset."
+msgstr "אין לך הרשאות לניהול הקורס הזה."
+
+#: inginious/frontend/pages/taskset_admin/utils.py:43
+#, fuzzy
+msgid "This taskset is unreachable"
+msgstr "קורס זה אינו נגיש"
+
+#: inginious/frontend/pages/taskset_admin/utils.py:61
+#: inginious/frontend/templates/course_admin/settings.html:6
+#: inginious/frontend/templates/taskset_admin/settings.html:6
+#: inginious/frontend/templates/taskset_admin/settings.html:49
+msgid "Settings"
+msgstr "הגדרות"
+
+#: inginious/frontend/pages/taskset_admin/utils.py:62
+#: inginious/frontend/templates/taskset_admin/template.html:20
+#: inginious/frontend/templates/taskset_admin/template.html:26
+#, fuzzy
+msgid "Course template"
+msgstr "נוצר קורס."
+
 #: inginious/frontend/plugins/auth/custom_auth_form.html:6
 msgid "Login"
 msgstr "כניסה"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:25
-#: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:26
-#: inginious/frontend/templates/course_admin/task_dispensers/util_task_edit_modal.html:22
+#: inginious/frontend/templates/task_dispensers_admin/util.html:67
+#: inginious/frontend/templates/task_dispensers_admin/util_task_edit_modal.html:22
+#: inginious/frontend/templates/taskset_admin/edit_tabs/file_modals.html:26
 msgid "Close"
 msgstr "סגירה"
 
@@ -882,20 +990,20 @@ msgstr "האימות נכשל"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:31
 #: inginious/frontend/templates/auth.html:21
-#: inginious/frontend/templates/course_admin/task_list.html:78
+#: inginious/frontend/templates/taskset_admin/settings.html:102
 msgid "Username"
 msgstr "שם משתמש"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:34
 #: inginious/frontend/templates/auth.html:24
-#: inginious/frontend/templates/course_admin/task_list.html:79
 #: inginious/frontend/templates/course_register.html:29
+#: inginious/frontend/templates/taskset_admin/settings.html:103
 msgid "Password"
 msgstr "סיסמה"
 
 #: inginious/frontend/plugins/auth/custom_auth_form.html:36
 #: inginious/frontend/templates/auth.html:26
-#: inginious/frontend/templates/layout.html:179
+#: inginious/frontend/templates/layout.html:180
 #: inginious/frontend/templates/signin_button.html:4
 #: inginious/frontend/templates/signin_button.html:11
 msgid "Sign in"
@@ -937,28 +1045,32 @@ msgstr "משימות קרובות"
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:11
 #: inginious/frontend/templates/admin/admin_users.html:13
 #: inginious/frontend/templates/course.html:103
-#: inginious/frontend/templates/course_admin/audience_edit.html:20
-#: inginious/frontend/templates/course_admin/danger_zone.html:18
-#: inginious/frontend/templates/course_admin/settings.html:18
-#: inginious/frontend/templates/course_admin/stats.html:27
-#: inginious/frontend/templates/course_admin/student_info.html:23
-#: inginious/frontend/templates/course_admin/student_list.html:20
-#: inginious/frontend/templates/course_admin/submission.html:32
-#: inginious/frontend/templates/course_admin/submissions.html:18
-#: inginious/frontend/templates/course_admin/task_edit.html:21
-#: inginious/frontend/templates/course_admin/task_list.html:19
+#: inginious/frontend/templates/course_admin/audience_edit.html:21
+#: inginious/frontend/templates/course_admin/danger_zone.html:19
+#: inginious/frontend/templates/course_admin/settings.html:19
+#: inginious/frontend/templates/course_admin/stats.html:28
+#: inginious/frontend/templates/course_admin/student_info.html:24
+#: inginious/frontend/templates/course_admin/student_list.html:21
+#: inginious/frontend/templates/course_admin/submission.html:33
+#: inginious/frontend/templates/course_admin/submissions.html:19
+#: inginious/frontend/templates/course_admin/task_list.html:20
 #: inginious/frontend/templates/course_register.html:10
 #: inginious/frontend/templates/course_user_settings.html:46
-#: inginious/frontend/templates/courselist.html:27
+#: inginious/frontend/templates/courselist.html:21
 #: inginious/frontend/templates/group.html:61
 #: inginious/frontend/templates/marketplace.html:26
-#: inginious/frontend/templates/marketplace_course.html:47
+#: inginious/frontend/templates/marketplace_taskset.html:47
 #: inginious/frontend/templates/mycourses.html:11
 #: inginious/frontend/templates/preferences/bindings.html:17
 #: inginious/frontend/templates/preferences/delete.html:18
 #: inginious/frontend/templates/preferences/profile.html:17
 #: inginious/frontend/templates/queue.html:11
 #: inginious/frontend/templates/task.html:266
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:19
+#: inginious/frontend/templates/taskset_admin/settings.html:19
+#: inginious/frontend/templates/taskset_admin/task_edit.html:20
+#: inginious/frontend/templates/taskset_admin/template.html:20
+#: inginious/frontend/templates/tasksets.html:11
 msgid "(current)"
 msgstr "(נוכחי)"
 
@@ -968,10 +1080,11 @@ msgstr "משימות קרובות"
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:20
 msgid ""
-"This page lists the coming tasks ordered on deadlines for courses you are "
-"registered in."
+"This page lists the coming tasks ordered on deadlines for courses you are"
+" registered in."
 msgstr ""
-"העמוד זה מציג את המשימות שעומדות לקרות לפי מועדי ההגשה לקורסים אליהם נרשמת."
+"העמוד זה מציג את המשימות שעומדות לקרות לפי מועדי ההגשה לקורסים אליהם "
+"נרשמת."
 
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:25
 #: inginious/frontend/templates/course.html:101
@@ -979,11 +1092,10 @@ msgstr ""
 #: inginious/frontend/templates/course_unavailable.html:9
 #: inginious/frontend/templates/course_user_settings.html:44
 #: inginious/frontend/templates/courselist.html:5
-#: inginious/frontend/templates/courselist.html:26
-#: inginious/frontend/templates/courselist.html:33
+#: inginious/frontend/templates/courselist.html:20
+#: inginious/frontend/templates/courselist.html:27
 #: inginious/frontend/templates/layout.html:149
-#: inginious/frontend/templates/layout.html:170
-#: inginious/frontend/templates/mycourses.html:25
+#: inginious/frontend/templates/layout.html:171
 #: inginious/frontend/templates/task.html:263
 msgid "Course list"
 msgstr "רשימת קורסים"
@@ -991,137 +1103,155 @@ msgstr "רשימת קורסים"
 #: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:29
 #: inginious/frontend/templates/course.html:21
 #: inginious/frontend/templates/group.html:19
-#: inginious/frontend/templates/mycourses.html:29
+#: inginious/frontend/templates/mycourses.html:23
 msgid "Last tried exercises"
 msgstr "התרגולים האחרונים שניסית"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:48
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:51
 #: inginious/frontend/templates/course.html:40
 #: inginious/frontend/templates/group.html:39
-#: inginious/frontend/templates/mycourses.html:48
+#: inginious/frontend/templates/mycourses.html:45
 msgid "No submissions"
 msgstr "אין הגשות"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:56
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:59
 msgid "My Upcoming Tasks"
 msgstr "המשימות הקרובות שלי"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:60
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:63
 msgid "Switch time planner"
 msgstr "החלפת מתכנן זמנים"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:71
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:74
 msgid "Modify time planner"
 msgstr "שינוי מתכנן זמנים"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:77
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:80
 msgid ""
 "This allows to display only the tasks whose deadline is in a certain "
 "temporal proximity."
 msgstr "מאפשר להציג רק את המשימות שמועדי ההגשה שלהן הוא בחלון זמן מסוים."
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:78
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:81
 msgid "Number of days:"
 msgstr "מספק הימים:"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:86
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:89
 #: inginious/frontend/templates/admin/admin_users.html:111
 #: inginious/frontend/templates/admin/admin_users.html:131
 #: inginious/frontend/templates/admin/admin_users.html:167
 #: inginious/frontend/templates/admin/admin_users.html:187
-#: inginious/frontend/templates/course_admin/audience_edit.html:62
-#: inginious/frontend/templates/course_admin/danger_zone.html:85
-#: inginious/frontend/templates/course_admin/danger_zone.html:166
-#: inginious/frontend/templates/course_admin/student_info.html:106
-#: inginious/frontend/templates/course_admin/student_list.html:275
+#: inginious/frontend/templates/course_admin/audience_edit.html:63
+#: inginious/frontend/templates/course_admin/danger_zone.html:86
+#: inginious/frontend/templates/course_admin/danger_zone.html:167
+#: inginious/frontend/templates/course_admin/student_info.html:107
+#: inginious/frontend/templates/course_admin/student_list.html:276
 #: inginious/frontend/templates/course_admin/student_list_table.html:86
-#: inginious/frontend/templates/course_admin/submissions.html:249
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:27
-#: inginious/frontend/templates/course_admin/task_list.html:56
-#: inginious/frontend/templates/course_admin/task_list.html:108
+#: inginious/frontend/templates/course_admin/submissions.html:252
+#: inginious/frontend/templates/course_admin/task_list.html:57
+#: inginious/frontend/templates/course_admin/task_list.html:100
 #: inginious/frontend/templates/lti_bind.html:32
 #: inginious/frontend/templates/preferences/delete.html:59
 #: inginious/frontend/templates/queue.html:112
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:29
+#: inginious/frontend/templates/task_dispensers_admin/util_move_modal.html:17
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:71
+#: inginious/frontend/templates/taskset_admin/settings.html:151
+#: inginious/frontend/templates/taskset_admin/settings.html:177
+#: inginious/frontend/templates/taskset_admin/template.html:57
+#: inginious/frontend/templates/taskset_admin/template.html:101
+#: inginious/frontend/templates/tasksets.html:95
 #: inginious/frontend/templates/unregister_modal.html:19
 msgid "Cancel"
 msgstr "ביטול"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:87
-#: inginious/frontend/templates/course_admin/settings.html:486
-#: inginious/frontend/templates/course_admin/task_edit.html:10
-#: inginious/frontend/templates/course_admin/task_edit.html:31
-#: inginious/frontend/templates/course_admin/task_edit.html:97
-#: inginious/frontend/templates/course_admin/task_list.html:57
-#: inginious/frontend/templates/course_admin/task_list.html:113
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:90
+#: inginious/frontend/templates/course_admin/settings.html:481
+#: inginious/frontend/templates/course_admin/task_list.html:58
+#: inginious/frontend/templates/course_admin/task_list.html:105
+#: inginious/frontend/templates/taskset_admin/settings.html:51
+#: inginious/frontend/templates/taskset_admin/task_edit.html:10
+#: inginious/frontend/templates/taskset_admin/task_edit.html:30
+#: inginious/frontend/templates/taskset_admin/task_edit.html:95
+#: inginious/frontend/templates/taskset_admin/template.html:58
+#: inginious/frontend/templates/taskset_admin/template.html:106
 msgid "Save changes"
 msgstr "שמירת השינויים"
 
-#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:102
+#: inginious/frontend/plugins/upcoming_tasks/templates/coming_tasks.html:105
 msgid "You have no upcoming tasks"
 msgstr "אין לך משימות קרובות"
 
-#: inginious/frontend/task_dispensers/combinatory_test.py:22
+#: inginious/frontend/task_dispensers/combinatory_test.py:28
 msgid "Combinatory test"
 msgstr "בדיקת קומבינטוריקה"
 
-#: inginious/frontend/task_dispensers/combinatory_test.py:45
+#: inginious/frontend/task_dispensers/combinatory_test.py:53
 msgid "Amount of tasks to be displayed"
 msgstr "כמות המשימות שתוצגנה"
 
-#: inginious/frontend/task_dispensers/toc.py:40
+#: inginious/frontend/task_dispensers/toc.py:50
 msgid "Table of contents"
 msgstr "תוכן העניינים"
 
-#: inginious/frontend/task_dispensers/toc.py:103
+#: inginious/frontend/task_dispensers/toc.py:113
 msgid "Closed by default"
 msgstr "נסגר כברירת מחדל"
 
-#: inginious/frontend/task_dispensers/util.py:49
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/groups.html:4
+#: inginious/frontend/task_dispensers/toc.py:114
+msgid "Hidden if empty"
+msgstr ""
+
+#: inginious/frontend/task_dispensers/util.py:51
+#: inginious/frontend/templates/task_dispensers_admin/config_items/groups.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/groups.html:10
 msgid "Submission mode"
 msgstr "מצב הגשה"
 
-#: inginious/frontend/task_dispensers/util.py:72
+#: inginious/frontend/task_dispensers/util.py:74
 #, fuzzy
 msgid "Weight"
 msgstr "משקל ציון"
 
-#: inginious/frontend/task_dispensers/util.py:97
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_storage.html:4
+#: inginious/frontend/task_dispensers/util.py:99
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:12
 msgid "Submission storage"
 msgstr "אחסון הגשות"
 
-#: inginious/frontend/task_dispensers/util.py:122
+#: inginious/frontend/task_dispensers/util.py:124
 #, fuzzy
 msgid "Evaluation mode"
 msgstr "להערכה"
 
-#: inginious/frontend/task_dispensers/util.py:145
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/categories.html:4
+#: inginious/frontend/task_dispensers/util.py:147
+#: inginious/frontend/templates/task_dispensers_admin/config_items/categories.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/categories.html:9
 msgid "Categories"
 msgstr "קטגוריות"
 
-#: inginious/frontend/task_dispensers/util.py:168
+#: inginious/frontend/task_dispensers/util.py:170
 #: inginious/frontend/templates/task.html:82
 msgid "Submission limit"
 msgstr "מגבלת הגשות"
 
-#: inginious/frontend/task_dispensers/util.py:193
-#: inginious/frontend/templates/course_admin/settings.html:43
-#: inginious/frontend/templates/course_admin/settings.html:140
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:4
+#: inginious/frontend/task_dispensers/util.py:195
+#: inginious/frontend/templates/course_admin/settings.html:44
+#: inginious/frontend/templates/course_admin/settings.html:135
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:15
 msgid "Accessibility"
 msgstr "נגישות"
 
-#: inginious/frontend/task_dispensers/util.py:219
+#: inginious/frontend/task_dispensers/util.py:222
 msgid "One section don't contain a sections list nor a tasks list"
 msgstr "אחד מהסעיפים לא מכיל רשימת סעיפים או רשימת משימות"
 
-#: inginious/frontend/task_dispensers/util.py:251
+#: inginious/frontend/task_dispensers/util.py:254
 msgid "No title for one section"
 msgstr "אין כותרת לאחד הסעיפים"
 
-#: inginious/frontend/task_dispensers/util.py:304
+#: inginious/frontend/task_dispensers/util.py:307
 msgid "One task id contains non alphanumerical characters"
 msgstr "מזהה של אחת המשימות מכיל מזהה שאינו אלפנומרי"
 
@@ -1146,16 +1276,19 @@ msgstr "ציון נוכחי"
 #: inginious/frontend/templates/course_user_settings.html:13
 msgid ""
 "This course is currently invisible for students. You can change this by "
-"modifying the \"accessibility\" option in the configuration of the course."
+"modifying the \"accessibility\" option in the configuration of the "
+"course."
 msgstr ""
-"הקורס הזה אינו גלוי לסטודנטים. אפשר לשנות את זה דרך שינוי אפשרות ה„נגישות” "
-"בהגדרות הקורס."
+"הקורס הזה אינו גלוי לסטודנטים. אפשר לשנות את זה דרך שינוי אפשרות "
+"ה„נגישות” בהגדרות הקורס."
 
 #: inginious/frontend/templates/course.html:53
 #: inginious/frontend/templates/course.html:71
 #: inginious/frontend/templates/course_user_settings.html:33
+#: inginious/frontend/templates/course_user_settings.html:47
+#: inginious/frontend/templates/course_user_settings.html:57
 #, fuzzy
-msgid "Course Settings"
+msgid "User settings"
 msgstr "הגדרות קורס"
 
 #: inginious/frontend/templates/course.html:56
@@ -1194,14 +1327,21 @@ msgid "Please enroll in the course to be able to submit answers to problems."
 msgstr "נא להירשם לקורס כדי שתהיה לך אפשרות להגיש תשובות לבעיות."
 
 #: inginious/frontend/templates/course.html:99
+#: inginious/frontend/templates/course_admin/audience_edit.html:15
+#: inginious/frontend/templates/course_admin/danger_zone.html:15
+#: inginious/frontend/templates/course_admin/settings.html:15
+#: inginious/frontend/templates/course_admin/stats.html:22
+#: inginious/frontend/templates/course_admin/student_info.html:17
+#: inginious/frontend/templates/course_admin/student_list.html:15
+#: inginious/frontend/templates/course_admin/submission.html:19
+#: inginious/frontend/templates/course_admin/submissions.html:15
+#: inginious/frontend/templates/course_admin/task_list.html:16
 #: inginious/frontend/templates/course_user_settings.html:42
-#: inginious/frontend/templates/courselist.html:17
 #: inginious/frontend/templates/layout.html:154
-#: inginious/frontend/templates/marketplace.html:17
 #: inginious/frontend/templates/mycourses.html:5
 #: inginious/frontend/templates/mycourses.html:10
 #: inginious/frontend/templates/mycourses.html:18
-#: inginious/frontend/templates/mycourses.html:55
+#: inginious/frontend/templates/mycourses.html:52
 #: inginious/frontend/templates/task.html:261
 msgid "My courses"
 msgstr "הקורסים שלי"
@@ -1220,7 +1360,7 @@ msgid "Register to course '{}'"
 msgstr "הרשמה לקורס ‚{}’"
 
 #: inginious/frontend/templates/course_register.html:11
-#: inginious/frontend/templates/layout.html:175
+#: inginious/frontend/templates/layout.html:176
 #: inginious/frontend/templates/register.html:5
 msgid "Register"
 msgstr "הרשמה"
@@ -1256,8 +1396,8 @@ msgid ""
 "This course must be accessed on an external platform. Read the course "
 "description or contact the teaching team for more information."
 msgstr ""
-"לקורס הזה יש לגשת בפלטפורמה חיצונית. נא לקרוא את תיאור הקורס או ליצור קשר עם "
-"צוות ההדרכה למידע נוסף."
+"לקורס הזה יש לגשת בפלטפורמה חיצונית. נא לקרוא את תיאור הקורס או ליצור קשר"
+" עם צוות ההדרכה למידע נוסף."
 
 #: inginious/frontend/templates/course_unavailable.html:25
 msgid "You are not registered to this course."
@@ -1278,21 +1418,21 @@ msgstr "קורסים ציבוריים"
 
 #: inginious/frontend/templates/courselist.html:12
 msgid ""
-"This page lists all the courses that are available now. If you are a course "
-"administrator, go to your 'My courses' page to see all of them."
+"This page lists all the courses that are available now. If you are a "
+"course administrator, go to your 'My courses' page to see all of them."
 msgstr ""
-"העמוד הזה מציג את כל הקורסים שזמינים עכשיו. אם יש לך הרשאות לניהול הקורס, "
-"עליך לגשת לעמוד ‚הקורסים שלי’ כדי לראות את כולם."
+"העמוד הזה מציג את כל הקורסים שזמינים עכשיו. אם יש לך הרשאות לניהול הקורס,"
+" עליך לגשת לעמוד ‚הקורסים שלי’ כדי לראות את כולם."
 
-#: inginious/frontend/templates/courselist.html:62
+#: inginious/frontend/templates/courselist.html:56
 msgid "External platform"
 msgstr "פלטפורמה חיצונית"
 
-#: inginious/frontend/templates/courselist.html:66
+#: inginious/frontend/templates/courselist.html:60
 msgid "Auto-registration"
 msgstr "רישום אוטומטי"
 
-#: inginious/frontend/templates/courselist.html:70
+#: inginious/frontend/templates/courselist.html:64
 msgid "Password needed"
 msgstr "נדרשת סיסמה"
 
@@ -1300,8 +1440,8 @@ msgstr "נדרשת סיסמה"
 msgid "Register for a group"
 msgstr "הרשמה לקבוצה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:48
-#: inginious/frontend/templates/course_admin/student_list.html:208
+#: inginious/frontend/templates/course_admin/student_list.html:49
+#: inginious/frontend/templates/course_admin/student_list.html:209
 #: inginious/frontend/templates/group.html:59
 #: inginious/frontend/templates/group.html:68
 msgid "Groups"
@@ -1322,17 +1462,15 @@ msgstr "שליחת דוא״ל"
 
 #: inginious/frontend/templates/group.html:114
 msgid ""
-"No set group in this course. If you think this is a mistake, please contact "
-"the course administrator."
-msgstr ""
-"לא הוגדרה קבוצה לקורס הזה. אם מדובר בטעות, נא ליצור קשר עם הנהלת הקורס."
+"No set group in this course. If you think this is a mistake, please "
+"contact the course administrator."
+msgstr "לא הוגדרה קבוצה לקורס הזה. אם מדובר בטעות, נא ליצור קשר עם הנהלת הקורס."
 
 #: inginious/frontend/templates/group.html:118
 msgid ""
-"Groups have been set up but you're not allowed to register in anyone. Please "
-"contact the course administrator."
-msgstr ""
-"הוקמו קבוצות אבל אסור לך להירשם לאף אחד מהן. נא ליצור קשר עם הנהלת הקורס."
+"Groups have been set up but you're not allowed to register in anyone. "
+"Please contact the course administrator."
+msgstr "הוקמו קבוצות אבל אסור לך להירשם לאף אחד מהן. נא ליצור קשר עם הנהלת הקורס."
 
 #: inginious/frontend/templates/group.html:121
 #: inginious/frontend/templates/group.html:126
@@ -1341,9 +1479,9 @@ msgstr "הקבוצה שלי"
 
 #: inginious/frontend/templates/group.html:123
 msgid ""
-"You're not registered to a group. Please consider registration in one of the "
-"group below to take part in all course activities. If no more group is "
-"available, please contact the course administrator."
+"You're not registered to a group. Please consider registration in one of "
+"the group below to take part in all course activities. If no more group "
+"is available, please contact the course administrator."
 msgstr ""
 "לא נרשמת לאף קבוצה. נא לשקול להירשם לאחת הקבוצות שלהלן כדי לקחת חלק בכל "
 "פעילויות הקורס. אם אף קבוצה אינה זמינה, נא ליצור קשר עם הנהלת הקורס."
@@ -1375,8 +1513,8 @@ msgid ""
 "<b>Internal error</b> Something bad happened. The error has been logged, "
 "please contact your administrator if the error persists."
 msgstr ""
-"<b>שגיאה פנימית</b> משהו רע אירע. השגיאה תועדה, נא ליצור קשר עם הנהלת המערכת "
-"אם השגיאה נמשכת."
+"<b>שגיאה פנימית</b> משהו רע אירע. השגיאה תועדה, נא ליצור קשר עם הנהלת "
+"המערכת אם השגיאה נמשכת."
 
 #: inginious/frontend/templates/layout.html:19
 #: inginious/frontend/templates/layout.html:76
@@ -1388,22 +1526,25 @@ msgstr "true"
 msgid "Open menu"
 msgstr "פתיחת תפריט"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:16
-#: inginious/frontend/templates/course_admin/danger_zone.html:16
-#: inginious/frontend/templates/course_admin/settings.html:16
-#: inginious/frontend/templates/course_admin/stats.html:23
-#: inginious/frontend/templates/course_admin/student_info.html:18
-#: inginious/frontend/templates/course_admin/student_list.html:16
-#: inginious/frontend/templates/course_admin/submission.html:21
-#: inginious/frontend/templates/course_admin/submissions.html:16
-#: inginious/frontend/templates/course_admin/task_edit.html:17
-#: inginious/frontend/templates/course_admin/task_list.html:17
+#: inginious/frontend/templates/course_admin/audience_edit.html:17
+#: inginious/frontend/templates/course_admin/danger_zone.html:17
+#: inginious/frontend/templates/course_admin/settings.html:17
+#: inginious/frontend/templates/course_admin/stats.html:24
+#: inginious/frontend/templates/course_admin/student_info.html:19
+#: inginious/frontend/templates/course_admin/student_list.html:17
+#: inginious/frontend/templates/course_admin/submission.html:22
+#: inginious/frontend/templates/course_admin/submissions.html:17
+#: inginious/frontend/templates/course_admin/task_list.html:18
 #: inginious/frontend/templates/layout.html:142
 #: inginious/frontend/templates/task.html:128
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:18
+#: inginious/frontend/templates/taskset_admin/settings.html:18
+#: inginious/frontend/templates/taskset_admin/task_edit.html:19
+#: inginious/frontend/templates/taskset_admin/template.html:19
 msgid "Administration"
 msgstr "ניהול"
 
-#: inginious/frontend/templates/course_admin/stats.html:260
+#: inginious/frontend/templates/course_admin/stats.html:261
 #: inginious/frontend/templates/layout.html:145
 msgid "Users"
 msgstr "משתמשים"
@@ -1412,46 +1553,57 @@ msgstr "משתמשים"
 #: inginious/frontend/templates/marketplace.html:5
 #: inginious/frontend/templates/marketplace.html:25
 #: inginious/frontend/templates/marketplace.html:32
-#: inginious/frontend/templates/marketplace_course.html:45
+#: inginious/frontend/templates/marketplace_taskset.html:45
 msgid "Marketplace"
 msgstr "שוק"
 
 #: inginious/frontend/templates/layout.html:155
+#: inginious/frontend/templates/marketplace.html:17
+#: inginious/frontend/templates/tasksets.html:5
+#: inginious/frontend/templates/tasksets.html:10
+#: inginious/frontend/templates/tasksets.html:26
+#, fuzzy
+msgid "My tasksets"
+msgstr "משימות"
+
+#: inginious/frontend/templates/layout.html:156
 #: inginious/frontend/templates/preferences/bindings.html:15
 #: inginious/frontend/templates/preferences/delete.html:16
 #: inginious/frontend/templates/preferences/profile.html:15
 msgid "Preferences"
 msgstr "העדפות"
 
-#: inginious/frontend/templates/layout.html:156
+#: inginious/frontend/templates/layout.html:157
 msgid "Service status"
 msgstr "מצב השירות"
 
-#: inginious/frontend/templates/layout.html:157
+#: inginious/frontend/templates/layout.html:158
 msgid "Log out"
 msgstr "יציאה"
 
-#: inginious/frontend/templates/layout.html:161
+#: inginious/frontend/templates/layout.html:162
 msgid "English"
 msgstr "עברית"
 
-#: inginious/frontend/templates/layout.html:195
+#: inginious/frontend/templates/layout.html:196
 msgid ""
-"Powered by <a href=\"http://www.inginious.org\" target=\"_blank\">INGInious</"
-"a> v.{} , a free and open-source grading tool."
+"Powered by <a href=\"http://www.inginious.org\" "
+"target=\"_blank\">INGInious</a> v.{} , a free and open-source grading "
+"tool."
 msgstr ""
-"מופעל על גבי <a href=\"http://www.inginious.org\" target=\"_blank"
-"\">INGInious</a> גרסה {} , כלי מתן ציונים חינמי ובקוד פתוח."
+"מופעל על גבי <a href=\"http://www.inginious.org\" "
+"target=\"_blank\">INGInious</a> גרסה {} , כלי מתן ציונים חינמי ובקוד "
+"פתוח."
 
-#: inginious/frontend/templates/layout.html:197
+#: inginious/frontend/templates/layout.html:198
 msgid "Running INGInious v.{}"
 msgstr "מפעיל INGInious בגרסה {}"
 
-#: inginious/frontend/templates/layout.html:199
+#: inginious/frontend/templates/layout.html:200
 msgid "INGInious is distributed under AGPL license"
 msgstr "INGInious מופץ בכפוף לרישיון AGPL"
 
-#: inginious/frontend/templates/layout.html:203
+#: inginious/frontend/templates/layout.html:204
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
@@ -1472,8 +1624,8 @@ msgid ""
 "You are going to bind your INGInious account <strong>{realname} "
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
-"פעולה זו תאגד את חשבון ה־INGInious שלך <strong>{realname} [{username}]</"
-"strong> עם כלי שילוב כלי הלמידה (LTI) וההקשר הבאים:"
+"פעולה זו תאגד את חשבון ה־INGInious שלך <strong>{realname} "
+"[{username}]</strong> עם כלי שילוב כלי הלמידה (LTI) וההקשר הבאים:"
 
 #: inginious/frontend/templates/lti_bind.html:20
 msgid "Tool name:"
@@ -1512,8 +1664,8 @@ msgid ""
 "In order to use INGInious via this platform, please bind your existing "
 "account or create a new one."
 msgstr ""
-"כדי להשתמש ב־INGInious דרך הפלטפורמה הזאת, נא לאגד את החשבון הקיים שלך או "
-"ליצור אחד חדש."
+"כדי להשתמש ב־INGInious דרך הפלטפורמה הזאת, נא לאגד את החשבון הקיים שלך או"
+" ליצור אחד חדש."
 
 #: inginious/frontend/templates/lti_login.html:32
 msgid "Bind your INGInious account"
@@ -1525,133 +1677,119 @@ msgstr "רענון"
 
 #: inginious/frontend/templates/maintenance.html:9
 msgid ""
-"<b>This INGInious instance is currently under maintenance.</b> Please come "
-"back in a few minutes!"
-msgstr ""
-"<b>עותק זה של INGInious עובר פעילויות תחזוקה.</b> נא לשוב בעוד מספר דקות!"
+"<b>This INGInious instance is currently under maintenance.</b> Please "
+"come back in a few minutes!"
+msgstr "<b>עותק זה של INGInious עובר פעילויות תחזוקה.</b> נא לשוב בעוד מספר דקות!"
 
 #: inginious/frontend/templates/marketplace.html:10
 msgid "How to use"
 msgstr "איך להשתמש"
 
 #: inginious/frontend/templates/marketplace.html:12
+#, fuzzy
 msgid ""
-"This page list all the course that are publicly avalaible. When you click "
-"import, it will create a new course on your INGInious instance. You will be "
-"admin of this new course and it will contain all the tasks and the structure "
-"of the imported course"
+"This page list all the tasksets that are publicly avalaible. When you "
+"click import, it will create a new taskset on your INGInious instance. "
+"You will be admin of this new taskset and it will contain all the tasks "
+"of the imported taskset."
 msgstr ""
-"עמוד זה מציג את כל הקורסים שזמינים לקהל הרחב. לחיצה על ייבוא תיצור קורס חדש "
-"בעותק ה־INGInious שלך. יתבצע מינוי שלך להנהלת הקורס הזה והוא יכיל את כל "
-"המשימות ואת מבנה הקורס שייובא"
+"עמוד זה מציג את כל הקורסים שזמינים לקהל הרחב. לחיצה על ייבוא תיצור קורס "
+"חדש בעותק ה־INGInious שלך. יתבצע מינוי שלך להנהלת הקורס הזה והוא יכיל את "
+"כל המשימות ואת מבנה הקורס שייובא"
 
 #: inginious/frontend/templates/marketplace.html:56
-#: inginious/frontend/templates/marketplace_course.html:68
-msgid "Import course"
-msgstr "ייבוא קורס"
+#: inginious/frontend/templates/marketplace_taskset.html:68
+#, fuzzy
+msgid "Import taskset"
+msgstr "ייבוא הקורס הזה"
 
 #: inginious/frontend/templates/marketplace.html:74
-msgid "No public courses available"
+#, fuzzy
+msgid "No public tasksets available"
 msgstr "אין קורסים שזמינים לקהל הרחב"
 
 #: inginious/frontend/templates/marketplace.html:84
-msgid "Import this course"
+#, fuzzy
+msgid "Import this taskset"
 msgstr "ייבוא הקורס הזה"
 
 #: inginious/frontend/templates/marketplace.html:89
+#, fuzzy
 msgid ""
-"This will create a new course with the ID bellow. This new course will "
-"contain the tasks and structure of the selected course"
+"This will create a new taskset with the ID bellow. This new taskset will "
+"contain the tasks and structure of the selected taskset"
 msgstr ""
-"פעולה זו תיצור קורס חדש עם המזהה שלהלן. הקורס חדש הזה יכיל את המשימות ואת "
-"המבנה של הקורס הנבחר"
+"פעולה זו תיצור קורס חדש עם המזהה שלהלן. הקורס חדש הזה יכיל את המשימות ואת"
+" המבנה של הקורס הנבחר"
 
 #: inginious/frontend/templates/marketplace.html:90
 msgid "Course ID"
 msgstr "מזהה קורס"
 
 #: inginious/frontend/templates/marketplace.html:94
-msgid "Create course"
-msgstr "יצירת קורס"
+#, fuzzy
+msgid "Create taskset"
+msgstr "יצירת משימה חדשה"
 
-#: inginious/frontend/templates/marketplace_course.html:7
+#: inginious/frontend/templates/marketplace_taskset.html:7
 #: inginious/frontend/templates/task.html:13
 msgid "Information"
 msgstr "מידע"
 
-#: inginious/frontend/templates/marketplace_course.html:11
+#: inginious/frontend/templates/marketplace_taskset.html:11
 msgid "Language(s)"
 msgstr "שפות"
 
-#: inginious/frontend/templates/marketplace_course.html:17
+#: inginious/frontend/templates/marketplace_taskset.html:17
 msgid "License"
 msgstr "רישיון"
 
-#: inginious/frontend/templates/marketplace_course.html:23
+#: inginious/frontend/templates/marketplace_taskset.html:23
 msgid "Maintainer(s)"
 msgstr "מתחזקים"
 
-#: inginious/frontend/templates/marketplace_course.html:29
+#: inginious/frontend/templates/marketplace_taskset.html:29
 #: inginious/frontend/templates/task.html:17
 msgid "Author(s)"
 msgstr "יוצרים"
 
-#: inginious/frontend/templates/marketplace_course.html:35
+#: inginious/frontend/templates/marketplace_taskset.html:35
 msgid "Link"
 msgstr "קישור"
 
-#: inginious/frontend/templates/marketplace_course.html:65
-#: inginious/frontend/templates/mycourses.html:110
-msgid "New course id"
-msgstr "מזהה קורס חדש"
+#: inginious/frontend/templates/marketplace_taskset.html:65
+#: inginious/frontend/templates/tasksets.html:69
+#, fuzzy
+msgid "New taskset id"
+msgstr "מזהה משימה חדש"
 
 #: inginious/frontend/templates/mycourses.html:20
 msgid ""
-"This page lists all the courses you are currently enrolled in. You can find "
-"new courses on the course list page."
+"This page lists all the courses you are currently enrolled in. You can "
+"find new courses on the course list page."
 msgstr ""
 "העמוד הזה מציג את כל הקורסים אליהם נרשמת. אפשר למצוא קורסים חדשים בעמוד "
 "רשימת הקורסים."
 
-#: inginious/frontend/templates/mycourses.html:73
+#: inginious/frontend/templates/mycourses.html:70
 msgid "LTI course"
 msgstr "קורס שילוב כלי למידה (LTI)"
 
-#: inginious/frontend/templates/mycourses.html:75
+#: inginious/frontend/templates/mycourses.html:72
 msgid "Hidden course"
 msgstr "קורס מוסתר"
 
-#: inginious/frontend/templates/mycourses.html:79
+#: inginious/frontend/templates/mycourses.html:76
 msgid "Administrator"
 msgstr "ניהול"
 
-#: inginious/frontend/templates/mycourses.html:81
-msgid "Tutor"
-msgstr "לימוד"
-
-#: inginious/frontend/templates/mycourses.html:83
+#: inginious/frontend/templates/mycourses.html:78
 msgid "Student"
 msgstr "סטודנט"
 
-#: inginious/frontend/templates/mycourses.html:91
+#: inginious/frontend/templates/mycourses.html:86
 msgid "You are not registered to any course"
 msgstr "לא נרשמת לאף קורס"
-
-#: inginious/frontend/templates/mycourses.html:99
-msgid "Course created."
-msgstr "נוצר קורס."
-
-#: inginious/frontend/templates/mycourses.html:104
-msgid "Failed to create the course."
-msgstr "יצירת הקורס נכשלה."
-
-#: inginious/frontend/templates/mycourses.html:109
-msgid "Course"
-msgstr "קורס"
-
-#: inginious/frontend/templates/mycourses.html:113
-msgid "Create new course"
-msgstr "יצירת קורס חדש"
 
 #: inginious/frontend/templates/notfound.html:5
 #: inginious/frontend/templates/notfound.html:10
@@ -1672,10 +1810,10 @@ msgstr "עמוד זה מציג <strong>תמונת מצב</strong> של תור מ
 msgid "Running jobs"
 msgstr "משימות רקע פעילות"
 
-#: inginious/frontend/templates/course_admin/subproblems/code.html:19
-#: inginious/frontend/templates/course_admin/subproblems/file.html:23
 #: inginious/frontend/templates/queue.html:25
 #: inginious/frontend/templates/queue.html:66
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:19
+#: inginious/frontend/templates/taskset_admin/subproblems/file.html:23
 msgid "Type"
 msgstr "סוג"
 
@@ -1683,11 +1821,12 @@ msgstr "סוג"
 msgid "Agent name"
 msgstr "שם סוכן"
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:5
-#: inginious/frontend/templates/course_admin/settings.html:62
-#: inginious/frontend/templates/course_admin/task_edit.html:124
+#: inginious/frontend/templates/course_admin/settings.html:63
 #: inginious/frontend/templates/queue.html:27
 #: inginious/frontend/templates/queue.html:67
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:5
+#: inginious/frontend/templates/taskset_admin/settings.html:56
+#: inginious/frontend/templates/taskset_admin/task_edit.html:122
 msgid "Name"
 msgstr "שם"
 
@@ -1779,10 +1918,9 @@ msgstr "אישור סיסמה:"
 #: inginious/frontend/templates/preferences/profile.html:90
 #: inginious/frontend/templates/register.html:48
 msgid ""
-"I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy "
-"policy{a2end}."
-msgstr ""
-"קראתי את {a1start}תנאי השירות{a1end} ואת {a2start}מדיניות הפרטיות{a2end}."
+"I have read the {a1start}Terms of service{a1end} and the {a2start}Privacy"
+" policy{a2end}."
+msgstr "קראתי את {a1start}תנאי השירות{a1end} ואת {a2start}מדיניות הפרטיות{a2end}."
 
 #: inginious/frontend/templates/register.html:52
 msgid "Sign up"
@@ -1802,18 +1940,18 @@ msgstr "הגדרת סיסמה חדשה"
 
 #: inginious/frontend/templates/signin_button.html:6
 msgid ""
-"Please register or sign in to see the complete list of courses and be able "
-"to submit answers to problems."
+"Please register or sign in to see the complete list of courses and be "
+"able to submit answers to problems."
 msgstr ""
-"נא להירשם או להיכנס כדי לצפות ברשימת הקורסים המלאה כדי שתהיה לך אפשרות להגיש "
-"תשובות לבעיות."
+"נא להירשם או להיכנס כדי לצפות ברשימת הקורסים המלאה כדי שתהיה לך אפשרות "
+"להגיש תשובות לבעיות."
 
 #: inginious/frontend/templates/task.html:23
 msgid "Contact"
 msgstr "יצירת קשר"
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:49
 #: inginious/frontend/templates/task.html:24
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:49
 msgid "Contact link"
 msgstr "קישור ליצירת קשר"
 
@@ -1837,8 +1975,8 @@ msgstr "מצב"
 msgid "Not yet attempted"
 msgstr "עדיין לא נוסה"
 
-#: inginious/frontend/templates/course_admin/student_info.html:73
-#: inginious/frontend/templates/course_admin/submissions.html:133
+#: inginious/frontend/templates/course_admin/student_info.html:74
+#: inginious/frontend/templates/course_admin/submissions.html:134
 #: inginious/frontend/templates/task.html:52
 msgid "Succeeded"
 msgstr "הצליח"
@@ -1847,8 +1985,8 @@ msgstr "הצליח"
 msgid "Waiting for verification"
 msgstr "בהמתנה לאימות"
 
-#: inginious/frontend/templates/course_admin/student_info.html:76
-#: inginious/frontend/templates/course_admin/submissions.html:137
+#: inginious/frontend/templates/course_admin/student_info.html:77
+#: inginious/frontend/templates/course_admin/submissions.html:138
 #: inginious/frontend/templates/task.html:63
 msgid "Failed"
 msgstr "נכשל"
@@ -1862,8 +2000,9 @@ msgstr "ציון"
 msgid "Attempts"
 msgstr "ניסיונות"
 
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_limit.html:7
 #: inginious/frontend/templates/task.html:86
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:8
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:20
 msgid "No limitation"
 msgstr "אין הגבלה"
 
@@ -1879,8 +2018,8 @@ msgstr "{nb_submissions} הגשות"
 msgid "Category tags"
 msgstr "תגיות קטגוריה"
 
-#: inginious/frontend/templates/course_admin/settings.html:49
-#: inginious/frontend/templates/course_admin/submission.html:98
+#: inginious/frontend/templates/course_admin/settings.html:50
+#: inginious/frontend/templates/course_admin/submission.html:99
 #: inginious/frontend/templates/task.html:114
 msgid "Tags"
 msgstr "תגיות"
@@ -1890,27 +2029,28 @@ msgid ""
 "This course is currently invisible for students.  You can change this by "
 "modifying the \"accessible\" option in the configuration of the course."
 msgstr ""
-"הקורס הזה אינו גלוי לסטודנטים. אפשר לשנות את זה דרך שינוי אפשרות ה„נגישות” "
-"בהגדרות הקורס."
+"הקורס הזה אינו גלוי לסטודנטים. אפשר לשנות את זה דרך שינוי אפשרות "
+"ה„נגישות” בהגדרות הקורס."
 
 #: inginious/frontend/templates/task.html:136
 msgid ""
 "This task is currently invisible for students. You can change this by "
 "modifying the \"accessible\" option in the configuration of the task."
 msgstr ""
-"המשימה הזו אינה גלויה לסטודנטים. אפשר לשנות את זה דרך שינוי אפשרות ה„נגישות” "
-"בהגדרות המשימה."
+"המשימה הזו אינה גלויה לסטודנטים. אפשר לשנות את זה דרך שינוי אפשרות "
+"ה„נגישות” בהגדרות המשימה."
 
-#: inginious/frontend/templates/course_admin/stats.html:81
-#: inginious/frontend/templates/course_admin/student_list.html:185
+#: inginious/frontend/templates/course_admin/stats.html:82
+#: inginious/frontend/templates/course_admin/student_list.html:186
 #: inginious/frontend/templates/course_admin/student_list_table.html:59
-#: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:18
 #: inginious/frontend/templates/task.html:141
+#: inginious/frontend/templates/task_dispensers_admin/task_buttons.html:26
 msgid "View submissions"
 msgstr "הצגת הגשות"
 
-#: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:14
 #: inginious/frontend/templates/task.html:145
+#: inginious/frontend/templates/task_dispensers_admin/task_buttons.html:20
+#: inginious/frontend/templates/taskset_admin/settings.html:127
 msgid "Edit task"
 msgstr "עריכת משימה"
 
@@ -1931,13 +2071,15 @@ msgstr "קבוצה"
 msgid "For evaluation"
 msgstr "להערכה"
 
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/evaluation_mode.html:15
 #: inginious/frontend/templates/task.html:180
+#: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:8
+#: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:21
 msgid "Last submission"
 msgstr "הגשה אחרונה"
 
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/evaluation_mode.html:9
 #: inginious/frontend/templates/task.html:182
+#: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:7
+#: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:15
 msgid "Best submission"
 msgstr "ההגשה הטובה ביותר"
 
@@ -1996,13 +2138,13 @@ msgstr "{} כבדה מדי."
 
 #: inginious/frontend/templates/task.html:340
 msgid ""
-"The raw data from the container will be displayed here, helping you to debug "
-"the task.<br/> This box is only displayed because you are an administrator "
-"of this course. It is not displayed to students."
+"The raw data from the container will be displayed here, helping you to "
+"debug the task.<br/> This box is only displayed because you are an "
+"administrator of this course. It is not displayed to students."
 msgstr ""
-"הנתונים הגולמיים מהקונטיינר יופיעו כאן כדי לסייע לך לנפות את השגיאות במשימה."
-"<br/>תיבה זו מוצגת רק כיוון שיש לך הרשאות ניהול על הקורס הזה. היא אינה מוצגת "
-"לסטודנטים."
+"הנתונים הגולמיים מהקונטיינר יופיעו כאן כדי לסייע לך לנפות את השגיאות "
+"במשימה.<br/>תיבה זו מוצגת רק כיוון שיש לך הרשאות ניהול על הקורס הזה. היא "
+"אינה מוצגת לסטודנטים."
 
 #: inginious/frontend/templates/task.html:373
 msgid "Question {}"
@@ -2050,13 +2192,55 @@ msgstr "אסור לך להגיש"
 msgid "Task unavailable"
 msgstr "המשימה לא זמינה"
 
+#: inginious/frontend/templates/tasksets.html:19
+#, fuzzy
+msgid ""
+"This page lists all the tasksets you have access to. You can find "
+"instantiated courses on the course list page."
+msgstr ""
+"העמוד הזה מציג את כל הקורסים אליהם נרשמת. אפשר למצוא קורסים חדשים בעמוד "
+"רשימת הקורסים."
+
+#: inginious/frontend/templates/tasksets.html:50
+#, fuzzy
+msgid "Edit taskset"
+msgstr "עריכת משימה"
+
+#: inginious/frontend/templates/tasksets.html:54
+#: inginious/frontend/templates/tasksets.html:96
+msgid "Instantiate"
+msgstr ""
+
+#: inginious/frontend/templates/tasksets.html:61
+msgid "You don't own any taskset."
+msgstr ""
+
+#: inginious/frontend/templates/tasksets.html:68
+msgid "Course"
+msgstr "קורס"
+
+#: inginious/frontend/templates/tasksets.html:72
+#, fuzzy
+msgid "Create new taskset"
+msgstr "יצירת משימה חדשה"
+
+#: inginious/frontend/templates/tasksets.html:82
+#, fuzzy
+msgid "Instantiate a course"
+msgstr "יצירת קורס"
+
+#: inginious/frontend/templates/tasksets.html:87
+#: inginious/frontend/templates/tasksets.html:90
+#, fuzzy
+msgid "New courseid"
+msgstr "מזהה קורס חדש"
+
 #: inginious/frontend/templates/unregister_modal.html:9
 msgid "Unregister from {}"
 msgstr "ביטול הרישום אל {}"
 
 #: inginious/frontend/templates/unregister_modal.html:15
-msgid ""
-"This will keep your submissions saved but will remove you from your group."
+msgid "This will keep your submissions saved but will remove you from your group."
 msgstr "פעולה זו תשמור על ההגשות שלך אך תסיר אותך מהקבוצה."
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:77
@@ -2081,7 +2265,7 @@ msgstr "חבר"
 
 #: inginious/frontend/templates/admin/admin_users.html:33
 #: inginious/frontend/templates/course_admin/student_list_table.html:16
-#: inginious/frontend/templates/course_admin/submissions.html:55
+#: inginious/frontend/templates/course_admin/submissions.html:56
 msgid "username"
 msgstr "שם משתמש"
 
@@ -2091,11 +2275,11 @@ msgid "email address"
 msgstr "כתובת דוא״ל"
 
 #: inginious/frontend/templates/admin/admin_users.html:38
-#: inginious/frontend/templates/course_admin/stats.html:61
-#: inginious/frontend/templates/course_admin/student_info.html:40
-#: inginious/frontend/templates/course_admin/student_list.html:159
+#: inginious/frontend/templates/course_admin/stats.html:62
+#: inginious/frontend/templates/course_admin/student_info.html:41
+#: inginious/frontend/templates/course_admin/student_list.html:160
 #: inginious/frontend/templates/course_admin/student_list_table.html:26
-#: inginious/frontend/templates/course_admin/submissions.html:78
+#: inginious/frontend/templates/course_admin/submissions.html:79
 msgid "Download CSV"
 msgstr "הורדת CSV"
 
@@ -2105,10 +2289,11 @@ msgid "Bindings"
 msgstr "הוספת איגוד חדש"
 
 #: inginious/frontend/templates/admin/admin_users.html:102
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:19
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:53
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice_templates.html:31
-#: inginious/frontend/templates/course_admin/task_dispensers/section_menu.html:21
+#: inginious/frontend/templates/task_dispensers_admin/section_menu.html:21
+#: inginious/frontend/templates/task_dispensers_admin/util.html:131
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:20
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:54
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice_templates.html:31
 msgid "Delete"
 msgstr "מחיקה"
 
@@ -2137,8 +2322,8 @@ msgid "Add user"
 msgstr "משתמש"
 
 #: inginious/frontend/templates/admin/admin_users.html:168
-#: inginious/frontend/templates/course_admin/edit_tabs/subproblems.html:22
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:103
+#: inginious/frontend/templates/task_dispensers_admin/util.html:98
+#: inginious/frontend/templates/taskset_admin/edit_tabs/subproblems.html:22
 msgid "Add"
 msgstr "הוספה"
 
@@ -2156,677 +2341,669 @@ msgstr "שלילת גישה"
 msgid "Identifier :"
 msgstr "מזהה"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:18
-#: inginious/frontend/templates/course_admin/student_list.html:43
-#: inginious/frontend/templates/course_admin/student_list.html:78
-#: inginious/frontend/templates/course_admin/student_list.html:110
+#: inginious/frontend/templates/course_admin/audience_edit.html:19
+#: inginious/frontend/templates/course_admin/student_list.html:44
+#: inginious/frontend/templates/course_admin/student_list.html:79
+#: inginious/frontend/templates/course_admin/student_list.html:111
 msgid "Audiences"
 msgstr "קהלים"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:20
-#: inginious/frontend/templates/course_admin/audience_edit.html:26
+#: inginious/frontend/templates/course_admin/audience_edit.html:21
+#: inginious/frontend/templates/course_admin/audience_edit.html:27
 msgid "Edit audience {}"
 msgstr "עריכת הקהל {}"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:44
-#: inginious/frontend/templates/course_admin/audience_edit.html:63
-#: inginious/frontend/templates/course_admin/student_list.html:67
-#: inginious/frontend/templates/course_admin/student_list.html:257
-#: inginious/frontend/templates/course_admin/student_list.html:276
+#: inginious/frontend/templates/course_admin/audience_edit.html:45
+#: inginious/frontend/templates/course_admin/audience_edit.html:64
+#: inginious/frontend/templates/course_admin/student_list.html:68
+#: inginious/frontend/templates/course_admin/student_list.html:258
+#: inginious/frontend/templates/course_admin/student_list.html:277
 msgid "Add student"
 msgstr "הוספת סטודנט/ית"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:51
+#: inginious/frontend/templates/course_admin/audience_edit.html:52
 msgid "Choose student :"
 msgstr "בחירת סטודנט/ית:"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:55
-#: inginious/frontend/templates/course_admin/settings.html:70
-#: inginious/frontend/templates/course_admin/settings.html:76
-#: inginious/frontend/templates/course_admin/student_list.html:65
+#: inginious/frontend/templates/course_admin/audience_edit.html:56
+#: inginious/frontend/templates/course_admin/settings.html:71
+#: inginious/frontend/templates/course_admin/student_list.html:66
+#: inginious/frontend/templates/taskset_admin/settings.html:64
 msgid "Enter something here to search for a user"
 msgstr "נא למלא כאן משהו כדי לחפש משתמשים"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:74
-#: inginious/frontend/templates/course_admin/task_edit.html:46
+#: inginious/frontend/templates/course_admin/audience_edit.html:75
+#: inginious/frontend/templates/taskset_admin/task_edit.html:44
 msgid "Basic settings"
 msgstr "הגדרות בסיסיות"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:78
-#: inginious/frontend/templates/course_admin/audience_edit.html:82
+#: inginious/frontend/templates/course_admin/audience_edit.html:79
+#: inginious/frontend/templates/course_admin/audience_edit.html:83
 msgid "Audience description"
 msgstr "תיאור קהל"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:85
+#: inginious/frontend/templates/course_admin/audience_edit.html:86
 msgid "Delete audience"
 msgstr "מחיקת קהל"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:92
+#: inginious/frontend/templates/course_admin/audience_edit.html:93
 msgid "Tutor list"
 msgstr "רשימת מנחים"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:124
+#: inginious/frontend/templates/course_admin/audience_edit.html:125
 msgid "Add tutor"
 msgstr "הוספת מנחה"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:137
+#: inginious/frontend/templates/course_admin/audience_edit.html:138
 msgid "Student list"
 msgstr "רשימת סטודנטים"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:153
+#: inginious/frontend/templates/course_admin/audience_edit.html:154
 msgid "Remove student"
 msgstr "הסרת סטודנט/ית"
 
-#: inginious/frontend/templates/course_admin/audience_edit.html:164
-#: inginious/frontend/templates/course_admin/student_list.html:435
+#: inginious/frontend/templates/course_admin/audience_edit.html:165
+#: inginious/frontend/templates/course_admin/student_list.html:436
 msgid "Update"
 msgstr "עדכון"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:41
+#: inginious/frontend/templates/course_admin/danger_zone.html:42
 msgid "Archive data"
 msgstr "העברת נתונים לארכיון"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:44
-#: inginious/frontend/templates/course_admin/danger_zone.html:138
-#: inginious/frontend/templates/course_admin/danger_zone.html:151
-#: inginious/frontend/templates/course_admin/danger_zone.html:159
-#: inginious/frontend/templates/course_admin/danger_zone.html:167
+#: inginious/frontend/templates/course_admin/danger_zone.html:45
+#: inginious/frontend/templates/course_admin/danger_zone.html:139
+#: inginious/frontend/templates/course_admin/danger_zone.html:152
+#: inginious/frontend/templates/course_admin/danger_zone.html:160
+#: inginious/frontend/templates/course_admin/danger_zone.html:168
 msgid "Delete course"
 msgstr "מחיקת קורס"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:52
-#: inginious/frontend/templates/course_admin/danger_zone.html:63
+#: inginious/frontend/templates/course_admin/danger_zone.html:53
+#: inginious/frontend/templates/course_admin/danger_zone.html:64
 msgid "Archive course data"
 msgstr "העברת נתוני הקורס לארכיון"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:55
+#: inginious/frontend/templates/course_admin/danger_zone.html:56
 msgid ""
 "<p>This will reset and backup all course data (submissions, audiences, "
 "groups, user statistics) from the database.</p><p>To confirm your will, "
 "please type the course id below :</p>"
 msgstr ""
-"<p>פעולה זו תאפס ותגבה את כל נתוני הקורס (הגשות, קהלים, קבוצות, סטטיסטיקת "
-"משתמשים) ממסד הנתונים.</p><p>כדאי לאשר את בקשתך נא להקליד את מזהה הקורס להלן:"
-"</p>"
+"<p>פעולה זו תאפס ותגבה את כל נתוני הקורס (הגשות, קהלים, קבוצות, סטטיסטיקת"
+" משתמשים) ממסד הנתונים.</p><p>כדאי לאשר את בקשתך נא להקליד את מזהה הקורס "
+"להלן:</p>"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:75
+#: inginious/frontend/templates/course_admin/danger_zone.html:76
 msgid "Restore backup from {}"
 msgstr "שחזור גיבוי מתוך {}"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:79
+#: inginious/frontend/templates/course_admin/danger_zone.html:80
 msgid "<p>This will restore your course data to {}. Are you sure ?</p>"
 msgstr "<p>פעולה זו תשחזר את כל נתונים הקורס שלך אל {}. להמשיך?</p>"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:86
-#: inginious/frontend/templates/course_admin/danger_zone.html:110
+#: inginious/frontend/templates/course_admin/danger_zone.html:87
+#: inginious/frontend/templates/course_admin/danger_zone.html:111
 msgid "Restore backup"
 msgstr "שחזור גיבוי"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:94
+#: inginious/frontend/templates/course_admin/danger_zone.html:95
 msgid "Backups"
 msgstr "גיבויים"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:99
+#: inginious/frontend/templates/course_admin/danger_zone.html:100
 msgid "backup date"
 msgstr "תאריך גיבוי"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:100
+#: inginious/frontend/templates/course_admin/danger_zone.html:101
 msgid "download"
 msgstr "הורדה"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:114
+#: inginious/frontend/templates/course_admin/danger_zone.html:115
 msgid "Download backup"
 msgstr "הורדת גיבוי"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:141
+#: inginious/frontend/templates/course_admin/danger_zone.html:142
+#, fuzzy
 msgid ""
 "<p> This will <b>permanently</b> remove the course and all its data "
-"(including tasks and backups) from INGInious.</p><p>To confirm your will, "
-"please type the course id below :</p>"
+"(including backups) from INGInious.</p><p>To confirm your will, please "
+"type the course id below :</p>"
 msgstr ""
-"<p> פעולה זו תסיר <b>לצמיתות</b> את הקורס על כל הנתונים שלו (including tasks "
-"and backups) מ־INGInious.</p><p>כדי לאשר את בקשתך, נא להקליד את מזהה הקורס "
-"להלן:</p>"
+"<p> פעולה זו תסיר <b>לצמיתות</b> את הקורס על כל הנתונים שלו (including "
+"tasks and backups) מ־INGInious.</p><p>כדי לאשר את בקשתך, נא להקליד את "
+"מזהה הקורס להלן:</p>"
 
-#: inginious/frontend/templates/course_admin/danger_zone.html:163
+#: inginious/frontend/templates/course_admin/danger_zone.html:164
 msgid ""
 "<p>This will <b>permanently</b> remove the course and all its data "
 "(including tasks and backups) from INGInious. Are you really sure ?</p>"
 msgstr ""
-"<p>פעולה זו תסיר <b>לצמיתות</b> את הקורס ואת כל הנתונים שלו (including tasks "
-"and backups) מ־INGInious. להמשיך?</p>"
+"<p>פעולה זו תסיר <b>לצמיתות</b> את הקורס ואת כל הנתונים שלו (including "
+"tasks and backups) מ־INGInious. להמשיך?</p>"
 
 #: inginious/frontend/templates/course_admin/menu.html:15
-msgid "How to create a task?"
-msgstr "איך ליצור משימה?"
-
-#: inginious/frontend/templates/course_admin/menu.html:16
+#: inginious/frontend/templates/taskset_admin/menu.html:16
 msgid "Documentation"
 msgstr "תיעוד"
 
-#: inginious/frontend/templates/course_admin/settings.html:6
-msgid "Settings"
-msgstr "הגדרות"
-
-#: inginious/frontend/templates/course_admin/settings.html:32
+#: inginious/frontend/templates/course_admin/settings.html:33
+#: inginious/frontend/templates/taskset_admin/settings.html:39
 msgid "Settings saved."
 msgstr "ההגדרות נשמרו."
 
-#: inginious/frontend/templates/course_admin/settings.html:40
+#: inginious/frontend/templates/course_admin/settings.html:41
 msgid "Base"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:46
+#: inginious/frontend/templates/course_admin/settings.html:47
 msgid "LTI"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:52
+#: inginious/frontend/templates/course_admin/settings.html:53
 #, fuzzy
-msgid "User Settings"
+msgid "Course Settings"
 msgstr "הגדרות קורס"
 
-#: inginious/frontend/templates/course_admin/settings.html:68
+#: inginious/frontend/templates/course_admin/settings.html:69
+#: inginious/frontend/templates/taskset_admin/settings.html:62
 msgid "Administrators"
 msgstr "מנהלים"
 
-#: inginious/frontend/templates/course_admin/settings.html:74
-msgid "Tutors"
-msgstr "מנחים"
-
-#: inginious/frontend/templates/course_admin/settings.html:80
+#: inginious/frontend/templates/course_admin/settings.html:75
 msgid "Description"
 msgstr "תיאור"
 
-#: inginious/frontend/templates/course_admin/settings.html:86
+#: inginious/frontend/templates/course_admin/settings.html:81
 msgid "Group attribution"
 msgstr "ייחוס קבוצה"
 
-#: inginious/frontend/templates/course_admin/settings.html:93
+#: inginious/frontend/templates/course_admin/settings.html:88
 msgid "Staff only"
 msgstr "סגל בלבד"
 
-#: inginious/frontend/templates/course_admin/settings.html:100
+#: inginious/frontend/templates/course_admin/settings.html:95
 msgid "Staff and students"
 msgstr "סגל וסטודנטים"
 
-#: inginious/frontend/templates/course_admin/settings.html:105
+#: inginious/frontend/templates/course_admin/settings.html:100
 msgid "Enable LTI"
 msgstr "הפעלה שילוב כלי למידה (LTI)"
 
-#: inginious/frontend/templates/course_admin/settings.html:112
+#: inginious/frontend/templates/course_admin/settings.html:107
 msgid ""
 "Enable this option to allow your INGInious course to be used in external "
-"Learning Management Systems (LMS) such as Moodle or edX. Note that this will "
-"deactivate the group system."
+"Learning Management Systems (LMS) such as Moodle or edX. Note that this "
+"will deactivate the group system."
 msgstr ""
 "יש להפעיל אפשרות זו כדי לאשר להשתמש בקורס שלך ב־INGInious במערכות ניהול "
 "למידה (LMS) חיצוניות כגון Moodle או edX. נא לשים לב שפעולה זאת תשבית את "
 "מערכת הקבוצות."
 
-#: inginious/frontend/templates/course_admin/settings.html:121
+#: inginious/frontend/templates/course_admin/settings.html:116
 msgid "Course preview"
 msgstr "תצוגה מקדימה של הקורס"
 
-#: inginious/frontend/templates/course_admin/settings.html:128
+#: inginious/frontend/templates/course_admin/settings.html:123
 msgid "Allowed (read-only for non-registered users)"
 msgstr "מורשית (קריאה בלבד למשתמשים שטרם נרשמו)"
 
-#: inginious/frontend/templates/course_admin/settings.html:135
+#: inginious/frontend/templates/course_admin/settings.html:130
 msgid "Not allowed"
 msgstr "אסורה"
 
-#: inginious/frontend/templates/course_admin/settings.html:148
+#: inginious/frontend/templates/course_admin/settings.html:143
 msgid "Course hidden from students"
 msgstr "הקורס מוסתר מהסטודנטים"
 
-#: inginious/frontend/templates/course_admin/settings.html:155
+#: inginious/frontend/templates/course_admin/settings.html:150
 msgid "Always accessible"
 msgstr "נגיש תמיד"
 
-#: inginious/frontend/templates/course_admin/settings.html:162
-#: inginious/frontend/templates/course_admin/settings.html:222
+#: inginious/frontend/templates/course_admin/settings.html:157
+#: inginious/frontend/templates/course_admin/settings.html:217
 msgid "Custom:"
 msgstr "התאמה אישית:"
 
-#: inginious/frontend/templates/course_admin/settings.html:166
-#: inginious/frontend/templates/course_admin/settings.html:226
+#: inginious/frontend/templates/course_admin/settings.html:161
+#: inginious/frontend/templates/course_admin/settings.html:221
 msgid "From"
 msgstr "התחלה"
 
-#: inginious/frontend/templates/course_admin/settings.html:179
-#: inginious/frontend/templates/course_admin/settings.html:238
+#: inginious/frontend/templates/course_admin/settings.html:174
+#: inginious/frontend/templates/course_admin/settings.html:233
 msgid "To"
 msgstr "סיום"
 
-#: inginious/frontend/templates/course_admin/settings.html:201
+#: inginious/frontend/templates/course_admin/settings.html:196
 msgid "Registration"
 msgstr "הרשמה"
 
-#: inginious/frontend/templates/course_admin/settings.html:208
+#: inginious/frontend/templates/course_admin/settings.html:203
 msgid "Closed"
 msgstr "סגור"
 
-#: inginious/frontend/templates/course_admin/settings.html:215
+#: inginious/frontend/templates/course_admin/settings.html:210
 msgid "Always open"
 msgstr "תמיד פתוח"
 
-#: inginious/frontend/templates/course_admin/settings.html:260
+#: inginious/frontend/templates/course_admin/settings.html:255
 msgid "Allow auto-unregistration"
 msgstr "לאפשר ביטול רישום אוטומטי"
 
-#: inginious/frontend/templates/course_admin/settings.html:268
+#: inginious/frontend/templates/course_admin/settings.html:263
 msgid "Yes"
 msgstr "כן"
 
-#: inginious/frontend/templates/course_admin/settings.html:275
+#: inginious/frontend/templates/course_admin/settings.html:270
 msgid "No"
 msgstr "לא"
 
-#: inginious/frontend/templates/course_admin/settings.html:280
+#: inginious/frontend/templates/course_admin/settings.html:275
 msgid "Registration password"
 msgstr "סיסמת רישום"
 
-#: inginious/frontend/templates/course_admin/settings.html:283
+#: inginious/frontend/templates/course_admin/settings.html:278
 msgid ""
 "Password needed for registration. Leave blank if you don't want to set a "
 "password."
 msgstr "נדרשת סיסמה כדי להירשם. יש להשאיר ריק כדי לא להגדיר סיסמה."
 
-#: inginious/frontend/templates/course_admin/settings.html:288
+#: inginious/frontend/templates/course_admin/settings.html:283
 msgid "Access control"
 msgstr "בקרת גישה"
 
-#: inginious/frontend/templates/course_admin/settings.html:295
+#: inginious/frontend/templates/course_admin/settings.html:290
 msgid "No access control (everyone can register)"
 msgstr "אין בקרת גישה (כולם יכולים להירשם)"
 
-#: inginious/frontend/templates/course_admin/settings.html:302
+#: inginious/frontend/templates/course_admin/settings.html:297
 msgid "Check by username"
 msgstr "בדיקה לפי שם משתמש"
 
-#: inginious/frontend/templates/course_admin/settings.html:309
+#: inginious/frontend/templates/course_admin/settings.html:304
 msgid "Check by authentication binding"
 msgstr "בדיקה לפי איגוד אימות"
 
-#: inginious/frontend/templates/course_admin/settings.html:316
+#: inginious/frontend/templates/course_admin/settings.html:311
 msgid "Check by email"
 msgstr "בדיקה לפי דוא״ל"
 
-#: inginious/frontend/templates/course_admin/settings.html:321
+#: inginious/frontend/templates/course_admin/settings.html:316
 #, fuzzy
 msgid "Access control type"
 msgstr "רשימת בקרת גישה"
 
-#: inginious/frontend/templates/course_admin/settings.html:328
+#: inginious/frontend/templates/course_admin/settings.html:323
 msgid "Accept"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:335
+#: inginious/frontend/templates/course_admin/settings.html:330
 msgid "Deny"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:340
+#: inginious/frontend/templates/course_admin/settings.html:335
 msgid "Access control list"
 msgstr "רשימת בקרת גישה"
 
-#: inginious/frontend/templates/course_admin/settings.html:342
+#: inginious/frontend/templates/course_admin/settings.html:337
 msgid "Only used if access control is activated. Separate users by new lines."
-msgstr ""
-"נעשה בזה שימוש רק אם בקרת גישה מופעלת. יש להפעיל בין משתמשים בירידת שורה."
+msgstr "נעשה בזה שימוש רק אם בקרת גישה מופעלת. יש להפעיל בין משתמשים בירידת שורה."
 
-#: inginious/frontend/templates/course_admin/settings.html:348
-#: inginious/frontend/templates/course_admin/settings.html:350
+#: inginious/frontend/templates/course_admin/settings.html:343
+#: inginious/frontend/templates/course_admin/settings.html:345
 msgid "External platform URL"
 msgstr "כתובת פלטפורמה חיצונית"
 
-#: inginious/frontend/templates/course_admin/settings.html:354
+#: inginious/frontend/templates/course_admin/settings.html:349
 msgid "LTI keys"
 msgstr "מפתחות שילוב כלי למידה (LTI)"
 
-#: inginious/frontend/templates/course_admin/settings.html:356
+#: inginious/frontend/templates/course_admin/settings.html:351
 msgid ""
-"LTI keys in the form name:key, separated by newlines. Please ensure keys are "
-"long enough and random."
+"LTI keys in the form name:key, separated by newlines. Please ensure keys "
+"are long enough and random."
 msgstr ""
 "מפתחות שילוב כלי לימוד (LTI) בצורת שם:מפתח, עם הפרדה בצורת שורה חדשה. נא "
 "לוודא שהמפתחות ארוכים מספיק ואקראיים."
 
-#: inginious/frontend/templates/course_admin/settings.html:361
+#: inginious/frontend/templates/course_admin/settings.html:356
 msgid "Send back grades"
 msgstr "שליחת הציונים בחזרה"
 
-#: inginious/frontend/templates/course_admin/settings.html:368
+#: inginious/frontend/templates/course_admin/settings.html:363
 msgid ""
-"Enable this to send back grades to the calling Tool Consumer (which is, most "
-"of the time, your LMS). INGInious will deactivate students' access to the "
-"course and tasks from the web application when enabled. Tasks will be only "
-"available from the LTI interface."
+"Enable this to send back grades to the calling Tool Consumer (which is, "
+"most of the time, your LMS). INGInious will deactivate students' access "
+"to the course and tasks from the web application when enabled. Tasks will"
+" be only available from the LTI interface."
 msgstr ""
-"יש להפעיל זאת כדי לשלוח ציונים בחזרה לצרכן הכלי (שהוא, ברוב המקרים, מערכת "
-"ניהול הלמידה שלך). INGInious ישבית את גישת הסטודנטים לקורס ולמשימות מהיישום "
-"המקוון כאשר האפשרות מופעלת. המשימות תהיינה זמינות רק ממנשק שילוב כלי הלמידה "
-"(LTI)."
+"יש להפעיל זאת כדי לשלוח ציונים בחזרה לצרכן הכלי (שהוא, ברוב המקרים, מערכת"
+" ניהול הלמידה שלך). INGInious ישבית את גישת הסטודנטים לקורס ולמשימות "
+"מהיישום המקוון כאשר האפשרות מופעלת. המשימות תהיינה זמינות רק ממנשק שילוב "
+"כלי הלמידה (LTI)."
 
-#: inginious/frontend/templates/course_admin/settings.html:383
+#: inginious/frontend/templates/course_admin/settings.html:378
 msgid "New tag"
 msgstr "תגית חדשה"
 
-#: inginious/frontend/templates/course_admin/settings.html:388
-#: inginious/frontend/templates/course_admin/settings.html:447
-#: inginious/frontend/templates/course_admin/submissions.html:66
+#: inginious/frontend/templates/course_admin/settings.html:383
+#: inginious/frontend/templates/course_admin/settings.html:442
+#: inginious/frontend/templates/course_admin/submissions.html:67
 msgid "id"
 msgstr "מזהה"
 
-#: inginious/frontend/templates/course_admin/settings.html:389
+#: inginious/frontend/templates/course_admin/settings.html:384
 msgid "name"
 msgstr "שם"
 
-#: inginious/frontend/templates/course_admin/settings.html:390
-#: inginious/frontend/templates/course_admin/settings.html:448
+#: inginious/frontend/templates/course_admin/settings.html:385
+#: inginious/frontend/templates/course_admin/settings.html:443
 msgid "description"
 msgstr "תיאור"
 
-#: inginious/frontend/templates/course_admin/settings.html:391
+#: inginious/frontend/templates/course_admin/settings.html:386
 msgid "show to students"
 msgstr "הצגה לסטודנטים"
 
-#: inginious/frontend/templates/course_admin/settings.html:392
-#: inginious/frontend/templates/course_admin/settings.html:449
+#: inginious/frontend/templates/course_admin/settings.html:387
+#: inginious/frontend/templates/course_admin/settings.html:444
 msgid "type "
 msgstr "סוג "
 
-#: inginious/frontend/templates/course_admin/settings.html:405
-#: inginious/frontend/templates/course_admin/settings.html:423
+#: inginious/frontend/templates/course_admin/settings.html:400
+#: inginious/frontend/templates/course_admin/settings.html:418
 msgid "Skill"
 msgstr "מיומנות"
 
-#: inginious/frontend/templates/course_admin/settings.html:406
-#: inginious/frontend/templates/course_admin/settings.html:424
+#: inginious/frontend/templates/course_admin/settings.html:401
+#: inginious/frontend/templates/course_admin/settings.html:419
 msgid "Misconception"
 msgstr "הטעיה"
 
-#: inginious/frontend/templates/course_admin/settings.html:412
+#: inginious/frontend/templates/course_admin/settings.html:407
 msgid "Unknown name"
 msgstr "שם לא ידוע"
 
-#: inginious/frontend/templates/course_admin/settings.html:442
+#: inginious/frontend/templates/course_admin/settings.html:437
 #, fuzzy
 msgid "New field"
 msgstr "רענון שדות"
 
-#: inginious/frontend/templates/course_admin/stats.html:40
+#: inginious/frontend/templates/course_admin/stats.html:41
 msgid "Student progress"
 msgstr "תהליך של סטודנט"
 
-#: inginious/frontend/templates/course_admin/stats.html:53
-#: inginious/frontend/templates/course_admin/submissions.html:60
+#: inginious/frontend/templates/course_admin/stats.html:54
+#: inginious/frontend/templates/course_admin/submissions.html:61
 msgid "task name"
 msgstr "שם משימה"
 
-#: inginious/frontend/templates/course_admin/stats.html:54
+#: inginious/frontend/templates/course_admin/stats.html:55
 msgid "# student viewed"
 msgstr "מס׳ צפיות סטודנטים"
 
-#: inginious/frontend/templates/course_admin/stats.html:55
+#: inginious/frontend/templates/course_admin/stats.html:56
 msgid "# student attempted"
 msgstr "מס׳ ניסיונות סטודנטים"
 
-#: inginious/frontend/templates/course_admin/stats.html:56
+#: inginious/frontend/templates/course_admin/stats.html:57
 msgid "# student succeeded"
 msgstr "מס׳ הצלחות סטודנטים"
 
-#: inginious/frontend/templates/course_admin/stats.html:57
+#: inginious/frontend/templates/course_admin/stats.html:58
 msgid "# attempts"
 msgstr "מס׳ ניסיונות"
 
-#: inginious/frontend/templates/course_admin/stats.html:64
-#: inginious/frontend/templates/course_admin/student_info.html:42
-#: inginious/frontend/templates/course_admin/student_info.html:82
-#: inginious/frontend/templates/course_admin/student_list.html:161
+#: inginious/frontend/templates/course_admin/stats.html:65
+#: inginious/frontend/templates/course_admin/student_info.html:43
+#: inginious/frontend/templates/course_admin/student_info.html:83
+#: inginious/frontend/templates/course_admin/student_list.html:162
 msgid "View all submissions"
 msgstr "הצגת כל ההגשות"
 
-#: inginious/frontend/templates/course_admin/stats.html:105
+#: inginious/frontend/templates/course_admin/stats.html:106
 msgid "Global statistics"
 msgstr "סטטיסטיקה גלובלית"
 
-#: inginious/frontend/templates/course_admin/stats.html:109
+#: inginious/frontend/templates/course_admin/stats.html:110
 msgid "Submissions statistics"
 msgstr "סטטיסטיקת הגשות"
 
-#: inginious/frontend/templates/course_admin/stats.html:127
+#: inginious/frontend/templates/course_admin/stats.html:128
 msgid "Tag statistics"
 msgstr "סטטיסטיקת תגיות"
 
-#: inginious/frontend/templates/course_admin/stats.html:132
+#: inginious/frontend/templates/course_admin/stats.html:133
 msgid "Tag"
 msgstr "תגית"
 
-#: inginious/frontend/templates/course_admin/stats.html:133
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_storage.html:9
+#: inginious/frontend/templates/course_admin/stats.html:134
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:7
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:16
 msgid "All submissions"
 msgstr "כל ההגשות"
 
-#: inginious/frontend/templates/course_admin/stats.html:134
+#: inginious/frontend/templates/course_admin/stats.html:135
 msgid "Best submissions"
 msgstr "ההגשות המוצלחות ביותר"
 
-#: inginious/frontend/templates/course_admin/stats.html:262
+#: inginious/frontend/templates/course_admin/stats.html:263
 msgid "user"
 msgstr "משתמש"
 
-#: inginious/frontend/templates/course_admin/stats.html:262
-#: inginious/frontend/templates/course_admin/student_info.html:36
+#: inginious/frontend/templates/course_admin/stats.html:263
+#: inginious/frontend/templates/course_admin/student_info.html:37
 msgid "# submissions"
 msgstr "מס׳ הגשות"
 
-#: inginious/frontend/templates/course_admin/stats.html:262
+#: inginious/frontend/templates/course_admin/stats.html:263
 msgid "# valid submissions"
 msgstr "מס׳ הגשות תקפות"
 
-#: inginious/frontend/templates/course_admin/student_info.html:20
-#: inginious/frontend/templates/course_admin/student_list.html:35
-#: inginious/frontend/templates/course_admin/student_list.html:396
-#: inginious/frontend/templates/course_admin/submission.html:26
+#: inginious/frontend/templates/course_admin/student_info.html:21
+#: inginious/frontend/templates/course_admin/student_list.html:36
+#: inginious/frontend/templates/course_admin/student_list.html:397
+#: inginious/frontend/templates/course_admin/submission.html:27
 msgid "Students"
 msgstr "סטודנטים"
 
-#: inginious/frontend/templates/course_admin/student_info.html:29
+#: inginious/frontend/templates/course_admin/student_info.html:30
 msgid "Statistics for student {realname} ({username})"
 msgstr "סטטיסטיקה על הסטודנט/ית {realname} ‏({username})"
 
-#: inginious/frontend/templates/course_admin/student_info.html:34
+#: inginious/frontend/templates/course_admin/student_info.html:35
 msgid "task"
 msgstr "משימה"
 
-#: inginious/frontend/templates/course_admin/student_info.html:35
+#: inginious/frontend/templates/course_admin/student_info.html:36
 msgid "status"
 msgstr "מצב"
 
-#: inginious/frontend/templates/course_admin/student_info.html:62
+#: inginious/frontend/templates/course_admin/student_info.html:63
 msgid "Not served by the task dispenser"
 msgstr "לא בשירות של מנפק המשימות"
 
-#: inginious/frontend/templates/course_admin/student_info.html:68
+#: inginious/frontend/templates/course_admin/student_info.html:69
 msgid "Not viewed"
 msgstr "לא נצפה"
 
-#: inginious/frontend/templates/course_admin/student_info.html:70
+#: inginious/frontend/templates/course_admin/student_info.html:71
 msgid "Not attempted (viewed)"
 msgstr "לא נוסה (נצפה)"
 
-#: inginious/frontend/templates/course_admin/student_info.html:72
-#: inginious/frontend/templates/course_admin/student_info.html:75
+#: inginious/frontend/templates/course_admin/student_info.html:73
+#: inginious/frontend/templates/course_admin/student_info.html:76
 msgid "View evaluation submission"
 msgstr "הצגת הגשת הערכה"
 
-#: inginious/frontend/templates/course_admin/student_info.html:85
+#: inginious/frontend/templates/course_admin/student_info.html:86
 msgid "Reset state"
 msgstr "איפוס מצב"
 
-#: inginious/frontend/templates/course_admin/student_info.html:98
+#: inginious/frontend/templates/course_admin/student_info.html:99
 msgid "Reset State"
 msgstr "איפוס מצב"
 
-#: inginious/frontend/templates/course_admin/student_info.html:102
+#: inginious/frontend/templates/course_admin/student_info.html:103
 msgid "This will reset the state for {}. Are you sure ?"
 msgstr "פעולה זו תאפס את המצב של {}. להמשיך?"
 
-#: inginious/frontend/templates/course_admin/student_info.html:107
+#: inginious/frontend/templates/course_admin/student_info.html:108
 #: inginious/frontend/templates/course_admin/submissions_query.html:251
 msgid "Reset"
 msgstr "איפוס"
 
-#: inginious/frontend/templates/course_admin/student_list.html:39
+#: inginious/frontend/templates/course_admin/student_list.html:40
 msgid "Teaching staff"
 msgstr "סגל ההוראה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:58
+#: inginious/frontend/templates/course_admin/student_list.html:59
 msgid "Number of students"
 msgstr "מספר הסטודנטים"
 
-#: inginious/frontend/templates/course_admin/student_list.html:81
+#: inginious/frontend/templates/course_admin/student_list.html:82
 #, fuzzy
 msgid "Upload audiences"
 msgstr "הוספת קהל"
 
-#: inginious/frontend/templates/course_admin/student_list.html:82
-#: inginious/frontend/templates/course_admin/student_list.html:212
+#: inginious/frontend/templates/course_admin/student_list.html:83
+#: inginious/frontend/templates/course_admin/student_list.html:213
 msgid "Download structure"
 msgstr "הורדת המבנה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:104
+#: inginious/frontend/templates/course_admin/student_list.html:105
 #, fuzzy
 msgid "Upload audience creation"
 msgstr "תיאור קהל חדש"
 
-#: inginious/frontend/templates/course_admin/student_list.html:108
-#: inginious/frontend/templates/course_admin/student_list.html:226
+#: inginious/frontend/templates/course_admin/student_list.html:109
+#: inginious/frontend/templates/course_admin/student_list.html:227
 msgid "Note : Please refer to documentation for file format"
 msgstr "לתשומת לבך: נא לפנות לתיעוד למידע על תצורת הקובץ"
 
-#: inginious/frontend/templates/course_admin/student_list.html:115
+#: inginious/frontend/templates/course_admin/student_list.html:116
 #, fuzzy
 msgid "Upload (will erase current repartition)"
 msgstr "העלאה (ימחק את ההגדרות הנוכחיות)"
 
-#: inginious/frontend/templates/course_admin/student_list.html:127
+#: inginious/frontend/templates/course_admin/student_list.html:128
 #, fuzzy
 msgid "Download audiences structure"
 msgstr "הורדת המבנה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:132
+#: inginious/frontend/templates/course_admin/student_list.html:133
 #, fuzzy
 msgid "Prefered field"
 msgstr "רענון שדות"
 
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:16
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:24
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:39
-#: inginious/frontend/templates/course_admin/student_list.html:141
-#: inginious/frontend/templates/course_admin/submissions.html:250
+#: inginious/frontend/templates/course_admin/student_list.html:142
+#: inginious/frontend/templates/course_admin/submissions.html:253
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:17
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:25
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:40
 msgid "Download"
 msgstr "הורדה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:152
+#: inginious/frontend/templates/course_admin/student_list.html:153
 msgid "audience"
 msgstr "קהל"
 
-#: inginious/frontend/templates/course_admin/student_list.html:153
+#: inginious/frontend/templates/course_admin/student_list.html:154
 msgid "# students"
 msgstr "מס׳ סטודנטים"
 
-#: inginious/frontend/templates/course_admin/student_list.html:154
+#: inginious/frontend/templates/course_admin/student_list.html:155
 #: inginious/frontend/templates/course_admin/student_list_table.html:18
 msgid "# task tried"
 msgstr "מס׳ משימות שנוסו"
 
-#: inginious/frontend/templates/course_admin/student_list.html:155
+#: inginious/frontend/templates/course_admin/student_list.html:156
 #: inginious/frontend/templates/course_admin/student_list_table.html:19
 msgid "# task done"
 msgstr "מס׳ משימות שבוצעו"
 
-#: inginious/frontend/templates/course_admin/student_list.html:167
+#: inginious/frontend/templates/course_admin/student_list.html:168
 msgid "My audience(s)"
 msgstr "הקהלים שלי"
 
-#: inginious/frontend/templates/course_admin/student_list.html:167
+#: inginious/frontend/templates/course_admin/student_list.html:168
 msgid "Other audience(s)"
 msgstr "קהלים אחרים"
 
-#: inginious/frontend/templates/course_admin/student_list.html:183
+#: inginious/frontend/templates/course_admin/student_list.html:184
 msgid "Edit audience"
 msgstr "עריכת קהל"
 
-#: inginious/frontend/templates/course_admin/student_list.html:200
+#: inginious/frontend/templates/course_admin/student_list.html:201
 msgid "New audience description"
 msgstr "תיאור קהל חדש"
 
-#: inginious/frontend/templates/course_admin/student_list.html:201
+#: inginious/frontend/templates/course_admin/student_list.html:202
 msgid "New audience"
 msgstr "קהל חדש"
 
-#: inginious/frontend/templates/course_admin/student_list.html:211
+#: inginious/frontend/templates/course_admin/student_list.html:212
 msgid "Upload structure"
 msgstr "העלאת המבנה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:222
+#: inginious/frontend/templates/course_admin/student_list.html:223
 msgid "Upload course structure"
 msgstr "העלאת מבנה הקורס"
 
-#: inginious/frontend/templates/course_admin/student_list.html:228
+#: inginious/frontend/templates/course_admin/student_list.html:229
 msgid "Course structure"
 msgstr "מבנה הקורס"
 
-#: inginious/frontend/templates/course_admin/student_list.html:233
+#: inginious/frontend/templates/course_admin/student_list.html:234
 msgid "Upload (will erase current settings)"
 msgstr "העלאה (ימחק את ההגדרות הנוכחיות)"
 
-#: inginious/frontend/templates/course_admin/student_list.html:265
+#: inginious/frontend/templates/course_admin/student_list.html:266
 msgid "Student username (will be registered) :"
 msgstr "שם המשתמש של הסטודנט/ית (יתועד):"
 
-#: inginious/frontend/templates/course_admin/student_list.html:268
+#: inginious/frontend/templates/course_admin/student_list.html:269
 msgid "Student username"
 msgstr "שם המשתמש של הסטודנט/ית"
 
-#: inginious/frontend/templates/course_admin/student_list.html:286
+#: inginious/frontend/templates/course_admin/student_list.html:287
 msgid "Ungrouped students"
 msgstr "סטודנטים שאינם בקבוצות"
 
-#: inginious/frontend/templates/course_admin/student_list.html:312
-#: inginious/frontend/templates/course_admin/student_list.html:333
+#: inginious/frontend/templates/course_admin/student_list.html:313
+#: inginious/frontend/templates/course_admin/student_list.html:334
 msgid "Group description"
 msgstr "תיאור קבוצה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:312
-#: inginious/frontend/templates/course_admin/student_list.html:420
+#: inginious/frontend/templates/course_admin/student_list.html:313
+#: inginious/frontend/templates/course_admin/student_list.html:421
 msgid "New group"
 msgstr "קבוצה חדשה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:315
-#: inginious/frontend/templates/course_admin/student_list.html:336
+#: inginious/frontend/templates/course_admin/student_list.html:316
+#: inginious/frontend/templates/course_admin/student_list.html:337
 msgid "Max group size :"
 msgstr "גודל קבוצה מרבי:"
 
-#: inginious/frontend/templates/course_admin/student_list.html:321
-#: inginious/frontend/templates/course_admin/student_list.html:342
+#: inginious/frontend/templates/course_admin/student_list.html:322
+#: inginious/frontend/templates/course_admin/student_list.html:343
 msgid "Delete group"
 msgstr "מחיקת קבוצה"
 
-#: inginious/frontend/templates/course_admin/student_list.html:353
+#: inginious/frontend/templates/course_admin/student_list.html:354
 msgid "Restrict to audiences"
 msgstr "הגבלה לקהלים"
 
-#: inginious/frontend/templates/course_admin/student_list.html:365
+#: inginious/frontend/templates/course_admin/student_list.html:366
 msgid "Add audience"
 msgstr "הוספת קהל"
 
-#: inginious/frontend/templates/course_admin/student_list.html:425
+#: inginious/frontend/templates/course_admin/student_list.html:426
 msgid "Clean groups"
 msgstr "פינוי קבוצות"
 
-#: inginious/frontend/templates/course_admin/student_list.html:430
+#: inginious/frontend/templates/course_admin/student_list.html:431
 msgid "Delete all groups"
 msgstr "מחיקת כל הקבוצות"
 
@@ -2839,8 +3016,7 @@ msgid "current grade"
 msgstr "ציון נוכחי"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:21
-msgid ""
-"The current grade is computed over the tasks that are visible for users."
+msgid "The current grade is computed over the tasks that are visible for users."
 msgstr "הציון הנוכחי מחושב על פני המשימות שגלויות למשתמשים."
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:28
@@ -2859,125 +3035,125 @@ msgstr "פעולה זו תסיר {} מהקורס. להמשיך?"
 msgid "Remove {}"
 msgstr "להסיר את {}"
 
-#: inginious/frontend/templates/course_admin/submission.html:43
+#: inginious/frontend/templates/course_admin/submission.html:44
 msgid "Submission {}"
 msgstr "הגשת {}"
 
-#: inginious/frontend/templates/course_admin/submission.html:45
+#: inginious/frontend/templates/course_admin/submission.html:46
 msgid ""
 "This page show what was shown to the student when (s)he made his/her "
 "submission."
 msgstr "עמוד זה מציג מה הופיע בפני הסטודנט/ית בעת ההגשה."
 
-#: inginious/frontend/templates/course_admin/submission.html:50
+#: inginious/frontend/templates/course_admin/submission.html:51
 msgid "Click here to hide/display context informations"
 msgstr "לחיצה כאן תציג/תסתיר את פרטי ההקשר"
 
-#: inginious/frontend/templates/course_admin/submission.html:56
+#: inginious/frontend/templates/course_admin/submission.html:57
 msgid "Download full submission"
 msgstr "הורדת ההגשה המלאה"
 
-#: inginious/frontend/templates/course_admin/submission.html:63
-#: inginious/frontend/templates/course_admin/submissions.html:183
+#: inginious/frontend/templates/course_admin/submission.html:64
+#: inginious/frontend/templates/course_admin/submissions.html:186
 msgid "Replay submission"
 msgstr "הפעלת הגשה מחדש"
 
-#: inginious/frontend/templates/course_admin/submission.html:69
+#: inginious/frontend/templates/course_admin/submission.html:70
 msgid "Replay as {}"
 msgstr "הפעלה מחדש בתור {}"
 
-#: inginious/frontend/templates/course_admin/submission.html:75
+#: inginious/frontend/templates/course_admin/submission.html:76
 msgid "Replay/debug as {}"
 msgstr "הפעלה מחדש/ניפוי שגיאות בתור {}"
 
-#: inginious/frontend/templates/course_admin/submission.html:135
+#: inginious/frontend/templates/course_admin/submission.html:136
 msgid "This problem id is not defined in the task."
 msgstr "מזהה בעיה זאת לא מוגדר במשימה."
 
-#: inginious/frontend/templates/course_admin/submission.html:137
+#: inginious/frontend/templates/course_admin/submission.html:138
 msgid "This problem is not present in the submission."
 msgstr "בעיה זאת לא מופיעה בהגשה."
 
-#: inginious/frontend/templates/course_admin/submissions.html:43
+#: inginious/frontend/templates/course_admin/submissions.html:44
 #, fuzzy
 msgid "submissions selected"
 msgstr "אחסון הגשות"
 
-#: inginious/frontend/templates/course_admin/submissions.html:53
+#: inginious/frontend/templates/course_admin/submissions.html:54
 msgid "student name"
 msgstr "שם הסטודנט/ית"
 
-#: inginious/frontend/templates/course_admin/submissions.html:62
+#: inginious/frontend/templates/course_admin/submissions.html:63
 msgid "taskid"
 msgstr "מזהה משימה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:68
+#: inginious/frontend/templates/course_admin/submissions.html:69
 msgid "submitted on"
 msgstr "הוגש ב־"
 
-#: inginious/frontend/templates/course_admin/submissions.html:69
+#: inginious/frontend/templates/course_admin/submissions.html:70
 msgid "replayed on"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/submissions.html:70
+#: inginious/frontend/templates/course_admin/submissions.html:71
 msgid "result"
 msgstr "תוצאה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:72
+#: inginious/frontend/templates/course_admin/submissions.html:73
 msgid "tags"
 msgstr "תגיות"
 
-#: inginious/frontend/templates/course_admin/submissions.html:80
+#: inginious/frontend/templates/course_admin/submissions.html:81
 msgid "Download current selection"
 msgstr "הורדת הבחירה הנוכחית"
 
-#: inginious/frontend/templates/course_admin/submissions.html:83
+#: inginious/frontend/templates/course_admin/submissions.html:84
 msgid "Replay current selection"
 msgstr "הפעלת הבחירה הנוכחית מחדש"
 
-#: inginious/frontend/templates/course_admin/submissions.html:135
-#: inginious/frontend/templates/course_admin/submissions.html:267
+#: inginious/frontend/templates/course_admin/submissions.html:136
+#: inginious/frontend/templates/course_admin/submissions.html:270
 msgid "Waiting"
 msgstr "בהמתנה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:179
+#: inginious/frontend/templates/course_admin/submissions.html:182
 msgid "View submission"
 msgstr "הצגת הגשה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:180
+#: inginious/frontend/templates/course_admin/submissions.html:183
 msgid "Download submission"
 msgstr "הורדת הגשה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:226
+#: inginious/frontend/templates/course_admin/submissions.html:229
 msgid "Download format"
 msgstr "תצורת הורדה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:230
+#: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "Folder format"
 msgstr "תצורת תיקייה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:233
+#: inginious/frontend/templates/course_admin/submissions.html:236
 msgid "taskid/username"
 msgstr "מזהה משימה/שם משתמש"
 
-#: inginious/frontend/templates/course_admin/submissions.html:233
+#: inginious/frontend/templates/course_admin/submissions.html:236
 msgid "taskid/audience"
 msgstr "מזהה משימה/קהל"
 
-#: inginious/frontend/templates/course_admin/submissions.html:233
+#: inginious/frontend/templates/course_admin/submissions.html:236
 msgid "username/taskid"
 msgstr "שם משתמש/מזהה משימה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:233
+#: inginious/frontend/templates/course_admin/submissions.html:236
 msgid "audience/taskid"
 msgstr "קהל/מזהה משימה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:240
+#: inginious/frontend/templates/course_admin/submissions.html:243
 #: inginious/frontend/templates/course_admin/submissions_query.html:154
 msgid "Only evaluation submissions"
 msgstr "רק הגשות הערכה"
 
-#: inginious/frontend/templates/course_admin/submissions.html:244
+#: inginious/frontend/templates/course_admin/submissions.html:247
 msgid "Simplified file tree"
 msgstr "עץ קבצים מופשט"
 
@@ -3121,496 +3297,42 @@ msgstr "הגשות בעמוד"
 msgid "Filter"
 msgstr "סינון"
 
-#: inginious/frontend/templates/course_admin/task_edit.html:6
-msgid "Edit {}"
-msgstr "עריכה של {}"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:21
-#: inginious/frontend/templates/course_admin/task_edit.html:28
-msgid "Edit task \"{}\""
-msgstr "עריכת המשימה „{}”"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:10
-#: inginious/frontend/templates/course_admin/task_edit.html:32
-msgid "View task"
-msgstr "הצגת משימה"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:49
-msgid "Environment"
-msgstr "סביבה"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:52
-msgid "Subproblems"
-msgstr "תת־בעיות"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:55
-msgid "Task files"
-msgstr "קובצי משימה"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:79
-msgid "File list"
-msgstr "רשימת קבצים"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:109
-msgid "Problem id:"
-msgstr "מזהה בעיה:"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:126
-msgid "A title for this question"
-msgstr "כותרת לשאלה הזאת"
-
-#: inginious/frontend/templates/course_admin/task_edit.html:144
-msgid "Are you sure that you want to delete this subproblem?"
-msgstr "למחוק את תת־הבעיה הזאת?"
-
-#: inginious/frontend/templates/course_admin/task_list.html:29
-#: inginious/frontend/templates/course_admin/task_list.html:41
+#: inginious/frontend/templates/course_admin/task_list.html:30
+#: inginious/frontend/templates/course_admin/task_list.html:42
+#: inginious/frontend/templates/taskset_admin/template.html:30
+#: inginious/frontend/templates/taskset_admin/template.html:42
 msgid "Switch task dispenser"
 msgstr "החלפת מנפק משימות"
 
-#: inginious/frontend/templates/course_admin/task_list.html:47
-msgid ""
-"This will wipe your current course structure. Tasks file won't be deleted "
-"but you'll have to import them again."
-msgstr ""
-"פעולה זו תנפה את מבנה הקורס שלך. קובץ המשימות לא יימחק אך יהיה עליך לייבא "
-"אותן שוב."
-
 #: inginious/frontend/templates/course_admin/task_list.html:48
+msgid ""
+"This will wipe your current course structure. Tasks file won't be deleted"
+" but you'll have to import them again."
+msgstr ""
+"פעולה זו תנפה את מבנה הקורס שלך. קובץ המשימות לא יימחק אך יהיה עליך לייבא"
+" אותן שוב."
+
+#: inginious/frontend/templates/course_admin/task_list.html:49
+#: inginious/frontend/templates/taskset_admin/template.html:49
 msgid "New task dispenser:"
 msgstr "מנפק משימות חדש:"
 
-#: inginious/frontend/templates/course_admin/task_list.html:69
-msgid "WebDAV access"
-msgstr "גישה דרך WebDAV"
-
-#: inginious/frontend/templates/course_admin/task_list.html:74
-msgid "Use this URL to access your course folder using WebDAV:"
-msgstr "ניתן להשתמש בכתובת זו כדי לגשת לתיקיית הקורס שלך דרך WebDAV:"
-
-#: inginious/frontend/templates/course_admin/task_list.html:77
-msgid "URL"
-msgstr "כתובת"
-
-#: inginious/frontend/templates/course_admin/task_list.html:97
+#: inginious/frontend/templates/course_admin/task_list.html:75
+#: inginious/frontend/templates/taskset_admin/template.html:75
 msgid "Changes saved."
 msgstr "השינויים נשמרו."
 
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:13
-msgid "Filetype"
-msgstr "סוג קובץ"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:30
-#: inginious/frontend/templates/course_admin/subproblems/code.html:5
-#: inginious/frontend/templates/course_admin/subproblems/file.html:5
-#: inginious/frontend/templates/course_admin/subproblems/match.html:5
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:5
-msgid "Context"
-msgstr "הקשר"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:36
-msgid "Author"
-msgstr "יוצר"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:43
-msgid "Your name"
-msgstr "השם שלך"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:47
-msgid "Contact URL"
-msgstr "כתובת ליצירת קשר"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:53
-msgid "Random inputs"
-msgstr "קלטים אקראיים"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:60
-msgid "Regenerate random inputs for each reloading of the task page"
-msgstr "לייצר מחדש קלטים אקראיים לכל רענון של עמוד המשימות"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:60
-msgid "Regenerate input random"
-msgstr "יצירת קלט אקראי מחדש"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:5
-msgid "Timeout limit (in seconds)"
-msgstr "מגבלת תום זמן (בשניות)"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:11
-msgid "Hard timeout limit (in seconds) <small>Default to 3*timeout</small>"
-msgstr "מגבלת תום זמן קשיחה (בשניות) <small>ברירת המחדל היא 3*תום הזמן</small>"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:18
-msgid "Memory limit (in megabytes)"
-msgstr "מגבלת זיכרון (במגהבתים)"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:24
-msgid "Allow internet access inside the grading container?"
-msgstr "לאפשר לגשת לאינטרנט מתוך קונטיינר הציונים?"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:24
-msgid "It also adds and configures local interfaces with IPv4 and IPv6."
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:34
-msgid "Allow ssh?"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:45
+#: inginious/frontend/templates/course_admin/task_list.html:85
 msgid ""
-"Custom command to be run in container <small>(instead of running the run "
-"script)</small>"
+"This course currently includes legacy tasks with importable data to the "
+"task dispenser settings. The taskset owner can clean the task files."
 msgstr ""
-"פקודה בהתאמה אישית שתופעל בקונטיינר <small>(במקום הרצת סקריפט ההפעלה)</small>"
 
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:48
-msgid "Optional"
-msgstr "רשות"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/env_generic_docker_oci.html:53
-msgid "Are the task's responses written in HTML instead of restructuredText?"
-msgstr "האם התגובות במשימה כתובות ב־HTML במקום ב־restructuredText?"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/environment.html:5
-msgid "Grading environment type"
-msgstr "סוג סביבת חלוקת ציונים"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/environment.html:20
-msgid "Grading environment"
-msgstr "סביבת חלוקת ציונים"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:9
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:60
-msgid "Upload a file"
-msgstr "העלאת קובץ"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:16
-msgid "File:"
-msgstr "קובץ:"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:20
-msgid "File path:"
-msgstr "נתיב קובץ:"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:27
-msgid "Upload"
-msgstr "העלאה"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:15
-msgid "Path"
-msgstr "נתיב"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:17
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:44
-msgid "Edit"
-msgstr "עריכה"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:18
-msgid "Move"
-msgstr "העברה"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:49
-msgid "Move/Rename"
-msgstr "העברה/שינוי שם"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/files.html:59
-msgid "Create a new file"
-msgstr "יצירת קובץ חדש"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/subproblems.html:8
-msgid "New problem id"
-msgstr "אין מזהה תקלה"
-
-#: inginious/frontend/templates/course_admin/edit_tabs/subproblems.html:13
-msgid "Problem type"
-msgstr "סוג תקלה"
-
-#: inginious/frontend/templates/course_admin/subproblems/code.html:12
-msgid "Language"
-msgstr "שפה"
-
-#: inginious/frontend/templates/course_admin/subproblems/code.html:14
-msgid "Language used in this question (c/cpp/java/python/oz/...)"
-msgstr "השפה בה השתמשת בתשובה (c‏/cpp‏/java‏/python‏/oz/…)"
-
-#: inginious/frontend/templates/course_admin/subproblems/code.html:23
-msgid "Multiline code"
-msgstr "קוד במספר שורות"
-
-#: inginious/frontend/templates/course_admin/subproblems/code.html:25
-msgid "Single-line code"
-msgstr "קוד בשורה אחת"
-
-#: inginious/frontend/templates/course_admin/subproblems/code.html:31
-msgid "Optional?"
-msgstr "רשות?"
-
-#: inginious/frontend/templates/course_admin/subproblems/code.html:41
-msgid "Default value"
-msgstr "ערך ברירת מחדל"
-
-#: inginious/frontend/templates/course_admin/subproblems/file.html:11
+#: inginious/frontend/templates/course_admin/task_list.html:87
+#: inginious/frontend/templates/taskset_admin/template.html:87
 #, fuzzy
-msgid "Allowed file extensions (including the dot, separated by commas)"
-msgstr "סיומות הקבצים המורשות (כולל הנקודה, עם הפרדה ברווחים)"
-
-#: inginious/frontend/templates/course_admin/subproblems/file.html:17
-msgid "Maximum file size (in bytes)"
-msgstr "גודל הקובץ המרבי (בבתים)"
-
-#: inginious/frontend/templates/course_admin/subproblems/file.html:26
-msgid "File upload"
-msgstr "העלאת קובץ"
-
-#: inginious/frontend/templates/course_admin/subproblems/match.html:11
-msgid "Answer"
-msgstr "תשובה"
-
-#: inginious/frontend/templates/course_admin/subproblems/match.html:13
-msgid "Answer of this question"
-msgstr "התשובה לשאלה"
-
-#: inginious/frontend/templates/course_admin/subproblems/match.html:17
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:27
-msgid "Count error only at top of the page?"
-msgstr "לספור שגיאות רק בראש העמוד?"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:11
-msgid "Can select multiple answers"
-msgstr "אפשר לבחור מספר תשובות"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:19
-msgid "Unshuffle answers"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:35
-msgid "Number of choices to display (0 = all choices)"
-msgstr "מספר האפשרויות להצגה (0 = כל האפשרויות)"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:41
-msgid "Success message"
-msgstr "הודעת הצלחה"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:45
-msgid "An optional success message"
-msgstr "הודעת הצלחה כרשות"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:49
-msgid "Error message"
-msgstr "הודעת שגיאה"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:53
-msgid "An optional error message"
-msgstr "הודעת שגיאה כרשות"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:58
-msgid "Choices"
-msgstr "אפשרויות"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice.html:63
-msgid "Add new choice"
-msgstr "הוספת אפשרות חדשה"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice_templates.html:8
-msgid "Content"
-msgstr "תוכן"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice_templates.html:15
-msgid "Feedback message (displayed when selected)"
-msgstr "הודעת משוב (מוצגת כשנבחרת)"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice_templates.html:19
-msgid "An optional feedback message"
-msgstr "הודעת משוב כרשות"
-
-#: inginious/frontend/templates/course_admin/subproblems/multiple_choice_templates.html:26
-msgid "Valid ?"
-msgstr "תקף?"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/combinatory_test.html:7
-msgid "Combinatory tests"
-msgstr "בדיקות קומבינטוריקה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/combinatory_test.html:11
-msgid ""
-"Only the specified amount of tasks to be displayed will be shown to the "
-"user. There is no state: changing the amount of tasks per section, section "
-"position or section title will affect the effective task set a user will be "
-"displayed."
-msgstr ""
-"רק כמות המשימות שצוינה תוצג למשתמש. אין התייחסות למצב, החלפת כמות המשימות "
-"לפי סעיף, מיקום בסעי, או כותרת בסעיף תשפיע על המשימה הפעילה שתוצג בפני "
-"המשתמש."
-
-#: inginious/frontend/templates/course_admin/task_dispensers/combinatory_test.html:13
-msgid ""
-"As an administrator, the only way to access all the tasks is through this "
-"administration page."
-msgstr "כחלק מההנהלה, הדרך היחידה לגשת לכל המשימות היא באמצעות דף הניהול הזה."
-
-#: inginious/frontend/templates/course_admin/task_dispensers/combinatory_test.html:27
-#: inginious/frontend/templates/course_admin/task_dispensers/toc.html:17
-msgid "Add section"
-msgstr "הוספת סעיף"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/combinatory_test.html:33
-#: inginious/frontend/templates/course_admin/task_dispensers/toc.html:23
-msgid "New section"
-msgstr "סעיף חדש"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/empty_section.html:25
-msgid "Drag tasks or section here."
-msgstr "נא לגרור משימות או סעיף לכאן."
-
-#: inginious/frontend/templates/course_admin/task_dispensers/section_menu.html:10
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:78
-msgid "Add tasks"
-msgstr "הוספת משימות"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/section_menu.html:14
-msgid "Add subsection"
-msgstr "הוספת תת־סעיף"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/section_menu.html:18
-msgid "Rename"
-msgstr "שינוי שם"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:6
-#, fuzzy
-msgid "Task parameters"
-msgstr "שם משימה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:23
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:11
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:33
-msgid "Delete task"
-msgstr "מחיקת משימה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/task_list.html:35
-msgid "No valid task with id:"
-msgstr "אין משימה תקפה עם המזהה:"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/task_list.html:39
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:123
-msgid "Delete invalid task"
-msgstr "מחיקת משימה שגויה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:82
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:85
-msgid "Create new task"
-msgstr "יצירת משימה חדשה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:84
-msgid "New task id"
-msgstr "מזהה משימה חדש"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:87
-msgid "Import from course filesystem"
-msgstr "ייבוא ממערכת הקבצים של הקורס"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:88
-msgid "Search..."
-msgstr "חיפוש…"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:90
-msgid "No unassigned tasks in the filesystem of this course"
-msgstr "אין משימות בלתי מוקצות במערכת הקבצים של הקורס הזה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util.html:120
-msgid "New task with id: "
-msgstr "משימה חדשה עם מזהה: "
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:9
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:30
-msgid "Delete section"
-msgstr "מחיקת סעיף"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:17
-msgid ""
-"Once saved, this will <b>permanently</b> delete this section, all its "
-"subsections and remove all the tasks and their files from INGInious."
-msgstr ""
-"לאחר השמירה, פעולה זו תמחק את הסעיף הזה על כל תת־הסעיפים שלו ותסיר את "
-"המשימות ואת הקבצים שלהן מ־INGInious‏ <b>לצמיתות</b>."
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:19
-msgid ""
-"Once saved, this will <b>permanently</b> remove the task and its files from "
-"INGInious."
-msgstr ""
-"לאחר השמירה, פעולה זו תסיר את המשימה ואת הקבצים שלה מ־INGInious‏ <b>לצמיתות</"
-"b>."
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:23
-msgid "Wipe all submissions"
-msgstr "ניפוי כל ההגשות"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:29
-#: inginious/frontend/templates/course_admin/task_dispensers/util_delete_modal.html:32
-msgid "Keep files"
-msgstr "להשאיר את הקבצים"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/util_task_edit_modal.html:8
-#, fuzzy
-msgid "Edit task {}"
-msgstr "עריכת המשימה „{}”"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:11
-msgid "Never"
-msgstr "לעולם לא"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:18
-msgid "Always"
-msgstr "תמיד"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:26
-msgid "Custom, from: {} to: {}"
-msgstr "מותאם אישית, מ־: {} עד: {}"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:52
-msgid "Students can still submit after this date"
-msgstr "סטודנטים עדיין יכולים להגיש אחרי התאריך הזה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/accessibility.html:52
-msgid "Soft Deadline"
-msgstr "מועד הגשה גמיש"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/categories.html:7
-#, fuzzy
-msgid "Tag name, separated by commas"
-msgstr "מזהה תגיות, מופרדים בפסיקים"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/evaluation_mode.html:4
-msgid "Evaluation submission"
-msgstr "הגשת הערכה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/groups.html:12
-msgid "Individually"
-msgstr "בנפרד"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/groups.html:21
-msgid "Per group"
-msgstr "לפי קבוצה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_limit.html:3
-msgid "Submission limits"
-msgstr "מגבלות הגשה"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_limit.html:14
-msgid "Hard limit: {nbr_submissions} submission(s)"
-msgstr "מגבלה קשיחה: {nbr_submissions} הגשות"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_limit.html:23
-msgid "Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)"
-msgstr "מגבלה גמישה: {nbr_submissions} הגשות כל {nbr_hours} שעות"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/submission_storage.html:15
-msgid "Only the last {nbr_submissions} submissions"
-msgstr "רק {nbr_submissions} ההגשות האחרונות"
-
-#: inginious/frontend/templates/course_admin/task_dispensers/config_items/weight.html:4
-msgid "Grade weight (in comparison to other tasks)"
-msgstr "משקל ציון (בהשוואה למשימות אחרות)"
+msgid "Import settings"
+msgstr "הגדרות קורס"
 
 #: inginious/frontend/templates/preferences/bindings.html:46
 msgid "Refresh fields"
@@ -3680,6 +3402,238 @@ msgstr "הגעת למועד ההגשה"
 msgid "Weight : "
 msgstr ""
 
+#: inginious/frontend/templates/task_dispensers_admin/combinatory_test.html:5
+msgid "Combinatory tests"
+msgstr "בדיקות קומבינטוריקה"
+
+#: inginious/frontend/templates/task_dispensers_admin/combinatory_test.html:9
+msgid ""
+"Only the specified amount of tasks to be displayed will be shown to the "
+"user. There is no state: changing the amount of tasks per section, "
+"section position or section title will affect the effective task set a "
+"user will be displayed."
+msgstr ""
+"רק כמות המשימות שצוינה תוצג למשתמש. אין התייחסות למצב, החלפת כמות המשימות"
+" לפי סעיף, מיקום בסעי, או כותרת בסעיף תשפיע על המשימה הפעילה שתוצג בפני "
+"המשתמש."
+
+#: inginious/frontend/templates/task_dispensers_admin/combinatory_test.html:11
+msgid ""
+"As an administrator, the only way to access all the tasks is through this"
+" administration page."
+msgstr "כחלק מההנהלה, הדרך היחידה לגשת לכל המשימות היא באמצעות דף הניהול הזה."
+
+#: inginious/frontend/templates/task_dispensers_admin/combinatory_test.html:27
+#: inginious/frontend/templates/task_dispensers_admin/toc.html:21
+msgid "Add section"
+msgstr "הוספת סעיף"
+
+#: inginious/frontend/templates/task_dispensers_admin/combinatory_test.html:33
+#: inginious/frontend/templates/task_dispensers_admin/toc.html:27
+msgid "New section"
+msgstr "סעיף חדש"
+
+#: inginious/frontend/templates/task_dispensers_admin/empty_section.html:26
+msgid "Drag tasks or section here."
+msgstr "נא לגרור משימות או סעיף לכאן."
+
+#: inginious/frontend/templates/task_dispensers_admin/section_menu.html:10
+#: inginious/frontend/templates/task_dispensers_admin/util.html:80
+msgid "Add tasks"
+msgstr "הוספת משימות"
+
+#: inginious/frontend/templates/task_dispensers_admin/section_menu.html:14
+msgid "Add subsection"
+msgstr "הוספת תת־סעיף"
+
+#: inginious/frontend/templates/task_dispensers_admin/section_menu.html:18
+msgid "Rename"
+msgstr "שינוי שם"
+
+#: inginious/frontend/templates/task_dispensers_admin/task_buttons.html:6
+#, fuzzy
+msgid "Task settings"
+msgstr "הגדרות בסיסיות"
+
+#: inginious/frontend/templates/task_dispensers_admin/task_buttons.html:11
+msgid "View task"
+msgstr "הצגת משימה"
+
+#: inginious/frontend/templates/task_dispensers_admin/task_buttons.html:37
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:11
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:33
+#: inginious/frontend/templates/taskset_admin/settings.html:130
+#: inginious/frontend/templates/taskset_admin/settings.html:152
+msgid "Delete task"
+msgstr "מחיקת משימה"
+
+#: inginious/frontend/templates/task_dispensers_admin/task_list.html:49
+msgid "No valid task with id:"
+msgstr "אין משימה תקפה עם המזהה:"
+
+#: inginious/frontend/templates/task_dispensers_admin/task_list.html:54
+msgid "Delete invalid task"
+msgstr "מחיקת משימה שגויה"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:51
+#, fuzzy
+msgid "Edit selected tasks"
+msgstr "בחירת משימות"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:84
+msgid "Search..."
+msgstr "חיפוש…"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:86
+#, fuzzy
+msgid "No unassigned tasks in the taskset."
+msgstr "אין משימות בלתי מוקצות במערכת הקבצים של הקורס הזה"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:126
+#, fuzzy
+msgid "Grouped actions"
+msgstr "תיאור קבוצה"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:128
+#, fuzzy
+msgid "Change selection"
+msgstr "סעיף חדש"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:130
+#, fuzzy
+msgid "Move to section..."
+msgstr "מחיקת סעיף"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:133
+#, fuzzy
+msgid "Compact view"
+msgstr "לא נצפה"
+
+#: inginious/frontend/templates/task_dispensers_admin/util.html:137
+#, fuzzy
+msgid "On setting: "
+msgstr "הגדרות"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:9
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:31
+msgid "Delete section"
+msgstr "מחיקת סעיף"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:13
+#, fuzzy
+msgid "Delete selected tasks"
+msgstr "בחירת משימות"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:19
+#, fuzzy
+msgid "Once saved, this will delete this section, all its subsections."
+msgstr ""
+"לאחר השמירה, פעולה זו תמחק את הסעיף הזה על כל תת־הסעיפים שלו ותסיר את "
+"המשימות ואת הקבצים שלהן מ־INGInious‏ <b>לצמיתות</b>."
+
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:21
+#, fuzzy
+msgid "Once saved, this will remove the task."
+msgstr ""
+"לאחר השמירה, פעולה זו תסיר את המשימה ואת הקבצים שלה מ־INGInious‏ "
+"<b>לצמיתות</b>."
+
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:25
+msgid "Wipe all submissions"
+msgstr "ניפוי כל ההגשות"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_delete_modal.html:35
+#, fuzzy
+msgid "Delete tasks"
+msgstr "מחיקת משימה"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_move_modal.html:8
+#, fuzzy
+msgid "Move selected tasks"
+msgstr "בחירת משימות"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_move_modal.html:12
+msgid "Please select the section to move the selected tasks into."
+msgstr ""
+
+#: inginious/frontend/templates/task_dispensers_admin/util_move_modal.html:18
+#, fuzzy
+msgid "Move tasks"
+msgstr "הצגת משימה"
+
+#: inginious/frontend/templates/task_dispensers_admin/util_task_edit_modal.html:8
+#, fuzzy
+msgid "Edit task {}"
+msgstr "עריכת המשימה „{}”"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:7
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:21
+msgid "Never"
+msgstr "לעולם לא"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:8
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:27
+msgid "Always"
+msgstr "תמיד"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:10
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:34
+msgid "Custom, from: {} to: {}"
+msgstr "מותאם אישית, מ־: {} עד: {}"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:60
+msgid "Students can still submit after this date"
+msgstr "סטודנטים עדיין יכולים להגיש אחרי התאריך הזה"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:60
+msgid "Soft Deadline"
+msgstr "מועד הגשה גמיש"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/categories.html:11
+#, fuzzy
+msgid "Tag name, separated by commas"
+msgstr "מזהה תגיות, מופרדים בפסיקים"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:10
+msgid "Evaluation submission"
+msgstr "הגשת הערכה"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/groups.html:7
+#: inginious/frontend/templates/task_dispensers_admin/config_items/groups.html:26
+msgid "Per group"
+msgstr "לפי קבוצה"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/groups.html:8
+#: inginious/frontend/templates/task_dispensers_admin/config_items/groups.html:17
+msgid "Individually"
+msgstr "בנפרד"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:17
+msgid "Submission limits"
+msgstr "מגבלות הגשה"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:10
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:26
+msgid "Hard limit: {nbr_submissions} submission(s)"
+msgstr "מגבלה קשיחה: {nbr_submissions} הגשות"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:13
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:34
+msgid "Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)"
+msgstr "מגבלה גמישה: {nbr_submissions} הגשות כל {nbr_hours} שעות"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:9
+#: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:22
+msgid "Only the last {nbr_submissions} submissions"
+msgstr "רק {nbr_submissions} ההגשות האחרונות"
+
+#: inginious/frontend/templates/task_dispensers_admin/config_items/weight.html:6
+#: inginious/frontend/templates/task_dispensers_admin/config_items/weight.html:8
+msgid "Grade weight (in comparison to other tasks)"
+msgstr "משקל ציון (בהשוואה למשימות אחרות)"
+
 #: inginious/frontend/templates/tasks/file.html:7
 msgid "Click here to download the file you submitted previously"
 msgstr "לחיצה כאן תוריד קובץ שהגשת בעבר"
@@ -3691,6 +3645,430 @@ msgstr "גודל קבצים מרבי:"
 #: inginious/frontend/templates/tasks/file.html:23
 msgid "Allowed extensions:"
 msgstr "הרחבות מורשות:"
+
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:15
+#: inginious/frontend/templates/taskset_admin/settings.html:15
+#: inginious/frontend/templates/taskset_admin/task_edit.html:16
+#: inginious/frontend/templates/taskset_admin/template.html:16
+#, fuzzy
+msgid "Tasksets"
+msgstr "משימות"
+
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:40
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:56
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:64
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:72
+#, fuzzy
+msgid "Delete taskset"
+msgstr "מחיקת משימה"
+
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:44
+msgid ""
+"This taskset is used by at least one course. Please delete the course(s) "
+"before deleting the taskset."
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:46
+#, fuzzy
+msgid ""
+"<p> This will <b>permanently</b> remove the taskset and all the tasks "
+"files from INGInious.</p><p>To confirm your will, please type the taskset"
+" id below :</p>"
+msgstr ""
+"<p> פעולה זו תסיר <b>לצמיתות</b> את הקורס על כל הנתונים שלו (including "
+"tasks and backups) מ־INGInious.</p><p>כדי לאשר את בקשתך, נא להקליד את "
+"מזהה הקורס להלן:</p>"
+
+#: inginious/frontend/templates/taskset_admin/danger_zone.html:68
+#, fuzzy
+msgid ""
+"<p> This will <b>permanently</b> remove the taskset and all the tasks "
+"files from INGInious. Are you really sure ?</p>"
+msgstr ""
+"<p>פעולה זו תסיר <b>לצמיתות</b> את הקורס ואת כל הנתונים שלו (including "
+"tasks and backups) מ־INGInious. להמשיך?</p>"
+
+#: inginious/frontend/templates/taskset_admin/menu.html:15
+msgid "How to create a task?"
+msgstr "איך ליצור משימה?"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:19
+#, fuzzy
+msgid "Taskset settings"
+msgstr "הגדרות קורס"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:26
+#, fuzzy
+msgid "Edit taskset {}"
+msgstr "עריכת המשימה „{}”"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:68
+#, fuzzy
+msgid "Short description"
+msgstr "תיאור"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:74
+msgid "Instantiable by"
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/settings.html:77
+msgid "Taskset owners only"
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/settings.html:80
+#, fuzzy
+msgid "Everyone"
+msgstr "סביבה"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:93
+msgid "WebDAV access"
+msgstr "גישה דרך WebDAV"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:98
+#, fuzzy
+msgid "Use this URL to access your taskset folder using WebDAV:"
+msgstr "ניתן להשתמש בכתובת זו כדי לגשת לתיקיית הקורס שלך דרך WebDAV:"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:101
+msgid "URL"
+msgstr "כתובת"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:113
+#, fuzzy
+msgid "Task list"
+msgstr "מזהה משימה"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:114
+#, fuzzy
+msgid "Add new task"
+msgstr "הוספת משימות"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:144
+#, fuzzy
+msgid "Delete task {}"
+msgstr "מחיקת משימה"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:148
+#, fuzzy
+msgid ""
+"This will <b>permanently</b> remove the task {} and its files from "
+"INGInious, making it unavailable from courses."
+msgstr ""
+"לאחר השמירה, פעולה זו תסיר את המשימה ואת הקבצים שלה מ־INGInious‏ "
+"<b>לצמיתות</b>."
+
+#: inginious/frontend/templates/taskset_admin/settings.html:165
+msgid "Create new task"
+msgstr "יצירת משימה חדשה"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:170
+#: inginious/frontend/templates/taskset_admin/settings.html:172
+#, fuzzy
+msgid "New taskid"
+msgstr "מזהה משימה חדש"
+
+#: inginious/frontend/templates/taskset_admin/settings.html:178
+#, fuzzy
+msgid "Add task"
+msgstr "הוספת משימות"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:6
+msgid "Edit {}"
+msgstr "עריכה של {}"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:20
+#: inginious/frontend/templates/taskset_admin/task_edit.html:27
+msgid "Edit task \"{}\""
+msgstr "עריכת המשימה „{}”"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:47
+msgid "Environment"
+msgstr "סביבה"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:50
+msgid "Subproblems"
+msgstr "תת־בעיות"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:53
+msgid "Task files"
+msgstr "קובצי משימה"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:77
+msgid "File list"
+msgstr "רשימת קבצים"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:107
+msgid "Problem id:"
+msgstr "מזהה בעיה:"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:124
+msgid "A title for this question"
+msgstr "כותרת לשאלה הזאת"
+
+#: inginious/frontend/templates/taskset_admin/task_edit.html:142
+msgid "Are you sure that you want to delete this subproblem?"
+msgstr "למחוק את תת־הבעיה הזאת?"
+
+#: inginious/frontend/templates/taskset_admin/template.html:48
+#, fuzzy
+msgid ""
+"This will wipe your current taskset structure. Tasks file won't be "
+"deleted but you'll have to import them again."
+msgstr ""
+"פעולה זו תנפה את מבנה הקורס שלך. קובץ המשימות לא יימחק אך יהיה עליך לייבא"
+" אותן שוב."
+
+#: inginious/frontend/templates/taskset_admin/template.html:85
+msgid ""
+"This taskset currently includes legacy tasks with importable data to the "
+"task dispenser settings. The taskset owner can clean the task files."
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/template.html:88
+#, fuzzy
+msgid "Clean task files"
+msgstr "קובצי משימה"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:13
+msgid "Filetype"
+msgstr "סוג קובץ"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:30
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:5
+#: inginious/frontend/templates/taskset_admin/subproblems/file.html:5
+#: inginious/frontend/templates/taskset_admin/subproblems/match.html:5
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:5
+msgid "Context"
+msgstr "הקשר"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:36
+msgid "Author"
+msgstr "יוצר"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:43
+msgid "Your name"
+msgstr "השם שלך"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:47
+msgid "Contact URL"
+msgstr "כתובת ליצירת קשר"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:53
+msgid "Random inputs"
+msgstr "קלטים אקראיים"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:60
+msgid "Regenerate random inputs for each reloading of the task page"
+msgstr "לייצר מחדש קלטים אקראיים לכל רענון של עמוד המשימות"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/basic.html:60
+msgid "Regenerate input random"
+msgstr "יצירת קלט אקראי מחדש"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:5
+msgid "Timeout limit (in seconds)"
+msgstr "מגבלת תום זמן (בשניות)"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:11
+msgid "Hard timeout limit (in seconds) <small>Default to 3*timeout</small>"
+msgstr "מגבלת תום זמן קשיחה (בשניות) <small>ברירת המחדל היא 3*תום הזמן</small>"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:18
+msgid "Memory limit (in megabytes)"
+msgstr "מגבלת זיכרון (במגהבתים)"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:24
+msgid "Allow internet access inside the grading container?"
+msgstr "לאפשר לגשת לאינטרנט מתוך קונטיינר הציונים?"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:24
+msgid "It also adds and configures local interfaces with IPv4 and IPv6."
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:35
+msgid ""
+"Custom command to be run in container <small>(instead of running the run "
+"script)</small>"
+msgstr ""
+"פקודה בהתאמה אישית שתופעל בקונטיינר <small>(במקום הרצת סקריפט "
+"ההפעלה)</small>"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:38
+msgid "Optional"
+msgstr "רשות"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:43
+msgid "Are the task's responses written in HTML instead of restructuredText?"
+msgstr "האם התגובות במשימה כתובות ב־HTML במקום ב־restructuredText?"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/environment.html:5
+msgid "Grading environment type"
+msgstr "סוג סביבת חלוקת ציונים"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/environment.html:20
+msgid "Grading environment"
+msgstr "סביבת חלוקת ציונים"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/file_modals.html:9
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:61
+msgid "Upload a file"
+msgstr "העלאת קובץ"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/file_modals.html:16
+msgid "File:"
+msgstr "קובץ:"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/file_modals.html:20
+msgid "File path:"
+msgstr "נתיב קובץ:"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/file_modals.html:27
+msgid "Upload"
+msgstr "העלאה"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:16
+msgid "Path"
+msgstr "נתיב"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:18
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:45
+msgid "Edit"
+msgstr "עריכה"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:19
+msgid "Move"
+msgstr "העברה"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:50
+msgid "Move/Rename"
+msgstr "העברה/שינוי שם"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:60
+msgid "Create a new file"
+msgstr "יצירת קובץ חדש"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/files.html:70
+#, fuzzy
+msgid "Drag and drop a file here."
+msgstr "נא לגרור משימות או סעיף לכאן."
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/subproblems.html:8
+msgid "New problem id"
+msgstr "אין מזהה תקלה"
+
+#: inginious/frontend/templates/taskset_admin/edit_tabs/subproblems.html:13
+msgid "Problem type"
+msgstr "סוג תקלה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:12
+msgid "Language"
+msgstr "שפה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:14
+msgid "Language used in this question (c/cpp/java/python/oz/...)"
+msgstr "השפה בה השתמשת בתשובה (c‏/cpp‏/java‏/python‏/oz/…)"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:23
+msgid "Multiline code"
+msgstr "קוד במספר שורות"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:25
+msgid "Single-line code"
+msgstr "קוד בשורה אחת"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:31
+msgid "Optional?"
+msgstr "רשות?"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:41
+msgid "Default value"
+msgstr "ערך ברירת מחדל"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:53
+msgid "Code line offset"
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/subproblems/code.html:55
+msgid "Line offset for the code block. Must be a number."
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/subproblems/file.html:11
+#, fuzzy
+msgid "Allowed file extensions (including the dot, separated by commas)"
+msgstr "סיומות הקבצים המורשות (כולל הנקודה, עם הפרדה ברווחים)"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/file.html:17
+msgid "Maximum file size (in bytes)"
+msgstr "גודל הקובץ המרבי (בבתים)"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/file.html:26
+msgid "File upload"
+msgstr "העלאת קובץ"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/match.html:11
+msgid "Answer"
+msgstr "תשובה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/match.html:13
+msgid "Answer of this question"
+msgstr "התשובה לשאלה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/match.html:17
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:27
+msgid "Count error only at top of the page?"
+msgstr "לספור שגיאות רק בראש העמוד?"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:11
+msgid "Can select multiple answers"
+msgstr "אפשר לבחור מספר תשובות"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:19
+msgid "Unshuffle answers"
+msgstr ""
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:35
+msgid "Number of choices to display (0 = all choices)"
+msgstr "מספר האפשרויות להצגה (0 = כל האפשרויות)"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:41
+msgid "Success message"
+msgstr "הודעת הצלחה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:45
+msgid "An optional success message"
+msgstr "הודעת הצלחה כרשות"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:49
+msgid "Error message"
+msgstr "הודעת שגיאה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:53
+msgid "An optional error message"
+msgstr "הודעת שגיאה כרשות"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:58
+msgid "Choices"
+msgstr "אפשרויות"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice.html:63
+msgid "Add new choice"
+msgstr "הוספת אפשרות חדשה"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice_templates.html:8
+msgid "Content"
+msgstr "תוכן"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice_templates.html:15
+msgid "Feedback message (displayed when selected)"
+msgstr "הודעת משוב (מוצגת כשנבחרת)"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice_templates.html:19
+msgid "An optional feedback message"
+msgstr "הודעת משוב כרשות"
+
+#: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice_templates.html:26
+msgid "Valid ?"
+msgstr "תקף?"
 
 #~ msgid "Cannot have a soft deadline after the hard one"
 #~ msgstr "לא יכולים להיות מועדי הגשה גמישים אחרי אחד קשיח"
@@ -3711,10 +4089,12 @@ msgstr "הרחבות מורשות:"
 #~ msgstr "‫INGInious‬ | {course}‫ - {task}"
 
 #~ msgid ""
-#~ "Check out INGInious course {course} and beat my score of {score}%% on "
+#~ "Check out INGInious course {course} and"
+#~ " beat my score of {score}%% on "
 #~ "task {task} !"
 #~ msgstr ""
-#~ "הוזמנת לקורס {course} ב־INGInious כדי לנסות לנצח את הניקוד שלי {score}% "
+#~ "הוזמנת לקורס {course} ב־INGInious כדי "
+#~ "לנסות לנצח את הניקוד שלי {score}% "
 #~ "במשימה {task}!"
 
 #~ msgid "No rank for one section"
@@ -3739,8 +4119,46 @@ msgstr "הרחבות מורשות:"
 #~ msgstr "קטגוריה"
 
 #~ msgid ""
-#~ "This will <b>permanently</b> remove the task and its files from INGInious."
+#~ "This will <b>permanently</b> remove the "
+#~ "task and its files from INGInious."
 #~ msgstr "פעולה זו מחק את המשימה ואת הקבצים שלה מ־INGInious <b>לצמיתות</b>."
 
 #~ msgid "Accessible"
 #~ msgstr "נגיש"
+
+#~ msgid "Course unavailable."
+#~ msgstr "הקורס לא זמין."
+
+#~ msgid "Couldn't delete task {} : "
+#~ msgstr "לא ניתן למחוק משימה {}: "
+
+#~ msgid "You don't have staff rights on this course."
+#~ msgstr "אין לך הרשאות סגל לקורס הזה."
+
+#~ msgid "Import course"
+#~ msgstr "ייבוא קורס"
+
+#~ msgid "Tutor"
+#~ msgstr "לימוד"
+
+#~ msgid "Create new course"
+#~ msgstr "יצירת קורס חדש"
+
+#~ msgid "Tutors"
+#~ msgstr "מנחים"
+
+#~ msgid "Allow ssh?"
+#~ msgstr ""
+
+#~ msgid "Task parameters"
+#~ msgstr "שם משימה"
+
+#~ msgid "Import from course filesystem"
+#~ msgstr "ייבוא ממערכת הקבצים של הקורס"
+
+#~ msgid "New task with id: "
+#~ msgstr "משימה חדשה עם מזהה: "
+
+#~ msgid "Keep files"
+#~ msgstr "להשאיר את הקבצים"
+

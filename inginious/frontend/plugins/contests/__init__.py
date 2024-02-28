@@ -35,8 +35,8 @@ class Contest(TableOfContents):
         self._contest_settings = dispenser_data.get(
             'contest_settings',
             {"enabled": False,
-             "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-             "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
+             "start": datetime.now(),
+             "end": datetime.now() + timedelta(hours=1),
              "blackout": 0,
              "penalty": 20}
         )
@@ -57,7 +57,8 @@ class Contest(TableOfContents):
     def get_accessibilities(self, taskids, usernames): # pylint: disable=unused-argument
         contest_data = self.get_contest_data()
         if contest_data['enabled']:
-            return {username: {taskid: AccessibleTime(contest_data['start'] + '/') for taskid in taskids} for username in usernames}
+            accessibility = {"start": contest_data['start'], "soft_end": contest_data['end'], "end": contest_data['end']}
+            return {username: {taskid: AccessibleTime(accessibility) for taskid in taskids} for username in usernames}
         else:
             return TableOfContents.get_accessibilities(self, taskids, usernames)
 
@@ -82,8 +83,8 @@ def course_menu(course, template_helper):
 
     contest_data = task_dispenser.get_contest_data()
     if contest_data['enabled']:
-        start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
-        end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
+        start = contest_data['start']
+        end = contest_data['end']
         blackout = end - timedelta(hours=contest_data['blackout'])
         return template_helper.render("course_menu.html", template_folder="frontend/plugins/contests",
                                       course=course, start=start, end=end, blackout=blackout)
@@ -95,15 +96,15 @@ class ContestScoreboard(INGIniousAuthPage):
     """ Displays the scoreboard of the contest """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
-        course = self.taskset_factory.get_course(courseid)
+        course = self.course_factory.get_course(courseid)
         task_dispenser = course.get_task_dispenser()
         if not task_dispenser.get_id() == Contest.get_id():
             raise NotFound()
         contest_data = task_dispenser.get_contest_data()
         if not contest_data['enabled']:
             raise NotFound()
-        start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
-        end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
+        start = contest_data['start']
+        end = contest_data['end']
         blackout = end - timedelta(hours=contest_data['blackout'])
 
         users = self.user_manager.get_course_registered_users(course)
@@ -191,9 +192,9 @@ class ContestAdmin(INGIniousAdminPage):
 
     def save_contest_data(self, course, contest_data):
         """ Saves updated contest data for the course """
-        course_content = self.taskset_factory.get_course_descriptor_content(course.get_id())
+        course_content = self.course_factory.get_course_descriptor_content(course.get_id())
         course_content["dispenser_data"]["contest_settings"] = contest_data
-        self.taskset_factory.update_course_descriptor_content(course.get_id(), course_content)
+        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
@@ -221,17 +222,17 @@ class ContestAdmin(INGIniousAdminPage):
             contest_data['end'] = new_data["end"]
 
             try:
-                start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
+                contest_data['start'] = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
             except:
                 errors.append('Invalid start date')
 
             try:
-                end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
+                contest_data['end'] = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
             except:
                 errors.append('Invalid end date')
 
             if len(errors) == 0:
-                if start >= end:
+                if contest_data['start'] >= contest_data['end']:
                     errors.append('Start date should be before end date')
 
             try:

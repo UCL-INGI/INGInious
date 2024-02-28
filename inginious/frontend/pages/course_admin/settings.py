@@ -5,6 +5,7 @@
 
 import re
 import flask
+from datetime import datetime
 
 from inginious.common.base import dict_from_prefix, id_checker
 from inginious.frontend.user_settings.field_types import FieldTypes
@@ -40,11 +41,14 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
 
         if data["accessible"] == "custom":
-            course_content['accessible'] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
+            course_content['accessible']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else datetime.min
+            course_content['accessible']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else datetime.max
         elif data["accessible"] == "true":
-            course_content['accessible'] = True
+            course_content['accessible']["start"] = datetime.min
+            course_content['accessible']["end"] = datetime.max
         else:
-            course_content['accessible'] = False
+            course_content['accessible']["start"] = datetime.max
+            course_content['accessible']["end"] = datetime.max
 
         try:
             AccessibleTime(course_content['accessible'])
@@ -55,15 +59,18 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['allow_preview'] = True if data["allow_preview"] == "true" else False
 
         if data["registration"] == "custom":
-            course_content['registration'] = "{}/{}".format(data["registration_start"], data["registration_end"])
+            course_content['registration']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else datetime.min
+            course_content['registration']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else datetime.max
         elif data["registration"] == "true":
-            course_content['registration'] = True
+            course_content['registration']["start"] = datetime.min
+            course_content['registration']["end"] = datetime.max
         else:
-            course_content['registration'] = False
+            course_content['registration']["start"] = datetime.max
+            course_content['registration']["end"] = datetime.max
 
         try:
             AccessibleTime(course_content['registration'])
-        except:
+        except Exception:
             errors.append(_('Invalid registration dates'))
 
         course_content['registration_password'] = data['registration_password']
