@@ -29,7 +29,7 @@ def parse_date(date, default=None):
     for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S",
                         "%d/%m/%Y %H:%M", "%d/%m/%Y %H", "%d/%m/%Y"]:
         try:
-            return datetime.strptime(date, format_type)
+            return datetime.strptime(date, format_type).replace(tzinfo=timezone.utc)
         except ValueError:
             pass
     raise Exception("Unknown format for " + date)
@@ -46,8 +46,8 @@ class AccessibleTime(object):
                             Can be a boolean, None or string if using the legacy format "start/soft_end/end"
         """
 
-        self.max = datetime.max.replace(microsecond=0, tzinfo=timezone.utc)
-        self.min = datetime.min.replace(tzinfo=timezone.utc)
+        self.max = datetime.max.replace(microsecond=0)
+        self.min = datetime.min.replace()
 
         if not isinstance(period, (dict, str, bool, type(None))):  # add None check
             raise Exception("Wrong period given to AccessibleTime")
@@ -68,8 +68,8 @@ class AccessibleTime(object):
             if isinstance(date, str):
                 period[key] = parse_date(date)
 
-        self._start = period["start"].replace(tzinfo=timezone.utc)
-        self._end = period["end"].replace(tzinfo=timezone.utc)
+        self._start = period["start"].replace(tzinfo=timezone.utc) if period["start"] not in [self.min, self.max] else period["start"]
+        self._end = period["end"].replace(tzinfo=timezone.utc) if period["end"] != self.max else period["end"]
         if "soft_end" in period:
             if period["soft_end"] == self.max:
                 self._soft_end = self.max
