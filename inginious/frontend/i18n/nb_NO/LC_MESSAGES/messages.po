@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2024-02-29 07:41+0000\n"
+"PO-Revision-Date: 2024-02-29 07:49+0000\n"
 "Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
 "Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
 "inginious/frontend/nb_NO/>\n"
@@ -136,11 +136,11 @@ msgstr "Ingen LTI-data tilgjengelig."
 
 #: inginious/frontend/pages/lti.py:69 inginious/frontend/pages/lti.py:84
 msgid "Missing LTI session id"
-msgstr "Mangler LTI sesjons-id"
+msgstr "Mangler LTI sesjons-ID"
 
 #: inginious/frontend/pages/lti.py:75 inginious/frontend/pages/lti.py:90
 msgid "Invalid LTI session id"
-msgstr "Ugyldig LTI sesjons-id"
+msgstr "Ugyldig LTI sesjons-ID"
 
 #: inginious/frontend/pages/lti.py:98
 msgid "Invalid LTI data"
@@ -323,7 +323,7 @@ msgstr "Autentiseringsmetode finnes ikke."
 
 #: inginious/frontend/pages/tasks.py:93 inginious/frontend/pages/tasks.py:264
 msgid "Submission doesn't exist."
-msgstr "Besvarelse finnes ikke."
+msgstr "Innleveringen finnes ikke."
 
 #: inginious/frontend/pages/tasks.py:176 inginious/frontend/pages/tasks.py:184
 #: inginious/frontend/pages/tasks.py:202 inginious/frontend/pages/tasks.py:224
@@ -349,7 +349,7 @@ msgstr ""
 
 #: inginious/frontend/pages/tasks.py:220 inginious/frontend/pages/tasks.py:329
 msgid "<b>Your submission has been sent...</b>"
-msgstr "<b>Din besvarelse har blitt sendt...</b>"
+msgstr "<b>Din innlevering har blitt sendt...</b>"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:209
 #: inginious/frontend/pages/course_admin/task_edit_file.py:230
@@ -376,19 +376,19 @@ msgstr "<b>Du er neste i køen!</b>"
 
 #: inginious/frontend/pages/tasks.py:305
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
-msgstr "<b>Det er én besvarelse foran deg i køen.</b>"
+msgstr "<b>Det er én innlevering foran deg i køen.</b>"
 
 #: inginious/frontend/pages/tasks.py:307
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
-msgstr "<b>Det er {} besvarelse før deg i køen.</b>"
+msgstr "<b>Det er {} innlevering(er) før deg i køen.</b>"
 
 #: inginious/frontend/pages/tasks.py:331
 msgid "There are some errors in your answer. Your score is {score}%."
-msgstr "Det er noen feil i din besvarelse. Du fikk {score}%."
+msgstr "Det er noen feil i din innlevering. Du fikk {score}%."
 
 #: inginious/frontend/pages/tasks.py:333
 msgid "Your answer passed the tests! Your score is {score}%."
-msgstr "Din besvarelse passerte testen! Du fikk {score}%."
+msgstr "Din innlevering klarte testen! Du fikk {score}%."
 
 #: inginious/frontend/pages/tasks.py:335
 msgid "Your submission timed out. Your score is {score}%."
@@ -474,7 +474,7 @@ msgstr "Dette publikummet finnes ikke."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:79
 msgid "Audience with id {} not found."
-msgstr "Finner ikke publikum med id {}."
+msgstr "Finner ikke publikum med ID {}."
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:88
 #: inginious/frontend/pages/course_admin/audience_edit.py:110
@@ -497,7 +497,7 @@ msgstr "Operasjon avbrutt på grunn av ugyldig sjetong."
 #: inginious/frontend/pages/course_admin/danger_zone.py:168
 #: inginious/frontend/pages/course_admin/danger_zone.py:191
 msgid "Wrong course id."
-msgstr "Feil kurs-id."
+msgstr "Feil kurs-ID."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:173
 msgid "All course data have been deleted."
@@ -549,7 +549,7 @@ msgstr "Noen felter mangler."
 
 #: inginious/frontend/pages/course_admin/settings.py:132
 msgid "Invalid tag id: {}"
-msgstr "Ugyldig etikett-id: {}"
+msgstr "Ugyldig etikett-ID: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:151
 msgid "Invalid type value: {}"
@@ -557,11 +557,11 @@ msgstr "Ugyldig typeverdi: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:153
 msgid "Invalid id: {}"
-msgstr "Ugyldig id: {}"
+msgstr "Ugyldig ID: {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:167
 msgid "Some datas have the same id! The id must be unique."
-msgstr "Noen data har samme id! Id må være unik."
+msgstr "Noen data har samme ID! ID må være unik."
 
 #: inginious/frontend/pages/course_admin/statistics.py:192
 #: inginious/frontend/pages/course_admin/submissions.py:138
@@ -624,7 +624,7 @@ msgstr "Denne innleveringen finnes ikke."
 
 #: inginious/frontend/pages/course_admin/submission.py:27
 msgid "Invalid ObjectId."
-msgstr "Ugyldig objekt-id."
+msgstr "Ugyldig objekt-ID."
 
 #: inginious/frontend/pages/course_admin/submissions.py:62
 msgid "The following submission could not be prepared for download: {}"
@@ -648,11 +648,11 @@ msgstr "Innleveringen finnes ikke."
 #: inginious/frontend/pages/course_admin/task_edit_file.py:45
 #: inginious/frontend/pages/course_admin/task_edit_file.py:264
 msgid "Invalid task id"
-msgstr "Ugyldig oppgave-id"
+msgstr "Ugyldig oppgave-ID"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:87
 msgid "Invalid course/task id"
-msgstr "Ugyldig kurs- eller oppgave-id"
+msgstr "Ugyldig kurs- eller oppgave-ID"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:117
 msgid "Invalid file type: {}"
@@ -1119,7 +1119,7 @@ msgstr "Ingen tittel for en seksjon"
 
 #: inginious/frontend/task_dispensers/util.py:304
 msgid "One task id contains non alphanumerical characters"
-msgstr "En oppgave-id inneholder ikke-alfanumeriske tegn"
+msgstr "En oppgave-ID inneholder ikke-alfanumeriske tegn"
 
 #: inginious/frontend/templates/auth.html:5
 msgid "Welcome"
@@ -2899,7 +2899,7 @@ msgstr "studentnavn"
 
 #: inginious/frontend/templates/course_admin/submissions.html:62
 msgid "taskid"
-msgstr "oppgave-id"
+msgstr "oppgave-ID"
 
 #: inginious/frontend/templates/course_admin/submissions.html:68
 msgid "submitted on"
@@ -2948,19 +2948,19 @@ msgstr "Mappeformat"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "taskid/username"
-msgstr "oppgave-id/brukernavn"
+msgstr "oppgave-ID/brukernavn"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "taskid/audience"
-msgstr "oppgave-id/publikum"
+msgstr "oppgave-ID/publikum"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "username/taskid"
-msgstr "brukernavn/oppgave-id"
+msgstr "brukernavn/oppgave-ID"
 
 #: inginious/frontend/templates/course_admin/submissions.html:233
 msgid "audience/taskid"
-msgstr "publikum/oppgave-id"
+msgstr "publikum/oppgave-ID"
 
 #: inginious/frontend/templates/course_admin/submissions.html:240
 #: inginious/frontend/templates/course_admin/submissions_query.html:154
