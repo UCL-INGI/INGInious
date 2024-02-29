@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2024-02-29 07:49+0000\n"
+"PO-Revision-Date: 2024-02-29 08:00+0000\n"
 "Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
 "Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
 "inginious/frontend/nb_NO/>\n"
@@ -3021,7 +3021,7 @@ msgstr "Avansert spørring"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:155
 msgid "Only timeouts and crashes"
-msgstr "Kun timeouts og krasj"
+msgstr "Kun tidsavbrudd og krasj"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:156
 msgid "Show Tags"
