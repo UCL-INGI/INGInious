@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2024-02-29 07:35+0000\n"
+"PO-Revision-Date: 2024-02-29 07:41+0000\n"
 "Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
 "Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
 "inginious/frontend/nb_NO/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 
 #: inginious/frontend/courses.py:30
 msgid "List of exercises"
-msgstr "Øvingsliste"
+msgstr "Oppgaveliste"
 
 #: inginious/frontend/parsable_text.py:37
 msgid "[no content]"
@@ -1543,14 +1543,14 @@ msgid ""
 "structure of the imported course"
 msgstr ""
 "Denne siden lister alle kurs som er offentlig tilgjengelig. Når du klikker "
-"importér vil det opprettes et nytt kurs på din INGInious-instans. Du vil bli "
+"importer vil det opprettes et nytt kurs på din INGInious-instans. Du vil bli "
 "administrator og det vil ha alle oppgaver og samme struktur som det "
 "importerte kurset"
 
 #: inginious/frontend/templates/marketplace.html:56
 #: inginious/frontend/templates/marketplace_course.html:68
 msgid "Import course"
-msgstr "Importér kurs"
+msgstr "Importer kurs"
 
 #: inginious/frontend/templates/marketplace.html:74
 msgid "No public courses available"
@@ -1558,7 +1558,7 @@ msgstr "Ingen offentlige kurs er tilgjengelige"
 
 #: inginious/frontend/templates/marketplace.html:84
 msgid "Import this course"
-msgstr "Importér dette kurset"
+msgstr "Importer dette kurset"
 
 #: inginious/frontend/templates/marketplace.html:89
 msgid ""
@@ -1915,7 +1915,7 @@ msgstr "Vis innleveringer"
 #: inginious/frontend/templates/course_admin/task_dispensers/task_buttons.html:14
 #: inginious/frontend/templates/task.html:145
 msgid "Edit task"
-msgstr "Redigér oppgave"
+msgstr "Rediger oppgave"
 
 #: inginious/frontend/templates/task.html:148
 #: inginious/frontend/templates/task.html:336
@@ -1963,7 +1963,7 @@ msgstr "Lagre mitt arbeid til minnet"
 
 #: inginious/frontend/templates/task.html:281
 msgid "Collapse context"
-msgstr "Kollapsér kontekst"
+msgstr "Kollapser kontekst"
 
 #: inginious/frontend/templates/task.html:283
 msgid "Previous task"
@@ -2124,7 +2124,7 @@ msgstr "Fjern"
 #: inginious/frontend/templates/admin/admin_users.html:122
 #: inginious/frontend/templates/admin/admin_users.html:132
 msgid "Activate"
-msgstr "Aktivér"
+msgstr "Aktiver"
 
 #: inginious/frontend/templates/admin/admin_users.html:127
 msgid "This will activate {}."
@@ -2163,7 +2163,7 @@ msgstr "Publikum"
 #: inginious/frontend/templates/course_admin/audience_edit.html:20
 #: inginious/frontend/templates/course_admin/audience_edit.html:26
 msgid "Edit audience {}"
-msgstr "Redigér publikum {}"
+msgstr "Rediger publikum {}"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:44
 #: inginious/frontend/templates/course_admin/audience_edit.html:63
@@ -2217,11 +2217,11 @@ msgstr "Fjern student"
 #: inginious/frontend/templates/course_admin/audience_edit.html:164
 #: inginious/frontend/templates/course_admin/student_list.html:435
 msgid "Update"
-msgstr "Oppdatér"
+msgstr "Oppdater"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:41
 msgid "Archive data"
-msgstr "Arkivér data"
+msgstr "Arkiver data"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:44
 #: inginious/frontend/templates/course_admin/danger_zone.html:138
@@ -2234,7 +2234,7 @@ msgstr "Slett kurs"
 #: inginious/frontend/templates/course_admin/danger_zone.html:52
 #: inginious/frontend/templates/course_admin/danger_zone.html:63
 msgid "Archive course data"
-msgstr "Arkivér kursdata"
+msgstr "Arkiver kursdata"
 
 #: inginious/frontend/templates/course_admin/danger_zone.html:55
 msgid ""
@@ -2382,7 +2382,7 @@ msgstr "Alltid tilgjengelig"
 #: inginious/frontend/templates/course_admin/settings.html:162
 #: inginious/frontend/templates/course_admin/settings.html:222
 msgid "Custom:"
-msgstr "Personalisér:"
+msgstr "Tilpasset:"
 
 #: inginious/frontend/templates/course_admin/settings.html:166
 #: inginious/frontend/templates/course_admin/settings.html:226
@@ -2440,15 +2440,15 @@ msgstr "Ingen tilgangskontroll (alle kan registrere)"
 
 #: inginious/frontend/templates/course_admin/settings.html:302
 msgid "Check by username"
-msgstr "Verifisér med brukernavn"
+msgstr "Verifiser med brukernavn"
 
 #: inginious/frontend/templates/course_admin/settings.html:309
 msgid "Check by authentication binding"
-msgstr "Verifisér med autentiseringskobling"
+msgstr "Verifiser med autentiseringskobling"
 
 #: inginious/frontend/templates/course_admin/settings.html:316
 msgid "Check by email"
-msgstr "Verifisér med epost"
+msgstr "Verifiser med epost"
 
 #: inginious/frontend/templates/course_admin/settings.html:321
 msgid "Access control type"
@@ -3500,7 +3500,7 @@ msgstr "Ny oppgave-ID"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/util.html:87
 msgid "Import from course filesystem"
-msgstr "Importér fra kursfilsystemet"
+msgstr "Importer fra kursfilsystemet"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/util.html:88
 msgid "Search..."
@@ -3604,7 +3604,7 @@ msgstr "Karaktervekt (sammenlignet med andre oppgaver)"
 
 #: inginious/frontend/templates/preferences/bindings.html:46
 msgid "Refresh fields"
-msgstr "Oppdatér felter"
+msgstr "Oppdater felter"
 
 #: inginious/frontend/templates/preferences/bindings.html:58
 msgid "Identifier"
