@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2024-02-29 08:00+0000\n"
+"PO-Revision-Date: 2024-02-29 08:13+0000\n"
 "Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
 "Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
 "inginious/frontend/nb_NO/>\n"
@@ -2562,7 +2562,7 @@ msgstr "Oppgavenavn"
 
 #: inginious/frontend/templates/course_admin/stats.html:54
 msgid "# student viewed"
-msgstr "# studenter vist"
+msgstr "# studenter sett"
 
 #: inginious/frontend/templates/course_admin/stats.html:55
 msgid "# student attempted"
@@ -2646,11 +2646,11 @@ msgstr "Ikke betjent av oppgavebehandler"
 
 #: inginious/frontend/templates/course_admin/student_info.html:68
 msgid "Not viewed"
-msgstr "Ikke vist"
+msgstr "Ikke sett"
 
 #: inginious/frontend/templates/course_admin/student_info.html:70
 msgid "Not attempted (viewed)"
-msgstr "Ikke forsøkt (vist)"
+msgstr "Ikke forsøkt (sett)"
 
 #: inginious/frontend/templates/course_admin/student_info.html:72
 #: inginious/frontend/templates/course_admin/student_info.html:75
