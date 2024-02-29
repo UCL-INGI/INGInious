@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2024-02-29 08:13+0000\n"
+"PO-Revision-Date: 2024-02-29 13:58+0000\n"
 "Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
 "Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
 "inginious/frontend/nb_NO/>\n"
@@ -160,7 +160,7 @@ msgid ""
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-"
 "launch-request. Please contact your administrator."
 msgstr ""
-"For å kunne sende karakter tilbake til TC må INGInious ha parametrene "
+"For å kunne sende vurderingen tilbake til TC må INGInious ha parametrene "
 "lis_outcome_service_url og lis_outcome_result_id i LTI basic-launch-request. "
 "Vennligst kontakt din administrator."
 
@@ -1136,7 +1136,7 @@ msgstr "Logg inn med"
 #: inginious/frontend/templates/course.html:14
 #: inginious/frontend/templates/group.html:11
 msgid "Current grade"
-msgstr "Gjeldende karakter"
+msgstr "Gjeldende vurdering"
 
 #: inginious/frontend/templates/course.html:48
 #: inginious/frontend/templates/course_user_settings.html:13
@@ -1859,7 +1859,7 @@ msgstr "Feilet"
 #: inginious/frontend/templates/course_admin/submissions_query.html:223
 #: inginious/frontend/templates/task.html:69
 msgid "Grade"
-msgstr "Karakter"
+msgstr "Vurdering"
 
 #: inginious/frontend/templates/task.html:75
 msgid "Attempts"
@@ -2491,7 +2491,7 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:361
 msgid "Send back grades"
-msgstr "Send tilbake karakterer"
+msgstr "Send tilbake vurdering"
 
 #: inginious/frontend/templates/course_admin/settings.html:368
 msgid ""
@@ -2500,8 +2500,8 @@ msgid ""
 "to the course and tasks from the web application when enabled. Tasks will"
 " be only available from the LTI interface."
 msgstr ""
-"Velg dette for å sende tilbake karakterer til den kallende verktøysforbruker "
-"(som, mesteparten av tiden, er din LMS). INGInious vil daktivere studentenes "
+"Velg dette for å sende tilbake vurdering til den kallende verktøysforbruker ("
+"som, mesteparten av tiden, er din LMS). INGInious vil daktivere studentenes "
 "tilgang til kurset og oppgaver fra webapplikasjonen. Oppgaver vil bare være "
 "tilgjengelige fra LTI-grensesnittet."
 
@@ -2828,11 +2828,11 @@ msgstr "student"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:20
 msgid "current grade"
-msgstr "gjeldende karakter"
+msgstr "gjeldende vurdering"
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:21
 msgid "The current grade is computed over the tasks that are visible for users."
-msgstr "Gjeldende karakter er beregnet fra oppgavene synlige for brukerne."
+msgstr "Gjeldende vurdering er beregnet fra oppgavene synlige for brukerne."
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:28
 msgid "View  all submissions"
@@ -3041,11 +3041,11 @@ msgstr "Vis studentnavn"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:173
 msgid "Min grade"
-msgstr "Minimumskarakter"
+msgstr "Minimumsvurdering"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:177
 msgid "Max grade"
-msgstr "Maksimumskarakter"
+msgstr "Maksimumsvurdering"
 
 #: inginious/frontend/templates/course_admin/submissions_query.html:184
 msgid "After date"
@@ -3600,7 +3600,7 @@ msgstr "Kun de siste {nbr_submissions} innleveringer"
 
 #: inginious/frontend/templates/course_admin/task_dispensers/config_items/weight.html:4
 msgid "Grade weight (in comparison to other tasks)"
-msgstr "Karaktervekt (sammenlignet med andre oppgaver)"
+msgstr "Vurderingsvekt (sammenlignet med andre oppgaver)"
 
 #: inginious/frontend/templates/preferences/bindings.html:46
 msgid "Refresh fields"
