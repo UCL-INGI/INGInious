@@ -7,17 +7,16 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-04-04 15:06+0200\n"
-"PO-Revision-Date: 2024-02-28 14:24+0000\n"
+"PO-Revision-Date: 2024-03-01 08:26+0000\n"
 "Last-Translator: Alexandre Doneux <alexandre.doneux@uclouvain.be>\n"
 "Language-Team: French <https://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/fr/>\n"
 "Language: fr\n"
-"Language-Team: French "
-"<https://weblate.info.ucl.ac.be/projects/inginious/frontend/fr/>\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.14\n"
 "Generated-By: Babel 2.12.1\n"
 
 #: inginious/frontend/parsable_text.py:37
@@ -38,7 +37,7 @@ msgstr ""
 
 #: inginious/frontend/parsable_text.py:271
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr "<b>L'analyse a échoué</b>: <pre>{}</pre>"
+msgstr "<b>L'analyse a échoué</b> : <pre>{}</pre>"
 
 #: inginious/frontend/submission_manager.py:91
 msgid ""
@@ -200,7 +199,7 @@ msgstr "Vous n'avez pas les droits de super-administrateur pour ce jeu d'exercic
 #: inginious/frontend/pages/marketplace_taskset.py:33
 #: inginious/frontend/pages/marketplace_taskset.py:42
 msgid "You're not allowed to do that"
-msgstr "Vous n'avez pas les droits nécessaires."
+msgstr "Vous n'avez pas les droits nécessaires"
 
 #: inginious/frontend/pages/course_admin/student_list.py:204
 #: inginious/frontend/pages/marketplace.py:51
@@ -314,11 +313,11 @@ msgid ""
 "Someone (probably you) asked to reset your INGInious password. If this "
 "was you, please click on the following link :\n"
 msgstr ""
-"{realname},\n"
+"Cher {realname},\n"
 "\n"
-"Une personne (probablement vous) a demandé la réinitialisation de votre "
-"mot de passe INGInious.S'il s'agit de vous, veuillez cliquer sur le lien "
-"suivant: \n"
+"Une personne (probablement vous) a demandé la réinitialisation de votre mot "
+"de passe INGInious. S'il s'agit de vous, veuillez cliquer sur le lien "
+"suivant :\n"
 
 #: inginious/frontend/pages/register.py:161
 msgid "An email has been sent to you to reset your password."
@@ -342,7 +341,7 @@ msgstr "Votre mot de passe a bien été modifié."
 
 #: inginious/frontend/pages/social.py:18
 msgid "Auth method doesn't exist"
-msgstr "La méthode d'authentification n'existe pas."
+msgstr "La méthode d'authentification n'existe pas"
 
 #: inginious/frontend/pages/social.py:38
 msgid "Auth method doesn't exist."
@@ -574,7 +573,7 @@ msgstr "Le cours a été restauré à la date suivante : {}."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:187
 msgid "An error occurred while restoring backup: {}"
-msgstr "Une erreur a eu lieu lors de la restauration de la sauvegarde: {}"
+msgstr "Une erreur a eu lieu lors de la restauration de la sauvegarde : {}"
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:198
 msgid "An error occurred while deleting the course data: {}"
@@ -611,7 +610,7 @@ msgstr "Quelques champs d'étiquettes sont manquants."
 
 #: inginious/frontend/pages/course_admin/settings.py:129
 msgid "Invalid tag id: {}"
-msgstr "Identifiant d'étiquette invalide: {}"
+msgstr "Identifiant d'étiquette invalide : {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:148
 msgid "Invalid type value: {}"
@@ -619,7 +618,7 @@ msgstr "Type de valeur invalide : {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:150
 msgid "Invalid id: {}"
-msgstr "Identifiant invalide: {}"
+msgstr "Identifiant invalide : {}"
 
 #: inginious/frontend/pages/course_admin/settings.py:164
 msgid "Some datas have the same id! The id must be unique."
@@ -662,7 +661,7 @@ msgstr "Le champ n'a pas été rerconnu : "
 
 #: inginious/frontend/pages/course_admin/student_list.py:243
 msgid "Unknown role: "
-msgstr "Role inconnu: "
+msgstr "Role inconnu : "
 
 #: inginious/frontend/pages/course_admin/student_list.py:250
 msgid "User was not found: "
@@ -692,7 +691,8 @@ msgstr "ObjectId inavlide."
 
 #: inginious/frontend/pages/course_admin/submissions.py:62
 msgid "The following submission could not be prepared for download: {}"
-msgstr "La soumission suivante n'a pas pu être préparée pour le téléchargement: {}"
+msgstr ""
+"La soumission suivante n'a pas pu être préparée pour le téléchargement : {}"
 
 #: inginious/frontend/pages/course_admin/submissions.py:67
 #: inginious/frontend/pages/course_admin/utils.py:38
@@ -718,7 +718,7 @@ msgstr "Distribution d'exercice invalide"
 #: inginious/frontend/pages/taskset_admin/template.py:48
 #: inginious/frontend/pages/taskset_admin/template.py:53
 msgid "Something wrong happened: "
-msgstr "Quelque choe de mal est survenu: "
+msgstr "Quelque choe de mal est survenu : "
 
 #: inginious/frontend/pages/course_admin/task_list.py:54
 msgid "Couldn't wipe task {} : "
@@ -726,11 +726,11 @@ msgstr "Impossible de supprimer les données de la tâche : {} "
 
 #: inginious/frontend/pages/course_admin/task_list.py:69
 msgid "Invalid course structure: "
-msgstr "Structure du cours invalide:"
+msgstr "Structure du cours invalide : "
 
 #: inginious/frontend/pages/course_admin/utils.py:45
 msgid "This course is unreachable"
-msgstr "Ce cours n'est pas disponible."
+msgstr "Ce cours n'est pas disponible"
 
 #: inginious/frontend/pages/course_admin/utils.py:139
 msgid "List not valid."
@@ -1255,7 +1255,7 @@ msgstr "Une section n'a pas de titre"
 
 #: inginious/frontend/task_dispensers/util.py:304
 msgid "One task id contains non alphanumerical characters"
-msgstr "Un id de tâche contient des  caractères non-alphanumériques"
+msgstr "Un id de tâche contient des caractères non-alphanumériques"
 
 #: inginious/frontend/templates/auth.html:5
 msgid "Welcome"
@@ -1765,8 +1765,8 @@ msgid ""
 "This page lists all the courses you are currently enrolled in. You can "
 "find new courses on the course list page."
 msgstr ""
-"Cette page liste tous les cours auxquels vous êtes actuellement "
-"enregistré. Vous pouvez trouver de nouveaux cours dans la Liste des cours"
+"Cette page liste tous les cours auxquels vous êtes actuellement enregistré. "
+"Vous pouvez trouver de nouveaux cours dans la Liste des cours."
 
 #: inginious/frontend/templates/mycourses.html:70
 msgid "LTI course"
@@ -2129,7 +2129,7 @@ msgstr "Veuillez répondre à toutes les questions."
 
 #: inginious/frontend/templates/task.html:326
 msgid "{} has not a valid extension."
-msgstr "L'extension de {} n'est pas valide"
+msgstr "L'extension de {} n'est pas valide."
 
 #: inginious/frontend/templates/task.html:327
 msgid "{} is too heavy."
@@ -2531,9 +2531,9 @@ msgid ""
 "Learning Management Systems (LMS) such as Moodle or edX. Note that this "
 "will deactivate the group system."
 msgstr ""
-"Activez cette option pour permettre à votre cours INGInious d'être "
-"utilisé par des Learning Management Systems (LMS) externes tels que "
-"Moodle  ou edX. Notez que cela désactivera le système de groupes."
+"Activez cette option pour permettre à votre cours INGInious d'être utilisé "
+"par des Learning Management Systems (LMS) externes tels que Moodle ou edX. "
+"Notez que cela désactivera le système de groupes."
 
 #: inginious/frontend/templates/course_admin/settings.html:116
 msgid "Course preview"
@@ -2927,7 +2927,7 @@ msgstr "Autres publics"
 
 #: inginious/frontend/templates/course_admin/student_list.html:184
 msgid "Edit audience"
-msgstr "\"Editer le public\""
+msgstr "Editer le public"
 
 #: inginious/frontend/templates/course_admin/student_list.html:201
 msgid "New audience description"
@@ -3012,8 +3012,8 @@ msgstr "note actuelle"
 #: inginious/frontend/templates/course_admin/student_list_table.html:21
 msgid "The current grade is computed over the tasks that are visible for users."
 msgstr ""
-"La note actuelle est calculée sur base des exercices qui sont visibles "
-"pour l'utilisateur."
+"La note actuelle est calculée sur base des exercices qui sont visibles pour "
+"l'utilisateur."
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:28
 msgid "View  all submissions"
@@ -3312,7 +3312,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_list.html:49
 #: inginious/frontend/templates/taskset_admin/template.html:49
 msgid "New task dispenser:"
-msgstr "Nouveau distributeur d'exercice:"
+msgstr "Nouveau distributeur d'exercice :"
 
 #: inginious/frontend/templates/course_admin/task_list.html:75
 #: inginious/frontend/templates/taskset_admin/template.html:75
@@ -3334,7 +3334,7 @@ msgstr "Importer les paramètres"
 
 #: inginious/frontend/templates/preferences/bindings.html:46
 msgid "Refresh fields"
-msgstr "\"Mettre à jour les champs additionnels\""
+msgstr "Mettre à jour les champs additionnels"
 
 #: inginious/frontend/templates/preferences/bindings.html:58
 msgid "Identifier"
@@ -3358,12 +3358,11 @@ msgstr "Ajouter la méthode"
 
 #: inginious/frontend/templates/preferences/delete.html:41
 msgid "To confirm, type your email address :"
-msgstr "Pour confirmer, tapez votre addresse mail:"
+msgstr "Pour confirmer, tapez votre addresse mail :"
 
 #: inginious/frontend/templates/preferences/delete.html:56
 msgid "This will also delete all your data ! Are you really sure ?"
-msgstr ""
-"Ceci va supprimer toutes vos données. Etes vous vraiment certain ?"
+msgstr "Ceci va supprimer toutes vos données. Etes vous vraiment certain ?"
 
 #: inginious/frontend/templates/preferences/profile.html:40
 msgid "Please set a new username"
@@ -3412,10 +3411,10 @@ msgid ""
 "section position or section title will affect the effective task set a "
 "user will be displayed."
 msgstr ""
-"Seul le nombre spécifié d'exercices sera affiché à l'utilisateur. Ceci "
-"est calculé sans état: modifier la quantité d'exercice par section, la "
-"position de la section, ou le titre de la section affectera le jeu "
-"d'exercices effectivement affiché à l'utilisateur."
+"Seul le nombre spécifié d'exercices sera affiché à l'utilisateur. Ceci est "
+"calculé sans état : modifier la quantité d'exercice par section, la position "
+"de la section, ou le titre de la section affectera le jeu d'exercices "
+"effectivement affiché à l'utilisateur."
 
 #: inginious/frontend/templates/task_dispensers_admin/combinatory_test.html:11
 msgid ""
@@ -3470,7 +3469,7 @@ msgstr "Supprimer l'exercice"
 
 #: inginious/frontend/templates/task_dispensers_admin/task_list.html:49
 msgid "No valid task with id:"
-msgstr "Identifiant d'exercice invalide: {}"
+msgstr "Identifiant d'exercice invalide :"
 
 #: inginious/frontend/templates/task_dispensers_admin/task_list.html:54
 msgid "Delete invalid task"
@@ -3550,7 +3549,7 @@ msgstr "Déplacer les exercices"
 
 #: inginious/frontend/templates/task_dispensers_admin/util_task_edit_modal.html:8
 msgid "Edit task {}"
-msgstr "Éditer l'exercice \"{}\""
+msgstr "Éditer l'exercice {}"
 
 #: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:7
 #: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:21
@@ -3565,7 +3564,7 @@ msgstr "Toujours"
 #: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:10
 #: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:34
 msgid "Custom, from: {} to: {}"
-msgstr "Personnalisé, de: {} jusqu'à: {}"
+msgstr "Personnalisé, de : {} jusqu'à : {}"
 
 #: inginious/frontend/templates/task_dispensers_admin/config_items/accessibility.html:60
 msgid "Students can still submit after this date"
@@ -3577,7 +3576,7 @@ msgstr "Date limite affichée"
 
 #: inginious/frontend/templates/task_dispensers_admin/config_items/categories.html:11
 msgid "Tag name, separated by commas"
-msgstr "\"Identifiants d'étiquettes, séparés par des virgules\""
+msgstr "Identifiants d'étiquettes, séparés par des virgules"
 
 #: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:6
 #: inginious/frontend/templates/task_dispensers_admin/config_items/evaluation_mode.html:10
@@ -3602,13 +3601,13 @@ msgstr "Limite de soumission"
 #: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:10
 #: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:26
 msgid "Hard limit: {nbr_submissions} submission(s)"
-msgstr "Limite dure: {nbr_submissions} soumission(s)"
+msgstr "Limite dure : {nbr_submissions} soumission(s)"
 
 #: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:13
 #: inginious/frontend/templates/task_dispensers_admin/config_items/submission_limit.html:34
 msgid "Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)"
 msgstr ""
-"Limite douce: {nbr_submissions} soumission(s) toutes les {nbr_hours} "
+"Limite douce : {nbr_submissions} soumission(s) toutes les {nbr_hours} "
 "heure(s)"
 
 #: inginious/frontend/templates/task_dispensers_admin/config_items/submission_storage.html:9
@@ -3860,7 +3859,7 @@ msgstr "Autoriser l'accès à Internet lors de l'exécution de la correction ?"
 
 #: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:24
 msgid "It also adds and configures local interfaces with IPv4 and IPv6."
-msgstr ""
+msgstr "Configure également les interfaces locales avec IPv4 et IPv6."
 
 #: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:35
 msgid ""
@@ -3872,7 +3871,7 @@ msgstr ""
 
 #: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:38
 msgid "Optional"
-msgstr "Optionnel ?"
+msgstr "Optionnel"
 
 #: inginious/frontend/templates/taskset_admin/edit_tabs/env_generic_docker_oci.html:43
 msgid "Are the task's responses written in HTML instead of restructuredText?"
@@ -4036,5 +4035,3 @@ msgstr "Un message de retour optionnel"
 #: inginious/frontend/templates/taskset_admin/subproblems/multiple_choice_templates.html:26
 msgid "Valid ?"
 msgstr "Correct ?"
-
-
