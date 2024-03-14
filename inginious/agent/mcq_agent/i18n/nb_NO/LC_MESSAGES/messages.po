@@ -1,0 +1,41 @@
+# Translations template for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-10-03 14:13+0200\n"
+"PO-Revision-Date: 2024-02-29 08:05+0000\n"
+"Last-Translator: Asbjørn Djupdal <djupdal@ntnu.no>\n"
+"Language-Team: Norwegian Bokmål <https://weblate.info.ucl.ac.be/projects/"
+"inginious/mcq-agent/nb_NO/>\n"
+"Language: nb_NO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.14\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: inginious/agent/mcq_agent/__init__.py:56
+msgid "Wrong answer. Make sure to select all the valid possibilities"
+msgstr "Feil svar. Forsikre deg om at du har valgt alle riktige alternativer"
+
+#: inginious/agent/mcq_agent/__init__.py:57
+msgid "Wrong answer"
+msgstr "Feil svar"
+
+#: inginious/agent/mcq_agent/__init__.py:58
+msgid "Correct answer"
+msgstr "Riktig svar"
+
+#: inginious/agent/mcq_agent/__init__.py:70
+msgid "You have {} wrong answer(s)."
+msgstr "Du har {} feil svar."
+
+#: inginious/agent/mcq_agent/__init__.py:72
+msgid "Among them, you have {} invalid answers in the multiple choice questions"
+msgstr "Du har {} feil svar i flervalgsoppgavene"
