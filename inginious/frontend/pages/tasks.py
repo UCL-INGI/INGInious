@@ -186,37 +186,35 @@ class BaseTaskPage(object):
                     return json.dumps({"status": "error", "title": _("Error"), "text": _("Your task has been regenerated. This current task is outdated.")})
 
             # Reparse user input with array for multiple choices and files
-            userinput = flask.request.form.copy()
+            task_input = {}
             for problem in task.get_problems():
                 pid = problem.get_id()
                 if problem.input_type() == list:
-                    userinput[pid] = flask.request.form.getlist(pid)
+                    task_input[pid] = flask.request.form.getlist(pid)
                 elif problem.input_type() == dict:
-                    userinput[pid] = flask.request.files.get(pid)
+                    task_input[pid] = flask.request.files.get(pid)
                 else:
-                    userinput[pid] = flask.request.form.get(pid)
+                    task_input[pid] = flask.request.form.get(pid)
 
-            userinput = task.adapt_input_for_backend(userinput)
+            task_input = task.adapt_input_for_backend(task_input)
 
-            if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
+            if not task.input_is_consistent(task_input, self.default_allowed_file_extensions, self.default_max_file_size):
                 return Response(content_type='application/json',
                                 response=json.dumps({
                                     "status": "error",  "title": _("Error"),
                                     "text": _("Please answer to all the questions and verify the extensions of the files "
                                               "you want to upload. Your responses were not tested.")
                                 }))
-            del userinput['@action']
 
             # Get debug info if the current user is an admin
             debug = is_admin
             if "@debug-mode" in userinput:
                 if userinput["@debug-mode"] == "ssh" and debug:
                     debug = "ssh"
-                del userinput['@debug-mode']
 
             # Start the submission
             try:
-                submissionid, oldsubids = self.submission_manager.add_job(course, task, userinput, course.get_task_dispenser(), debug)
+                submissionid, oldsubids = self.submission_manager.add_job(course, task, task_input, course.get_task_dispenser(), debug)
                 return Response(content_type='application/json', response=json.dumps({
                     "status": "ok", "submissionid": str(submissionid), "remove": oldsubids,
                     "text": _("<b>Your submission has been sent...</b>")
