@@ -27,3 +27,10 @@ inginious/backup
 # Build files
 build/lib
 build/scripts-*
+
+# frontend
+inginious/frontend/themes/Makefile
+inginious/frontend/themes/test.html
+inginious/frontend/themes/package-lock.json
+inginious/frontend/themes/node_modules
+inginious/frontend/themes/codemirror_scrapper.py

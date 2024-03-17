@@ -70,6 +70,23 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="col-sm-12">
+            <label class="control-label">{{ _("Color theme :") }} </label>
+            <select name="theme" class="form-control">
+                {% for theme in available_themes %}
+                <option value="{{theme}}" {% if theme == user_manager.session_theme() %} selected {% endif %}>{{ theme }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-12">
+            <label class="control-label">{{ _("Code color theme :") }} </label>
+            <select name="codemirror_theme" class="form-control">
+                {% for theme in available_codemirror_themes %}
+                <option value="{{theme}}" {% if theme == user_manager.session_codemirror_theme() %} selected {% endif %}>{{ theme }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
         {% if allow_registration %}
             <div class="col-sm-12">
                 <label class="control-label">{{ _("Old password :") }} </label>
