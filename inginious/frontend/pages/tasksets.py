@@ -6,6 +6,7 @@
 """ Index page """
 import flask
 from collections import OrderedDict
+from datetime import datetime
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 from inginious.frontend.exceptions import CourseAlreadyExistsException
@@ -35,7 +36,8 @@ class TasksetsPage(INGIniousAuthPage):
                 if self.user_manager.session_username() in taskset.get_admins() or taskset.is_public() or self.user_manager.user_is_superadmin():
                     task_dispenser = taskset.get_task_dispenser()
                     self.course_factory.create_course(courseid, {
-                        "name": courseid, "accessible": False, "tasksetid": taskset.get_id(),
+                        "name": courseid, "accessible":  {"start": datetime.max, "end": datetime.max},
+                        "registration": {"start": datetime.max, "end": datetime.max}, "tasksetid": taskset.get_id(),
                         "admins": [self.user_manager.session_username()], "students": [],
                         "task_dispenser": task_dispenser.get_id(), "dispenser_data": task_dispenser.get_dispenser_data()
                     })

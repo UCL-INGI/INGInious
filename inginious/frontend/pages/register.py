@@ -100,6 +100,7 @@ class RegistrationPage(INGIniousPage):
                                                 "activate": activate_hash,
                                                 "bindings": {},
                                                 "language": self.user_manager._session.get("language", "en"),
+                                                "timezone": self.user_manager._session.get("session", "None"),
                                                 "tos_accepted": True
                                                 })
                 try:

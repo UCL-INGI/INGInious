@@ -568,7 +568,9 @@ class Installer:
                                    "email": email,
                                    "password": UserManager.hash_password(password),
                                    "bindings": {},
-                                   "language": "en"})
+                                   "language": "en",
+                                   "timezone": "None",
+                                   "datetime_format": "Y-m-d H:i:S"})
 
         options["superadmins"].append(username)
 
