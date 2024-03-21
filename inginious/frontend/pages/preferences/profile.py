@@ -43,8 +43,7 @@ class ProfilePage(INGIniousAuthPage):
                     msg = _("Incorrect email.")
                     return result, msg, error
                 else:
-                    self.user_manager.connect_user(result["username"], result["realname"], result["email"],
-                                                   result["language"], result.get("tos_accepted", False))
+                    self.user_manager.set_session_username(data["username"])
 
         # Check if updating the password.
         if self.app.allow_registration and len(data["passwd"]) in range(1, 6):
@@ -73,7 +72,7 @@ class ProfilePage(INGIniousAuthPage):
                                                                  return_document=ReturnDocument.AFTER)
 
         # Check if updating language
-        if data["language"] != userdata["language"]:
+        if data["language"] != userdata.get("language", "en"):
             language = data["language"] if data["language"] in self.app.available_languages else "en"
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"language": language}},
@@ -84,6 +83,19 @@ class ProfilePage(INGIniousAuthPage):
                 return result, msg, error
             else:
                 self.user_manager.set_session_language(language)
+
+        # check if updating code indentation
+        if data["code_indentation"] != userdata.get("code_indentation", "4"):
+            code_indentation = data["code_indentation"] if data["code_indentation"] in self.app.available_indentation_types.keys() else "4"
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                             {"$set": {"code_indentation": code_indentation}},
+                                                             return_document=ReturnDocument.AFTER)
+            if not result:
+                error = True
+                msg = _("Incorrect username.")
+                return result, msg, error
+            else:
+                self.user_manager.set_session_code_indentation(code_indentation)
 
         # Checks if updating name
         if len(data["realname"]) > 0:

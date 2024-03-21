@@ -99,7 +99,6 @@ class RegistrationPage(INGIniousPage):
                                                 "password": passwd_hash,
                                                 "activate": activate_hash,
                                                 "bindings": {},
-                                                "language": self.user_manager._session.get("language", "en"),
                                                 "tos_accepted": True
                                                 })
                 try:
