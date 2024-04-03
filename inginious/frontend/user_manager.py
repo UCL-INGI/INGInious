@@ -598,7 +598,9 @@ class UserManager:
                                          "realname": values["realname"],
                                          "email": values["email"],
                                          "password": self.hash_password(values["password"]),
-                                         "bindings": {}})
+                                         "bindings": values["bindings"],
+                                         "language": values["language"],
+                                         "code_indentation": values["code_indentation"]})
         return None
 
     ##############################################
