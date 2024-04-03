@@ -103,9 +103,9 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
         autoCloseBrackets: true,
         lineWrapping:      true,
         gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        user_indentation_type["indentUnit"],
+        indentUnit:        user_indentation_type["indent"],
         indentWithTabs:    user_indentation_type["indentWithTabs"],
-        tabSize:           user_indentation_type["tabSize"],
+        tabSize:           user_indentation_type["indent"],
         viewportMargin:    Infinity,
         lint:              function()
                            {

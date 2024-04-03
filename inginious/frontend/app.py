@@ -178,10 +178,10 @@ def get_app(config):
 
     # available indentation types
     available_indentation_types = {
-        "2": {"text": "2 spaces", "indentUnit": 2, "tabSize": 2, "indentWithTabs": False},
-        "3": {"text": "3 spaces", "indentUnit": 3, "tabSize": 3, "indentWithTabs": False},
-        "4": {"text": "4 spaces", "indentUnit": 4, "tabSize": 4, "indentWithTabs": False},
-        "tabs": {"text": "tabs", "indentUnit": 4, "tabSize": 4, "indentWithTabs": True},
+        "2": {"text": "2 spaces", "indent": 2, "indentWithTabs": False},
+        "3": {"text": "3 spaces", "indent": 3, "indentWithTabs": False},
+        "4": {"text": "4 spaces", "indent": 4, "indentWithTabs": False},
+        "tabs": {"text": "tabs", "indent": 4, "indentWithTabs": True},
     }
 
     l10n_manager = L10nManager()
@@ -197,7 +197,6 @@ def get_app(config):
         template_helper.add_to_template_globals("get_homepath", get_homepath)
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
-        template_helper.add_to_template_globals("available_indentation_types", available_indentation_types)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
         init_flask_maintenance_mapping(flask_app)
