@@ -375,6 +375,11 @@ class UserManager:
         if not all(key in user for key in ["realname", "email", "username"]):
             raise AuthInvalidInputException()
 
+        self._database.users.update_one({"email": user["email"]},
+                                        {"$set": {"realname": user["realname"], "username": user["username"],
+                                                  "language": user.get("language", "en")}},
+                                        upsert=True)
+
         ip = flask.request.remote_addr
         self._logger.info("User %s connected - %s - %s - %s", user["username"], user["realname"], user["email"], ip)
         self._set_session(user)
