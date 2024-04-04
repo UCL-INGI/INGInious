@@ -86,7 +86,7 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
      }
 
     if (user_indentation_type["text"] == "tabs") {
-        keyMappings["Tab"] = function(cm) { cm.execCommand("insertSoftTab"); let text = cm.getSearchCursor('    '); while(text.find()){text.replace("\t");}; };
+        keyMappings["Tab"] = function(cm) { cm.execCommand("insertTab"); cm.execCommand("indentLess"); cm.execCommand("insertTab"); };
     } else {
         keyMappings["Tab"] = function(cm) { cm.execCommand("insertSoftTab");};
     }
