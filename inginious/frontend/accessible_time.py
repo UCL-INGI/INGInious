@@ -111,23 +111,23 @@ class AccessibleTime(object):
         return self._start == datetime.max and self._end == datetime.max
 
     def get_std_start_date(self):
-        """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
+        """ If the date is custom, return the start datetime with the format %4Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._start != datetime.min and self._start != datetime.max:
-            return self._start.strftime("%Y-%m-%d %H:%M:%S")
+            return self._start.strftime("%4Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_end_date(self):
-        """ If the date is custom, return the end datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
+        """ If the date is custom, return the end datetime with the format %4Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._end != datetime.max:
-            return self._end.strftime("%Y-%m-%d %H:%M:%S")
+            return self._end.strftime("%4Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_soft_end_date(self):
-        """ If the date is custom, return the soft datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
+        """ If the date is custom, return the soft datetime with the format %4Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._soft_end != datetime.max:
-            return self._soft_end.strftime("%Y-%m-%d %H:%M:%S")
+            return self._soft_end.strftime("%4Y-%m-%d %H:%M:%S")
         else:
             return ""
 

@@ -11,7 +11,7 @@ def dict_data_datetimes_to_str(data):
     if isinstance(data, dict):
         for key, value in data.items():
             if isinstance(value, datetime):
-                data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+                data[key] = value.strftime("%4Y-%m-%d %H:%M:%S")
             else:
                 dict_data_datetimes_to_str(value)
     elif isinstance(data, list):
