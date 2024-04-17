@@ -180,7 +180,7 @@ class SubmissionLimit(TaskConfigItem):
 
 
 class Accessibility(TaskConfigItem):
-    default = dict({"start": datetime.min, "soft_end": datetime.max, "end": datetime.max})
+    default = dict({"start": datetime.min, "soft_end": datetime.max.replace(microsecond=0), "end": datetime.max.replace(microsecond=0)})
 
     @classmethod
     def get_template(cls):

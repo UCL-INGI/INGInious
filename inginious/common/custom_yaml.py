@@ -77,7 +77,7 @@ def dump(data, stream=None, **kwds):
         return _long_str_representer(dumper, str(data))
 
     def _timestamp_representer(dumper, data):
-        date = data.strftime("%4Y-%m-%dT%H:%M:%S.%fZ")
+        date = data.strftime("%4Y-%m-%dT%H:%M:%SZ")
         return dumper.represent_scalar('tag:yaml.org,2002:timestamp', date)
 
 

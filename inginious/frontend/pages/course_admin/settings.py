@@ -41,14 +41,14 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
 
         if data["accessible"] == "custom":
-            course_content['accessible']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else datetime.min
-            course_content['accessible']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else datetime.max
+            course_content['accessible']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else course._accessible.min
+            course_content['accessible']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else course._accessible.max
         elif data["accessible"] == "true":
-            course_content['accessible']["start"] = datetime.min
-            course_content['accessible']["end"] = datetime.max
+            course_content['accessible']["start"] = course._accessible.min
+            course_content['accessible']["end"] = course._accessible.max
         else:
-            course_content['accessible']["start"] = datetime.max
-            course_content['accessible']["end"] = datetime.max
+            course_content['accessible']["start"] = course._accessible.max
+            course_content['accessible']["end"] = course._accessible.max
 
         try:
             AccessibleTime(course_content['accessible'])
@@ -59,14 +59,14 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['allow_preview'] = True if data["allow_preview"] == "true" else False
 
         if data["registration"] == "custom":
-            course_content['registration']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else datetime.min
-            course_content['registration']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else datetime.max
+            course_content['registration']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else course._accessible.min
+            course_content['registration']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else course._accessible.max
         elif data["registration"] == "true":
-            course_content['registration']["start"] = datetime.min
-            course_content['registration']["end"] = datetime.max
+            course_content['registration']["start"] = course._accessible.min
+            course_content['registration']["end"] = course._accessible.max
         else:
-            course_content['registration']["start"] = datetime.max
-            course_content['registration']["end"] = datetime.max
+            course_content['registration']["start"] = course._accessible.max
+            course_content['registration']["end"] = course._accessible.max
 
         try:
             AccessibleTime(course_content['registration'])

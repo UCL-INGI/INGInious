@@ -75,8 +75,8 @@ class Course(object):
 
         # Force some parameters if LTI is active
         if self.is_lti():
-            self._accessible = AccessibleTime({"start": datetime.min, "end": datetime.max})
-            self._registration = AccessibleTime({"start": datetime.max, "end": datetime.max})
+            self._accessible = AccessibleTime({"start": datetime.min, "end": datetime.max.replace(microsecond=0)})
+            self._registration = AccessibleTime({"start": datetime.max.replace(microsecond=0), "end": datetime.max.replace(microsecond=0)})
             self._registration_password = None
             self._registration_ac = None
             self._registration_ac_list = []

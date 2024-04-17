@@ -31,7 +31,7 @@ class CombinatoryTest(TableOfContents):
         return False
 
     def get_accessibilities(self, taskids, usernames):
-        result = {username: {taskid: AccessibleTime({"start": datetime.min, "soft_end": datetime.max, "end": datetime.max})
+        result = {username: {taskid: AccessibleTime({"start": datetime.min, "soft_end": datetime.max.replace(microsecond=0), "end": datetime.max.replace(microsecond=0)})
                              for taskid in taskids} for username in usernames}
         for index, section in enumerate(self._toc):
             task_list = [taskid for taskid in section.get_tasks()
