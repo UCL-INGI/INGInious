@@ -59,32 +59,12 @@ class AccessibleTime(object):
             elif isinstance(date, str):
                 period[key] = parse_date(date)
 
-        #self._start = self.adapt_database_date(period["start"])
-        #self._end = self.adapt_database_date(period["end"])
         self._start = period["start"]
         self._end = period["end"]
         if "soft_end" in period:
-            #self._soft_end = self.adapt_database_date(period["soft_end"])
             self._soft_end = period["soft_end"]
             if self._soft_end > self._end:
                 self._soft_end = self._end
-
-
-    # TO REMOVE / CHANGE -> We want the max and min to be stored without milli or microseconds
-    def adapt_database_date(self, date):
-        """
-            Check if the date is the max or min DB value and transforms it into a datetime object.
-            MongoDB stores ISODate() objects in the database. When we store datetime.min or datetime.max in the database,
-            we will not get the same value back. It is because ISODate() objects store the date with a precision of
-            milliseconds, not nanoseconds like datetime objects.
-            :param date: datetime object coming from the database
-        """
-        if date == datetime(1, 1, 1, 0, 0, 0, 000000):
-            return datetime.min
-        elif date == datetime(9999, 12, 31, 23, 59, 59, 999000):
-            return datetime.max.replace(microsecond=0)
-        else:
-            return date
 
 
     def before_start(self, when=None):
