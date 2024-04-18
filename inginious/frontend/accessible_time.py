@@ -41,16 +41,27 @@ class AccessibleTime(object):
     def __init__(self, period):
         """
             Used to represent the period of time when a course/task is accessible.
-            :param val : bool, optionnal, if False, it is never accessible, if True, it is always accessible or limited
-            by period dict
-            :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
+            :param period : dict, contains start, end and optionally soft_end as datetime objects or strings.
+                            Can be a string if using the legacy format "start/soft_end/end"
         """
 
         self.max = datetime.max.replace(microsecond=0)
         self.min = datetime.min
 
-        if not isinstance(period, dict):
+        if not isinstance(period, (dict, str)):
             raise Exception("Wrong period given to AccessibleTime")
+
+        # if legacy format
+        if isinstance(period, str):
+            period = period.split("/")
+            if len(period) == 3:
+                period = {"start": period[0], "soft_end": period[1], "end": period[2]}
+            elif len(period) == 2:
+                period = {"start": period[0], "soft_end": period[1], "end": period[1]}
+            elif len(period) == 1:
+                period = {"start": period[0], "soft_end": self.max, "end": self.max}
+            else:
+                period = {"start": self.min, "soft_end": self.max, "end": self.max}
 
         # transforming strings into datetimes in case AccessibleTime is used in html files, where datetime objects are not supported
         for key, date in period.items():
