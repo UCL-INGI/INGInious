@@ -41,19 +41,20 @@ class AccessibleTime(object):
     def __init__(self, period):
         """
             Used to represent the period of time when a course/task is accessible.
-            :param period : dict, contains start, end and optionally soft_end as datetime objects or strings.
-                            Can be a string if using the legacy format "start/soft_end/end"
+            :param period : dict, contains start, end and optionally soft_end as datetime objects or strings
+                            (for frontend use through templates).
+                            Can be a boolean, None or string if using the legacy format "start/soft_end/end"
         """
 
         self.max = datetime.max.replace(microsecond=0)
         self.min = datetime.min
 
-        if not isinstance(period, (dict, str)):
+        if not isinstance(period, (dict, str, bool)):
             raise Exception("Wrong period given to AccessibleTime")
 
         # if legacy format
         if isinstance(period, str):
-            period = period.split("/")
+            period = list(filter(lambda c: c, period.split("/")))  # splits and removes empty strings
             if len(period) == 3:
                 period = {"start": period[0], "soft_end": period[1], "end": period[2]}
             elif len(period) == 2:
@@ -62,6 +63,13 @@ class AccessibleTime(object):
                 period = {"start": period[0], "soft_end": self.max, "end": self.max}
             else:
                 period = {"start": self.min, "soft_end": self.max, "end": self.max}
+
+        # add support for boolean old accessibility structure -> check how it worked before. Not even sure have to check for strings with less than two dates
+        if isinstance(period, bool):
+            if period is (True or None) or period == "":
+                period = {"start": self.min, "soft_end": self.max, "end": self.max}
+            else:
+                period = {"start": self.max, "soft_end": self.max, "end": self.max}
 
         # transforming strings into datetimes in case AccessibleTime is used in html files, where datetime objects are not supported
         for key, date in period.items():
