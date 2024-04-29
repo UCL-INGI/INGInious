@@ -49,10 +49,10 @@ class AccessibleTime(object):
         self.max = datetime.max.replace(microsecond=0)
         self.min = datetime.min
 
-        if not isinstance(period, (dict, str, bool)):
+        if not isinstance(period, (dict, str, bool, type(None))):  # add None check
             raise Exception("Wrong period given to AccessibleTime")
 
-        # if legacy format
+        # if legacy format ( start/soft_end/end string, empty string, bool)
         if isinstance(period, str):
             period = list(filter(lambda c: c, period.split("/")))  # splits and removes empty strings
             if len(period) == 3:
@@ -63,10 +63,8 @@ class AccessibleTime(object):
                 period = {"start": period[0], "soft_end": self.max, "end": self.max}
             else:
                 period = {"start": self.min, "soft_end": self.max, "end": self.max}
-
-        # add support for boolean old accessibility structure -> check how it worked before. Not even sure have to check for strings with less than two dates
-        if isinstance(period, bool):
-            if period is (True or None) or period == "":
+        if isinstance(period, (bool, type(None))):
+            if period is (True or None):
                 period = {"start": self.min, "soft_end": self.max, "end": self.max}
             else:
                 period = {"start": self.max, "soft_end": self.max, "end": self.max}
