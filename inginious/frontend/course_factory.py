@@ -11,7 +11,6 @@ from inginious.frontend.log import get_course_logger
 
 from inginious.frontend.exceptions import CourseNotFoundException, CourseAlreadyExistsException, TasksetNotFoundException
 from inginious.frontend.courses import Course
-from inginious.frontend.util import change_access_structure, dict_data_str_to_datetimes
 
 
 class CourseFactory(object):
@@ -114,12 +113,7 @@ class CourseFactory(object):
                     cleaned_taskset_descriptor["dispenser_data"] = taskset_descriptor.get("dispenser_data", {})
                 taskset_descriptor["tasksetid"] = courseid
                 taskset_descriptor["admins"] = taskset_descriptor.get("admins", []) + taskset_descriptor.get("tutors", [])
-                if "accessible" in taskset_descriptor:
-                    taskset_descriptor["accessible"] = change_access_structure(taskset_descriptor["accessible"])
-                if "registration" in taskset_descriptor:
-                    taskset_descriptor["registration"] = change_access_structure(taskset_descriptor["registration"])
 
-                taskset_descriptor = dict_data_str_to_datetimes(taskset_descriptor)
                 self._database.courses.update_one({"_id": courseid}, {"$set": taskset_descriptor}, upsert=True)
                 self._taskset_factory.update_taskset_descriptor_content(courseid, cleaned_taskset_descriptor)
             except TasksetNotFoundException as e:

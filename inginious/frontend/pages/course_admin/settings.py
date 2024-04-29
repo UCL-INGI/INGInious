@@ -6,6 +6,7 @@
 import re
 import flask
 from datetime import datetime
+import copy
 
 from inginious.common.base import dict_from_prefix, id_checker
 from inginious.frontend.user_settings.field_types import FieldTypes
@@ -39,6 +40,14 @@ class CourseSettingsPage(INGIniousAdminPage):
             errors.append(_('You cannot remove yourself from the administrators of this course'))
 
         course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
+
+        if isinstance(data["accessible"], (str, bool)):
+            course_content["accessible"] = {} # problème -> immutableDict -> on ne peut pas changer le type
+        if isinstance(data["registration"], (str, bool)):
+            course_content["registration"] = {}
+
+            # what if not present in data (-> None) or empty string (-> "") ?
+                # => problems with filling settings form and updating settings
 
         if data["accessible"] == "custom":
             course_content['accessible']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else course._accessible.min
