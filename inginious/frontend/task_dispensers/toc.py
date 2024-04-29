@@ -13,7 +13,7 @@ from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_confi
     SubmissionLimit, Accessibility
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
-from inginious.frontend.util import change_access_structure, dict_data_str_to_datetimes, dict_data_datetimes_to_str
+from inginious.frontend.util import dict_data_datetimes_to_str
 
 
 class TableOfContents(TaskDispenser):
@@ -144,7 +144,14 @@ class TableOfContents(TaskDispenser):
         return OrderedDict([(taskid, tasks[taskid]) for taskid in self._toc.get_tasks() if taskid in tasks])
 
     def has_legacy_tasks(self, ignore_imported=False):
-        """ Checks if the task files contains dispenser settings """
+        """ Checks if the task files contains dispenser settings or if the tasks have legacy structure """
+
+        if "config" in self._dispenser_data:
+            # if old accessibility structure
+            for task in self._dispenser_data["config"].values():
+                if isinstance(task["accessibility"], str):
+                    return True
+
         if not ignore_imported and self._dispenser_data.get("imported", False):
             return False
 
