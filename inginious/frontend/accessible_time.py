@@ -149,3 +149,15 @@ class AccessibleTime(object):
     def get_soft_end_date(self):
         """ Return a datetime object, representing the soft deadline for accessibility """
         return self._soft_end
+
+    def string_date(self, date):
+        """ Returns the date as a string """
+        return date.strftime("%4Y-%m-%d %H:%M:%S")
+
+    def get_string_dict(self):
+        """ Returns a dictionary with the start, end and soft_end as strings """
+        return {
+            "start": self.string_date(self._start),
+            "soft_end": self.string_date(self._soft_end),
+            "end": self.string_date(self._end)
+        }

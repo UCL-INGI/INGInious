@@ -13,7 +13,6 @@ from inginious.frontend.task_dispensers.util import check_toc, parse_tasks_confi
     SubmissionLimit, Accessibility
 from inginious.frontend.task_dispensers import TaskDispenser
 from inginious.frontend.accessible_time import AccessibleTime
-from inginious.frontend.util import change_access_structure, dict_data_str_to_datetimes, dict_data_datetimes_to_str
 
 
 class TableOfContents(TaskDispenser):
@@ -38,6 +37,7 @@ class TableOfContents(TaskDispenser):
         self._toc = SectionsList(dispenser_data.get("toc", {}))
         self._task_config = dispenser_data.get("config", {})
         parse_tasks_config(self._task_list_func().keys(), self.config_items, self._task_config)
+        self._task_config = self.adapt_accessibilities(self._task_config)
 
     @classmethod
     def get_id(cls):
@@ -116,10 +116,9 @@ class TableOfContents(TaskDispenser):
 
         taskset = element if isinstance(element, inginious.frontend.tasksets.Taskset) else None
         course = element if isinstance(element, inginious.frontend.courses.Course) else None
-        task_config = dict_data_datetimes_to_str(self._task_config)
 
         return template_helper.render("task_dispensers_admin/toc.html", element=element, course=course, taskset=taskset,
-                                      dispenser_structure=self._toc, dispenser_config=task_config, tasks=task_data,
+                                      dispenser_structure=self._toc, dispenser_config=self._task_config, tasks=task_data,
                                       task_errors=task_errors, config_fields=config_fields)
 
     def render(self, template_helper, course, tasks_data, tag_list, username):
@@ -163,3 +162,10 @@ class TableOfContents(TaskDispenser):
                 raise Exception(f"In task {taskid} : {e}")
         dispenser_data["imported"] = True
         return dispenser_data
+
+    def adapt_accessibilities(self, task_config): # better name ? -> function to pass data through all potential objects
+        """ Adapts the task accessibilities to the new format by passing them through the AccessibleTime object"""
+        for task in task_config:
+            accessibility = AccessibleTime(Accessibility.get_value(self._task_config.get(task, {}))) # reproduces .get_accessibilities from TableOfContent
+            task_config[task]["accessibility"] = accessibility.get_string_dict()
+        return task_config
