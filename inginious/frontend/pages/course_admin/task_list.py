@@ -38,8 +38,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             task_dispenser = course.get_task_dispenser()
             try:
                 data = task_dispenser.import_legacy_tasks()
-                dispenser_data = task_dispenser.get_dispenser_data()
-                for task in dispenser_data["config"].values():
+                for taskid, task in data["config"].items():
                     task["accessibility"] = dict_data_str_to_datetimes(
                             change_access_structure(task["accessibility"], True))
                 self.update_dispenser(course, data)
