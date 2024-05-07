@@ -1,3 +1,6 @@
+"""
+Contains two functions that converts datetime objects in data structures into strings and vice versa.
+"""
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
