@@ -52,17 +52,9 @@ class AccessibleTime(object):
         if not isinstance(period, (dict, str, bool, type(None))):  # add None check
             raise Exception("Wrong period given to AccessibleTime")
 
-        # if legacy format ( start/soft_end/end string, empty string, bool)
+        # if legacy format (start/soft_end/end string, empty string, bool)
         if isinstance(period, str):
-            period = list(filter(lambda c: c, period.split("/")))  # splits and removes empty strings
-            if len(period) == 3:
-                period = {"start": period[0], "soft_end": period[1], "end": period[2]}
-            elif len(period) == 2:
-                period = {"start": period[0], "soft_end": period[1], "end": period[1]}
-            elif len(period) == 1:
-                period = {"start": period[0], "soft_end": self.max, "end": self.max}
-            else:
-                period = {"start": self.min, "soft_end": self.max, "end": self.max}
+            period = self.legacy_string_structure_to_dict(period)
         if isinstance(period, (bool, type(None))):
             if period is (True or None):
                 period = {"start": self.min, "soft_end": self.max, "end": self.max}
@@ -81,6 +73,31 @@ class AccessibleTime(object):
         if "soft_end" in period:
             self._soft_end = min(period["soft_end"], period["end"])
 
+    def legacy_string_structure_to_dict(self, legacy_date):
+        """
+            Convert the legacy string structure to a dictionary. The legacy structure follows "start/soft_end/end" with
+            some of the values being optional. (ex: "start//end", "start//", "//end", ...).
+            :param legacy_date: string, legacy date structure
+            :return period: dict, containing the start, soft_end and end as strings
+        """
+        period = {}
+
+        values = legacy_date.split("/")
+        if len(values) == 1:
+            period["start"] = parse_date(values[0].strip(), datetime.min)
+            period["soft_end"] = datetime.max
+            period["end"] = datetime.max
+        elif len(values) == 2:
+            # Has start time and hard deadline
+            period["start"] = parse_date(values[0].strip(), datetime.min)
+            period["end"] = parse_date(values[1].strip(), datetime.max)
+            period["soft_end"] = period["end"]
+        else:
+            # Has start time, soft deadline and hard deadline
+            period["start"] = parse_date(values[0].strip(), datetime.min)
+            period["soft_end"] = parse_date(values[1].strip(), datetime.max)
+            period["end"] = parse_date(values[2].strip(), datetime.max)
+        return period
 
     def before_start(self, when=None):
         """ Returns True if the task/course is not yet accessible """

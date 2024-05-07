@@ -1,3 +1,6 @@
+"""
+Contains de task config item classes and the sections classes.
+"""
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
