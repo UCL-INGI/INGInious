@@ -5,10 +5,10 @@
 
 """ Course page """
 import sys
+from datetime import datetime
 import flask
 from flask import redirect
 from werkzeug.exceptions import Forbidden
-from datetime import datetime
 
 from inginious.common.base import id_checker
 from inginious.frontend.exceptions import ImportTasksetException

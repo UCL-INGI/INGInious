@@ -73,15 +73,13 @@ class AccessibleTime(object):
         for key, date in period.items():
             if not isinstance(date, (datetime, str)):
                 raise Exception("Wrong period given to AccessibleTime")
-            elif isinstance(date, str):
+            if isinstance(date, str):
                 period[key] = parse_date(date)
 
         self._start = period["start"]
         self._end = period["end"]
         if "soft_end" in period:
-            self._soft_end = period["soft_end"]
-            if self._soft_end > self._end:
-                self._soft_end = self._end
+            self._soft_end = min(period["soft_end"], period["end"])
 
 
     def before_start(self, when=None):
@@ -100,14 +98,14 @@ class AccessibleTime(object):
         if when is None:
             when = datetime.now()
 
-        return self._start <= when and when <= self._end
+        return self._start <= when <= self._end
 
     def is_open_with_soft_deadline(self, when=None):
         """ Returns True if the course/task is still open with the soft deadline """
         if when is None:
             when = datetime.now()
 
-        return self._start <= when and when <= self._soft_end
+        return self._start <= when <= self._soft_end
 
     def is_always_accessible(self):
         """ Returns true if the course/task is always accessible """
@@ -119,24 +117,21 @@ class AccessibleTime(object):
 
     def get_std_start_date(self):
         """ If the date is custom, return the start datetime with the format %4Y-%m-%d %H:%M:%S. Else, returns "". """
-        if self._start != self.min and self._start != self.max:
+        if self._start not in [self.min, self.max]:
             return self._start.strftime("%4Y-%m-%d %H:%M:%S")
-        else:
-            return ""
+        return ""
 
     def get_std_end_date(self):
         """ If the date is custom, return the end datetime with the format %4Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._end != self.max:
             return self._end.strftime("%4Y-%m-%d %H:%M:%S")
-        else:
-            return ""
+        return ""
 
     def get_std_soft_end_date(self):
         """ If the date is custom, return the soft datetime with the format %4Y-%m-%d %H:%M:%S. Else, returns "". """
         if self._soft_end != self.max:
             return self._soft_end.strftime("%4Y-%m-%d %H:%M:%S")
-        else:
-            return ""
+        return ""
 
     def get_start_date(self):
         """ Return a datetime object, representing the date when the task/course become accessible """

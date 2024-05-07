@@ -4,9 +4,9 @@
 # more information about the licensing of this file.
 
 """ Index page """
+from datetime import datetime
 import flask
 from collections import OrderedDict
-from datetime import datetime
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 from inginious.frontend.exceptions import CourseAlreadyExistsException

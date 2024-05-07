@@ -3,10 +3,9 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
+from datetime import datetime
 import re
 import flask
-from datetime import datetime
-import copy
 
 from inginious.common.base import dict_from_prefix, id_checker
 from inginious.frontend.user_settings.field_types import FieldTypes
@@ -42,22 +41,21 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
 
         if isinstance(data["accessible"], (str, bool)):
-            course_content["accessible"] = {} # problème -> immutableDict -> on ne peut pas changer le type
+            course_content["accessible"] = {}
         if isinstance(data["registration"], (str, bool)):
             course_content["registration"] = {}
 
-            # what if not present in data (-> None) or empty string (-> "") ?
-                # => problems with filling settings form and updating settings
+        course_accessibility = course.get_accessibility()
 
         if data["accessible"] == "custom":
-            course_content['accessible']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else course._accessible.min
-            course_content['accessible']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else course._accessible.max
+            course_content['accessible']["start"] = datetime.strptime(data["accessible_start"], '%Y-%m-%d %H:%M:%S') if data["accessible_start"] != "" else course_accessibility.min
+            course_content['accessible']["end"] = datetime.strptime(data["accessible_end"], '%Y-%m-%d %H:%M:%S') if data["accessible_end"] != "" else course_accessibility.max
         elif data["accessible"] == "true":
-            course_content['accessible']["start"] = course._accessible.min
-            course_content['accessible']["end"] = course._accessible.max
+            course_content['accessible']["start"] = course_accessibility.min
+            course_content['accessible']["end"] = course_accessibility.max
         else:
-            course_content['accessible']["start"] = course._accessible.max
-            course_content['accessible']["end"] = course._accessible.max
+            course_content['accessible']["start"] = course_accessibility.max
+            course_content['accessible']["end"] = course_accessibility.max
 
         try:
             AccessibleTime(course_content['accessible'])
@@ -68,14 +66,14 @@ class CourseSettingsPage(INGIniousAdminPage):
         course_content['allow_preview'] = True if data["allow_preview"] == "true" else False
 
         if data["registration"] == "custom":
-            course_content['registration']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else course._accessible.min
-            course_content['registration']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else course._accessible.max
+            course_content['registration']["start"] = datetime.strptime(data["registration_start"],'%Y-%m-%d %H:%M:%S') if data["registration_start"] != "" else course_accessibility.min
+            course_content['registration']["end"] = datetime.strptime(data["registration_end"], '%Y-%m-%d %H:%M:%S') if data["registration_end"] != "" else course_accessibility.max
         elif data["registration"] == "true":
-            course_content['registration']["start"] = course._accessible.min
-            course_content['registration']["end"] = course._accessible.max
+            course_content['registration']["start"] = course_accessibility.min
+            course_content['registration']["end"] = course_accessibility.max
         else:
-            course_content['registration']["start"] = course._accessible.max
-            course_content['registration']["end"] = course._accessible.max
+            course_content['registration']["start"] = course_accessibility.max
+            course_content['registration']["end"] = course_accessibility.max
 
         try:
             AccessibleTime(course_content['registration'])

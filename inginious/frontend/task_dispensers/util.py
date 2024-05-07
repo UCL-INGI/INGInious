@@ -382,4 +382,3 @@ def check_task_config(task_list, config_items, data):
         return True, ''
     except Exception as ex:
         return False, str(ex)
-

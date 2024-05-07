@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 from random import Random
-import copy
 from datetime import datetime
 
 import inginious

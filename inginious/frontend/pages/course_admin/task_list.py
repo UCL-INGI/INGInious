@@ -38,7 +38,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             task_dispenser = course.get_task_dispenser()
             try:
                 data = task_dispenser.import_legacy_tasks()
-                for taskid, task in data["config"].items():
+                for task in data["config"].values():
                     task["accessibility"] = dict_data_str_to_datetimes(task["accessibility"])
                 self.update_dispenser(course, data)
             except Exception as e:

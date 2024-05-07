@@ -8,6 +8,10 @@ from datetime import datetime
 
 
 def dict_data_datetimes_to_str(data):
+    """
+    :param data: dict or list data to convert
+    :return: dict or list with datetime objects converted to strings
+    """
     if isinstance(data, dict):
         for key, value in data.items():
             if isinstance(value, datetime):
@@ -15,12 +19,16 @@ def dict_data_datetimes_to_str(data):
             else:
                 dict_data_datetimes_to_str(value)
     elif isinstance(data, list):
-        for index, item in enumerate(data):
+        for item in data:
             dict_data_datetimes_to_str(item)
     return data
 
 
 def dict_data_str_to_datetimes(data):
+    """
+    :param data: dict or list data to convert
+    :return: dict or list with string dates converted to datetime objects
+    """
     if isinstance(data, dict):
         for key, value in data.items():
             if isinstance(value, str):
@@ -36,6 +44,6 @@ def dict_data_str_to_datetimes(data):
             else:
                 dict_data_str_to_datetimes(value)
     elif isinstance(data, list):
-        for index, item in enumerate(data):
+        for item in data:
             dict_data_str_to_datetimes(item)
     return data
