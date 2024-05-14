@@ -77,7 +77,7 @@ As there are no hypervisor, the processes launched in the container are in fact 
 run by the host operating system, which allows applications to be amazingly fast.
 
 Docker allows teachers to build new containers easily, to add new dependencies to the tests
-applied on the student's code (see :doc:`teacher_doc/create_container`)
+applied on the student's code (see :doc:`dev_doc/extensions_doc/how_to_extend`)
 
 .. _isolation:
 
