@@ -42,7 +42,7 @@ This separation in two step of the grading is mandatory to ensure a complete sec
 the grading process, making impossible for the student to interact "badly" with the *run script*.
 
 These containers are created/described by very simple files called Dockerfile. They allow to create containers for anything that runs on Linux.
-For details about to create new containers and add new languages to INGInious, see :doc:`teacher_doc/create_container`.
+For details about to create new containers and add new languages to INGInious, see :doc:`dev_doc/extensions_doc/how_to_extend`.
 
 Architecture
 ````````````
