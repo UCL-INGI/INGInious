@@ -10,7 +10,6 @@ from collections import OrderedDict
 from natsort import natsorted
 
 from inginious.frontend.pages.taskset_admin.utils import INGIniousAdminPage
-from inginious.frontend.util import dict_data_str_to_datetimes
 
 
 class TasksetTemplatePage(INGIniousAdminPage):
@@ -39,8 +38,6 @@ class TasksetTemplatePage(INGIniousAdminPage):
             task_dispenser = taskset.get_task_dispenser()
             try:
                 data = task_dispenser.import_legacy_tasks()
-                for task in data["config"].values():
-                    task["accessibility"] = dict_data_str_to_datetimes(task["accessibility"])
                 self.update_dispenser(taskset, data)
             except Exception as e:
                 errors.append(_("Something wrong happened: ") + str(e))
