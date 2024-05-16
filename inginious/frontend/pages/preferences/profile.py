@@ -87,7 +87,7 @@ class ProfilePage(INGIniousAuthPage):
 
         # Check if updating timezones
         full_timezone = data["main_timezone"] + "/" + data["sub_timezone"]
-        if full_timezone != userdata["timezone"] and full_timezone != "/":
+        if "timezone" not in userdata or full_timezone != userdata["timezone"] and full_timezone != "/":
             timezone = full_timezone if (data["main_timezone"] in self.app.available_timezones.keys()
                                                 and data["sub_timezone"] in self.app.available_timezones[data["main_timezone"]]) else "None"
 
@@ -102,7 +102,7 @@ class ProfilePage(INGIniousAuthPage):
                 self.user_manager.set_session_timezone(timezone)
 
         # Checks if updating date and time format
-        if data["datetime_format"] != userdata["datetime_format"]:
+        if "datetime_format" not in userdata or data["datetime_format"] != userdata["datetime_format"]:
             datetime_format = data["datetime_format"] if data["datetime_format"] in self.app.available_datetime_formats.keys() else "Y-m-d H:i:S"
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"datetime_format": datetime_format}},
