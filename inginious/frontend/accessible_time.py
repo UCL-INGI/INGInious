@@ -75,8 +75,9 @@ class AccessibleTime(object):
 
     def legacy_string_structure_to_dict(self, legacy_date):
         """
-            Convert the legacy string structure to a dictionary. The legacy structure follows "start/soft_end/end" with
-            some of the values being optional. (ex: "start//end", "start//", "//end", ...).
+            Convert the legacy string structure to a dictionary. The legacy structure follows "start/soft_end/end" for
+            tasks or "start/end" for courses with some of the values being optional. Sometimes only a start date is
+            given as a string (ex: "start//end", "start//", "//end", "start/end", "start", "/end", ...).
             :param legacy_date: string, legacy date structure
             :return period: dict, containing the start, soft_end and end as strings
         """
@@ -84,19 +85,19 @@ class AccessibleTime(object):
 
         values = legacy_date.split("/")
         if len(values) == 1:
-            period["start"] = parse_date(values[0].strip(), datetime.min)
-            period["soft_end"] = datetime.max
-            period["end"] = datetime.max
+            period["start"] = parse_date(values[0].strip(), self.min)
+            period["soft_end"] = self.max
+            period["end"] = self.max
         elif len(values) == 2:
             # Has start time and hard deadline
-            period["start"] = parse_date(values[0].strip(), datetime.min)
-            period["end"] = parse_date(values[1].strip(), datetime.max)
+            period["start"] = parse_date(values[0].strip(), self.min)
+            period["end"] = parse_date(values[1].strip(), self.max)
             period["soft_end"] = period["end"]
         else:
             # Has start time, soft deadline and hard deadline
-            period["start"] = parse_date(values[0].strip(), datetime.min)
-            period["soft_end"] = parse_date(values[1].strip(), datetime.max)
-            period["end"] = parse_date(values[2].strip(), datetime.max)
+            period["start"] = parse_date(values[0].strip(), self.min)
+            period["soft_end"] = parse_date(values[1].strip(), self.max)
+            period["end"] = parse_date(values[2].strip(), self.max)
         return period
 
     def before_start(self, when=None):
