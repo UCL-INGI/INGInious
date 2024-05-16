@@ -324,8 +324,8 @@ class UserManager:
 
         if self.verify_hash(db_hash, password, method):
             if do_connect:
-                self.connect_user(username, user["realname"], user["email"], user["language"],
-                                  user.get("tos_accepted", False))
+                self.connect_user(username, user["realname"], user["email"], user["language"], user["timezone"],
+                                  user["datetime_format"], user.get("tos_accepted", False))
             return user
 
     def verify_hash(cls, db_hash, password, method="sha512"):
