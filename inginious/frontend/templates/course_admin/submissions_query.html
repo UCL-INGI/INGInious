@@ -3,8 +3,40 @@
 
 <script>
     $(function() {
-        $('#date_before_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-        $('#date_after_picker').datetimepicker({locale: '{{ user_manager.session_language() }}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+        let before_date = "{{old_params['date_before']}}" ? moment.utc("{{old_params['date_before']}}") : null;
+        let after_date = "{{old_params['date_after']}}" ? moment.utc("{{old_params['date_after']}}") : null;
+        timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+        language = "{{user_manager.session_language()}}";
+        flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+        js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+        $("#date_before_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : before_date ? moment.utc(before_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
+
+        $("#date_after_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : after_date ? moment.utc(after_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
 
         $('#panel-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
         {
@@ -182,18 +214,18 @@
                             <div class="col-xs-8 form-group row">
                                 <div class="col-xs-12 col-sm-6">
                                     <label class="col-xs-12">{{ _("After date") }}</label>
-                                    <div class="input-group date" id="date_after_picker" data-target-input="nearest">
-                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{old_params.get('date_after', '')}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                        <div class="input-group-append" data-target="#date_after_picker" data-toggle="datetimepicker">
+                                    <div class="input-group date_picker" id="date_after_picker" data-wrap="true" data-clickOpens="false">
+                                        <input id="date_after"  data-input name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                                        <div class="input-group-append" title="toggle" data-toggle>
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-6">
                                     <label class="col-xs-12">{{ _("Before date") }}</label>
-                                    <div class="input-group date" id="date_before_picker" data-target-input="nearest">
-                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{old_params.get('date_before', '')}}" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
-                                        <div class="input-group-append" data-target="#date_before_picker" data-toggle="datetimepicker">
+                                    <div class="input-group date_picker" id="date_before_picker" data-wrap="true" data-clickOpens="false">
+                                        <input id="date_before"  data-input name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                                        <div class="input-group-append" title="toggle" data-toggle>
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
                                     </div>
@@ -255,5 +287,27 @@
                 </button>
             </div>
         </form>
+
+        <script type="text/javascript">
+
+            $('#select_form').on('submit', function(event) {
+                event.preventDefault();
+
+                var originalAfterDatetime = $("#date_after").val();
+                var originalBeforeDatetime = $("#date_before").val();
+                timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+                var modifiedAfterDatetime = originalAfterDatetime !== "" ? moment(originalAfterDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                var modifiedBeforeDatetime = originalBeforeDatetime !== "" ? moment(originalBeforeDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+
+                $("#date_after").val(modifiedAfterDatetime);
+                $("#date_before").val(modifiedBeforeDatetime);
+
+                this.submit();
+            });
+
+        </script>
+
     </div>
 </div>

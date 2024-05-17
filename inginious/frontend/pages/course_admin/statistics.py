@@ -9,7 +9,7 @@ from collections import OrderedDict
 import flask
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousSubmissionsAdminPage
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
@@ -95,7 +95,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
             cur += increment
 
         for entry in stats_graph:
-            c = datetime(entry["_id"]["year"], entry["_id"]["month"], entry["_id"]["day"], 0 if method == "day" else entry["_id"]["hour"])
+            c = datetime(entry["_id"]["year"], entry["_id"]["month"], entry["_id"]["day"], 0 if method == "day" else entry["_id"]["hour"], tzinfo=timezone.utc)
             all_submissions[c] += entry["submissions"]
             valid_submissions[c] += entry["validSubmissions"]
 
@@ -192,11 +192,11 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
             msgs.append(_("Invalid dates"))
 
         if daterange[0] is None or daterange[1] is None:
-            now = datetime.now().replace(minute=0, second=0, microsecond=0)
+            now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
             daterange = [now - timedelta(days=14), now]
 
-        params["date_before"] = daterange[1].strftime("%Y-%m-%d %H:%M:%S")
-        params["date_after"] = daterange[0].strftime("%Y-%m-%d %H:%M:%S")
+        params["date_before"] = daterange[1].strftime("%4Y-%m-%d %H:%M:%S")
+        params["date_after"] = daterange[0].strftime("%4Y-%m-%d %H:%M:%S")
         display_hours = (daterange[1] - daterange[0]).days < 4
 
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
@@ -209,7 +209,7 @@ class CourseStatisticsPage(INGIniousSubmissionsAdminPage):
                                                  float(params["grade_min"]) if params.get('grade_min', '') else None,
                                                  float(params["grade_max"]) if params.get('grade_max', '') else None
                                              ],
-                                             submit_time_between=[x.strftime("%Y-%m-%d %H:%M:%S") for x in daterange],
+                                             submit_time_between=[x.strftime("%4Y-%m-%d %H:%M:%S") for x in daterange],
                                              keep_only_crashes="crashes_only" in params)
 
         stats_tasks = self._tasks_stats(tasks, filter, limit)

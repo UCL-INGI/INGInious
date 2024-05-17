@@ -16,7 +16,7 @@
 
 {% block head %}
 	{{ super() }}
-	{% if end > end.now() %}
+	{% if end > end.utcnow() %}
 		<meta http-equiv="refresh" content="30" />
 	{% endif %}
 {% endblock %}
@@ -27,28 +27,35 @@
 <div class="card card-body bg-light mb-3">
 	<div class="row">
         <div class="col-md-4" style="margin-top:2px;">
-            Contest starts: {{start.strftime('%d/%m/%Y %H:%M:%S')}}<br/>
-            Contest ends: {{end.strftime('%d/%m/%Y %H:%M:%S')}}<br/>
+            Contest starts: <div class="datetime-display">{{start}}</div><br/>
+			Contest ends: <div class="datetime-display">{{end}}</div><br/>
         </div>
-        <div class="col-md-4" style="margin-top:2px;">
-            {% if start > start.now() %}
+		<script>
+			let user_timezone = "{{ user_manager.session_timezone() }}" !== "None" ? "{{ user_manager.session_timezone() }}" : Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            document.addEventListener("DOMContentLoaded", function() {
+                $(".access_countdown").attr("timezone", user_timezone);
+            });
+		</script>
+        <div class="col-md-4 access_countdown" style="margin-top:2px;" >
+            {% if start > start.utcnow() %}
                 <span class="contest_starting_time" starts-at="{{start.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
             {% else %}
-                <span class="contest_remaining_time" ends-at="{{end.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
+                <span class="contest_remaining_time" ends-at="{{end.strftime('%4Y-%m-%d %H:%M:%S')}}"></span>
                 {% if blackout != end %}
-                    <br/><span class="contest_blackout_time" blackout-at="{{blackout.strftime('%Y-%m-%d %H:%M:%S')}}"></span>
+                    <br/><span class="contest_blackout_time" blackout-at="{{blackout.strftime('%4Y-%m-%d %H:%M:%S')}}"></span>
                 {% endif %}
 			{% endif %}
 		</div>
         <div class="col-md-4" style="margin-top:2px;">
-            {% if end > end.now() %}
+            {% if end > end.utcnow() %}
                 The scoreboard will refresh every 30 seconds.
 			{% endif %}
         </div>
     </div>
 </div>
 
-{% if start <= start.now() %}
+{% if start <= start.utcnow() %}
 	<table class="contest_scoreboard mb-3">
 	    <thead>
 	        <th class="contest_rank">Rank</th>
@@ -89,7 +96,7 @@
 	    <tr><th>Time</th><th>Contestant</th><th>Task</th><th>Result</th></tr>
 	    {% for a in activity %}
 	        <tr>
-	            <td>{{a['when'].strftime("%d/%m/%Y %H:%M:%S")}}</td>
+	            <td class="datetime-display">{{a['when']}}</td>
 	            <td>{{a['user']}}</td>
 	            <td>{{a['taskid']}}</td>
 	            <td>
