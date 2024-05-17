@@ -71,7 +71,11 @@ class AccessibleTime(object):
         self._start = period["start"]
         self._end = period["end"]
         if "soft_end" in period:
-            self._soft_end = min(period["soft_end"], period["end"])
+            if period["soft_end"] == self.max:
+                self._soft_end = self.max
+            else:
+                soft_end = min(period["soft_end"], period["end"])
+                self._soft_end = soft_end
 
     def legacy_string_structure_to_dict(self, legacy_date):
         """
