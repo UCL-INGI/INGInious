@@ -97,6 +97,7 @@
 <script>
     const timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
     js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+    special_dates = ["{{at.string_min()}}", "{{at.string_max()}}"]
 
     // Feed modal
     $("#edit_task_modal").on('show.bs.modal', function (event) {
@@ -108,7 +109,6 @@
         var accessibility = dispenser_config[taskid]["accessibility"];
         var value;
 
-        special_dates = ["{{ at.min }}", "{{ at.max }}"]
         function isSpecialDate(date) {
             return special_dates.includes(date);
         }
@@ -125,7 +125,7 @@
             $("#accessibility_end").val(end_date);
 
         } else {
-            if (Object.values(accessibility).some(date => date == "{{ at.min }}")) {
+            if (Object.values(accessibility).some(date => date == special_dates[0])) {
                 value = 'true';
             } else {
                 value = 'false';
@@ -151,14 +151,14 @@
             $("#task_" + taskid + " .accessibility").hide();
             if($(this).val() == "true") {
                 $("#task_" + taskid + " .accessibility-always").show();
-                dispenser_config[taskid]["accessibility"]["start"] = "{{ at.min }}";
-                dispenser_config[taskid]["accessibility"]["soft_end"] = "{{ at.max }}";
-                dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
+                dispenser_config[taskid]["accessibility"]["start"] = special_dates[0];
+                dispenser_config[taskid]["accessibility"]["soft_end"] = special_dates[1];
+                dispenser_config[taskid]["accessibility"]["end"] = special_dates[1];
             } else if($(this).val() == "false") {
                 $("#task_" + taskid + " .accessibility-never").show();
-                dispenser_config[taskid]["accessibility"]["start"] = "{{ at.max }}";
-                dispenser_config[taskid]["accessibility"]["soft_end"] = "{{ at.max }}";
-                dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
+                dispenser_config[taskid]["accessibility"]["start"] = special_dates[1];
+                dispenser_config[taskid]["accessibility"]["soft_end"] = special_dates[1];
+                dispenser_config[taskid]["accessibility"]["end"] = special_dates[1];
             } else {
                 $("#task_" + taskid + " .accessibility-custom").show();
 
@@ -170,9 +170,9 @@
                 soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                 end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
-                dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
-                dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
-                dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
+                dispenser_config[taskid]["accessibility"]["start"] = start == "" ? special_dates[0] : start;
+                dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? special_dates[1] : soft_end;
+                dispenser_config[taskid]["accessibility"]["end"] = end == "" ? special_dates[1] : end;
             }
         } else {
             let id = $(this).attr("id");
@@ -181,17 +181,17 @@
                 var start = $("#edit_task_modal").find("#accessibility_start").val()
                 $("#task_" + taskid + " .accessibility-custom-start").text(start);
                 start = start !== "" ? moment(start, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
+                dispenser_config[taskid]["accessibility"]["start"] = start == "" ? special_dates[0] : start;
             } else if(id == "accessibility_end") {
                 var end = $("#edit_task_modal").find("#accessibility_end").val()
                 $("#task_" + taskid + " .accessibility-custom-end").text(end);
                 end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
+                dispenser_config[taskid]["accessibility"]["end"] = end == "" ? special_dates[1] : end;
             } else {
                 var soft_end = $("#edit_task_modal").find("#accessibility_soft_end").val()
                 $("#task_" + taskid + " .accessibility-custom-soft-end").text(soft_end);
                 soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
-                dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
+                dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? special_dates[1] : soft_end;
             }
         }
     });
@@ -210,14 +210,14 @@
                 $("#task_" + taskid + " .accessibility").hide();
                 if(value == "true") {
                     $("#task_" + taskid + " .accessibility-always").show();
-                    dispenser_config[taskid]["accessibility"]["start"] = "{{ at.min }}";
-                    dispenser_config[taskid]["accessibility"]["soft_end"] = "{{ at.max }}";
-                    dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
+                    dispenser_config[taskid]["accessibility"]["start"] = special_dates[0];
+                    dispenser_config[taskid]["accessibility"]["soft_end"] = special_dates[1];
+                    dispenser_config[taskid]["accessibility"]["end"] = special_dates[1];
                 } else if(value== "false") {
                     $("#task_" + taskid + " .accessibility-never").show();
-                    dispenser_config[taskid]["accessibility"]["start"] = "{{ at.max }}";
-                    dispenser_config[taskid]["accessibility"]["soft_end"] = "{{ at.max }}";
-                    dispenser_config[taskid]["accessibility"]["end"] = "{{ at.max }}";
+                    dispenser_config[taskid]["accessibility"]["start"] = special_dates[1];
+                    dispenser_config[taskid]["accessibility"]["soft_end"] = special_dates[1];
+                    dispenser_config[taskid]["accessibility"]["end"] = special_dates[1];
                 } else {
                     $("#task_" + taskid + " .accessibility-custom").show();
 
@@ -229,9 +229,9 @@
                     soft_end = soft_end !== "" ? moment(soft_end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
                     end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
-                    dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
-                    dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
-                    dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
+                    dispenser_config[taskid]["accessibility"]["start"] = start == "" ? special_dates[0] : start;
+                    dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? special_dates[1] : soft_end;
+                    dispenser_config[taskid]["accessibility"]["end"] = end == "" ? special_dates[1] : end;
                 }
             } else {
                 if (id == "accessibility_start")
@@ -250,9 +250,9 @@
                 end = end !== "" ? moment(end, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
 
                 if ($("input[value='custom']").is(":checked")) {
-                    dispenser_config[taskid]["accessibility"]["start"] = start == "" ? "{{ at.min }}" : start;
-                    dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? "{{ at.max }}" : soft_end;
-                    dispenser_config[taskid]["accessibility"]["end"] = end == "" ? "{{ at.max }}" : end;
+                    dispenser_config[taskid]["accessibility"]["start"] = start == "" ? special_dates[0] : start;
+                    dispenser_config[taskid]["accessibility"]["soft_end"] = soft_end == "" ? special_dates[1] : soft_end;
+                    dispenser_config[taskid]["accessibility"]["end"] = end == "" ? special_dates[1] : end;
                 }
             }
         });

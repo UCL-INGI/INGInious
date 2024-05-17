@@ -22,9 +22,9 @@ def parse_date(date, default=None):
             raise Exception("Empty date given to AccessibleTime")
 
     if date == "0001-01-01 00:00:00":
-        return datetime.min
+        return datetime.min.replace(tzinfo=timezone.utc)
     if date == "9999-12-31 23:59:59":
-        return datetime.max.replace(microsecond=0)
+        return datetime.max.replace(microsecond=0, tzinfo=timezone.utc)
 
     for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S",
                         "%d/%m/%Y %H:%M", "%d/%m/%Y %H", "%d/%m/%Y"]:
@@ -46,8 +46,8 @@ class AccessibleTime(object):
                             Can be a boolean, None or string if using the legacy format "start/soft_end/end"
         """
 
-        self.max = datetime.max.replace(microsecond=0)
-        self.min = datetime.min.replace()
+        self.max = datetime.max.replace(microsecond=0, tzinfo=timezone.utc)
+        self.min = datetime.min.replace(tzinfo=timezone.utc)
 
         if not isinstance(period, (dict, str, bool, type(None))):  # add None check
             raise Exception("Wrong period given to AccessibleTime")
@@ -178,3 +178,11 @@ class AccessibleTime(object):
             "soft_end": self.string_date(self._soft_end),
             "end": self.string_date(self._end)
         }
+
+    def string_max(self):
+        """ Returns the max date as a string """
+        return self.string_date(self.max)
+
+    def string_min(self):
+        """ Returns the min date as a string """
+        return self.string_date(self.min)
