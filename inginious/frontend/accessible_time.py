@@ -71,7 +71,7 @@ class AccessibleTime(object):
         self._start = period["start"].replace(tzinfo=timezone.utc) if period["start"] not in [self.min, self.max] else period["start"]
         self._end = period["end"].replace(tzinfo=timezone.utc) if period["end"] != self.max else period["end"]
         if "soft_end" in period:
-            if period["soft_end"] == self.max:
+            if period["soft_end"].replace(tzinfo=timezone.utc) == self.max:
                 self._soft_end = self.max
             else:
                 soft_end = min(period["soft_end"], period["end"])
