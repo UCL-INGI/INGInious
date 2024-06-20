@@ -46,14 +46,18 @@ function colorizeStaticCode()
     $('.code.literal-block').each(function()
     {
         var classes = $(this).attr('class').split(' ');
-        var mode = undefined;
+        var mode  = undefined;
+        var theme = undefined;
         $.each(classes, function(idx, elem)
         {
             if(elem != "code" && elem != "literal-block")
             {
                 var nmode = CodeMirror.findModeByName(elem);
-                if(nmode != undefined)
+                if(nmode != undefined) {
                     mode = nmode;
+                } else if (elem.startsWith('theme:')) {
+                    theme = elem.split(':')[1];
+                }
             }
         });
         if(mode != undefined)
@@ -63,6 +67,8 @@ function colorizeStaticCode()
             CodeMirror.requireMode(mode['mode'], function()
             {
                 CodeMirror.colorize($(elem), mode["mime"]);
+                if (theme != undefined)
+                    elem.className = $(elem).attr('class').replace('default', theme)
             });
         }
     });
@@ -83,6 +89,7 @@ function registerCodeEditor(textarea, lang, lines, firstline=1)
         lineNumbers:       true,
         firstLineNumber: parseInt(firstline),
         mode:              mode["mime"],
+        theme:             $(textarea).attr('theme'),
         foldGutter:        true,
         styleActiveLine:   true,
         matchBrackets:     true,
