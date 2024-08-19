@@ -87,7 +87,7 @@ As previously said, INGInious needs some specific packages. Those can simply be 
 
 .. code-block:: bash
 
-    sudo apt install git gcc tidy python3-pip python3-dev python3-venv libzmq3-dev apt-transport-https
+    sudo apt install git gcc tidy python3-pip python3-dev python3-venv libzmq3-dev apt-transport-https ca-certificates curl software-properties-common
 
 For Docker and MongoDB, some specific steps are needed:
 
@@ -100,18 +100,18 @@ First, Docker:
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     sudo apt update
     sudo apt install docker-ce docker-ce-cli
+    docker info
 
 Then, Mongo:
 
 .. code-block:: bash
 
-    wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+    sudo apt install gnupg wget apt-transport-https ca-certificates software-properties-common
+    curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
     sudo apt update
-    wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-    sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-    sudo apt install -y mongodb-org
-
+    sudo apt install mongodb-org
+    mongosh --eval 'db.runCommand({ connectionStatus: 1 })'
 .. NOTE::
 
     Libssl installation is a temporary fix that is not required for all versions.
@@ -120,14 +120,13 @@ Then, Mongo:
 You may also add ``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin.
 
 You can now start and enable the ``mongod`` and ``docker`` services:
-::
 
-    # systemctl daemon-reload
-    # systemctl start mongod
-    # systemctl enable mongod
-    # systemctl start docker
-    # systemctl enable docker
+.. code-block:: bash
 
+    systemctl daemon-reload
+    systemctl enable --now docker
+    systemctl enable --now mongod
+    
 
 
 macOS
@@ -153,7 +152,8 @@ The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-
 
 .. _Installpip:
 
-**Whatever the distribution, you should make docker available for non-root user:**
+Whatever the distribution, you should make docker available for non-root user:
+``````````````````````````````````````````````````````````````````````````````
 
 1. Run the ``groupadd`` command below to create a new group called ``docker``. Enter your password to continue running the command.
 
@@ -186,13 +186,18 @@ To keep a clean distribution, we recommend to work with a virtualenv:
     python3 -m venv /path/to/venv/INGInious
     source /path/to/venv/INGInious/bin/activate
 
-The recommended setup is to install INGInious via pip.
-This allows you to use the latest released version. This version is currently the supported one for issues.
+Then install INGInious using the setup.py file
 
-::
+.. code-block:: bash
 
-    $ pip install INGInious
+    pip install setuptools
+    python3 setup.py install
 
+.. note::
+    For development purpose you may want to run this command to remove the scripts from python folder :
+    .. code-block:: bash
+        pip uninstall inginious
+    And then run the scripts from the installation folder
 
 .. note::
 
