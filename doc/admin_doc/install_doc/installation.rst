@@ -191,7 +191,7 @@ Then install INGInious using the setup.py file (more likely for production purpo
     pip install inginious
 
 .. note::
-    For development purpose you might want to run this command to remove the scripts from python folder (ensuring that only ingenious dependencies are installed) :
+    For development purpose you might want to run this command to remove the scripts from python folder (ensuring that only inginious dependencies are installed) :
     .. code-block:: bash
         pip uninstall inginious
     And then run the scripts from the installation folder
