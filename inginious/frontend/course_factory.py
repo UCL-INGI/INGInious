@@ -57,8 +57,8 @@ class CourseFactory(object):
                                                       return_document=ReturnDocument.AFTER)
 
     def create_course(self, courseid, descriptor):
-        if not id_checker(taskid):
-            raise InvalidNameException("Task with invalid name: " + taskid)
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
 
         existing_course = self._database.courses.find_one({"_id": courseid})
         if existing_course:
