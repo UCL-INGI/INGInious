@@ -8,7 +8,7 @@
 from pymongo import ReturnDocument
 
 from inginious.frontend.log import get_course_logger
-
+from inginious.common.base import id_checker
 from inginious.frontend.exceptions import CourseNotFoundException, CourseAlreadyExistsException, TasksetNotFoundException
 from inginious.frontend.courses import Course
 
@@ -57,6 +57,10 @@ class CourseFactory(object):
                                                       return_document=ReturnDocument.AFTER)
 
     def create_course(self, courseid, descriptor):
+
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+
         existing_course = self._database.courses.find_one({"_id": courseid})
         if existing_course:
             raise CourseAlreadyExistsException()
