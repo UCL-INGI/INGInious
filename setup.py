@@ -24,6 +24,7 @@ install_requires = [
     "PyYAML==6.0.1",
     "pyzmq==25.1.2",
     "requests-oauthlib==1.3.1",
+    "requests==2.31.0",
     "sh==2.0.6",
     "watchdog==4.0.0",
     "Werkzeug==3.0.1",
