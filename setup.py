@@ -75,8 +75,7 @@ setup(
         "saml2": ["python3-saml==1.16.0"],
         "uwsgi": ["uwsgi==2.0.24"],
         "test": test_requires,
-        "doc": test_requires + doc_requires,
-	"dev": install_requires
+        "doc": test_requires + doc_requires
     },
     scripts=scripts,
     include_package_data=True,
