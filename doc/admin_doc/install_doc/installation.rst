@@ -87,7 +87,7 @@ As previously said, INGInious needs some specific packages. Those can simply be 
 
 .. code-block:: bash
 
-    sudo apt install git gcc tidy python3-pip python3-dev python3-venv libzmq3-dev apt-transport-https ca-certificates curl software-properties-common
+    sudo apt install git gcc tidy python3-pip python3-dev python3-venv libzmq3-dev apt-transport-https ca-certificates curl software-properties-common wget gnupg lsb-release
 
 For Docker and MongoDB, some specific steps are needed:
 
@@ -95,7 +95,6 @@ First, Docker:
 
 .. code-block:: bash
 
-    sudo apt install curl gnupg lsb-release
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     sudo apt update
@@ -106,7 +105,6 @@ Then, Mongo:
 
 .. code-block:: bash
 
-    sudo apt install gnupg wget apt-transport-https ca-certificates software-properties-common
     curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
     echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
     sudo apt update
@@ -186,15 +184,14 @@ To keep a clean distribution, we recommend to work with a virtualenv:
     python3 -m venv /path/to/venv/INGInious
     source /path/to/venv/INGInious/bin/activate
 
-Then install INGInious using the setup.py file
+Then install INGInious using the setup.py file (more likely for production purpose) :
 
 .. code-block:: bash
 
-    pip install setuptools
-    python3 setup.py install
+    pip install inginious
 
 .. note::
-    For development purpose you may want to run this command to remove the scripts from python folder :
+    For development purpose you might want to run this command to remove the scripts from python folder (ensuring that only ingenious dependencies are installed) :
     .. code-block:: bash
         pip uninstall inginious
     And then run the scripts from the installation folder
