@@ -76,11 +76,8 @@
                     <form method="post" action="submissions#alerts">
                         <input type="hidden" name="displayed_selection" value="{{displayed_selection}}">
                         <div class="btn-group btn-group-sm" role="group">
-                            <button class="btn btn-info" type="submit" name="csv" formmethod="post" title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="top" {% if not data %} disabled {% endif %}>
-                                <i class="fa fa-table"></i>
-                            </button>
                             <button class="btn btn-info" type="button" data-toggle="modal" data-target="#csv_modal" {% if not data %} disabled {% endif %}>
-                                <span data-toggle="tooltip" data-placement="top" title="{{ _('Download CSV 2') }}"><i class="fa fa-table"></i></span>
+                                <span data-toggle="tooltip" data-placement="top" title="{{ _('Download CSV') }}"><i class="fa fa-table"></i></span>
                             </button>
                             <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#submissions_modal" {% if not data %} disabled {% endif %}>
                                 <span data-toggle="tooltip" data-placement="top" title="{{ _('Download current selection') }}"> <i class="fa fa-download"></i></span>
