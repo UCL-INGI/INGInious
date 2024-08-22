@@ -43,6 +43,10 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
 
             if "csv" in user_input:
+                fields = [inp.replace("csv_", "") for inp in list(user_input) if inp.startswith("csv_")]
+                print(fields)
+                data = [{key: entry[key] for key in fields if key in entry} for entry in data] # filter data
+                print(data)
                 return make_csv(data)
 
             elif "download" in user_input:
@@ -118,11 +122,12 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
         data, sub_count, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
+        data_keys = data[0].keys() if data else []
 
         return self.template_helper.render("course_admin/submissions.html", course=course, users=users,
                                            tutored_users=tutored_users, audiences=audiences,
                                            tutored_audiences=tutored_audiences, tasks=tasks, old_params=params,
-                                           data=data, displayed_selection=json.dumps(params),
+                                           data=data, data_keys=data_keys, displayed_selection=json.dumps(params),
                                            number_of_pages=pages, page_number=page, msgs=msgs, sub_count = sub_count)
 
     def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None, best_only=False):
