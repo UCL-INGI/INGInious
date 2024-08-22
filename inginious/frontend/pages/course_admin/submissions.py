@@ -44,9 +44,23 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
 
             if "csv" in user_input:
                 fields = [inp.replace("csv_", "") for inp in list(user_input) if inp.startswith("csv_")]
-                print(fields)
+
+                # Map each user to an id and replace it
+                if "username" not in fields:
+                    username_to_userid = {}
+                    next_userid = 1    
+
+                    for entry in data:
+                        usernames = entry['username']
+                        for i, username in enumerate(usernames):
+                            if username not in username_to_userid:
+                                username_to_userid[username] = f"user{next_userid}"
+                                next_userid += 1
+                            entry['username'][i] = username_to_userid[entry['username'][i]]
+                    
+                    fields.append("username")
+
                 data = [{key: entry[key] for key in fields if key in entry} for entry in data] # filter data
-                print(data)
                 return make_csv(data)
 
             elif "download" in user_input:
