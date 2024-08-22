@@ -276,26 +276,124 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body row">
-                    <label class="col-sm-15 control-label">NB : If the username is not checked, a random username will be generated for each real user allowing anonymous download without much data loss.</label>
                     <br>
-                    <label class="col-sm-5 control-label">{{ _("Export fields") }}</label>
-                    <div class="col-sm-7">
-                        {% for data_key in data_keys %}
-                        <label class="form-check-label">
-                            <input name=csv_{{data_key}} class="form-check-input" type="checkbox" checked> {{data_key}}
+
+                    <!-- Checkbox and dropdown for Submission fields -->
+                    <div class="col-sm-12">
+                        <label>
+                            <input type="checkbox" id="toggleSubmissionFields" checked> {{ _("Submission fields") }}
                         </label>
-                        <br>
-                        {% endfor %}
+                        <span id="submissionToggleText" style="cursor: pointer; color: grey; font-size: 0.9em; margin-left: 10px;">
+                            {{ _("More options") }}
+                        </span>
+                        <div id="submissionFields" style="display: none; margin-left: 20px;">
+                            {% for data_key in data_keys %}
+                            <label class="form-check-label">
+                                <input name=csv_{{data_key}} class="form-check-input" type="checkbox" checked> {{data_key}}
+                            </label>
+                            <br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Information text -->
+                    <label class="col-sm-12 control-label">
+                        NB: If the username is not checked, a random username will be generated for each real user allowing anonymous download while keeping the ability to group submissions by users.
+                        If you want to download anonymous subscription, don't forget to remove user's fields.
+                    </label>
+                    <br>
+
+                    <!-- Checkbox and dropdown for User fields -->
+                    <div class="col-sm-12">
+                        <label>
+                            <input type="checkbox" id="toggleUserFields" checked> {{ _("User fields (perform a join with user table)") }}
+                        </label>
+                        <span id="userToggleText" style="cursor: pointer; color: grey; font-size: 0.9em; margin-left: 10px;">
+                            {{ _("More options") }}
+                        </span>
+                        <div id="userFields" style="display: none; margin-left: 20px;">
+                            {% for user_key in user_keys %}
+                            <label class="form-check-label">
+                                <input name=csvuser_{{user_key}} class="form-check-input" type="checkbox" checked> {{user_key}}
+                            </label>
+                            <br>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
-                        <button type="submit" name="csv" formmethod="post" class="btn btn-info">{{ _("Download") }}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                    <button type="submit" name="csv" formmethod="post" class="btn btn-info" id="downloadButton">{{ _("Download") }}</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    // main checkbox submission fields
+    document.getElementById('toggleSubmissionFields').addEventListener('change', function() {
+        var checkboxes = document.querySelectorAll('input[name^="csv_"]');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = document.getElementById('toggleSubmissionFields').checked;
+        });
+    });
+
+    // main checkbox user fields
+    document.getElementById('toggleUserFields').addEventListener('change', function() {
+        var checkboxes = document.querySelectorAll('input[name^="csvuser_"]');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = document.getElementById('toggleUserFields').checked;
+        });
+    });
+
+    // dropdown submission fields
+    document.getElementById('submissionToggleText').addEventListener('click', function() {
+        var submissionFields = document.getElementById('submissionFields');
+        if (submissionFields.style.display === 'none') {
+            submissionFields.style.display = 'block';
+            this.textContent = '{{ _("Less options") }}';
+        } else {
+            submissionFields.style.display = 'none';
+            this.textContent = '{{ _("More options") }}';
+        }
+    });
+
+    // dropdown user fields
+    document.getElementById('userToggleText').addEventListener('click', function() {
+        var userFields = document.getElementById('userFields');
+        if (userFields.style.display === 'none') {
+            userFields.style.display = 'block';
+            this.textContent = '{{ _("Less options") }}';
+        } else {
+            userFields.style.display = 'none';
+            this.textContent = '{{ _("More options") }}';
+        }
+    });
+
+    // initial state
+    document.addEventListener('DOMContentLoaded', function() {
+        var submissionCheckbox = document.getElementById('toggleSubmissionFields');
+        var userCheckbox = document.getElementById('toggleUserFields');
+    });
+
+    // disable download if no checkbox activated
+    function checkCheckboxes() {
+        var modal = document.getElementById('csv_modal');
+        var checkboxes = modal.querySelectorAll('input[type="checkbox"]');
+        var downloadButton = document.getElementById('downloadButton');
+        var anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+        
+        downloadButton.disabled = !anyChecked;
+    }
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', checkCheckboxes);
+    });
+    document.addEventListener('DOMContentLoaded', checkCheckboxes);
+
+</script>
 <!-- Modal to download csv END -->
 
 
