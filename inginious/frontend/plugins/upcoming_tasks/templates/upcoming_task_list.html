@@ -22,9 +22,13 @@
                         </div>
                         <div class="col-xs-12 col-md-5">
                             {{ "DEADLINE: "}}
-                            <b>
+                            <b class="datetime-display">
                                 {% set accessibility = task_dispenser.get_accessibility(task.get_id(), user_manager.session_username()) %}
-                                {{ accessibility.get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S") }}
+                                {% if accessibility.is_always_accessible() %}
+                                    {{ _("No deadline") }}
+                                {% else %}
+                                    {{ accessibility.get_soft_end_date()}}
+                                {% endif %}
                             </b>
                         </div>
                         <div class="col-xs-12 col-md-5">

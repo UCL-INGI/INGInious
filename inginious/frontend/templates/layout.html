@@ -26,6 +26,7 @@
         <link href="{{get_homepath(True)}}/static/css/INGInious.css?v2" rel="stylesheet">
     {% endif %}
     <link href="{{get_homepath(True)}}/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="{{get_homepath(True)}}/static/css/flatpickr.min.css" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link href="{{get_homepath(True)}}/static/css/font-awesome.min.css" rel="stylesheet">
@@ -84,13 +85,22 @@
     <script src="{{get_homepath(True)}}/static/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/codemirror/mode/meta.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/popper.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="{{get_homepath(True)}}/static/js/libs/moment.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{get_homepath(True)}}/static/js/libs/moment-with-locales.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{get_homepath(True)}}/static/js/libs/moment-timezone-with-data.min.js" type="text/javascript" charset="utf-8"></script>
     {% if  _("__is_rtl") == "true"%}
         <script src="{{ get_homepath(True) }}/static/js/libs/bootstrap-rtl.min.js" type="text/javascript" charset="utf-8"></script>
     {% else %}
         <script src="{{get_homepath(True)}}/static/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
     {% endif %}
     <script src="{{get_homepath(True)}}/static/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{get_homepath(True)}}/static/js/libs/flatpickr.min.js" type="text/javascript" charset="utf-8"></script>
+
+
+
+    {% for code, language in available_languages.items() %}
+        <script src="{{get_homepath(True)}}/static/js/libs/flatpickr-l10n/{{code}}.js" type="text/javascript" charset="utf-8"></script>
+    {% endfor %}
+
     <script src='{{get_homepath(True)}}/static/js/libs/Sortable.min.js' type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/jquery.twbsPagination.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{get_homepath(True)}}/static/js/libs/selectize.min.js" type="text/javascript" charset="utf-8"></script>
@@ -210,5 +220,34 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {{ template_helper.call('javascript_footer') | safe }}
+
+    <script>
+        $(document).ready(function() {
+            var timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+            js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+            // Update datetime display
+            $(".datetime-display").each(function() {
+                var date = $(this).text();
+
+                if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
+                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').tz(timezone).format(js_datetime_format);
+                    $(this).text(updatedDate);
+                }
+            });
+
+            // Update datetime input placeholder to correct format
+            $(".datetimepicker-input").each(function() {
+                var date = $(this).attr('placeholder');
+
+                if (moment(date, 'YYYY-MM-DD HH:mm:ss.SSSSS').isValid()) {
+                    var updatedDate = moment.utc(date, 'YYYY-MM-DD HH:mm:ss').format(js_datetime_format);
+                    $(this).attr('placeholder', updatedDate);
+                }
+            });
+
+        });
+
+    </script>
 </body>
 </html>

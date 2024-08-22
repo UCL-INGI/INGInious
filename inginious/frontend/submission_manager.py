@@ -16,7 +16,7 @@ import bson
 import pymongo
 
 import flask
-from datetime import datetime
+from datetime import datetime, timezone
 from bson.objectid import ObjectId
 from pymongo.collection import ReturnDocument
 
@@ -191,7 +191,7 @@ class WebAppSubmissionManager:
             del submission["_id"]
             username = self._user_manager.session_username()
             submission["username"] = [username]
-            submission["submitted_on"] = datetime.now()
+            submission["submitted_on"] = datetime.now(timezone.utc)
             my_user_task = self._database.user_tasks.find_one(
                 {"courseid": courseid, "taskid": task.get_id(), "username": username},
                 {"tried": 1, "_id": 0})
@@ -222,7 +222,7 @@ class WebAppSubmissionManager:
 
         self._database.submissions.update_one(
             {"_id": submission["_id"], "status": "waiting"},
-            {"$set": {"jobid": jobid,"last_replay": datetime.now()}}
+            {"$set": {"jobid": jobid,"last_replay": datetime.now(timezone.utc)}}
         )
 
         if not copy:
@@ -274,7 +274,7 @@ class WebAppSubmissionManager:
             "courseid": course.get_id(),
             "taskid": task.get_id(),
             "status": "waiting",
-            "submitted_on": datetime.now(),
+            "submitted_on": datetime.now(timezone.utc),
             "username": [username],
             "response_type": task.get_response_type(),
             "user_ip": flask.request.remote_addr
