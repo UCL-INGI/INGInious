@@ -42,7 +42,48 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
             params = self.get_input_params(json.loads(user_input.get("displayed_selection", "")), course)
             data = self.submissions_from_user_input(course, params, msgs, best_only=best_only)
 
+            registered_users = self.user_manager.get_course_registered_users(course)
+            registered_users_info = self.user_manager.get_users_info(registered_users)
+            
+            # Merge user info and data
+            for item in data:
+                usernames = item['username']
+                user_infos = [registered_users_info[username]._asdict() for username in usernames if username in registered_users_info]
+                if user_infos:
+                    item['user_info'] = user_infos
+
             if "csv" in user_input:
+                fields = [inp.replace("csv_", "") for inp in list(user_input) if inp.startswith("csv_")]
+                user_fields = [inp.replace("csvuser_", "") for inp in list(user_input) if inp.startswith("csvuser_")]
+
+                if user_fields:
+                    fields += ["user_info"]
+
+                # Map each user to an id and replace it
+                if "username" not in fields:
+                    username_to_userid = {}
+                    next_userid = 1    
+
+                    for entry in data:
+                        usernames = entry['username']
+                        for i, username in enumerate(usernames):
+                            if username not in username_to_userid:
+                                username_to_userid[username] = f"user{next_userid}"
+                                next_userid += 1
+                            entry['username'][i] = username_to_userid[entry['username'][i]]
+                    
+                    fields.append("username")
+
+                print(data)
+
+                data = [{key: entry[key] for key in fields if key in entry} for entry in data] # filter data
+                if user_fields:
+                    for entry in data:
+                        entry["user_info"] = [
+                            {key: user_entry[key] for key in user_fields if key in user_entry}
+                            for user_entry in entry["user_info"]
+                        ]  # filter user data
+                
                 return make_csv(data)
 
             elif "download" in user_input:
@@ -118,11 +159,15 @@ class CourseSubmissionsPage(INGIniousSubmissionsAdminPage):
         users, tutored_users, audiences, tutored_audiences, tasks, limit = self.get_course_params(course, params)
 
         data, sub_count, pages = self.submissions_from_user_input(course, params, msgs, page, limit)
+        data_keys = list(data[0].keys()) if data else []
+
+        registered_users = self.user_manager.get_course_registered_users(course)
+        user_keys = list(self.user_manager.get_user_info(registered_users[0])._fields) if registered_users else []
 
         return self.template_helper.render("course_admin/submissions.html", course=course, users=users,
                                            tutored_users=tutored_users, audiences=audiences,
                                            tutored_audiences=tutored_audiences, tasks=tasks, old_params=params,
-                                           data=data, displayed_selection=json.dumps(params),
+                                           data=data, data_keys=data_keys, user_keys=user_keys, displayed_selection=json.dumps(params),
                                            number_of_pages=pages, page_number=page, msgs=msgs, sub_count = sub_count)
 
     def submissions_from_user_input(self, course, user_input, msgs, page=None, limit=None, best_only=False):
