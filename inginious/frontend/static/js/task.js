@@ -762,7 +762,7 @@ function load_input_file(submissionid, key, input)
         var input_file = $('#download-input-file-' + key);
         input_file.attr('href', url );
         input_file.css('display', 'block');
-        if(allowed_exts.indexOf(".pdf") >= 0) {
+        if(input[key]["filename"].endsWith('.pdf')) {
             var input_file_pdf = $('#download-input-file-pdf-' + key);
             input_file_pdf.attr('data', url);
             input_file_pdf.find("embed").attr("src", url);

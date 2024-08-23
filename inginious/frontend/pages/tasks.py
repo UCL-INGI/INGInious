@@ -88,7 +88,6 @@ class BaseTaskPage(object):
 
         userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
-            print("Là ça télécharge")
 
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
@@ -105,7 +104,7 @@ class BaseTaskPage(object):
                 mimetypes.init()
                 mime_type = mimetypes.guess_type(urllib.request.pathname2url(filename))
                 
-                # Forcer le téléchargement pour les fichiers non-PDF
+                # Force download for non pdf files
                 if not filename.lower().endswith(".pdf"):
                     headers = {
                         'Content-Disposition': f'attachment; filename="{filename}"'
