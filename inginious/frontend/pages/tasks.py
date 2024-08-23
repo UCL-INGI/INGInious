@@ -80,6 +80,7 @@ class BaseTaskPage(object):
             previous_taskid = None
             next_taskid = None
         else:
+            # Compute previous and next taskid
             index = ordered_task_list.index(taskid)
             previous_taskid = ordered_task_list[index - 1] if index > 0 else None
             next_taskid = ordered_task_list[index + 1] if index < len(ordered_task_list) - 1 else None
