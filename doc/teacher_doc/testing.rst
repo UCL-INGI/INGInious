@@ -27,3 +27,15 @@ on the *>_* (left-chevron, underscore) button next to the *Submit* button. Accor
 configuration, either a SSH command-line with auto-generated password will be given you (you will,
 in this case, need an SSH client installed), or an embedded SSH console will pop up as the
 feedback position.
+
+Debugging IPython scripts (run.py)
+``````````````````````````````````
+As mentioned in :ref:`run_file`, INGInious uses IPython and is configured to expose a few
+functions such as ``get_input`` or ``set_feedback``. Therefore, you can't directly use the ``python``
+interpreter but must use `inginious-ipython`, for instance ``inginious-ipython run.py``.
+
+Debugging bash scripts (run.sh)
+````````````````````````````````
+As opposed to python scripts, INGInious functions are exposed through the
+environment so there is no need to use a particular loader. ``source run.sh`` might be a better
+choice than running the script in a subshell to observe the state of variables after execution.
