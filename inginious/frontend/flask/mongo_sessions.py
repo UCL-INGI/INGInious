@@ -68,7 +68,7 @@ class MongoDBSessionInterface(SessionInterface):
 
     def open_session(self, app, request):
         # Check for cookieless session in the path
-        path_session = re.match(r"(/@)([a-f0-9A-F_]*)(@)", request.path)
+        path_session = request.args.get('session_id')
 
         # Check if currently accessed URL is LTI launch page
         try:
@@ -80,7 +80,7 @@ class MongoDBSessionInterface(SessionInterface):
 
         if path_session:  # Cookieless session
             cookieless = True
-            sid = path_session.group(2)
+            sid = path_session
         elif is_lti_launch:
             cookieless = True
             sid = None

@@ -12,8 +12,8 @@
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_path('course', course.get_id())}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_path('admin', course.get_id())}}" title="Administration" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
             <li class="breadcrumb-item active"><a href="#"><i class="fa fa-trophy"></i> Contest plugin <span class="sr-only">(current)</span></a></li>
         </ol>
@@ -39,7 +39,7 @@ Tasks will never be hidden after the end of the contest, but newer submissions w
 You may want to configure the course such that:<br/>
 accessibility date of the course &lt; registration start date &lt; registration end date &lt; contest start &lt; contest end.<br/>
 </p>
-<form id="edit_contest_form" action="{{get_homepath()}}/admin/{{course.get_id()}}/contest" method="post" class="form-horizontal">
+<form id="edit_contest_form" action="{{get_path('admin', course.get_id(), 'contest')}}" method="post" class="form-horizontal">
     <div class="form-group row">
         <label for="enabled" class="col-sm-2 control-label">Enable contest plugin</label>
         <div class="col-sm-10">

@@ -39,7 +39,7 @@
 {%if success %}
     <script type="text/javascript">
         window.onload = function() {
-            window.opener.location.href = "{{ get_homepath(True) }}/@{{ sessionid }}@/lti/login";
+            window.opener.location.href = "{{ get_path('lti', 'login') }}";
             window.close();
         }
     </script>

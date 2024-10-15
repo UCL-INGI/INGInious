@@ -47,7 +47,7 @@
                     <div class="col-xs-12 col-md-4 m-auto">
                         <i class="pull-right btn-group">
                             {% if user_manager.session_username() in taskset.get_admins() or user_manager.user_is_superadmin() %}
-                                <a class="btn btn-sm btn-warning" href="{{ get_homepath() }}/taskset/{{ tasksetid }}" title="{{ _('Edit taskset') }}" data-toggle="tooltip" data-placement="bottom">
+                                <a class="btn btn-sm btn-warning" href="{{ get_path('taskset', tasksetid) }}" title="{{ _('Edit taskset') }}" data-toggle="tooltip" data-placement="bottom">
                                     <i class="fa fa-pencil"></i>
                                 </a>
                             {% endif %}

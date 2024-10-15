@@ -193,7 +193,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
             else:
                 try:
                     self.delete_course(courseid)
-                    return redirect(self.app.get_homepath() + '/index')
+                    return redirect(self.app.get_path("index"))
                 except Exception as ex:
                     msg = _("An error occurred while deleting the course data: {}").format(repr(ex))
                     error = True

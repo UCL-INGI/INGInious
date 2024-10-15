@@ -100,20 +100,24 @@ def _put_configuration_defaults(config):
 
     return config
 
+def get_homepath():
+    """ Returns the URL root. """
+    return flask.request.url_root[:-1]
 
-def get_homepath(ignore_session=False, force_cookieless=False):
+def get_path(*path_parts, force_cookieless=False):
     """
-    :param ignore_session: Ignore the cookieless session_id that should be put in the URL
+    :param path_parts: List of elements in the path to be separated by slashes
     :param force_cookieless: Force the cookieless session; the link will include the session_creator if needed.
     """
     session = flask.session
     request = flask.request
-    if not ignore_session and session.sid is not None and session.cookieless:
-        return request.url_root[:-1] + "/@" + session.sid + "@"
-    elif not ignore_session and force_cookieless:
-        return request.url_root[:-1] + "/@@"
-    else:
-        return request.url_root[:-1]
+    query_delimiter = '&' if path_parts and '?' in path_parts[-1] else '?'
+    path_parts = (get_homepath(), ) + path_parts
+    if session.sid is not None and session.cookieless:
+        return "/".join(path_parts) + f"{query_delimiter}session_id={session.sid}"
+    if force_cookieless:
+        return "/".join(path_parts) + f"{query_delimiter}session_id="
+    return "/".join(path_parts)
 
 
 def _close_app(mongo_client, client):
@@ -188,6 +192,7 @@ def get_app(config):
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", get_homepath)
+        template_helper.add_to_template_globals("get_path", get_path)
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
@@ -244,6 +249,7 @@ def get_app(config):
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
+    template_helper.add_to_template_globals("get_path", get_path)
     template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
@@ -283,7 +289,7 @@ def get_app(config):
     flask_app.register_error_handler(InternalServerError, flask_internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
-    flask_app.get_homepath = get_homepath
+    flask_app.get_path = get_path
     flask_app.plugin_manager = plugin_manager
     flask_app.taskset_factory = taskset_factory
     flask_app.course_factory = course_factory

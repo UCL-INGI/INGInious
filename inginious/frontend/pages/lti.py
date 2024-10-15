@@ -45,48 +45,48 @@ class LTIAssetPage(INGIniousAuthPage):
         if data is None:
             raise Forbidden(description=_("No LTI data available."))
         (courseid, _) = data['task']
-        return redirect(self.app.get_homepath() + "/course/{courseid}/{asset_url}".format(courseid=courseid, asset_url=asset_url))
+        return redirect(self.app.get_path("course", courseid, asset_url))
 
 
 class LTIBindPage(INGIniousAuthPage):
     def is_lti_page(self):
         return False
 
-    def fetch_lti_data(self, sessionid):
+    def fetch_lti_data(self, session_id):
         # TODO : Flask session interface does not allow to open a specific session
         # It could be worth putting these information outside of the session dict
-        sess = self.database.sessions.find_one({"_id": sessionid})
+        sess = self.database.sessions.find_one({"_id": session_id})
         if sess:
             cookieless_session = self.app.session_interface.serializer.loads(want_bytes(sess['data']))
         else:
             return KeyError()
-        return sessionid, cookieless_session["lti"]
+        return session_id, cookieless_session["lti"]
 
     def GET_AUTH(self):
         input_data = flask.request.args
-        if "sessionid" not in input_data:
-            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+        if "session_id" not in input_data:
+            return self.template_helper.render("lti_bind.html", success=False, session_id="",
                                                data=None, error=_("Missing LTI session id"))
 
         try:
-            cookieless_session_id, data = self.fetch_lti_data(input_data["sessionid"])
+            cookieless_session_id, data = self.fetch_lti_data(input_data["session_id"])
         except KeyError:
-            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+            return self.template_helper.render("lti_bind.html", success=False, session_id="",
                                                data=None, error=_("Invalid LTI session id"))
 
         return self.template_helper.render("lti_bind.html", success=False,
-                                           sessionid=cookieless_session_id, data=data, error="")
+                                           session_id=cookieless_session_id, data=data, error="")
 
     def POST_AUTH(self):
         input_data = flask.request.args
-        if "sessionid" not in input_data:
-            return self.template_helper.render("lti_bind.html",success=False, sessionid="",
+        if "session_id" not in input_data:
+            return self.template_helper.render("lti_bind.html",success=False, session_id="",
                                                data= None, error=_("Missing LTI session id"))
 
         try:
-            cookieless_session_id, data = self.fetch_lti_data(input_data["sessionid"])
+            cookieless_session_id, data = self.fetch_lti_data(input_data["session_id"])
         except KeyError:
-            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+            return self.template_helper.render("lti_bind.html", success=False, session_id="",
                                                data=None, error=_("Invalid LTI session id"))
 
         try:
@@ -94,7 +94,7 @@ class LTIBindPage(INGIniousAuthPage):
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
-            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+            return self.template_helper.render("lti_bind.html", success=False, session_id="",
                                                data=None, error=_("Invalid LTI data"))
 
         if data:
@@ -115,12 +115,12 @@ class LTIBindPage(INGIniousAuthPage):
                                  data["consumer_key"],
                                  user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"], ""))
                 return self.template_helper.render("lti_bind.html", success=False,
-                                                   sessionid=cookieless_session_id,
+                                                   session_id=cookieless_session_id,
                                                    data=data,
                                                    error=_("Your account is already bound with this context."))
 
         return self.template_helper.render("lti_bind.html", success=True,
-                                           sessionid=cookieless_session_id, data=data, error="")
+                                           session_id=cookieless_session_id, data=data, error="")
 
 
 class LTILoginPage(INGIniousPage):
@@ -141,7 +141,7 @@ class LTILoginPage(INGIniousPage):
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
-            return self.template_helper.render("lti_bind.html", success=False, sessionid="",
+            return self.template_helper.render("lti_bind.html", success=False, session_id="",
                                                data=None, error="Invalid LTI data")
 
         user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
@@ -150,7 +150,7 @@ class LTILoginPage(INGIniousPage):
                                            user_profile["language"], user_profile.get("tos_accepted", False))
 
         if self.user_manager.session_logged_in():
-            return redirect(self.app.get_homepath() + "/lti/task")
+            return redirect(self.app.get_path("lti", "task"))
 
         return self.template_helper.render("lti_login.html")
 
@@ -172,11 +172,11 @@ class LTILaunchPage(INGIniousPage):
         raise MethodNotAllowed()
 
     def POST(self, courseid, taskid):
-        (sessionid, loggedin) = self._parse_lti_data(courseid, taskid)
+        (session_id, loggedin) = self._parse_lti_data(courseid, taskid)
         if loggedin:
-            return redirect(self.app.get_homepath() + "/lti/task")
+            return redirect(self.app.get_path("lti", "task"))
         else:
-            return redirect(self.app.get_homepath() + "/lti/login")
+            return redirect(self.app.get_path("lti", "login"))
 
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """

@@ -8,7 +8,7 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="media ">
-        <img class="align-self-center mr-3" src="{{ get_homepath(True) }}/static/images/header.png" alt="INGInious">
+        <img class="align-self-center mr-3" src="{{ get_homepath() }}/static/images/header.png" alt="INGInious">
         <div class="media-body">
             <h2 class="mt-0"> {{ _('Hello!') }}</h2>
             <h3>{{ _('Welcome on the INGInious platform.') }}</h3>
@@ -29,8 +29,9 @@
 <div class="row justify-content-center">
     <div class="col-md-4 p-0">
         <div class="card card-body bg-light">
-            <p class="mb-2"><a onclick="window.open('{{ get_homepath(True) }}/lti/bind?sessionid={{ user_manager.session_id() }}');" href="#">{{ _("Bind your INGInious account") }}</a></p>
-            <p class="m-0"><a href="{{ get_homepath() }}/lti/login">{{ _("Refresh") }}</a></p>
+            {% set path = get_path('lti', 'bind') %}
+            <p class="mb-2"><a onclick="window.open('{{ path }}');" href="#">{{ _("Bind your INGInious account") }}</a></p>
+            <p class="m-0"><a href="{{ get_path('lti', 'login') }}">{{ _("Refresh") }}</a></p>
         </div>
     </div>
 </div>
