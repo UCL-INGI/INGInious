@@ -16,6 +16,7 @@ install_requires = [
     "itsdangerous==2.1.2",
     "Jinja2==3.1.3",
     "lti==0.9.5",
+    "PyLTI1p3==2.0.0",
     "msgpack==1.0.7",
     "natsort==8.4.0",
     "psutil==5.9.8",
