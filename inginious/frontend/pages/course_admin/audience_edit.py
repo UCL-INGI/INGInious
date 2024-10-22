@@ -88,7 +88,7 @@ class CourseEditAudience(INGIniousAdminPage):
                     msg = _("Audience updated.")
 
             if audienceid and audienceid in data["delete"]:
-                return redirect(self.app.get_homepath() + "/admin/" + courseid + "/students?audiences")
+                return redirect(self.app.get_path("admin", courseid, "students?audiences"))
         else:
             audiences_dict = json.loads(data["audiences"])
             student_list = self.user_manager.get_course_registered_users(course, False)

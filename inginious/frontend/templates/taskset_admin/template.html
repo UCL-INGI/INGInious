@@ -13,10 +13,10 @@
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/tasksets" title="{{ _('Tasksets') }}" data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{get_path('tasksets')}}" title="{{ _('Tasksets') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-tasks"></i></a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}">{{taskset.get_name(user_manager.session_language())}}</a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/taskset/{{taskset.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item"><a href="{{get_path('taskset', taskset.get_id())}}">{{taskset.get_name(user_manager.session_language())}}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_path('taskset', taskset.get_id())}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i></a></li>
             <li class="breadcrumb-item active"><a href="#"><i class="fa fa-tasks"></i> {{ _("Course template") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>

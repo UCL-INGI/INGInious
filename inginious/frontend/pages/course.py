@@ -11,14 +11,14 @@ from werkzeug.exceptions import NotFound
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-def handle_course_unavailable(app_homepath, template_helper, user_manager, course):
+def handle_course_unavailable(get_path, template_helper, user_manager, course):
     """ Displays the course_unavailable page or the course registration page """
     reason = user_manager.course_is_open_to_user(course, lti=False, return_reason=True)
     if reason == "unregistered_not_previewable":
         username = user_manager.session_username()
         user_info = user_manager.get_user_info(username)
         if course.is_registration_possible(user_info):
-            return redirect(app_homepath + "/register/" + course.get_id())
+            return redirect(get_path("register", course.get_id()))
     return template_helper.render("course_unavailable.html", reason=reason)
 
 
@@ -45,7 +45,7 @@ class CoursePage(INGIniousAuthPage):
         user_input = flask.request.form
         if "unregister" in user_input and course.allow_unregister():
             self.user_manager.course_unregister_user(courseid, self.user_manager.session_username())
-            return redirect(self.app.get_homepath() + '/mycourses')
+            return redirect(self.app.get_path('mycourses'))
 
         return self.show_page(course)
 
@@ -58,7 +58,7 @@ class CoursePage(INGIniousAuthPage):
         """ Prepares and shows the course page """
         username = self.user_manager.session_username()
         if not self.user_manager.course_is_open_to_user(course, lti=False):
-            return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
+            return handle_course_unavailable(self.app.get_path, self.template_helper, self.user_manager, course)
         else:
             tasks = course.get_tasks()
 

@@ -51,7 +51,7 @@ class MarketplaceTasksetPage(INGIniousAuthPage):
             except ImportTasksetException as e:
                 errors.append(str(e))
             if not errors:
-                return redirect(self.app.get_homepath() + "/taskset/{}".format(new_tasksetid))
+                return redirect(self.app.get_path("taskset", new_tasksetid))
         return self.show_page(taskset, errors)
 
     def show_page(self, taskset, errors=None):

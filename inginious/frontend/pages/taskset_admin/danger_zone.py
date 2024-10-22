@@ -58,7 +58,7 @@ class TasksetDangerZonePage(INGIniousAdminPage):
                     if self.database.courses.find_one({"tasksetid": tasksetid}):
                         raise Exception(_("One or more course(s) rely on the current taskset."))
                     self.delete_taskset(tasksetid)
-                    return redirect(self.app.get_homepath() + '/tasksets')
+                    return redirect(self.app.get_path("tasksets"))
                 except Exception as ex:
                     msg = _("An error occurred while deleting the taskset data: {}").format(str(ex))
                     error = True

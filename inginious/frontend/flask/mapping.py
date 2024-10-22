@@ -25,7 +25,7 @@ from inginious.frontend.pages.social import AuthenticationPage, CallbackPage
 from inginious.frontend.pages.course_register import CourseRegisterPage
 from inginious.frontend.pages.course import CoursePage
 from inginious.frontend.pages.tasks import TaskPage, TaskPageStaticDownload
-from inginious.frontend.pages.lti import LTITaskPage, LTILaunchPage, LTIBindPage, LTIAssetPage, LTILoginPage
+from inginious.frontend.pages.lti import LTITaskPage, LTIBindPage, LTIAssetPage, LTILaunchPage, LTIOIDCLoginPage, LTIJWKSPage, LTILoginPage
 from inginious.frontend.pages.group import GroupPage
 from inginious.frontend.pages.marketplace import MarketplacePage
 from inginious.frontend.pages.marketplace_taskset import MarketplaceTasksetPage
@@ -55,118 +55,108 @@ from inginious.frontend.pages.taskset_admin.danger_zone import TasksetDangerZone
 from inginious.frontend.pages.search_user import SearchUserPage
 
 
-class CookielessConverter(BaseConverter):
-    # Parse the cookieless sessionid at the beginning of the url
-    regex = "@[a-f0-9A-F_]*@/|"
-    part_isolating = False
-
-    def to_python(self, value):
-        return value[1:-2]
-
-    def to_url(self, value):
-        return "@" + str(value) + "@/"
-
-
 def init_flask_maintenance_mapping(flask_app):
     flask_app.add_url_rule('/', view_func=MaintenancePage.as_view('maintenancepage.alias'))
     flask_app.add_url_rule('/<path:path>', view_func=MaintenancePage.as_view('maintenancepage'))
 
 
 def init_flask_mapping(flask_app):
-    flask_app.url_map.converters['cookieless'] = CookielessConverter
-    flask_app.add_url_rule('/<cookieless:sessionid>', view_func=IndexPage.as_view('indexpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>index', view_func=IndexPage.as_view('indexpage.alias'))
-    flask_app.add_url_rule('/<cookieless:sessionid>signin', view_func=SignInPage.as_view('signinpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>logout', view_func=LogOutPage.as_view('logoutpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>register', view_func=RegistrationPage.as_view('registrationpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>queue', view_func=QueuePage.as_view('queuepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>register/<courseid>',
+    flask_app.add_url_rule('/', view_func=IndexPage.as_view('indexpage'))
+    flask_app.add_url_rule('/index', view_func=IndexPage.as_view('indexpage.alias'))
+    flask_app.add_url_rule('/signin', view_func=SignInPage.as_view('signinpage'))
+    flask_app.add_url_rule('/logout', view_func=LogOutPage.as_view('logoutpage'))
+    flask_app.add_url_rule('/register', view_func=RegistrationPage.as_view('registrationpage'))
+    flask_app.add_url_rule('/queue', view_func=QueuePage.as_view('queuepage'))
+    flask_app.add_url_rule('/register/<courseid>',
                            view_func=CourseRegisterPage.as_view('courseregisterpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>marketplace', view_func=MarketplacePage.as_view('marketplacepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>marketplace/<tasksetid>',
+    flask_app.add_url_rule('/marketplace', view_func=MarketplacePage.as_view('marketplacepage'))
+    flask_app.add_url_rule('/marketplace/<tasksetid>',
                            view_func=MarketplaceTasksetPage.as_view('marketplacetasksetpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>', view_func=CoursePage.as_view('coursepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>', view_func=TaskPage.as_view('taskpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>course/<courseid>/<taskid>/<path:path>',
+    flask_app.add_url_rule('/course/<courseid>', view_func=CoursePage.as_view('coursepage'))
+    flask_app.add_url_rule('/course/<courseid>/<taskid>', view_func=TaskPage.as_view('taskpage'))
+    flask_app.add_url_rule('/course/<courseid>/<taskid>/<path:path>',
                            view_func=TaskPageStaticDownload.as_view('taskpagestaticdownload'))
-    flask_app.add_url_rule('/<cookieless:sessionid>group/<courseid>', view_func=GroupPage.as_view('grouppage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>user_settings/<courseid>', view_func=CourseUserSettingPage.as_view('courseusersettingpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>auth/signin/<auth_id>',
+    flask_app.add_url_rule('/group/<courseid>', view_func=GroupPage.as_view('grouppage'))
+    flask_app.add_url_rule('/user_settings/<courseid>', view_func=CourseUserSettingPage.as_view('courseusersettingpage'))
+    flask_app.add_url_rule('/auth/signin/<auth_id>',
                            view_func=AuthenticationPage.as_view('authenticationpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>auth/callback/<auth_id>',
+    flask_app.add_url_rule('/auth/callback/<auth_id>',
                            view_func=CallbackPage.as_view('callbackpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>courselist', view_func=CourseListPage.as_view('courselistpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>mycourses', view_func=MyCoursesPage.as_view('mycoursespage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>tasksets', view_func=TasksetsPage.as_view('tasksetspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>preferences', view_func=PrefRedirectPage.as_view('prefredirectpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>preferences/bindings',
+    flask_app.add_url_rule('/pages/<pageid>', view_func=INGIniousStaticPage.as_view('staticpage'))
+    flask_app.add_url_rule('/courselist', view_func=CourseListPage.as_view('courselistpage'))
+    flask_app.add_url_rule('/mycourses', view_func=MyCoursesPage.as_view('mycoursespage'))
+    flask_app.add_url_rule('/tasksets', view_func=TasksetsPage.as_view('tasksetspage'))
+    flask_app.add_url_rule('/preferences', view_func=PrefRedirectPage.as_view('prefredirectpage'))
+    flask_app.add_url_rule('/preferences/bindings',
                            view_func=BindingsPage.as_view('bindingspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>preferences/delete', view_func=DeletePage.as_view('deletepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>preferences/profile', view_func=ProfilePage.as_view('profilepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>lti/task', view_func=LTITaskPage.as_view('ltitaskpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>lti/<courseid>/<taskid>',
+    flask_app.add_url_rule('/preferences/delete', view_func=DeletePage.as_view('deletepage'))
+    flask_app.add_url_rule('/preferences/profile', view_func=ProfilePage.as_view('profilepage'))
+    flask_app.add_url_rule('/lti/oidc_login/<courseid>',
+                           view_func=LTIOIDCLoginPage.as_view('ltioidcloginpage'))
+    flask_app.add_url_rule('/lti/launch/<courseid>/<taskid>',
                            view_func=LTILaunchPage.as_view('ltilaunchpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>lti/bind', view_func=LTIBindPage.as_view('ltibindpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>lti/login', view_func=LTILoginPage.as_view('ltiloginpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>lti/asset/<path:asset_url>',
+    flask_app.add_url_rule('/lti/jwks/<courseid>/<keyset_hash>', view_func=LTIJWKSPage.as_view('ltijwkspage'))
+    flask_app.add_url_rule('/lti/task', view_func=LTITaskPage.as_view('ltitaskpage'))
+    flask_app.add_url_rule('/lti/bind', view_func=LTIBindPage.as_view('ltibindpage'))
+    flask_app.add_url_rule('/lti/login', view_func=LTILoginPage.as_view('ltiloginpage'))
+    flask_app.add_url_rule('/lti/asset/<path:asset_url>',
                            view_func=LTIAssetPage.as_view('ltiassetpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>',
+    flask_app.add_url_rule('/admin/<courseid>',
                            view_func=CourseRedirectPage.as_view('courseredirect'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/settings',
+    flask_app.add_url_rule('/admin/<courseid>/settings',
                            view_func=CourseSettingsPage.as_view('coursesettingspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/students',
+    flask_app.add_url_rule('/admin/<courseid>/students',
                            view_func=CourseStudentListPage.as_view('coursestudentlistpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/student/<username>',
+    flask_app.add_url_rule('/admin/<courseid>/student/<username>',
                            view_func=CourseStudentInfoPage.as_view('coursestudentinfopage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>submission/<submissionid>',
+    flask_app.add_url_rule('/submission/<submissionid>',
                            view_func=SubmissionPage.as_view('submissionpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/submissions',
+    flask_app.add_url_rule('/admin/<courseid>/submissions',
                            view_func=CourseSubmissionsPage.as_view('coursesubmissionspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/tasks',
+    flask_app.add_url_rule('/admin/<courseid>/tasks',
                            view_func=CourseTaskListPage.as_view('coursetasklistpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/edit/audience/<audienceid>',
+    flask_app.add_url_rule('/admin/<courseid>/edit/audience/<audienceid>',
                            view_func=CourseEditAudience.as_view('courseditaudience'))
 
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>',
+    flask_app.add_url_rule('/taskset/<tasksetid>',
                            view_func=TasksetRedirectPage.as_view('tasksetredirectpage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/settings',
+    flask_app.add_url_rule('/taskset/<tasksetid>/settings',
                            view_func=TasksetSettingsPage.as_view('tasksetsettingspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>',
+    flask_app.add_url_rule('/taskset/<tasksetid>/edit/<taskid>',
                            view_func=EditTaskPage.as_view('tasksetedittask'))
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>/files',
+    flask_app.add_url_rule('/taskset/<tasksetid>/edit/<taskid>/files',
                            view_func=CourseTaskFiles.as_view('tasksettaskfiles'))
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/edit/<taskid>/dd_upload',
+    flask_app.add_url_rule('/taskset/<tasksetid>/edit/<taskid>/dd_upload',
                            view_func=CourseTaskFileUpload.as_view('tasksettaskfileupload'))
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/template',
+    flask_app.add_url_rule('/taskset/<tasksetid>/template',
                            view_func=TasksetTemplatePage.as_view('tasksettemplatepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>taskset/<tasksetid>/danger',
+    flask_app.add_url_rule('/taskset/<tasksetid>/danger',
                            view_func=TasksetDangerZonePage.as_view('tasksetdangerzonepage'))
 
-    flask_app.add_url_rule('/<cookieless:sessionid>search_user/<request>',
+    flask_app.add_url_rule('/search_user/<request>',
                            view_func=SearchUserPage.as_view('searchuserpage'))
 
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/danger',
+    flask_app.add_url_rule('/admin/<courseid>/danger',
                            view_func=CourseDangerZonePage.as_view('coursedangerzonepage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/stats',
+    flask_app.add_url_rule('/admin/<courseid>/stats',
                            view_func=CourseStatisticsPage.as_view('coursestatisticspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/auth_methods',
+    flask_app.add_url_rule('/api/v0/auth_methods',
                            view_func=APIAuthMethods.as_view('apiauthmethods'))
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/authentication',
+    flask_app.add_url_rule('/api/v0/authentication',
                            view_func=APIAuthentication.as_view('apiauthentication'))
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses', view_func=APICourses.as_view('apicourses.alias'),
+    flask_app.add_url_rule('/api/v0/courses', view_func=APICourses.as_view('apicourses.alias'),
                            defaults={'courseid': None})
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>',
+    flask_app.add_url_rule('/api/v0/courses/<courseid>',
                            view_func=APICourses.as_view('apicourses'))
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks',
+    flask_app.add_url_rule('/api/v0/courses/<courseid>/tasks',
                            view_func=APITasks.as_view('apitasks.alias'), defaults={'taskid': None})
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks/<taskid>',
+    flask_app.add_url_rule('/api/v0/courses/<courseid>/tasks/<taskid>',
                            view_func=APITasks.as_view('apitasks'))
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks/<taskid>/submissions',
+    flask_app.add_url_rule('/api/v0/courses/<courseid>/tasks/<taskid>/submissions',
                            view_func=APISubmissions.as_view('apisubmissions.alias'))
-    flask_app.add_url_rule('/<cookieless:sessionid>api/v0/courses/<courseid>/tasks/<taskid>/submissions/<submissionid>',
+    flask_app.add_url_rule('/api/v0/courses/<courseid>/tasks/<taskid>/submissions/<submissionid>',
                            view_func=APISubmissionSingle.as_view('apisubmissions'))
-    flask_app.add_url_rule('/<cookieless:sessionid>administrator/users',
+    flask_app.add_url_rule('/administrator/users',
                            view_func=AdministrationUsersPage.as_view('administrationuserspage'))
-    flask_app.add_url_rule('/<cookieless:sessionid>administrator/user_action',
+    flask_app.add_url_rule('/administrator/user_action',
                            view_func=AdministrationUserActionPage.as_view('administrationuseractionpage'))

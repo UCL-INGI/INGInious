@@ -27,7 +27,7 @@ class CourseRegisterPage(INGIniousAuthPage):
         user_info = self.user_manager.get_user_info(username)
 
         if self.user_manager.course_is_user_registered(course, username) or not course.is_registration_possible(user_info):
-            return redirect(self.app.get_homepath() + "/course/" + course.get_id())
+            return redirect(self.app.get_path("course", course.get_id()))
 
         return course, username
 
@@ -41,6 +41,6 @@ class CourseRegisterPage(INGIniousAuthPage):
         success = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
 
         if success:
-            return redirect(self.app.get_homepath() + "/course/" + course.get_id())
+            return redirect(self.app.get_path("course", course.get_id()))
         else:
             return self.template_helper.render("course_register.html", course=course, error=True)

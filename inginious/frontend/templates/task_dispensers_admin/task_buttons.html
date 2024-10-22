@@ -7,7 +7,7 @@
         <i class="fa fa-cogs" aria-hidden="true"></i>
     </a>
     {% if course is not none %}
-        <a class="view_task btn btn-success m-auto" href="{{get_homepath()}}/course/{{course.get_id()}}/{{taskid}}"
+        <a class="view_task btn btn-success m-auto" href="{{get_path('course', course.get_id(), taskid)}}"
                 title="{{ _('View task') }}" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-eye" ></i>
         </a>
@@ -16,13 +16,13 @@
         {% set taskset = course.get_taskset() %}
     {% endif %}
     {% if user_manager.session_username() in taskset.get_admins() or user_manager.user_is_superadmin() %}
-        <a class="edit_task btn btn-info m-auto" href="{{get_homepath()}}/taskset/{{taskset.get_id()}}/edit/{{taskid}}"
+        <a class="edit_task btn btn-info m-auto" href="{{get_path('taskset', taskset.get_id(), 'edit', taskid)}}"
                 title="{{ _('Edit task') }}" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-pencil"></i>
         </a>
         {% endif %}
     {% if course is not none %}
-        <a class="rename_task btn btn-secondary m-auto" href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?tasks={{taskid}}"
+        <a class="rename_task btn btn-secondary m-auto" href="{{get_path('admin', course.get_id(), 'submissions?tasks=' + taskid)}}"
                 title="{{ _('View submissions') }}"  data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-file-code-o fa-fw"></i>
         </a>
