@@ -9,7 +9,7 @@ import os
 from setuptools import setup, find_packages
 
 install_requires = [
-    "docker == 7.1.0", # docker 6.1.0 ? -> docker-py = ancienne version de docker
+    "docker == 7.1.0", 
     "docutils == 0.20.1",
     "pymongo == 4.10.1",
     "PyYAML == 6.0.2",
