@@ -35,6 +35,8 @@ class EmptiableCodeBlock(CodeBlock):
         if not self.content:
             translation = _get_inginious_translation()
             self.content = [translation.gettext("[no content]")]
+        
+        self.options.setdefault('classes', []).append('theme:{}'.format(flask.current_app.user_manager.session_codemirror_theme()))
         return super(EmptiableCodeBlock, self).run()
 
 
@@ -327,3 +329,4 @@ directives.register_directive("tip", _gen_admonition_cls(nodes.tip))
 directives.register_directive("warning", _gen_admonition_cls(nodes.warning))
 directives.register_directive("hidden-until", HiddenUntilDirective)
 directives.register_directive("code-block", EmptiableCodeBlock)
+directives.register_directive("code", EmptiableCodeBlock)
