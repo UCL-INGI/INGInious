@@ -14,7 +14,7 @@ from inginious.client.client_sync import ClientSync
 from inginious.frontend.pages.utils import INGIniousPage
 
 
-def init(plugin_manager, taskset_factory, client, config):
+def init(plugin_manager, course_factory, client, config):
     """
         Init the external grader plugin. This simple grader allows only anonymous requests, and submissions are not stored in database.
 
@@ -32,7 +32,7 @@ def init(plugin_manager, taskset_factory, client, config):
         Different types of request are available : see documentation
     """
     courseid = config.get('courseid', 'external')
-    course = taskset_factory.get_course(courseid)
+    course = course_factory.get_course(courseid)
     page_pattern = config.get('page_pattern', '/external')
     return_fields = re.compile(config.get('return_fields', '^(result|text|problems)$'))
 

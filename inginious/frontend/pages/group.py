@@ -22,7 +22,7 @@ class GroupPage(INGIniousAuthPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
 
-        course = self.taskset_factory.get_course(courseid)
+        course = self.course_factory.get_course(courseid)
         username = self.user_manager.session_username()
 
         error = False
