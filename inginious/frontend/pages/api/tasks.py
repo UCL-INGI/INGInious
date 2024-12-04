@@ -61,7 +61,7 @@ class APITasks(APIAuthenticatedPage):
         """
 
         try:
-            course = self.taskset_factory.get_course(courseid)
+            course = self.course_factory.get_course(courseid)
         except:
             raise APINotFound("Course not found")
 

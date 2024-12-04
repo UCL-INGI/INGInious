@@ -25,6 +25,7 @@ from inginious.frontend.user_manager import UserManager
 from inginious.frontend.parsable_text import ParsableText
 from pymongo.database import Database
 
+from inginious.frontend.course_factory import CourseFactory
 from inginious.frontend.taskset_factory import TasksetFactory
 from inginious.frontend.task_factory import TaskFactory
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
@@ -76,7 +77,7 @@ class INGIniousPage(MethodView):
         return self.app.taskset_factory
 
     @property
-    def course_factory(self) -> TaskFactory:
+    def course_factory(self) -> CourseFactory:
         """ Returns the task factory singleton """
         return self.app.course_factory
 

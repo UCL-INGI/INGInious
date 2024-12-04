@@ -12,13 +12,13 @@ import flask
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 
 
-def _get_submissions(taskset_factory, submission_manager, user_manager, translations, courseid, taskid, with_input, submissionid=None):
+def _get_submissions(course_factory, submission_manager, user_manager, translations, courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
 
     try:
-        course = taskset_factory.get_course(courseid)
+        course = course_factory.get_course(courseid)
     except:
         raise APINotFound("Course not found")
 
@@ -168,7 +168,7 @@ class APISubmissions(APIAuthenticatedPage):
         """
 
         try:
-            course = self.taskset_factory.get_course(courseid)
+            course = self.course_factory.get_course(courseid)
         except:
             raise APINotFound("Course not found")
 

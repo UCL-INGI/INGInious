@@ -95,7 +95,7 @@ class ContestScoreboard(INGIniousAuthPage):
     """ Displays the scoreboard of the contest """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
-        course = self.taskset_factory.get_course(courseid)
+        course = self.course_factory.get_course(courseid)
         task_dispenser = course.get_task_dispenser()
         if not task_dispenser.get_id() == Contest.get_id():
             raise NotFound()
@@ -191,9 +191,9 @@ class ContestAdmin(INGIniousAdminPage):
 
     def save_contest_data(self, course, contest_data):
         """ Saves updated contest data for the course """
-        course_content = self.taskset_factory.get_course_descriptor_content(course.get_id())
+        course_content = self.course_factory.get_course_descriptor_content(course.get_id())
         course_content["dispenser_data"]["contest_settings"] = contest_data
-        self.taskset_factory.update_course_descriptor_content(course.get_id(), course_content)
+        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
