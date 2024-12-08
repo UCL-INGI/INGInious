@@ -72,10 +72,9 @@ in the webapp in the *Task files* tab of the *Edit task* page.
 #. Create a template file ``template.py``, where we will put the code of the student.
    ::
 
-       def func():
-           @    @question1@@
-
-           func()
+	def func():
+        	@    @question1@@
+	func()
 
    The syntax is very simple: put a first ``@`` on the line where you want to put the code of the student.
    Then indent the line and write a second ``@``. Now write the problem id of the problem you want to take the input
