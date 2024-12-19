@@ -2,19 +2,29 @@ name: Build and push core containers
 
 on:
   push:
-    branches: [master]
+    branches: [master, inginious-0.8]
+  release:
+    types: [published]
 
   workflow_dispatch:
 
 jobs:
   containers_build_and_push:
-    uses: INGInious/.github/.github/workflows/containers.yml@6506916a602fc6bf47d6e8f34586732d3c8e1502
+
+    strategy:
+      fail-fast: false
+      matrix:
+        container_build: [ {directory: base-containers, container_type: env}, {directory: deploy, container_type: core} ]
+    
+    uses: INGInious/.github/.github/workflows/containers.yml@d358002bb0f1476eebe02bc6ff4806461407d23a
     with:
-      working-directory: base-containers 
+      working-directory: ${{ matrix.container_build.directory }}
       context-path: context.yml
       compose-path: compose.yml
       registry: ghcr.io
-      container_type: core
+      container_type: ${{ matrix.container_build.container_type }}
+      version: ${{ github.event_name == 'push' && github.ref_name || github.event.release.tag_name }}
+      runner: "ubuntu-latest"
     secrets:
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
