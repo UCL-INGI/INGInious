@@ -3,18 +3,22 @@ name: "CD: Env containers"
 on:
   push:
     branches: [master]
+  release:
+    types: [published]
 
   workflow_dispatch:
 
 jobs:
   containers_build_and_push:
-    uses: INGInious/.github/.github/workflows/containers.yml@135401b716d3496d81aace75b2a06cd5f21b507c
+    uses: INGInious/.github/.github/workflows/containers.yml@d358002bb0f1476eebe02bc6ff4806461407d23a
     with:
       working-directory: base-containers
       context-path: context.yml
       compose-path: compose.yml
       registry: ghcr.io
       container_type: env
+      version: ${{ github.event_name == 'push' && github.ref_name || github.event.release.tag_name }}
+      runner: "ubuntu-latest"
     secrets:
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
