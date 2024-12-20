@@ -13,24 +13,33 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+
+  tests:
+
+    strategy:
+      # Ensure that each python version will be tested even if one of them fails.
+      fail-fast: false
+      matrix:
+        python_version: ["3.10", "3.11", "3.12", "3.13"]
+
     runs-on: ubuntu-20.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+
       - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python_version }}
 
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install coverage==7.4.1 pytest==8.0.0 virtualenv==20.25.0
-          pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
+          pip3 install coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0 setuptools==69.1.0\
+                       setuptools-scm==8.0.4
 
       - name: Start services
         run: |
@@ -38,7 +47,8 @@ jobs:
           sudo systemctl start docker
 
       - name: Install INGInious
-        run: pip3 install .
+        run: |
+          pip3 install .
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
@@ -50,6 +60,7 @@ jobs:
           env/bin/coverage run --branch -m pytest -v utils
 
       - name: Generate coverage report
+        # Launch even if one of the two test jobs fails
         if: always()
         run: |
           coverage report --include="inginious/*"
