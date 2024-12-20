@@ -17,6 +17,11 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+
+    strategy:
+      matrix:
+        python_version: ["3.10", "3.11", "3.12", "3.13"]
+
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
@@ -28,7 +33,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y libtidy5deb1 libzmq3-dev
+          sudo apt-get install -y libtidy5deb1 libzmq3-dev pyenv
+          pyenv global ${{ matrix.python_version }}
           pip3 install coverage==7.4.1 pytest==8.0.0 virtualenv==20.25.0
           pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
 
