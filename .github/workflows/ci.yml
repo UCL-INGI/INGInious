@@ -43,8 +43,8 @@ jobs:
           eval "$(pyenv init -)"
           pyenv install ${{ matrix.python_version }}
           pyenv global ${{ matrix.python_version }}
-          pip3 install coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0
-          pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
+          pip3 install --no-build-isolation coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0\
+                                            setuptools==69.1.0 setuptools-scm==8.0.4
 
       - name: Start services
         run: |
