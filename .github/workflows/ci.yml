@@ -43,7 +43,7 @@ jobs:
           eval "$(pyenv init -)"
           pyenv install ${{ matrix.python_version }}
           pyenv global ${{ matrix.python_version }}
-          pip3 install coverage==7.4.1 pytest==8.0.0 virtualenv==20.25.0
+          pip3 install coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0
           pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
 
       - name: Start services
@@ -52,7 +52,7 @@ jobs:
           sudo systemctl start docker
 
       - name: Install INGInious
-        run: pip3 install .
+        run: pip3 install --no-build-isolation .
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
