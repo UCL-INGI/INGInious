@@ -45,14 +45,18 @@ jobs:
           pyenv global ${{ matrix.python_version }}
           pip3 install --no-build-isolation coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0\
                                             setuptools==69.1.0 setuptools-scm==8.0.4
+          coverage --version
 
       - name: Start services
         run: |
           sudo systemctl start mongod
           sudo systemctl start docker
+          coverage --version
 
       - name: Install INGInious
-        run: pip3 install --no-build-isolation .
+        run: |
+          pip3 install --no-build-isolation .
+          coverage --version
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
@@ -64,6 +68,7 @@ jobs:
           env/bin/coverage run --branch -m pytest -v utils
 
       - name: Generate coverage report
+        # Launch even if one of the two test jobs fails
         if: always()
         run: |
           coverage report --include="inginious/*"
