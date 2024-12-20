@@ -33,6 +33,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Add pyenv to PATH
+        run: |
+          [[ -d $PYENV_ROOT/bin ]] && echo "$PYENV_ROOT/bin" >> "$GITHUB_PATH"
+
       - name: Install dependencies
         run: |
           sudo apt update
@@ -46,7 +50,6 @@ jobs:
           # echo "eval \"$(pyenv init -)\"" >> ~/.bashrc
           # source ~/.bashrc
           # echo "PYENV_ROOT=\"$HOME/.pyenv\"" >> $env:GITHUB_ENV
-          [[ -d $PYENV_ROOT/bin ]] && echo "$PYENV_ROOT/bin" >> $GITHUB_PATH
           eval "$(pyenv init -)"
           pyenv install ${{ matrix.python_version }}
           pyenv global ${{ matrix.python_version }}
