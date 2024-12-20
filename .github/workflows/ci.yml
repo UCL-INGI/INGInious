@@ -34,8 +34,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Add pyenv to PATH
-        run: |
-          [[ -d $PYENV_ROOT/bin ]] && echo "$PYENV_ROOT/bin" >> "$GITHUB_PATH"
+        run: echo "$PYENV_ROOT/bin" >> "$GITHUB_PATH"
 
       - name: Install dependencies
         run: |
