@@ -15,10 +15,18 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ["3.10", "3.11", "3.12", "3.13"]
+
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
+    env:
+      PYENV_ROOT: "$HOME/.pyenv"
+      PATH: "$PYENV_ROOT/bin:$PATH"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -28,17 +36,37 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install coverage==7.4.1 pytest==8.0.0 virtualenv==20.25.0
-          pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
+          sudo apt-get install -y libtidy5deb1 libzmq3-dev \
+            build-essential libssl-dev zlib1g-dev \
+            libbz2-dev libreadline-dev libsqlite3-dev curl git \
+            libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+          curl https://pyenv.run | bash
+          # echo "export PYENV_ROOT=\"$HOME/.pyenv\"" >> ~/.bashrc
+          # echo "[[ -d $PYENV_ROOT/bin ]] && export PATH=\"$PYENV_ROOT/bin:$PATH\"" >> ~/.bashrc
+          # echo "eval \"$(pyenv init -)\"" >> ~/.bashrc
+          # source ~/.bashrc
+          # echo "PYENV_ROOT=\"$HOME/.pyenv\"" >> $env:GITHUB_ENV
+          # [[ -d $PYENV_ROOT/bin ]] && echo "PATH=\"$PYENV_ROOT/bin:$PATH\"" >> $env:GITHUB_ENV
+          eval "$(pyenv init -)"
+          pyenv install ${{ matrix.python_version }}
+          pyenv global ${{ matrix.python_version }}
+          pip3 install coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0 setuptools==69.1.0\
+                       setuptools-scm==8.0.4
+          coverage --version
 
       - name: Start services
         run: |
+          # export PYENV_ROOT="$HOME/.pyenv"
+          # [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+          eval "$(pyenv init -)"
           sudo systemctl start mongod
           sudo systemctl start docker
+          coverage --version
 
       - name: Install INGInious
-        run: pip3 install .
+        run: |
+          pip3 install .
+          coverage --version
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
@@ -50,6 +78,7 @@ jobs:
           env/bin/coverage run --branch -m pytest -v utils
 
       - name: Generate coverage report
+        # Launch even if one of the two test jobs fails
         if: always()
         run: |
           coverage report --include="inginious/*"
