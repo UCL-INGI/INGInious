@@ -35,6 +35,7 @@ jobs:
           sudo apt update
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
           curl https://pyenv.run | bash
+          eval "$(pyenv virtualenv-init -)"
           pyenv global ${{ matrix.python_version }}
           pip3 install coverage==7.4.1 pytest==8.0.0 virtualenv==20.25.0
           pip3 install setuptools==69.1.0 setuptools-scm==8.0.4
