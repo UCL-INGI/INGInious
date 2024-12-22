@@ -177,6 +177,15 @@ def get_app(config):
     available_languages = {"en": "English"}
     available_languages.update(available_translations)
 
+    available_themes = [
+        theme_dir for theme_dir in os.listdir(os.path.join(get_root_path(), 'frontend', 'static', 'css', 'themes'))
+        if theme_dir not in ('codemirror', ) and not theme_dir.startswith(('.', '_'))
+    ]
+    available_codemirror_themes= [
+        file.split('.')[0] for file in os.listdir(os.path.join(get_root_path(), 'frontend', 'static', 'css', 'themes', 'codemirror'))
+        if file.endswith('.css') and not file.startswith('main')
+    ]
+    
     l10n_manager = L10nManager()
 
     l10n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
@@ -190,6 +199,8 @@ def get_app(config):
         template_helper.add_to_template_globals("get_homepath", get_homepath)
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
+        template_helper.add_to_template_globals("available_themes", available_themes)
+        template_helper.add_to_template_globals("available_codemirror_themes", available_codemirror_themes)
         template_helper.add_to_template_globals("_", _)
         flask_app.template_helper = template_helper
         init_flask_maintenance_mapping(flask_app)
@@ -243,6 +254,8 @@ def get_app(config):
     template_helper.add_to_template_globals("_", _)
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
+    template_helper.add_to_template_globals("available_themes", available_themes)
+    template_helper.add_to_template_globals("available_codemirror_themes", available_codemirror_themes)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
     template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
@@ -303,6 +316,8 @@ def get_app(config):
     flask_app.allow_registration = config.get("allow_registration", True)
     flask_app.allow_deletion = config.get("allow_deletion", True)
     flask_app.available_languages = available_languages
+    flask_app.available_themes = available_themes
+    flask_app.available_codemirror_themes = available_codemirror_themes
     flask_app.welcome_page = config.get("welcome_page", None)
     flask_app.terms_page = config.get("terms_page", None)
     flask_app.privacy_page = config.get("privacy_page", None)
