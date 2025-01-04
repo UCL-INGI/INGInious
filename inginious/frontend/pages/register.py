@@ -67,7 +67,7 @@ class RegistrationPage(INGIniousPage):
         # Check input format
         if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
             error = True
-            msg = _("Invalid username format.")
+            msg = _("The username must be at least 4 characters long and is limited to this range of characters: A-Z, a-z, 0-9, - _ ~")
         elif email is None:
             error = True
             msg = _("Invalid email format.")
