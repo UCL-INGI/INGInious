@@ -22,9 +22,8 @@ function refresh_codemirror()
  * Load the studio, creating blocks for existing subproblems
  */
 function studio_load(data)
-{
-    jQuery.each(data, function(pid, problem)
-    {
+{   
+    data.forEach(([pid, problem]) => {
         var template = "#subproblem_" + problem["type"];
         studio_create_from_template(template, pid);
         studio_init_template(pid, problem);
@@ -334,7 +333,7 @@ function studio_create_new_subproblem()
     var new_subproblem_type = $('#new_subproblem_type').val();
     if(!new_subproblem_pid.match(/^[a-zA-Z0-9_\-]+$/))
     {
-        alert('Problem id should only contain alphanumeric characters (in addition to "_" and "-").');
+        alert('Invalid problem id. It should only contain alphanumeric characters (in addition to "_" and "-") and shouldn\'t be empty.');
         return;
     }
 
