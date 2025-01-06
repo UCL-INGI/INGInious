@@ -6,7 +6,7 @@ import unittest
 
 from werkzeug.serving import make_server
 from inginious.frontend.app import get_app
-from nose.plugins.skip import SkipTest
+from unittest import SkipTest
 from pymongo import MongoClient
 from pyvirtualdisplay import Display
 from selenium import webdriver
