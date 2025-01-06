@@ -1,0 +1,11 @@
+images:
+  inginious-base:
+  agent-docker:
+    - inginious-base
+  agent-mcq:
+    - inginious-base
+  backend:
+    - inginious-base
+  frontend:
+    - inginious-base
+base_path: ".."
