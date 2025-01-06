@@ -1,4 +1,4 @@
-name: Build and push core containers
+name: "[CD] Build and push containers"
 
 on:
   push:
