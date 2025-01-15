@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 install_requires = [
     "docker == 7.1.0", 
     "docutils == 0.20.1",
-    "setuptools == 74.1.3",
+    "setuptools == 75.8.0",
     "pymongo == 4.10.1",
     "PyYAML == 6.0.2",
     "Jinja2 == 3.1.4",
@@ -30,7 +30,6 @@ install_requires = [
     "Flask == 2.3.3",
     "Flask-Mail == 0.10.0",
     "importlib_metadata == 8.5.0",
-    'dataclasses == 0.8; python_version < "3.7.0"',
     "pytidylib == 0.3.2",
     "sphinx-autodoc-typehints == 2.0.1",
 ]
