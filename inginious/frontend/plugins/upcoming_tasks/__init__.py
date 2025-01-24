@@ -7,7 +7,7 @@
 """ A plugin that allow students to see their futur work in a single place for all their courses """
 import os
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import flask
 from flask import send_from_directory
 
@@ -53,7 +53,7 @@ class UpComingTasksBoard(INGIniousAuthPage):
     def page(self, time_planner):
         """ General main method called for GET and POST """
         username = self.user_manager.session_username()
-        all_courses = self.taskset_factory.get_all_courses()
+        all_courses = self.taskset_factory.get_all_tasksets()
         time_planner = self.time_planner_conversion(time_planner)
 
         # Get the courses id
@@ -83,7 +83,7 @@ class UpComingTasksBoard(INGIniousAuthPage):
             accessibilities = OrderedDict(sorted(accessibilities.items(), key=lambda x: x[1].get_soft_end_date()))
             all_accessibilities[courseid] = accessibilities
 
-            outdated_tasks = [taskid for taskid, accessibility in accessibilities.items() if (not accessibility.is_open()) or ((accessibility.get_soft_end_date()) > (datetime.now()+timedelta(days=time_planner)))]
+            outdated_tasks = [taskid for taskid, accessibility in accessibilities.items() if (not accessibility.is_open()) or ((accessibility.get_soft_end_date()) < (datetime.now(timezone.utc)+timedelta(days=time_planner)))]
             new_user_task_list = [taskid for taskid, accessibility in accessibilities.items() if accessibility.after_start() and taskid not in outdated_tasks]
 
             tasks_data[courseid] = {taskid: {"succeeded": False, "grade": 0.0} for taskid in new_user_task_list}
@@ -96,7 +96,7 @@ class UpComingTasksBoard(INGIniousAuthPage):
                 else:
                     del tasks_data[courseid][user_task["taskid"]]
             # Remove courses with no unfinished available tasks with deadline and lti courses
-            if (len(tasks_data[courseid]) == 0) or course.is_lti():
+            if (len(tasks_data[courseid]) == 0): # or course.is_lti(): # removing lti check momentarily
                 succeeded_courses.append(courseid)
 
         # Remove succeeded courses (including lti courses)

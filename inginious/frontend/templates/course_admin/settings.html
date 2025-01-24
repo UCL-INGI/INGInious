@@ -161,33 +161,65 @@
                         <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("From") }}</label></div>
                         <div class="col-xs-10 col-lg-4">
                             <div class="form-group">
-                                <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
-                                        <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                        <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                        </div>
-
+                                <div class="input-group date" id="accessible_start_picker" data-wrap="true" data-clickOpens="false">
+                                    <input id="accessible_start"  data-input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                                    <div class="input-group-append" title="toggle" data-toggle>
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                         <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("To") }}</label></div>
                         <div class="col-xs-10 col-lg-4">
                             <div class="form-group">
-                                <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
-                                        <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                        <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                        </div>
-
+                                <div class="input-group date_picker" id="accessible_end_picker" data-wrap="true" data-clickOpens="false">
+                                    <input id="accessible_end"  data-input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                                    <div class="input-group-append" title="toggle" data-toggle>
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <script type="text/javascript">
                         $(function() {
-                            $('#accessible_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                            $('#accessible_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                            let start_date = "{{at.get_std_start_date()}}"
+                            let end_date = "{{at.get_std_end_date()}}"
+                            timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                            language = "{{user_manager.session_language()}}";
+                            flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+                            js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+                            $("#accessible_start_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
+
+                            $("#accessible_end_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
+
+
+
                         });
                     </script>
                 </div>
@@ -221,32 +253,63 @@
                         <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("From") }}</label></div>
                         <div class="col-xs-10 col-lg-4">
                             <div class="form-group">
-                                <div class='input-group date' id='registration_start_picker' data-target-input="nearest">
-                                        <input data-target='#registration_start_picker' name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                        <div class="input-group-append" data-target="#registration_start_picker" data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                        </div>
-
+                                <div class="input-group date" id="registration_start_picker" data-wrap="true" data-clickOpens="false">
+                                    <input id="registration_start"  data-input name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                                    <div class="input-group-append" title="toggle" data-toggle>
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-2 col-lg-2"><label class="control-label">{{_("To")}}</label></div>
+                        <div class="col-xs-2 col-lg-2"><label class="control-label">{{ _("To") }}</label></div>
                         <div class="col-xs-10 col-lg-4">
                             <div class="form-group">
-                                    <div class='input-group date' id='registration_end_picker' data-target-input="nearest">
-                                            <input data-target='#registration_end_picker' name="registration_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_end_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
-                                            <div class="input-group-append" data-target="#registration_end_picker" data-toggle="datetimepicker">
-                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div>
-
+                                <div class="input-group date" id="registration_end_picker" data-wrap="true" data-clickOpens="false">
+                                    <input id="registration_end"  data-input name="registration_end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                                    <div class="input-group-append" title="toggle" data-toggle>
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                     </div>
                     <script type="text/javascript">
                         $(function() {
-                            $('#registration_start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
-                            $('#registration_end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                            let start_date = "{{at.get_std_start_date()}}";
+                            let end_date = "{{at.get_std_end_date()}}";
+                            timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                            language = "{{user_manager.session_language()}}";
+                            flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+                            js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+                            $("#registration_start_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
+
+
+                            $("#registration_end_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
                         });
                     </script>
                 </div>
@@ -513,5 +576,21 @@
         hideAcType();
         $("[name='registration_ac']").change(hideAcType);
     })
+
+    $('#edit_course_form').on('submit', function(event) {
+        event.preventDefault();
+        var datetimePickerTargets = ['#accessible_start', '#accessible_end', '#registration_start', '#registration_end'];
+        timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+        js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+        datetimePickerTargets.forEach(function(target) {
+            var selectedDatetime = $(target).val();
+            var modifiedDatetime = selectedDatetime !== "" ? moment(selectedDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+            $(target).val(modifiedDatetime);
+        });
+
+        this.submit();
+    });
+
 </script>
 {% endblock %}

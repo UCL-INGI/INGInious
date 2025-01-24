@@ -66,10 +66,58 @@
             <label class="control-label">{{ _("Language :") }} </label>
             <select name="language" class="form-control">
                 {% for code, language in available_languages.items() %}
-                <option value="{{code}}" {% if code == user_manager.session_language() %} selected {% endif %}>{{ language }}</option>
+                    <option value="{{code}}" {% if code == user_manager.session_language() %} selected {% endif %}>{{ language }}</option>
                 {% endfor %}
             </select>
         </div>
+        <div class="col-sm-6">
+            <label class="control-label">{{ _("Timezone :") }} </label>
+            <select id="main_timezone" name="main_timezone" class="form-control">
+                <option hidden value= "" {% if user_manager.session_timezone() == "None" %} selected {% endif %}>No Timezone Selected</option>
+                {% for main_timezone in available_timezones.keys() %}
+                    <option value="{{main_timezone}}" {% if main_timezone == user_manager.session_timezone().split("/")[0] %} selected {% endif %}>{{ main_timezone.replace("_", " ") }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <label class="control-label">{{ _("Timezone (locality) :") }} </label>
+            <select id="sub_timezone" name="sub_timezone" class="form-control">
+                <option hidden value="" {% if user_manager.session_timezone() == "None" %} selected {% endif %}>No sub timezone selected</option>
+                {% for sub_timezone in available_timezones[user_manager.session_timezone().split("/")[0]] %}
+                    <option value="{{sub_timezone}}" {% if sub_timezone == "/".join(user_manager.session_timezone().split("/")[1:]) %} selected {% endif %}>{{ sub_timezone.replace("_", " ") }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <label class="control-label">{{ _("Date format :") }} </label>
+            <select id="datetime_format" name="datetime_format" class="form-control">
+                {% for format in available_datetime_formats.keys() %}
+                    <script>
+                        console.log("{{format}}");
+                        //console.log("{{user_manager.session_datetime_format()}}");
+                    </script>
+                    <option value="{{format}}" {% if format == user_manager.session_datetime_format() %} selected {% endif %}>{{ available_datetime_formats[format] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                var available_timezones = {{ available_timezones | tojson }};
+                $('#main_timezone').on('change', function() {
+                    var selectedTimezone = $(this).val();
+                    $('#sub_timezone').empty();
+
+                    // Iterate through the selected timezone's sub-timezones and append options
+                    var subTimezones = available_timezones[selectedTimezone];
+                    for (var i = 0; i < subTimezones.length; i++) {
+                        var value = subTimezones[i];
+                        $('#sub_timezone').append(`<option value="${value}">${value}</option>`);
+                    }
+                });
+            });
+        </script>
+
         {% if allow_registration %}
             <div class="col-sm-12">
                 <label class="control-label">{{ _("Old password :") }} </label>

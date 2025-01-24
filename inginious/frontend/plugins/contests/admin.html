@@ -52,15 +52,33 @@ accessibility date of the course &lt; registration start date &lt; registration 
     <div class="form-group row">
         <label for="start" class="col-sm-2 control-label">Contest starts</label>
         <div class="col-sm-10">
-            <div class='input-group date' id='start_picker' data-target-input="nearest">
-                <input data-target='#start_picker' name="start" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{data['start']}}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
-                <div class="input-group-append" data-target="#start_picker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+            <div class="input-group date_picker" id="start_picker" data-wrap="true" data-clickOpens="false">
+                <input id="start"  data-input name="start" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                <div class="input-group-append" title="toggle" data-toggle>
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
             </div>
             <script type="text/javascript">
                 $(function() {
-                    $('#start_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                    language = "{{user_manager.session_language()}}";
+                    var start_date = "{{data['start']}}";
+                    timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+                    js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+                    $("#start_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : start_date ? moment.utc(start_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
                 });
             </script>
         </div>
@@ -68,15 +86,33 @@ accessibility date of the course &lt; registration start date &lt; registration 
     <div class="form-group row">
         <label for="end" class="col-sm-2 control-label">Contest ends</label>
         <div class="col-sm-10">
-            <div class='input-group date' id='end_picker' data-target-input="nearest">
-                <input data-target='#end_picker' name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{data['end']}}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
-                <div class="input-group-append" data-target="#end_picker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+            <div class="input-group date_picker" id="end_picker" data-wrap="true" data-clickOpens="false">
+                <input id="end"  data-input name="end" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2024-06-29 10:00:00" type='text' class="form-control datetimepicker-input">
+                <div class="input-group-append" title="toggle" data-toggle>
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
             </div>
             <script type="text/javascript">
                 $(function() {
-                    $('#end_picker').datetimepicker({locale: '{{user_manager.session_language()}}', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                    language = "{{user_manager.session_language()}}";
+                    var end_date = "{{data['end']}}";
+                    timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    flatpickr_datetime_format = "{{user_manager.session_datetime_format()}}";
+                    js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+                    $("#end_picker").flatpickr({
+                                wrap: true,
+                                clickOpens: false,
+                                enableTime: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                secondIncrement: 1,
+                                dateFormat: flatpickr_datetime_format,
+                                allowInput: true,
+                                time_24hr: true,
+                                locale: language,
+                                defaultDate : end_date ? moment.utc(end_date, 'YYYY-MM-DD HH:mm:ss').tz(timezone).format(js_datetime_format) : '',
+                            });
                 });
             </script>
         </div>
@@ -95,5 +131,25 @@ accessibility date of the course &lt; registration start date &lt; registration 
     </div>
     <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-floppy-o"></i> Save changes</button>
 </form>
+
+<script type="text/javascript">
+    $('#edit_contest_form').on('submit', function(event) {
+                event.preventDefault();
+
+                var originalStartDatetime = $("#start").val();
+                var originalEndDatetime = $("#end").val();
+                timezone = "{{user_manager.session_timezone()}}" !== "None" ? "{{user_manager.session_timezone()}}" :  Intl.DateTimeFormat().resolvedOptions().timeZone;
+                js_datetime_format = "{{available_datetime_formats[user_manager.session_datetime_format()]}}";
+
+                var modifiedStartDatetime = originalStartDatetime !== "" ? moment(originalStartDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+                var modifiedEndDatetime = originalEndDatetime !== "" ? moment(originalEndDatetime, js_datetime_format).tz(timezone).clone().utc().format('YYYY-MM-DD HH:mm:ss') : "";
+
+                $("#start").val(modifiedStartDatetime);
+                $("#end").val(modifiedEndDatetime);
+
+                this.submit();
+            });
+
+</script>
 
 {% endblock %}
