@@ -53,7 +53,7 @@ class UpComingTasksBoard(INGIniousAuthPage):
     def page(self, time_planner):
         """ General main method called for GET and POST """
         username = self.user_manager.session_username()
-        all_courses = self.taskset_factory.get_all_courses()
+        all_courses = self.course_factory.get_all_courses()
         time_planner = self.time_planner_conversion(time_planner)
 
         # Get the courses id
