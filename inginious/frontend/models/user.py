@@ -47,7 +47,7 @@ class User(Document):
         Check if the username is at least 4 characters long and contains only letters, numbers, and a few special characters (-_|~).
         """
         if re.match(r"^[-_|~0-9A-Z]{4,}$", value, re.IGNORECASE) is None:
-            raise ValueError("Invalid username format")
+            raise ValueError(_("Invalid username format."))
         return value
 
 
@@ -63,7 +63,7 @@ class User(Document):
             r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
 
         if email_re.match(value) is None:
-            raise ValueError("Invalid email format")
+            raise ValueError(_("Invalid email format."))
 
         email = value.split('@')
         return "%s@%s" % (email[0], email[1].lower())
@@ -76,7 +76,7 @@ class User(Document):
         Check if the password is at least 6 characters long.
         """
         if len(value) < 6:
-            raise ValueError("Password too short")
+            raise ValueError(_("Password too short."))
         return value
 
     class Settings :

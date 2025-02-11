@@ -11,12 +11,15 @@ import re
 import flask
 import logging
 
+from pydantic import ValidationError
+
 from smtplib import SMTPException
 from flask_mail import Message
 from werkzeug.exceptions import Forbidden
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.flask.mail import mail
 from inginious.frontend.user_manager import UserManager
+from inginious.frontend.models.user import User
 
 
 class RegistrationPage(INGIniousPage):
@@ -61,20 +64,21 @@ class RegistrationPage(INGIniousPage):
         """ Parses input and register user """
         error = False
         msg = ""
+        user_missing_fields_msg = {"username": "Username is missing", "realname": "Complete name is missing",
+                                   "email": "Email is missing", "password": "Password is missing"}
 
-        email = UserManager.sanitize_email(data["email"])
+        email = UserManager.sanitize_email(data["email"]) # remove after using Beanie save rather than pymongo
+
+        try:
+            user = User(**data)
+        except ValidationError as e:
+            error = True
+            beanie_error = str(e.errors()[0]["ctx"]["error"]) # better way to do this ?
+            msg = user_missing_fields_msg.get(beanie_error, beanie_error) # and this ?
+
 
         # Check input format
-        if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
-            error = True
-            msg = _("Invalid username format.")
-        elif email is None:
-            error = True
-            msg = _("Invalid email format.")
-        elif len(data["passwd"]) < 6:
-            error = True
-            msg = _("Password too short.")
-        elif data["passwd"] != data["passwd2"]:
+        if data["password"] != data["password2"]:
             error = True
             msg = _("Passwords don't match !")
         elif self.app.terms_page is not None and self.app.privacy_page is not None and "term_policy_check" not in data:
@@ -91,7 +95,7 @@ class RegistrationPage(INGIniousPage):
                 else:
                     msg = _("This email address is already in use !")
             else:
-                passwd_hash = UserManager.hash_password(data["passwd"])
+                passwd_hash = UserManager.hash_password(data["password"])
                 activate_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
                 self.database.users.insert_one({"username": data["username"],
                                                 "realname": data["realname"],
@@ -172,15 +176,15 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         msg = ""
 
         # Check input format
-        if len(data["passwd"]) < 6:
+        if len(data["password"]) < 6:
             error = True
             msg = _("Password too short.")
-        elif data["passwd"] != data["passwd2"]:
+        if data["password"] != data["password2"]:
             error = True
             msg = _("Passwords don't match !")
 
         if not error:
-            passwd_hash = UserManager.hash_password(data["passwd"])
+            passwd_hash = UserManager.hash_password(data["password"])
             user = self.database.users.find_one_and_update({"reset": data["reset"]},
                                                            {"$set": {"password": passwd_hash},
                                                             "$unset": {"reset": True, "activate": True}})
