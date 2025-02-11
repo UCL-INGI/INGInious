@@ -12,9 +12,9 @@
 {% block navbar %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ get_homepath() }}/mycourses" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-graduation-cap"></i></a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
-            <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="{{ get_path('mycourses') }}" title="{{ _('My courses') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-graduation-cap"></i></a></li>
+            <li class="breadcrumb-item"><a href="{{get_path('course', course.get_id())}}">{{ course.get_name(user_manager.session_language()) }}</a></li>
+            <li class="breadcrumb-item"><a href="{{get_path('admin', course.get_id())}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
             <li class="breadcrumb-item active">
                 <a href="#">
@@ -156,9 +156,10 @@
                             <th>{{_("# task done")}}</th>
                             <th>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{get_homepath()}}/admin/{{course.get_id()}}/students?csv_audiences" class="btn btn-info btn-xs"
+                                    <a href="{{get_path('admin', course.get_id(), 'students?csv_audiences')}}" class="btn btn-info btn-xs"
                                        title="{{ _('Download CSV') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                                    <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions?audiences={{ audience_list | map('string') | join(',') }}" class="btn btn-secondary btn-xs"
+                                    {% set audience_str = audience_list | map('string') | join(',') %}
+                                    <a href="{{get_path('admin', course.get_id(), 'submissions?audiences=' + audience_str)}}" class="btn btn-secondary btn-xs"
                                        title="{{ _('View all submissions') }}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-files-o"></i></a>
                                 </div>
                             </th>
@@ -181,9 +182,9 @@
                                     <td>{{ audience["done"] }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{get_homepath()}}/admin/{{course.get_id()}}/edit/audience/{{audience['_id']}}" class="btn btn-primary" title="{{ _('Edit audience') }}" data-toggle="tooltip"
+                                            <a href="{{get_path('admin', course.get_id(), 'edit', 'audience', audience['_id'])}}" class="btn btn-primary" title="{{ _('Edit audience') }}" data-toggle="tooltip"
                                                data-placement="bottom"><i class="fa fa-edit"></i></a>
-                                            <a href="{{get_homepath()}}/admin/{{course.get_id()}}/submissions{{audience['url']}}" class="btn btn-secondary" title="{{ _('View submissions') }}" data-toggle="tooltip"
+                                            <a href="{{get_path('admin', course.get_id(), 'submissions' + audience['url'])}}" class="btn btn-secondary" title="{{ _('View submissions') }}" data-toggle="tooltip"
                                                 data-placement="bottom"><i class="fa fa-file-code-o fa-fw"></i></a>
 
                                         </div>

@@ -33,7 +33,7 @@ from inginious import get_root_path, __version__, DB_VERSION
 from inginious.frontend.taskset_factory import create_factories
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
+from inginious.frontend.lti_grade_manager import LTIGradeManager
 from inginious.frontend.task_problems import get_default_displayable_problem_types
 from inginious.frontend.task_dispensers.toc import TableOfContents
 from inginious.frontend.task_dispensers.combinatory_test import CombinatoryTest
@@ -100,20 +100,20 @@ def _put_configuration_defaults(config):
 
     return config
 
+def get_homepath():
+    """ Returns the URL root. """
+    return flask.request.url_root[:-1]
 
-def get_homepath(ignore_session=False, force_cookieless=False):
+def get_path(*path_parts):
     """
-    :param ignore_session: Ignore the cookieless session_id that should be put in the URL
-    :param force_cookieless: Force the cookieless session; the link will include the session_creator if needed.
+    :param path_parts: List of elements in the path to be separated by slashes
     """
-    session = flask.session
-    request = flask.request
-    if not ignore_session and session.sid is not None and session.cookieless:
-        return request.url_root[:-1] + "/@" + session.sid + "@"
-    elif not ignore_session and force_cookieless:
-        return request.url_root[:-1] + "/@@"
-    else:
-        return request.url_root[:-1]
+    lti_session_id = flask.request.args.get('session_id', flask.g.get('lti_session_id'))
+    path_parts = (get_homepath(), ) + path_parts
+    if lti_session_id:
+        query_delimiter = '&' if path_parts and '?' in path_parts[-1] else '?'
+        return "/".join(path_parts) + f"{query_delimiter}session_id={lti_session_id}"
+    return "/".join(path_parts)
 
 
 def _close_app(mongo_client, client):
@@ -161,33 +161,10 @@ def get_app(config):
         "sessions", config.get('SESSION_USE_SIGNER', False), True  # config.get('SESSION_PERMANENT', True)
     )
 
-    # Init gettext
-    available_translations = {
-        "de": "Deutsch",
-        "el": "ελληνικά",
-        "es": "Español",
-        "fr": "Français",
-        "he": "עִבְרִית",
-        "nl": "Nederlands",
-        "nb_NO": "Norsk (bokmål)",
-        "pt": "Português",
-        "vi": "Tiếng Việt"
-    }
-
-    available_languages = {"en": "English"}
-    available_languages.update(available_translations)
-
-    l10n_manager = L10nManager()
-
-    l10n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
-    for lang in available_translations.keys():
-        l10n_manager.translations[lang] = gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang])
-
-    builtins.__dict__['_'] = l10n_manager.gettext
-
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None, config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", get_homepath)
+        template_helper.add_to_template_globals("get_path", get_path)
         template_helper.add_to_template_globals("pkg_version", __version__)
         template_helper.add_to_template_globals("available_languages", available_languages)
         template_helper.add_to_template_globals("_", _)
@@ -222,19 +199,44 @@ def get_app(config):
     taskset_factory, course_factory, task_factory = create_factories(fs_provider, default_task_dispensers, default_problem_types, plugin_manager, database)
 
     user_manager = UserManager(database, config.get('superadmins', []))
+    flask.request_finished.connect(UserManager._lti_session_save, flask_app)
 
     update_pending_jobs(database)
 
     client = create_arch(config, fs_provider, zmq_context, taskset_factory)
 
-    lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
+    lti_grade_manager = LTIGradeManager(database, flask_app)
 
-    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
+    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_grade_manager)
     template_helper = TemplateHelper(plugin_manager, user_manager, config.get('use_minified_js', True))
 
     register_utils(database, user_manager, template_helper)
 
     is_tos_defined = config.get("privacy_page", "") and config.get("terms_page", "")
+
+    # Init gettext
+    available_translations = {
+        "de": "Deutsch",
+        "el": "ελληνικά",
+        "es": "Español",
+        "fr": "Français",
+        "he": "עִבְרִית",
+        "nl": "Nederlands",
+        "nb_NO": "Norsk (bokmål)",
+        "pt": "Português",
+        "vi": "Tiếng Việt"
+    }
+
+    available_languages = {"en": "English"}
+    available_languages.update(available_translations)
+
+    l10n_manager = L10nManager(user_manager)
+
+    l10n_manager.translations["en"] = gettext.NullTranslations()  # English does not need translation ;-)
+    for lang in available_translations.keys():
+        l10n_manager.translations[lang] = gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang])
+
+    builtins.__dict__['_'] = l10n_manager.gettext
 
     # Init web mail
     mail.init_app(flask_app)
@@ -244,6 +246,7 @@ def get_app(config):
     template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("get_homepath", get_homepath)
+    template_helper.add_to_template_globals("get_path", get_path)
     template_helper.add_to_template_globals("pkg_version", __version__)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("sentry_io_url", config.get("sentry_io_url"))
@@ -283,7 +286,7 @@ def get_app(config):
     flask_app.register_error_handler(InternalServerError, flask_internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
-    flask_app.get_homepath = get_homepath
+    flask_app.get_path = get_path
     flask_app.plugin_manager = plugin_manager
     flask_app.taskset_factory = taskset_factory
     flask_app.course_factory = course_factory
@@ -299,7 +302,7 @@ def get_app(config):
     flask_app.default_max_file_size = default_max_file_size
     flask_app.backup_dir = config.get("backup_directory", './backup')
     flask_app.webterm_link = config.get("webterm", None)
-    flask_app.lti_outcome_manager = lti_outcome_manager
+    flask_app.lti_grade_manager = lti_grade_manager
     flask_app.allow_registration = config.get("allow_registration", True)
     flask_app.allow_deletion = config.get("allow_deletion", True)
     flask_app.available_languages = available_languages

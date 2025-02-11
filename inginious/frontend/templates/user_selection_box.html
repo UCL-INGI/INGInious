@@ -9,5 +9,6 @@
     value="{{ current_users | map(attribute='username') | join(',') }}"
 />
 <script type="text/javascript">
-    user_selection($('#{{ id }}'), '{{ get_homepath() }}/search_user/', {{ current_users | tojson }}, {% if single %}true{% else %}false{% endif %});
+    {% set path = get_path('search_user') %}
+    user_selection($('#{{ id }}'), '{{ path }}', {{ current_users | tojson }}, {% if single %}true{% else %}false{% endif %});
 </script>

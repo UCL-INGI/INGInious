@@ -93,7 +93,7 @@ class PluginManager(object):
         if not self._loaded:
             raise PluginManagerNotLoadedException()
 
-        self._flask_app.add_url_rule("/<cookieless:sessionid>" + pattern[1:], view_func=classname_or_viewfunc)
+        self._flask_app.add_url_rule("/" + pattern[1:], view_func=classname_or_viewfunc)
 
     def add_task_file_manager(self, task_file_manager):
         """ Add a task file manager. Only available after that the Plugin Manager is loaded """

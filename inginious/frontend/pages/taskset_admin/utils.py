@@ -49,7 +49,7 @@ class TasksetRedirectPage(INGIniousAdminPage):
     def GET_AUTH(self, tasksetid):  # pylint: disable=arguments-differ
         """ GET request """
         taskset, __ = self.get_taskset_and_check_rights(tasksetid)
-        return redirect(self.app.get_homepath() + '/taskset/{}/settings'.format(tasksetid))
+        return redirect(self.app.get_path("taskset", tasksetid, "settings"))
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """

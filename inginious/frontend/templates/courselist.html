@@ -41,7 +41,7 @@
                             </a>
                         {% endif %}
                     {% else %}
-                        <a href="{{ get_homepath()+'/course/'+courseid }}">{{course.get_name(user_manager.session_language())}}</a>
+                        <a href="{{ get_path('course', courseid) }}">{{course.get_name(user_manager.session_language())}}</a>
                     {% endif %}
                 </h5>
                 <div class="card-text card-trunc">
