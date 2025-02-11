@@ -26,7 +26,7 @@ INGInious needs:
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
-RHEL/Cent OS 7+, Fedora 32+
+RHEL/Rocky/Alma Linux 8+, Fedora 34+
 `````````````````````````````
 
 .. DANGER::
@@ -43,14 +43,14 @@ The previously mentioned dependencies can be installed, for Cent OS 7+ :
     # cat <<EOF > /etc/yum.repos.d/mongodb-org-7.0.repo
     [mongodb-org-7.0]
     name=MongoDB Repository
-    baseurl=https://repo.mongodb.org/yum/redhat/9Server/mongodb-org/7.0/x86_64/
+    baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
     gpgcheck=1
     enabled=1
     gpgkey=https://pgp.mongodb.com/server-7.0.asc
     EOF
     # yum install -y mongodb-org mongodb-org-server
 
-Or, for Fedora 32+:
+Or, for Fedora 34+:
 
 .. code-block:: bash
 
@@ -60,7 +60,7 @@ Or, for Fedora 32+:
     # cat <<EOF > /etc/yum.repos.d/mongodb-org-7.0.repo
     [mongodb-org-7.0]
     name=MongoDB Repository
-    baseurl=https://repo.mongodb.org/yum/redhat/9Server/mongodb-org/7.0/x86_64/
+    baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
     gpgcheck=1
     enabled=1
     gpgkey=https://pgp.mongodb.com/server-7.0.asc
