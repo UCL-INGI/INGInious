@@ -9,30 +9,31 @@ import os
 from setuptools import setup, find_packages
 
 install_requires = [
-    "docker>=3.0",
-    "requests < 2.29.0",  # TODO: remove when https://github.com/docker/docker-py/issues/3113 is closed.
-    "docutils>=0.14",
-    "pymongo>=3.2.2",
-    "PyYAML>=3.11",
-    "Jinja2 >= 2.10",
-    "lti>=0.9.0",
-    "oauth2>=1.9.0.post1",
-    "httplib2>=0.9",
-    "watchdog >= 0.8.3",
-    "msgpack >= 1.0.0",
-    "pyzmq >= 15.3.0",
-    "natsort >= 5.0.1",
-    "psutil >= 4.4.2",
-    "zipstream >= 1.1.4",
-    "WsgiDAV >= 3.0.0",
-    "Werkzeug >= 1.0.0",
-    "itsdangerous >= 1.1.0",
-    "Flask >= 2.0.0",
-    "Flask-Mail >= 0.9.1",
-    "importlib_metadata >= 3.7.0",
-    'dataclasses >= 0.8; python_version < "3.7.0"',
-    "pytidylib>=0.2.4",
-    "sphinx-autodoc-typehints>=1.12.0",
+    "docker == 7.1.0",
+    "docutils == 0.21.2",
+    "Flask == 2.3.3",
+    "Flask-Mail == 0.10.0",
+    "itsdangerous == 2.2.0",
+    "Jinja2 == 3.1.5",
+    "lti == 0.9.5",
+    "MarkupSafe == 3.0.2",
+    "msgpack == 1.1.0",
+    "natsort == 8.4.0",
+    "psutil == 6.1.1",
+    "pymongo == 4.11",
+    "pytidylib == 0.3.2",
+    "PyYAML == 6.0.2",
+    "pyzmq == 26.2.1",
+    "requests == 2.28.2",
+    "requests-oauthlib == 2.0.0",
+    "sh == 2.2.1",
+    "watchdog == 6.0.0",
+    "Werkzeug == 2.3.7",
+    "WsgiDAV == 4.3.3",
+    "zipstream == 1.1.4",
+    "sphinx-autodoc-typehints == 2.3.0",
+    "pytidylib == 0.3.2",
+    "importlib_metadata == 8.6.1"
 ]
 
 test_requires = [
@@ -44,10 +45,10 @@ test_requires = [
 ]
 
 doc_requires = [
-    "sphinx==4.5.0",
-    "sphinx_rtd_theme==1.0.0",
-    "sphinx-tabs==3.3.1",
-    "ipython==8.2.0"
+    "sphinx == 7.1.2",
+    "sphinx_rtd_theme == 1.0.0",
+    "sphinx-tabs == 3.3.1",
+    "ipython == 8.2.0"
 ]
 
 if sys.platform == 'win32':
