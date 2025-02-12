@@ -26,7 +26,7 @@ INGInious needs:
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
-RHEL/Rocky 8, Fedora 32+
+RHEL/Rocky/Alma Linux 8+, Fedora 34+
 `````````````````````````````
 
 .. DANGER::
@@ -40,30 +40,30 @@ The previously mentioned dependencies can be installed, for Cent OS 7+ :
     # yum install -y git gcc libtidy python38 python38-devel python38-pip python3-venv zeromq-devel yum-utils
     # yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     # yum install -y docker-ce docker-ce-cli
-    # cat <<EOF > /etc/yum.repos.d/mongodb-org-4.4.repo
-    [mongodb-org-4.4]
+    # cat <<EOF > /etc/yum.repos.d/mongodb-org-7.0.repo
+    [mongodb-org-7.0]
     name=MongoDB Repository
-    baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.4/x86_64/
+    baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
     gpgcheck=1
     enabled=1
-    gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+    gpgkey=https://pgp.mongodb.com/server-7.0.asc
     EOF
     # yum install -y mongodb-org mongodb-org-server
 
-Or, for Fedora 32+:
+Or, for Fedora 34+:
 
 .. code-block:: bash
 
     # yum install -y git gcc libtidy python3 python3-devel python3-pip python3-venv zeromq-devel dnf-plugins-core
     # dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
     # dnf install -y docker-ce docker-ce-cli
-    # cat <<EOF > /etc/yum.repos.d/mongodb-org-4.4.repo
-    [mongodb-org-4.4]
+    # cat <<EOF > /etc/yum.repos.d/mongodb-org-7.0.repo
+    [mongodb-org-7.0]
     name=MongoDB Repository
-    baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
+    baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
     gpgcheck=1
     enabled=1
-    gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+    gpgkey=https://pgp.mongodb.com/server-7.0.asc
     EOF
     # yum install -y mongodb-org mongodb-org-server
 
