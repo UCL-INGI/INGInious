@@ -13,12 +13,16 @@ import re
 import urllib.request
 from binascii import hexlify
 import docker
+import asyncio
+
 from docker.errors import BuildError
-from gridfs import GridFS
-from pymongo import MongoClient
+from pydantic import ValidationError
+from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from inginious import __version__
 import inginious.common.custom_yaml as yaml
-from inginious.frontend.user_manager import UserManager
+from inginious.frontend.models.user import User
 
 HEADER = '\033[95m'
 INFO = '\033[94m'
@@ -127,6 +131,10 @@ class Installer:
     def run(self):
         """ Run the installator """
         self._display_header("BACKEND CONFIGURATION")
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
         options = {}
         while True:
             options = {}
@@ -164,14 +172,14 @@ class Installer:
         misc_opt = self.configure_misc()
         options.update(misc_opt)
 
-        database = self.try_mongodb_opts(options["mongo_opt"]["host"], options["mongo_opt"]["database"])
+        self.try_mongodb_opts(options["mongo_opt"]["host"], options["mongo_opt"]["database"])
 
         self._display_header("BACKUP DIRECTORY")
         backup_directory_opt = self.configure_backup_directory()
         options.update(backup_directory_opt)
 
         self._display_header("AUTHENTIFICATION")
-        auth_opts = self.configure_authentication(database)
+        auth_opts = self.configure_authentication()
         options.update(auth_opts)
 
         self._display_info("You may want to add additional plugins to the configuration file.")
@@ -198,6 +206,8 @@ class Installer:
         except:
             self._display_error("Cannot write the configuration file on disk. Here is the content of the file")
             print(yaml.dump(options))
+
+        loop.close()
 
     #######################################
     #       Docker configuration          #
@@ -306,31 +316,20 @@ class Installer:
 
     def try_mongodb_opts(self, host="localhost", database_name='INGInious'):
         """ Try MongoDB configuration """
-        try:
-            mongo_client = MongoClient(host=host)
-            # Effective access only occurs when we call a method on the connexion
-            mongo_version = str(mongo_client.server_info()['version'])
-            self._display_info("Found mongodb server running version %s on %s." % (mongo_version, host))
-        except Exception as e:
-            self._display_warning("Cannot connect to MongoDB on host %s: %s" % (host, str(e)))
-            return None
 
-        try:
-            database = mongo_client[database_name]
-            # Effective access only occurs when we call a method on the database.
-            database.list_collection_names()
-        except Exception as e:
-            self._display_warning("Cannot access database %s: %s" % (database_name, str(e)))
-            return None
+        # Defining Motor client
+        motor_client = AsyncIOMotorClient(host=host)
+        mongo_version = asyncio.get_event_loop().run_until_complete(motor_client.server_info())["version"]
+        self._display_info("Found mongodb server running version %s on %s." % (mongo_version, host))
 
-        try:
-            # Effective access only occurs when we call a method on the gridfs object.
-            GridFS(database).find_one()
-        except Exception as e:
-            self._display_warning("Cannot access gridfs %s: %s" % (database_name, str(e)))
-            return None
-
-        return database
+        # Creating database if it does not exist and initializing Beanie
+        beanie_database = motor_client.get_database(database_name)
+        asyncio.get_event_loop().run_until_complete(init_beanie(
+            database=beanie_database,
+            document_models=[
+                "inginious.frontend.models.user.User",
+            ],
+        ))
 
     def configure_mongodb(self):
         """ Configure MongoDB """
@@ -340,11 +339,12 @@ class Installer:
         database_name = "INGInious"
 
         should_ask = True
-        if self.try_mongodb_opts(host, database_name) is not None:
+        try :
+            self.try_mongodb_opts(host, database_name)
             should_ask = self._ask_boolean(
                 "Successfully connected to MongoDB. Do you want to edit the configuration anyway?", False)
-        else:
-            self._display_info("Cannot guess configuration for MongoDB.")
+        except Exception as e:
+            self._display_warning("Cannot connect to MongoDB on host %s: %s" % (host, str(e)))
 
         while should_ask:
             self._display_question(
@@ -352,12 +352,15 @@ class Installer:
             self._display_question("mongodb://USERNAME:PASSWORD@HOST:PORT/AUTHENTIFICATION_DATABASE")
             host = self._ask_with_default("MongoDB host", host)
             database_name = self._ask_with_default("Database name", database_name)
-            if not self.try_mongodb_opts(host, database_name):
-                if self._ask_boolean("Cannot connect to MongoDB. Would you like to continue anyway?", False):
-                    break
-            else:
+            try :
+                self.try_mongodb_opts(host, database_name)
                 self._display_info("Successfully connected to MongoDB")
                 break
+
+            except Exception as e:
+                self._display_error("Cannot connect to MongoDB on host %s: %s" % (host, str(e)))
+                if self._ask_boolean("Cannot connect to MongoDB. Would you like to continue anyway?", False):
+                    break
 
         return {"mongo_opt": {"host": host, "database": database_name}}
 
@@ -546,29 +549,31 @@ class Installer:
             "require_cert": require_cert
         }
 
-    def configure_authentication(self, database):
+    def configure_authentication(self):
         """ Configure the authentication """
         options = {"plugins": [], "superadmins": []}
 
         self._display_info("We will now create the first user.")
 
-        username = self._ask_with_default("Enter the login of the superadmin", "superadmin")
-        realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
-        email = None
-        while not email:
+        while True :
+            username = self._ask_with_default("Enter the login of the superadmin", "superadmin")
+            realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
             email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
-            email = UserManager.sanitize_email(email)
-            if email is None:
-                self._display_error("Invalid email format.")
+            password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
 
-        password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
 
-        database.users.insert_one({"username": username,
-                                   "realname": realname,
-                                   "email": email,
-                                   "password": UserManager.hash_password(password),
-                                   "bindings": {},
-                                   "language": "en"})
+            try:
+                user = User(username=username, realname=realname, email=email, password=password)
+                asyncio.get_event_loop().run_until_complete(user.insert())
+                break
+            except ValidationError as e:
+                user_empty_fields_msg = {"username": "Username is empty.", "realname": "Complete name is empty.",
+                                           "email": "Email is empty.", "password": "Password is empty."}
+                beanie_error = str(e.errors()[0]["ctx"]["error"])  # better way to do this ?
+                msg = user_empty_fields_msg.get(beanie_error, beanie_error)  # and this ?
+
+                self._display_error(msg + "Please retry.")
+                continue
 
         options["superadmins"].append(username)
 
