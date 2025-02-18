@@ -236,7 +236,7 @@ class FileProblem(Problem):
             if problem_content["allowed_exts"] == "":
                 del problem_content["allowed_exts"]
             else:
-                problem_content["allowed_exts"] = problem_content["allowed_exts"].split(',')
+                problem_content["allowed_exts"] = [extension.strip() for extension in problem_content["allowed_exts"].split(',')]
 
         if "max_size" in problem_content:
             try:
