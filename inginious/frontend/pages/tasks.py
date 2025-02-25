@@ -61,7 +61,7 @@ class BaseTaskPage(object):
             self.user_manager.course_register_user(course, force=True)
 
         if not self.user_manager.course_is_open_to_user(course, username, is_LTI):
-            return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
+            return handle_course_unavailable(self.cp.app.get_path, self.template_helper, self.user_manager, course)
 
         is_staff = self.user_manager.has_admin_rights_on_course(course, username)
 
@@ -161,7 +161,7 @@ class BaseTaskPage(object):
 
         course = self.course_factory.get_course(courseid)
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-            return handle_course_unavailable(self.cp.app.get_homepath(), self.template_helper, self.user_manager, course)
+            return handle_course_unavailable(self.cp.app.get_path, self.template_helper, self.user_manager, course)
 
         is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
@@ -399,7 +399,7 @@ class TaskPageStaticDownload(INGIniousPage):
         try:
             course = self.course_factory.get_course(courseid)
             if not self.user_manager.course_is_open_to_user(course):
-                return handle_course_unavailable(self.app.get_homepath(), self.template_helper, self.user_manager, course)
+                return handle_course_unavailable(self.cp.app.get_path, self.template_helper, self.user_manager, course)
 
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 

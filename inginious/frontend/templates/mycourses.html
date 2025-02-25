@@ -36,7 +36,7 @@
                         {% else %}
                             list-group-item-danger
                         {% endif %}"
-                        href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                        href="{{ get_path('course', submission['courseid'], submission['taskid']) }}">
                         <b>{{ course.get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
                     </a>
                 {% endif %}
@@ -54,7 +54,7 @@
 	{%if open_courses %}
         {% set username = user_manager.session_username() %}
         {% for courseid, course in open_courses.items() %}
-            <a href="{{ get_homepath() }}/course/{{ courseid }}" class="list-group-item list-group-item-action
+            <a href="{{ get_path('course', courseid) }}" class="list-group-item list-group-item-action
                 {% if course.is_lti() %}
                     list-group-item-info
                 {% elif not course.is_open_to_non_staff() %}

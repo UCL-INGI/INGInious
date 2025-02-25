@@ -151,7 +151,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
                 attributes["target"] = "_blank"
             # Rewrite paths if we are in LTI mode
             # TODO: this should be an argument passed through all the functions
-            if re.match(r"^(/@[a-f0-9A-F_]*@)", flask.request.path if flask.has_app_context() else ""):
+            if flask.request.args.get('session_id'):
                 if tagname == 'a' and 'href' in attributes:
                     attributes['href'] = self.rewrite_lti_url(attributes['href'])
                 elif tagname == 'img' and 'src' in attributes:
@@ -162,7 +162,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
         def rewrite_lti_url(url):
             if urlparse(url).netloc: # If URL is absolute, don't do anything
                 return url
-            return 'asset/' + url
+            return 'asset/' + url + '?session_id=' + flask.request.args['session_id']
 
         def visit_table(self, node):
             """ Remove needless borders """

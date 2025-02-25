@@ -20,7 +20,7 @@
         {{ _("This page lists the coming tasks ordered on deadlines for courses you are registered in.") }}
     </div>
     <div class="list-group mb-3">
-        <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_homepath() }}/courselist">
+        <a class="list-group-item list-group-item-action list-group-item-info" href="{{ get_path('courselist') }}">
             <i class="fa fa-fw fa-graduation-cap"></i>
             {{ _("Course list") }}
         </a>
@@ -42,7 +42,7 @@
                         {% else %}
                             list-group-item-danger
                         {% endif %}"
-                        href="{{ get_homepath() }}/course/{{submission['courseid']}}/{{submission['taskid']}}">
+                        href="{{ get_path('course', submission['courseid'], submission['taskid']) }}">
                         <b>{{ course.get_name(user_manager.session_language()) }}</b>: {{ submission["task"].get_name(user_manager.session_language()) }}
                     </a>
                 {% endif %}
