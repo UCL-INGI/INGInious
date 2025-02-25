@@ -66,7 +66,7 @@ setup(
     use_scm_version=True,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
-    setup_requires=['setuptools_scm'],
+    setup_requires=['setuptools_scm==8.1.0'],
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={
