@@ -43,7 +43,7 @@ class CourseAPITokens(INGIniousAdminPage):
 
     def GET_TOKEN(self, insert_id, courseid, username, expire):
         """ Give a token """
-        key = "secret" # this is a test, needs change
+        key = str(self.app.jwt_key)
         if expire == "no":
             encoded = jwt.encode({"id": insert_id, "course": courseid, "username": username}, key, algorithm="HS256")
         else:
