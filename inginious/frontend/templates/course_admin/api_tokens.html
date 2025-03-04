@@ -46,6 +46,7 @@
                 <button class="btn btn-block btn-info" type="submit" name="add_token"><i class="fa fa-plus fa-lg"></i> {{ _("Create token") }}</button>
             </div>
         </div>
+        </div>
     </form>
     <script type="text/javascript">
         $(function() {
@@ -77,7 +78,7 @@
                             <td>{{token["description"]}}</td>
                         {% endif %}
                         {% if str(token["expire"]) == "9999-12-31 00:00:00" %}
-                            <td class="text-secondary">Doesn't expire</td>
+                            <td class="text-secondary">{{ _("Doesn't expire") }}</td>
                         {% elif token["expire"] >= now %}
                             <td>Expire {{token["expire"].strftime("%Y %m %d %H:%M:%S")}}</td>
                         {% else %}
