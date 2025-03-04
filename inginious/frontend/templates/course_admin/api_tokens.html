@@ -22,11 +22,10 @@
 
 
 {% block content %}
-<h2>{{_("Tokens")}}</h2>
+<h2>{{_("API Tokens")}}</h2>
 <div class="card-header bg-success text-white">
     {{ _("Add token") }}
 </div>
-{% set at = course.get_accessibility(False) %}
 <div class="card-body">
     <form class="form-horizontal" id="tokens_form" method="post">
         <div class="row">
@@ -36,7 +35,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <div class='input-group date' id='time_picker' data-target-input="nearest">
-                        <input data-target='#time_picker' name="expiration" data-date-format="YYYY-MM-DD HH:mm:ss" value="{{at.get_std_start_date()}}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input"/>
+                        <input data-target='#time_picker' name="expiration" data-date-format="YYYY-MM-DD HH:mm:ss" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input"/>
                         <div class="input-group-append" data-target="#time_picker" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -54,7 +53,7 @@
         });
     </script>
      {% if msg != "" and msg != "removed" %}
-        <h4>Token string:</h4>
+        <h4>{{ _("Token string") }}:</h4>
         <p>{{msg}}</p>
     {% endif %}
 </div>
@@ -66,21 +65,21 @@
         <table id="table" class="table">
             <tbody>
                 {% if msg == "removed" %}
-                    <p>Token removed</p>
+                    <p>{{ _("Token removed") }}</p>
                 {% endif %}
                 {% for token in tokens %}
                     {% set tok_id = token["_id"] %}
                     <tr id="{{loop.index}}">
                         <td>ID : {{token["_id"]}}</td>
                         {% if token["description"] == "" %}
-                            <td class="text-secondary">No description</td>
+                            <td class="text-secondary">{{ _("No description") }}</td>
                         {% else %}
                             <td>{{token["description"]}}</td>
                         {% endif %}
-                        {% if token["expire"] == "no" %}
+                        {% if str(token["expire"]) == "9999-12-31 00:00:00" %}
                             <td class="text-secondary">Doesn't expire</td>
                         {% elif token["expire"] >= now %}
-                            <td>Expire {{token["expire"][:19]}}</td>
+                            <td>Expire {{token["expire"].strftime("%Y %m %d %H:%M:%S")}}</td>
                         {% else %}
                             <td class="text-danger">Expired since {{token["expire"][:19]}}</td>
                         {% endif %}

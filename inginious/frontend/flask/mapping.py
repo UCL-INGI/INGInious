@@ -48,7 +48,7 @@ from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFileU
 from inginious.frontend.pages.course_admin.danger_zone import CourseDangerZonePage
 from inginious.frontend.pages.course_admin.statistics import CourseStatisticsPage
 from inginious.frontend.pages.course_admin.search_user import CourseAdminSearchUserPage
-from inginious.frontend.pages.course_admin.api_tokens import CourseAPITokens
+from inginious.frontend.pages.course_admin.api_tokens import CourseAPITokensPage
 
 
 class CookielessConverter(BaseConverter):
@@ -157,4 +157,4 @@ def init_flask_mapping(flask_app):
     flask_app.add_url_rule('/<cookieless:sessionid>administrator/user_action',
                            view_func=AdministrationUserActionPage.as_view('administrationuseractionpage'))
     flask_app.add_url_rule('/<cookieless:sessionid>admin/<courseid>/api_tokens',
-                           view_func=CourseAPITokens.as_view('courseapipage'))
+                           view_func=CourseAPITokensPage.as_view('courseapipage'))

@@ -34,8 +34,7 @@ install_requires = [
     "sphinx-autodoc-typehints == 2.3.0",
     "pytidylib == 0.3.2",
     "importlib_metadata == 8.6.1",
-    "PyJWT == 2.10.1",
-    "datetime == 5.5"
+    "PyJWT == 2.10.1"
 ]
 
 test_requires = [
