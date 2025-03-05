@@ -569,10 +569,13 @@ class Installer:
             except ValidationError as e:
                 user_empty_fields_msg = {"username": "Username is empty.", "realname": "Complete name is empty.",
                                            "email": "Email is empty.", "password": "Password is empty."}
-                beanie_error = str(e.errors()[0]["ctx"]["error"])  # better way to do this ?
-                msg = user_empty_fields_msg.get(beanie_error, beanie_error)  # and this ?
+                e = e.errors()[0]
+                if e["type"] == "empty_field":
+                    msg = user_empty_fields_msg.get(e["ctx"]["field_name"], "Missing field")
+                else:
+                    msg = str(e["ctx"]["error"])
 
-                self._display_error(msg + "Please retry.")
+                self._display_error(msg + " Please retry.")
                 continue
 
         options["superadmins"].append(username)

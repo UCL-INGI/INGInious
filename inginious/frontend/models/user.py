@@ -6,8 +6,8 @@
 """ Beanie model for the User collection """
 import re
 
-from typing import Optional
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel,field_validator, model_validator
+from pydantic_core import PydanticCustomError
 from beanie import Document
 
 
@@ -32,11 +32,11 @@ class User(Document):
         """
         Check if the field is defined and non-empty. Raise a ValueError if not. Does not apply to optional fields.
         """
-        for field_name, field_value in data.items() :
-            if field_name == "_id" :
+        for field_name, field_value in data.items():
+            if field_name not in cls.model_fields : # for _id field from DB and unused fields given when creating the document
                 continue
-            if cls.model_fields[field_name].is_required() and (field_value is None or field_value.strip() == "") :
-                raise ValueError(f"Empty required field : {field_name}")
+            if cls.model_fields[field_name].is_required() and (field_value is None or field_value.strip() == ""):
+                raise PydanticCustomError("empty_field", "{field_name}", {"field_name": field_name})
         return data
 
 
@@ -47,7 +47,7 @@ class User(Document):
         Check if the username is at least 4 characters long and contains only letters, numbers, and a few special characters (-_|~).
         """
         if re.match(r"^[-_|~0-9A-Z]{4,}$", value, re.IGNORECASE) is None:
-            raise ValueError(_("Invalid username format."))
+            raise ValueError(_("Invalid username format.")) # Also change to PydanticCustomError ?
         return value
 
 
@@ -88,3 +88,4 @@ class User(Document):
 
 
 
+    # Password comfirmation + password hashing can also be checked in a validator here ?
