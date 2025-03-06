@@ -33,7 +33,8 @@ install_requires = [
     "zipstream == 1.1.4",
     "sphinx-autodoc-typehints == 2.3.0",
     "pytidylib == 0.3.2",
-    "importlib_metadata == 8.6.1"
+    "importlib_metadata == 8.6.1",
+    "PyJWT == 2.10.1"
 ]
 
 test_requires = [
