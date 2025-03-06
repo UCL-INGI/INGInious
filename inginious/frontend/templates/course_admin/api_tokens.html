@@ -53,7 +53,8 @@
         });
     </script>
      {% if msg != "" and msg != "removed" %}
-        <h4>{{ _("Token string") }}:</h4>
+        <h4>{{ _("Your token string is shown under here. You can now copy it where you need it. It will not be possible to recover the string afterward.") }}</h4>
+        <hr>
         <p>{{msg}}</p>
     {% endif %}
 </div>
