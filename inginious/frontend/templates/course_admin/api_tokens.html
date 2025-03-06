@@ -15,7 +15,7 @@
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/course/{{course.get_id()}}">{{course.get_name(user_manager.session_language())}}</a></li>
             <li class="breadcrumb-item"><a href="{{get_homepath()}}/admin/{{course.get_id()}}" title="{{ _('Administration') }}" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item active"><a href="#">{<i class="fa fa-id-card"></i> { _("API tokens") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-id-card"></i> {{ _("API tokens") }} <span class="sr-only">{{ _("(current)") }}</span></a></li>
         </ol>
     </nav>
 {% endblock %}
@@ -45,7 +45,6 @@
             <div class="col-md-3">
                 <button class="btn btn-block btn-info" type="submit" name="add_token"><i class="fa fa-plus fa-lg"></i> {{ _("Create token") }}</button>
             </div>
-        </div>
         </div>
     </form>
     <script type="text/javascript">
