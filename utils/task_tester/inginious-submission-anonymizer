@@ -57,7 +57,7 @@ def anonymize(prefix: str, archive: str):
                 if extension != ".test": continue
 
                 """ Get submission file content """
-                tar.extract(entry, path=tmpdir)
+                tar.extract(entry, path=tmpdir, filter="data")
                 with open(os.path.join(tmpdir, entry.name), 'r') as fd:
                     content = fd.read()
 

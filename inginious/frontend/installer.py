@@ -617,4 +617,4 @@ class Installer:
             for member in members:
                 member.name = member.name[len(commonpath) + 1:]
                 if member.name:
-                    thetarfile.extract(member, folder)
+                    thetarfile.extract(member, folder, filter="data")
