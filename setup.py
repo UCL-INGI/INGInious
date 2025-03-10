@@ -32,8 +32,7 @@ install_requires = [
     "WsgiDAV==4.3.3",
     "zipstream==1.1.4",
     "pytidylib==0.3.2",
-    "argon2-cffi == 23.1.0",
-    "importlib_metadata==8.6.1"
+    "argon2-cffi == 23.1.0"
 ]
 
 test_requires = [
