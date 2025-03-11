@@ -38,8 +38,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt-get install -y libtidy5deb1 libzmq3-dev
-          pip3 install coverage==7.6.9 pytest==8.0.0 virtualenv==20.25.0 setuptools==69.1.0\
-                       setuptools-scm==8.0.4
 
       - name: Start services
         run: |
@@ -49,6 +47,7 @@ jobs:
       - name: Install INGInious
         run: |
           pip3 install .
+          pip3 install .[test]
 
       - name: Launch pytest tests
         run: coverage run --branch -m pytest -v
