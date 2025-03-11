@@ -1,4 +1,4 @@
-name: "[CD] Build and push containers"
+name: "CD: Env containers"
 
 on:
   push:
@@ -10,19 +10,13 @@ on:
 
 jobs:
   containers_build_and_push:
-
-    strategy:
-      fail-fast: false
-      matrix:
-        container_build: [ {directory: base-containers, container_type: env}, {directory: deploy, container_type: core} ]
-    
     uses: INGInious/.github/.github/workflows/containers.yml@d358002bb0f1476eebe02bc6ff4806461407d23a
     with:
-      working-directory: ${{ matrix.container_build.directory }}
+      working-directory: base-containers
       context-path: context.yml
       compose-path: compose.yml
       registry: ghcr.io
-      container_type: ${{ matrix.container_build.container_type }}
+      container_type: env
       version: ${{ github.event_name == 'push' && github.ref_name || github.event.release.tag_name }}
       runner: "ubuntu-latest"
     secrets:
