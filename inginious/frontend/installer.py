@@ -36,8 +36,9 @@ BACKGROUND_RED = '\033[101m'
 class Installer:
     """ Custom installer for the WebApp frontend """
 
-    def __init__(self, config_path=None):
+    def __init__(self, config_path=None, default=False):
         self._config_path = config_path
+        self._default = default
 
     #######################################
     #          Display functions          #
@@ -73,9 +74,12 @@ class Installer:
 
     def _ask_with_default(self, question, default=""):
         default = str(default)
-        answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
-        if answer == "":
+        if self._default:
             answer = default
+        else:
+            answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
+            if answer == "":
+                answer = default
         return answer
 
     def _ask_boolean(self, question, default):
@@ -369,7 +373,7 @@ class Installer:
             self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
             if self._ask_boolean("Would you like to download them ?", True):
                 try:
-                    self._retrieve_and_extract_tarball("https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball", task_directory)
+                    self._retrieve_and_extract_tarball("https://api.github.com/repos/INGInious/demo-tasks/tarball", task_directory)
                     self._display_info("Successfully downloaded and copied demonstration tasks.")
                 except Exception as e:
                     self._display_error("An error occurred while copying the directory: %s" % str(e))
@@ -389,8 +393,8 @@ class Installer:
         self._display_info("done.".format(name))
 
     def select_containers_to_build(self):
-        #If on a dev branch, download from github master branch (then manually rebuild if needed)
-        #If on an pip installed version, download with the correct tag
+        # If on a dev branch, download from github master branch (then manually rebuild if needed)
+        # If on an pip installed version, download with the correct tag
         if not self._ask_boolean("Build the default containers? This is highly recommended, and is required to build other containers.", True):
             self._display_info("Skipping container building.")
             return
@@ -434,7 +438,6 @@ class Installer:
                 if dev:
                     self._display_info("If you modified files in base-containers folder, don't forget to rebuild manually to make these changes effective !")
 
-
             # Other non-mandatory containers:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 self._display_info("Downloading the other containers source directory...")
@@ -456,6 +459,7 @@ class Installer:
 
                     if container in todo:
                         return
+                    # getting name of supercontainer to see if need to build
                     line_from = \
                         [l for l in
                          open(os.path.join(tmpdirname, 'grading', container[22:], 'Dockerfile')).read().split("\n")
@@ -466,8 +470,8 @@ class Installer:
                         self._display_info(
                             "Container {} requires container {}, I'll build it too.".format(container,
                                                                                             supercontainer))
-                        add_container(supercontainer)
-                    todo[container] = supercontainer if supercontainer.startswith("ingi/") else None
+                        __add_container(supercontainer)
+                    todo.append(container)
 
                 self._display_info("The following containers can be built:")
                 for container in available_containers:
@@ -481,7 +485,7 @@ class Installer:
                         self._display_warning("Unknown container. Please retry")
                     else:
                         self._display_info("Ok, I'll build container {}".format(answer))
-                        add_container(answer)
+                        __add_container(answer)
 
                 todo.remove("ghcr.io/inginious/env-base")
                 todo.remove("ghcr.io/inginious/env-default")
@@ -494,10 +498,6 @@ class Installer:
                             "An error occured while building the container. Please retry manually.")
         except Exception as e:
             self._display_error("An error occurred while copying the directory: {}".format(e))
-
-
-
-
 
     #######################################
     #                MISC                 #
