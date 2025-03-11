@@ -3,12 +3,12 @@ INGInious
 
 .. image:: https://api.codacy.com/project/badge/Grade/7cd8340004ef4d409143d5c24259efc1
    :alt: Codacy Badge
-   :target: https://app.codacy.com/gh/UCL-INGI/INGInious?utm_source=github.com&utm_medium=referral&utm_content=UCL-INGI/INGInious&utm_campaign=Badge_Grade_Dashboard
+   :target: https://app.codacy.com/gh/INGInious/INGInious?utm_source=github.com&utm_medium=referral&utm_content=INGInious/INGInious&utm_campaign=Badge_Grade_Dashboard
 .. image:: https://app.codacy.com/project/badge/Coverage/9102bbf54901478dbe288a386195f77e
    :alt: Codacy coverage Badge
-   :target: https://www.codacy.com/gh/UCL-INGI/INGInious/dashboard?utm_source=github.com&utm_medium=referral&utm_content=UCL-INGI/INGInious&utm_campaign=Badge_Coverage
-.. image:: https://github.com/UCL-INGI/INGInious/actions/workflows/ci.yml/badge.svg
-    :target: https://github.com/UCL-INGI/INGInious/actions
+   :target: https://www.codacy.com/gh/INGInious/INGInious/dashboard?utm_source=github.com&utm_medium=referral&utm_content=INGInious/INGInious&utm_campaign=Badge_Coverage
+.. image:: https://github.com/INGInious/INGInious/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/INGInious/INGInious/actions
 .. image:: https://readthedocs.org/projects/inginious/badge/?version=latest
     :target: https://readthedocs.org/projects/inginious/?badge=latest
 .. image:: http://weblate.info.ucl.ac.be/widgets/inginious/-/frontend/svg-badge.svg
@@ -54,8 +54,8 @@ For example, the INGInious tutorial course is installed with the following comma
 
 .. code-block::
 
-   $ git clone https://github.com/UCL-INGI/INGInious-demo-tasks.git
-   $ mv INGInious-demo-tasks/tutorial tasks/
+   $ git clone https://github.com/INGInious/demo-tasks.git
+   $ mv demo-tasks/tutorial tasks/
 
 *If you encounter permission errors, you should run the following command:*
 

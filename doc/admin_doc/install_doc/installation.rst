@@ -127,22 +127,23 @@ The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-
 Installing INGInious
 --------------------
 
-The recommended setup is to install INGInious via pip and the master branch of the INGInious git repository.
-This allows you to use the latest development version. This version is currently the supported one for issues.
+The recommended setup is to install INGInious via pip from PyPI.
+This allows you to use the latest supported version.
 ::
 
-    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@inginious-0.8
+    $ pip install --upgrade pip
+    $ pip install --upgrade inginious
 
 This will automatically upgrade an existing version.
 
 .. note::
 
-   You may want to enable the LDAP/SAML2 plugin or use FCGI/UWSGI instead of the web.py default webserver.
-   In this case, you have to install more packages: simply add ``[cgi]``, ``[uwsgi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
+   You may want to enable the LDAP/SAML2 plugin.
+   In this case, you have to install more packages: simply add ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
 
    ::
 
-       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@inginious-0.8#egg=INGInious[cgi,ldap]
+       $ pip install --upgrade inginious[saml2,ldap]
 
 .. _config:
 

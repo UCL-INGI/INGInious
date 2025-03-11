@@ -174,7 +174,7 @@ The different entries are :
         Number of values to trust for X-Forwarded-Host. Its default value is 1
 
 
-.. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
+.. _configuration.example.yaml: https://github.com/INGInious/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 
 .. _plugins:
