@@ -10,3 +10,8 @@ python:
       path: .
       extra_requirements:
         - doc
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.9"
