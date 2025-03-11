@@ -96,7 +96,7 @@ possible choices is (are) good answer(s).
 
 **check_answer** is only available for *mcq* and *match* problems and is automatically used when using the *Multiple Choice Question Solver* environment. So if you are adding more complex problems such as asking students for code implementation, you will have to write your own grading script. If you are creating this kind of problems, remember to select *Docker container* as *grading environment* in the *Environment* tab.
 
-Note only a few types of problems are initially shipped with INGInious but many others are available via plugins. A list is available `here <https://github.com/UCL-INGI/INGInious-plugins>`_
+Note only a few types of problems are initially shipped with INGInious but many others are available via plugins. A list is available `here <https://github.com/INGInious/plugins>`_
 
 Task files
 ``````````

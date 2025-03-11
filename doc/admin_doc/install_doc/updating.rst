@@ -7,7 +7,7 @@ Updating the sources
 To fetch the latest updates on the Git repository master branch :
 ::
 
-   $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git
+   $ pip install --upgrade git+https://github.com/INGInious/INGInious.git
 
 Updating your containers
 ------------------------

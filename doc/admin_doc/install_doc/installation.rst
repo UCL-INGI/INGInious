@@ -177,33 +177,22 @@ This command causes your user account to have non-user access.
 Installing INGInious
 --------------------
 
-To keep a clean distribution, we recommend to work with a virtualenv:
+The recommended setup is to install INGInious via pip from PyPI in a virtual environment.
+This allows you to use the latest supported version.
+::
 
-.. code-block:: bash
+    $ pip install --upgrade pip
+    $ pip install --upgrade inginious
 
-    python3 -m venv /path/to/venv/INGInious
-    source /path/to/venv/INGInious/bin/activate
-
-Then install INGInious using the setup.py file (more likely for production purpose) :
-
-.. code-block:: bash
-
-    pip install inginious
-
-.. note::
-    For development purpose you might want to run this command to remove the scripts from python folder (ensuring that only inginious dependencies are installed) :
-    .. code-block:: bash
-        pip uninstall inginious
-    And then run the scripts from the installation folder
 
 .. note::
 
-   You may want to enable the LDAP/SAML2 plugin or use FCGI/UWSGI instead of the web.py default webserver.
-   In this case, you have to install more packages: simply add ``[cgi]``, ``[uwsgi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
+   You may want to enable the LDAP/SAML2 plugin.
+   In this case, you have to install more packages: simply add ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
 
    ::
 
-       $ pip install INGInious[cgi,ldap]
+       $ pip install --upgrade inginious[saml2,ldap]
 
 .. _config:
 

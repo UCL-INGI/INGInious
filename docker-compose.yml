@@ -44,10 +44,10 @@ services:
       BACKEND: "tcp://backend:2001"
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
-     # See https://github.com/UCL-INGI/INGInious/issues/352
+     # See https://github.com/INGInious/INGInious/issues/352
      - ./tasks/:/inginious/tasks
      - ./backups/:/inginious/backups
-     # See https://github.com/UCL-INGI/INGInious/issues/799
+     # See https://github.com/INGInious/INGInious/issues/799
      - /tmp/agent_data/:/tmp/agent_data/
     networks:
       - inginious
@@ -66,10 +66,10 @@ services:
     environment:
       BACKEND: "tcp://backend:2001"
     volumes:
-     # See https://github.com/UCL-INGI/INGInious/issues/352
+     # See https://github.com/INGInious/INGInious/issues/352
      - ./tasks/:/inginious/tasks
      - ./backups/:/inginious/backups
-     # See https://github.com/UCL-INGI/INGInious/issues/799
+     # See https://github.com/INGInious/INGInious/issues/799
      - /tmp/agent_data/:/tmp/agent_data/
     networks:
       - inginious

@@ -296,7 +296,7 @@ Additional subproblems
 ----------------------
 
 Additional subproblems can be defined and added via plugins. A basic example is available on GitHub repo
-`UCL-INGI/INGInious-problems-demo <https://github.com/UCL-INGI/INGInious-problems-demo>`_.
+`INGInious/problems-demo <https://github.com/INGInious/problems-demo>`_.
 
 Subproblems are defined at both the backend and frontend side. At the backend side, it consists of a class inheriting
 from ``inginious.common.tasks_problems.Problem`` and implementing the following abstract methods:
