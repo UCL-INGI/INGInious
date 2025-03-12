@@ -24,6 +24,11 @@ jobs:
         python_version: ["3.10", "3.11", "3.12", "3.13"]
 
     runs-on: ubuntu-24.04
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
 
     steps:
 
@@ -41,7 +46,6 @@ jobs:
 
       - name: Start services
         run: |
-          sudo systemctl start mongod
           sudo systemctl start docker
 
       - name: Install INGInious
