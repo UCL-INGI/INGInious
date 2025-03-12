@@ -82,7 +82,7 @@
                         {% elif token["expire"] >= now %}
                             <td>Expire {{token["expire"].strftime("%Y %m %d %H:%M:%S")}}</td>
                         {% else %}
-                            <td class="text-danger">Expired since {{token["expire"][:19]}}</td>
+                            <td class="text-danger">Expired since {{token["expire"].strftime("%Y %m %d %H:%M:%S")}}</td>
                         {% endif %}
                         <td><button class="btn btn-info btn-block" type="submit" name="token_id" value="{{tok_id}}"><i class="fa fa-minus fa-lg"></i> {{ _("Remove token") }}</button></td>
                     </tr>

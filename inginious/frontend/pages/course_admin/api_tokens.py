@@ -31,7 +31,7 @@ class CourseAPITokensPage(INGIniousAdminPage):
             if expire == "":
                 expire = datetime(9999, 12, 31)
             else:
-                expire = datetime.strptime(expire, "YYYY-MM-DD HH:mm:ss")
+                expire = datetime.strptime(expire, "%Y-%m-%d %H:%M:%S")
             document = {"courseid": courseid, "expire": expire, "description": descr}
             self.database.tokens.insert_one(document)
             document["_id"] = str(document["_id"]) # otherwise can't be serialized to JSON by jwt
