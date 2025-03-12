@@ -4,7 +4,6 @@ FROM rockylinux:8
 ENV INGINIOUS_COMPOSE=1
 
 RUN dnf update -y && dnf install -y python39 python39-pip git
-RUN pip3 install importlib-metadata
 
 WORKDIR /inginious
 COPY setup.py README.rst ./
