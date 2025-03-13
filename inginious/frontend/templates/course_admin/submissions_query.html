@@ -247,10 +247,10 @@
 
             <!-- Validate -->
             <div class="btn-group pull-right mb-2">
-                <button type="button" class="btn btn-danger btn-block m-1 p-2 pl-4 pr-4" onclick="window.location.href='{{get_homepath()}}/admin/{{course.get_id()}}/new_submissions'">
+                <button id="reset_button" type="button" class="btn btn-danger btn-block m-1 p-2 pl-4 pr-4" onclick="document.getElementById('select_form').reset();document.getElementById('filter_button').click();">
                     <i class="fa fa-undo"></i> {{ _("Reset") }}
                 </button>
-                <button type="submit" class="btn btn-primary btn-block m-1 p-2 pl-4 pr-4">
+                <button id="filter_button" type="submit" class="btn btn-primary btn-block m-1 p-2 pl-4 pr-4">
                     <i class="fa fa-check"></i> {{ _("Filter") }}
                 </button>
             </div>
