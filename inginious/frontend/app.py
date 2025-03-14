@@ -11,17 +11,20 @@ import flask
 import pymongo
 import oauthlib
 import gettext
+import asyncio
 
 from gridfs import GridFS
 from binascii import hexlify
 from pymongo import MongoClient
 from werkzeug.exceptions import InternalServerError
+from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import inginious.frontend.pages.taskset_admin.utils as taskset_admin_utils
 import inginious.frontend.pages.preferences.utils as preferences_utils
 from inginious.frontend.environment_types import register_base_env_types
-from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.frontend.arch_helper import create_arch, start_zmq_asyncio_loop, start_asyncio_loop
 from inginious.frontend.pages.utils import register_utils
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.submission_manager import WebAppSubmissionManager
@@ -127,12 +130,27 @@ def get_app(config):
     :param config: the configuration dict
     :return: A new app
     """
-    # First, disable debug. It will be enabled in the configuration, later.
+
+    zmq_context, __ = start_zmq_asyncio_loop(config.get('debug_asyncio', False))
 
     config = _put_configuration_defaults(config)
     mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
     database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
     gridfs = GridFS(database)
+
+    # Creating a new event loop for Motor
+    __, motor_loop = start_asyncio_loop(config.get('debug_asyncio', False))
+
+    # Defining Motor and initializing Beanie
+    motor_client = AsyncIOMotorClient(host=config.get('mongo_opt', {}).get('host', 'localhost'), io_loop=motor_loop)
+    beanie_database = motor_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
+
+    asyncio.run_coroutine_threadsafe(init_beanie(
+        database=beanie_database,
+        document_models=[
+            "inginious.frontend.models.user.User",
+        ],
+    ), motor_loop)
 
     # Init database if needed
     db_version = database.db_version.find_one({})
@@ -198,7 +216,6 @@ def get_app(config):
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
-    zmq_context, __ = start_asyncio_and_zmq(config.get('debug_asyncio', False))
 
     # Init the different parts of the app
     plugin_manager = PluginManager()
@@ -295,6 +312,7 @@ def get_app(config):
     flask_app.database = database
     flask_app.gridfs = gridfs
     flask_app.client = client
+    flask_app.motor_loop = motor_loop
     flask_app.default_allowed_file_extensions = default_allowed_file_extensions
     flask_app.default_max_file_size = default_max_file_size
     flask_app.backup_dir = config.get("backup_directory", './backup')

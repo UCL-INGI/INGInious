@@ -21,6 +21,7 @@ install_requires = [
     "natsort==8.4.0",
     "psutil==6.1.1",
     "pymongo==4.11",
+    "beanie==1.29.0",
     "pytidylib==0.3.2",
     "PyYAML==6.0.2",
     "pyzmq==26.2.1",
@@ -37,6 +38,7 @@ install_requires = [
 
 test_requires = [
     "pytest==8.0.0",
+    "pytest-asyncio==0.25.3",
     "coverage==7.4.1"
 ]
 

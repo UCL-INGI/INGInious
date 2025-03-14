@@ -12,7 +12,7 @@ from zmq.asyncio import ZMQEventLoop, Context
 
 from inginious.client.client import Client
 
-def start_asyncio_and_zmq(debug_asyncio=False):
+def start_zmq_asyncio_loop(debug_asyncio=False):
     """ Init asyncio and ZMQ. Starts a daemon thread in which the asyncio loops run.
     :return: a ZMQ context and a Thread object (as a tuple)
     """
@@ -27,7 +27,21 @@ def start_asyncio_and_zmq(debug_asyncio=False):
 
     return zmq_context, t
 
-def _run_asyncio(loop, zmq_context):
+def start_asyncio_loop(debug_asyncio=False):
+    """ Init an asyncio loop for motor (and other possible async calls) in a daemon thread.
+    :return: a Thread object
+    """
+    motor_loop = asyncio.new_event_loop()
+    #asyncio.set_event_loop(motor_loop) # don't set event loop (if we have multiple loops we cannot do it like that -> global variables)
+    if debug_asyncio:
+        motor_loop.set_debug(True)
+
+    t = threading.Thread(target=_run_asyncio, args=(motor_loop,), daemon=True)
+    t.start()
+
+    return t, motor_loop
+
+def _run_asyncio(loop, zmq_context=None):
     """
     Run asyncio (should be called in a thread) and close the loop and the zmq context when the thread ends
     :param loop:
@@ -41,7 +55,8 @@ def _run_asyncio(loop, zmq_context):
         pass
     finally:
         loop.close()
-        zmq_context.destroy(1000)
+        if zmq_context:
+            zmq_context.destroy(1000)
 
 async def _restart_on_cancel(logger, agent):
     """ Restarts an agent when it is cancelled """

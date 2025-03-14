@@ -10,6 +10,10 @@ import random
 import re
 import flask
 import logging
+import asyncio
+
+from pydantic import ValidationError
+from beanie.operators import Or
 
 from smtplib import SMTPException
 from flask_mail import Message
@@ -17,6 +21,7 @@ from werkzeug.exceptions import Forbidden
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.flask.mail import mail
 from inginious.frontend.user_manager import UserManager
+from inginious.frontend.models.user import User
 
 
 class RegistrationPage(INGIniousPage):
@@ -38,43 +43,48 @@ class RegistrationPage(INGIniousPage):
             error = self.user_manager.activate_user(data["activate"])
             msg = _("Invalid activation hash.") if error else _("User successfully activated.")
         elif "reset" in data:
-            msg, error, reset = self.get_reset_data(data)
+            future = asyncio.run_coroutine_threadsafe(self.get_reset_data(data), flask.current_app.motor_loop)
+            msg, error, reset = future.result()  # blocks
 
         return self.template_helper.render("register.html", terms_page=self.app.terms_page,
                                            privacy_page=self.app.privacy_page, reset=reset, msg=msg, error=error)
 
-    def get_reset_data(self, data):
+    async def get_reset_data(self, data):
         """ Returns the user info to reset """
         error = False
         reset = None
         msg = ""
-        user = self.database.users.find_one({"reset": data.get("reset", "")})
+        user = await User.find_one(User.reset == data.get("reset", ""))
         if user is None:
             error = True
             msg = "Invalid reset hash."
         else:
-            reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
+            reset = {"hash": data["reset"], "username": user.username, "realname": user.realname}
 
         return msg, error, reset
 
-    def register_user(self, data):
+    async def register_user(self, data):
         """ Parses input and register user """
         error = False
         msg = ""
+        user_missing_fields_msg = {"username": "Username is missing", "realname": "Complete name is missing",
+                                   "email": "Email is missing", "password": "Password is missing"}
 
-        email = UserManager.sanitize_email(data["email"])
+        try:
+            user = User(username=data["username"], realname=data["realname"], email=data["email"], password=data["passwd"])
+        except ValidationError as e:
+            error = True
+            e = e.errors()[0]
+            if e["type"] == "empty_field":
+                msg = user_missing_fields_msg.get(e["ctx"]["field_name"], "Missing field") # better way to handle this ?
+            else:
+                msg = str(e["ctx"]["error"])
+
+            return msg, error
+
 
         # Check input format
-        if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
-            error = True
-            msg = _("Invalid username format.")
-        elif email is None:
-            error = True
-            msg = _("Invalid email format.")
-        elif len(data["passwd"]) < 6:
-            error = True
-            msg = _("Password too short.")
-        elif data["passwd"] != data["passwd2"]:
+        if data["passwd"] != data["passwd2"]:
             error = True
             msg = _("Passwords don't match !")
         elif self.app.terms_page is not None and self.app.privacy_page is not None and "term_policy_check" not in data:
@@ -82,48 +92,41 @@ class RegistrationPage(INGIniousPage):
             msg = _("Please accept the Terms of Service and Data Privacy")
 
         if not error:
-            existing_user = self.database.users.find_one(
-                {"$or": [{"username": data["username"]}, {"email": email}]})
+            existing_user = await User.find(Or(User.username == user.username, User.email == user.email)).first_or_none()
             if existing_user is not None:
                 error = True
-                if existing_user["username"] == data["username"]:
+                if existing_user.username == user.username:
                     msg = _("This username is already taken !")
                 else:
                     msg = _("This email address is already in use !")
             else:
                 passwd_hash = UserManager.hash_password(data["passwd"])
                 activate_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
-                self.database.users.insert_one({"username": data["username"],
-                                                "realname": data["realname"],
-                                                "email": email,
-                                                "password": passwd_hash,
-                                                "activate": activate_hash,
-                                                "bindings": {},
-                                                "language": self.user_manager._session.get("language", "en"),
-                                                "tos_accepted": True
-                                                })
+                user.activate, user.password = activate_hash, passwd_hash
+                user.language = self.user_manager._session.get("language", "en")
+                user.tos_accepted = True
+                await user.save()
+
                 try:
                     subject = _("Welcome on INGInious")
                     body = _("""Welcome on INGInious !
-
 To activate your account, please click on the following link :
 """) + flask.request.url_root + "register?activate=" + activate_hash
-
-                    message = Message(recipients=[(data["realname"], email)],
+                    message = Message(recipients=[(user.realname, user.email)],
                                       subject=subject,
                                       body=body)
                     mail.send(message)
                     msg = _("You are succesfully registered. An email has been sent to you for activation.")
                 except Exception as ex:
                     # Remove newly inserted user (do not add after to prevent email sending in case of failure)
-                    self.database.users.delete_one({"username": data["username"]})
+                    await user.delete()
                     error = True
                     msg = _("Something went wrong while sending you activation email. Please contact the administrator.")
                     self._logger.error("Couldn't send email : {}".format(str(ex)))
 
         return msg, error
 
-    def lost_passwd(self, data):
+    async def lost_passwd(self, data):
         """ Send a reset link to user to recover its password """
         error = False
         msg = ""
@@ -138,22 +141,23 @@ To activate your account, please click on the following link :
             msg = _("Invalid email format.")
 
         if not error:
-            reset_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
-            user = self.database.users.find_one_and_update({"email": data["recovery_email"]},
-                                                           {"$set": {"reset": reset_hash}})
+            user = await User.find_one(User.email == data["recovery_email"])
             if user is None:
                 error = True
                 msg = _("This email address was not found in database.")
             else:
+                reset_hash = UserManager.hash_password_sha512(str(random.getrandbits(256)))
+                user.reset = reset_hash
+                await user.save()
                 try:
                     subject = _("INGInious password recovery")
 
                     body = _("""Dear {realname},
 
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
-""").format(realname=user["realname"]) + flask.request.url_root + "register?reset=" + reset_hash
+""").format(realname=user.realname) + flask.request.url_root + "register?reset=" + reset_hash
 
-                    message = Message(recipients=[(user["realname"], data["recovery_email"])],
+                    message = Message(recipients=[(user.realname, data["recovery_email"])],
                                       subject=subject,
                                       body=body)
                     mail.send(message)
@@ -166,7 +170,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
 
         return msg, error
 
-    def reset_passwd(self, data):
+    async def reset_passwd(self, data):
         """ Reset the user password """
         error = False
         msg = ""
@@ -175,19 +179,19 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         if len(data["passwd"]) < 6:
             error = True
             msg = _("Password too short.")
-        elif data["passwd"] != data["passwd2"]:
+        if data["passwd"] != data["passwd2"]:
             error = True
             msg = _("Passwords don't match !")
 
         if not error:
-            passwd_hash = UserManager.hash_password(data["passwd"])
-            user = self.database.users.find_one_and_update({"reset": data["reset"]},
-                                                           {"$set": {"password": passwd_hash},
-                                                            "$unset": {"reset": True, "activate": True}})
+            user = await User.find_one(User.reset == data["reset"])
             if user is None:
                 error = True
                 msg = _("Invalid reset hash.")
             else:
+                user.password = UserManager.hash_password(data["passwd"])
+                user.reset, user.activate = None, None
+                await user.save()
                 msg = _("Your password has been successfully changed.")
 
         return msg, error
@@ -201,14 +205,19 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         msg = ""
         error = False
         data = flask.request.form
+        loop = flask.current_app.motor_loop
         if "register" in data:
-            msg, error = self.register_user(data)
+            future = asyncio.run_coroutine_threadsafe(self.register_user(data), loop)
+            msg, error = future.result() # blocks
         elif "lostpasswd" in data:
-            msg, error = self.lost_passwd(data)
+            future = asyncio.run_coroutine_threadsafe(self.lost_passwd(data), loop)
+            msg, error = future.result()
         elif "resetpasswd" in data:
-            msg, error, reset = self.get_reset_data(data)
+            future = asyncio.run_coroutine_threadsafe(self.get_reset_data(data), loop)
+            msg, error, reset = future.result()
             if reset:
-                msg, error = self.reset_passwd(data)
+                future = asyncio.run_coroutine_threadsafe(self.reset_passwd(data), loop)
+                msg, error = future.result()
             if not error:
                 reset = None
 
