@@ -46,6 +46,8 @@ class EditTaskPage(INGIniousAdminPage):
         environment_types = self.environment_types
         environments = self.environments
 
+        problemdata = [(id, dict(item)) for id, item in list(task_data.get('problems', {}).items())] # odict to tuple list
+
         current_filetype = None
         try:
             current_filetype = self.task_factory.get_task_descriptor_extension(taskset.get_id(), taskid)
@@ -59,7 +61,7 @@ class EditTaskPage(INGIniousAdminPage):
         return self.template_helper.render("taskset_admin/task_edit.html", taskset=taskset, taskid=taskid,
                                            problem_types=self.task_factory.get_problem_types(), task_data=task_data,
                                            environment_types=environment_types, environments=environments,
-                                           problemdata=json.dumps(task_data.get('problems', {})),
+                                           problemdata=problemdata,
                                            contains_is_html=self.contains_is_html(task_data),
                                            current_filetype=current_filetype,
                                            available_filetypes=available_filetypes,
