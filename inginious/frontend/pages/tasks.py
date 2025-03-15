@@ -87,9 +87,9 @@ class BaseTaskPage(object):
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
-
         userinput = flask.request.args
         if "submissionid" in userinput and "questionid" in userinput:
+
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             if submission is None:
@@ -98,14 +98,23 @@ class BaseTaskPage(object):
             if userinput["questionid"] not in sinput:
                 raise NotFound()
 
-            if isinstance(sinput[userinput["questionid"]], dict):
-                # File uploaded previously
+            file_data = sinput[userinput["questionid"]]
+            if isinstance(file_data, dict):
+                filename = file_data['filename']
+                file_content = file_data['value']
                 mimetypes.init()
-                mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
-                return Response(response=sinput[userinput["questionid"]]['value'], content_type=mime_type[0])
+                mime_type = mimetypes.guess_type(urllib.request.pathname2url(filename))
+                
+                # Force download for non pdf files
+                if not filename.lower().endswith(".pdf"):
+                    headers = {
+                        'Content-Disposition': f'attachment; filename="{filename}"'
+                    }
+                    return Response(response=file_content, content_type=mime_type[0], headers=headers)
+                
+                return Response(response=file_content, content_type=mime_type[0])
             else:
-                # Other file, download it as text
-                return Response(response=sinput[userinput["questionid"]], content_type='text/plain')
+                return Response(response=file_data, content_type='text/plain')
         else:
             # Generate random inputs and save it into db
             random.seed(str(username if username is not None else "") + taskid + courseid + str(
