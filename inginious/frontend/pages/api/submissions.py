@@ -233,3 +233,121 @@ class APISubmissions(APIAuthenticatedPage):
             return 200, {"submissionid": str(submissionid)}
         except Exception as ex:
             raise APIError(500, str(ex))
+
+
+class APISubmissionsCourse(APIAuthenticatedPage):
+    """
+        Endpoints
+            ::
+
+                /api/v0/courses/[a-zA-Z_\-\.0-9]+/submissions
+
+                /api/v0/courses/[a-zA-Z_\-\.0-9]+/[a-zA-Z_\-\.0-9]+/submissions
+    """
+
+    def POST(self, courseid, taskid=None):
+        """
+            List all the submissions from a course (or particular task if a taskid is given) that are evaluation submissions.
+            That is, the ones that will be used for the final grade. Depending on the task those can be the last or best submissions.
+            Only accessible to staff members of the course.
+            Returns 200 OK if the endpoint is reachable and the user has access to it.
+            Returns 400 Bad Request if the request body is not valid JSON or does not respect the expected format.
+            Returns 404 Not Found if the client does not have access to the course/task or if they try to access other user's submissions while not being an admin of the course.
+
+            Returns submissions containing all values except the ip of the user for security reasons and the status because it will always be "done".
+            Example :
+            ::
+
+                {
+                  "_id": {
+                    "$oid": "6ab3df2a8d9eb36e888ba709"
+                  },
+                  "courseid": "tutorial",
+                  "taskid": "01_getting_started",
+                  "username": [
+                    "test"
+                  ],
+                  "input": {
+                    "$oid": "6ab3df2a8d9eb36e888ba707"
+                  },
+                  "archive": {
+                    "$oid": "6ab3df2a8d9eb36e888ba70a"
+                  },
+                  "submitted_on": {
+                    "$date": 1790172970090
+                  },
+                  "response_type": "rst",
+                  "grade": 100.0,
+                  "custom": {},
+                  "problems": {},
+                  "result": "success",
+                  "stderr": "",
+                  "stdout": "",
+                  "tests": {},
+                  "text": "",
+                  "state": ""
+                }
+
+            The response is streamed as newline-delimited JSON (NDJSON). Allowing youthe client to process the submissions
+            one by one as they arrive.
+
+            The raw input submitted by the student (file contents, code, QCM answers, etc.) is not included in this
+            list. Use the dedicated endpoint for retrieving inputs (accessible to staff members or to the authors) to
+            download the raw input of one particular submission.
+
+            This endpoint takes a JSON body with the mandatory field "username", a list of usernames to filter the submissions.
+            Only submissions from those users will be returned.
+        """
+
+        try:
+            return self._verify_authentication(self._get_input, (courseid, taskid), {})
+        except APIError as error:
+            return error.send()
+
+    def _get_input(self, courseid, taskid):
+
+        username = flask.g.user.username
+
+        try:
+            course = Course.get(courseid)
+        except:
+            self._logger.warning(f"Course '{courseid}' not found")
+            raise APINotFound()
+
+        data = flask.request.get_json(silent=True)
+        if data is None:
+            raise APIInvalidArguments()
+
+        usernames = data.get("usernames")
+        if not isinstance(usernames, list):
+            raise APIInvalidArguments()
+
+        if not self.user_manager.has_staff_rights_on_course(course, username, include_superadmins=True) and not set(usernames) == {username}:
+            self._logger.warning(f"User '{username}' tried accessing submissions of other users in course '{courseid}'")
+            raise APINotFound()
+
+        try:
+            _ = course.get_task(taskid) if taskid else None
+        except:
+            self._logger.warning(f"Task '{taskid}' not found")
+            raise APINotFound()
+
+        tasks = [taskid] if taskid else None
+
+        submissions, _ = self.submission_manager.get_selected_submissions_queryset(
+            course, only_tasks=tasks, only_users=usernames,
+            keep_only_evaluation_submissions=True
+        )
+
+        def generate():
+            for s in submissions.exclude("user_ip", "status"):
+                yield s.to_json() + "\n"
+
+        return flask.Response(
+            generate(),
+            mimetype="application/x-ndjson",
+            headers={
+                "X-Total-Count": str(submissions.count()),
+            },
+        )
+
