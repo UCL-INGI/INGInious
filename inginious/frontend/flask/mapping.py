@@ -32,7 +32,7 @@ from inginious.frontend.pages.api.auth_methods import APIAuthMethods
 from inginious.frontend.pages.api.authentication import APIAuthentication
 from inginious.frontend.pages.api.courses import APICourses
 from inginious.frontend.pages.api.tasks import APITasks
-from inginious.frontend.pages.api.submissions import APISubmissions, APISubmissionSingle, APISubmissionsCourse, APISubmissionInput
+from inginious.frontend.pages.api.submissions import APISubmissions, APISubmissionSingle, APISubmissionsCourse, APISubmissionInput, APISubmissionsFeedback
 from inginious.frontend.pages.course_admin.utils import CourseRedirectPage
 from inginious.frontend.pages.course_admin.settings import CourseSettingsPage
 from inginious.frontend.pages.course_admin.student_list import CourseStudentListPage
@@ -181,4 +181,5 @@ def init_flask_mapping(flask_app):
                            view_func=APISubmissionsCourse.as_view('apisubmissionscoursetask.v1'))
     flask_app.add_url_rule('/api/v1/submission/<submissionid>/input',
                            view_func=APISubmissionInput.as_view('apisubmissioninput.v1'))
-
+    flask_app.add_url_rule('/api/v1/submission/<submissionid>/feedback',
+                           view_func=APISubmissionsFeedback.as_view('apisubmissionfeedback.v1'))
