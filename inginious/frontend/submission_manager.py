@@ -462,18 +462,6 @@ class WebAppSubmissionManager:
         inputdata["@random"] = list(my_user_task.random)
         inputdata["@state"] = my_user_task.state
 
-        # Send LTI information to the client except "consumer_key"
-        # to_dict() to avoid sending mongoengine BaseLists to ZMQ
-        if session.is_lti:
-            lti_info = session.lti.to_mongo().to_dict()
-            for key in lti_info:
-                if key == "consumer_key" or key.startswith("outcome"): # Skip "consumer_key" and "outcome*"
-                    continue
-                self._logger.debug("LTI data : %s, %s",key, lti_info[key])
-                # Add @lti_ prefix
-                key_str = "@lti_" + key
-                inputdata[key_str] = lti_info[key]
-
         plugin_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
 
         self._before_submission_insertion(course, task, inputdata, debug, obj, username)
