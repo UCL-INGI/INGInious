@@ -10,7 +10,7 @@ import logging
 import hashlib
 import flask
 
-from flask import session
+from flask import session, request
 from typing import Dict, Optional
 from werkzeug.exceptions import NotFound
 from abc import ABCMeta, abstractmethod
@@ -713,7 +713,7 @@ class UserManager:
         :return: True if the user can access the course, False (or the reason if return_reason is True) otherwise
         """
         if lti == "auto":
-            lti = session.is_lti
+            lti = request.blueprint in ["lti", "lti13"]
 
         if self.has_staff_rights_on_course(course, username):
             return True
