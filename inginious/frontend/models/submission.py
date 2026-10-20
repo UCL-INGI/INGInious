@@ -19,7 +19,7 @@ class Submission(Document):
     response_type = StringField(default='rst') # Deprecated
     grade = FloatField(default=0.0) # TODO: use min_value and max_value and change container API
     custom = DictField()
-    problems = MapField(StringField())
+    problems = DictField() # Contains both mappings to string and mappings to list of strings
     result = StringField(default="crash") # TODO: restrict possible values and change container API
     stderr  = StringField()
     stdout  = StringField()
