@@ -163,16 +163,17 @@ class WebAppSubmissionManager:
             submissionid = submission.id
 
             # Clean the submission document in db
-            if submission.archive is not None:
-                submission.archive.delete()
-                submission.save()
-
             unset_query = {
                 "unset__result": True, "unset__grade": True, "unset__text": True, "unset__tests": True,
                 "unset__problems": True, "unset__archive": True, "unset__state": True, "unset__custom": True
             }
 
             Submission.objects(id=submissionid).update(status="waiting", **unset_query)
+
+            # Delete the archive file only once it is no longer referenced. The update above only modifies the
+            # database: the in-memory submission.archive still holds the GridFS id of the file to delete.
+            if submission.archive:
+                submission.archive.delete()
 
         else:
             submission = Submission(username=[username], courseid=course.get_id(), taskid=task.get_id(),
