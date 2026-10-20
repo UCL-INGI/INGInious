@@ -715,7 +715,9 @@ class WebAppSubmissionManager:
         # each time. Not sure optimizing this is necessary.
         for base_path, submission in file_to_put.items():
             try:
-                submission_yaml = io.BytesIO(custom_yaml.dump(submission.to_mongo().to_dict()).encode('utf-8'))
+                submission_dict = submission.to_mongo().to_dict()
+                submission_dict["input"] = self.get_input_from_submission(submission, only_input=True)
+                submission_yaml = io.BytesIO(custom_yaml.dump(submission_dict).encode('utf-8'))
                 submission_yaml_fname = base_path + '/submission.test'
 
                 # Avoid putting two times the same submission on the same place
