@@ -5,7 +5,7 @@
 
 import bson
 
-from mongoengine import Document, StringField, ListField, MapField, DictField, FileField, DateTimeField, FloatField, IntField
+from mongoengine import Document, StringField, ListField, DictField, FileField, DateTimeField, FloatField, IntField
 
 
 class Submission(Document):
@@ -23,7 +23,7 @@ class Submission(Document):
     result = StringField(default="crash") # TODO: restrict possible values and change container API
     stderr  = StringField()
     stdout  = StringField()
-    tests = MapField(StringField())
+    tests = DictField() # Contains both booleans (tags) and strings (auto-tags)
     text = StringField(default="")
     user_ip = StringField()
     state = StringField()
