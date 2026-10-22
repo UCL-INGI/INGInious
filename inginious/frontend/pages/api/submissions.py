@@ -87,7 +87,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
         Endpoint
           ::
 
-            /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions/[a-zA-Z_\-\.0-9]+
+            /api/v[0-1]/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions/[a-zA-Z_\-\.0-9]+
 
     """
 
@@ -127,7 +127,7 @@ class APISubmissions(APIAuthenticatedPage):
         Endpoint
           ::
 
-            /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions
+            /api/v[0-1]/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions
 
     """
 
@@ -236,3 +236,266 @@ class APISubmissions(APIAuthenticatedPage):
             return 200, {"submissionid": str(submissionid)}
         except Exception as ex:
             raise APIError(500, str(ex))
+
+
+class APISubmissionsCourse(APIAuthenticatedPage):
+    """
+        Endpoints
+            ::
+
+                /api/v1/courses/[a-zA-Z_\-\.0-9]+/submissions
+
+                /api/v1/courses/[a-zA-Z_\-\.0-9]+/[a-zA-Z_\-\.0-9]+/submissions
+    """
+
+    def POST(self, courseid, taskid=None):
+        """
+            List all the submissions from a course (or particular task if a taskid is given) that are evaluation submissions.
+            That is, the ones that will be used for the final grade. Depending on the task those can be the last or best submissions.
+            Only accessible to staff members of the course.
+            Returns 200 OK if the endpoint is reachable and the user has access to it.
+            Returns 400 Bad Request if the request body is not valid JSON or does not respect the expected format.
+            Returns 404 Not Found if the client does not have access to the course/task or if they try to access other user's submissions while not being an admin of the course.
+
+            Returns submissions containing all values except the ip of the user for security reasons and the status because it will always be "done".
+            Example :
+            ::
+
+                {
+                  "_id": {
+                    "$oid": "6ab3df2a8d9eb36e888ba709"
+                  },
+                  "courseid": "tutorial",
+                  "taskid": "01_getting_started",
+                  "username": [
+                    "test"
+                  ],
+                  "input": {
+                    "$oid": "6ab3df2a8d9eb36e888ba707"
+                  },
+                  "archive": {
+                    "$oid": "6ab3df2a8d9eb36e888ba70a"
+                  },
+                  "submitted_on": {
+                    "$date": 1790172970090
+                  },
+                  "response_type": "rst",
+                  "grade": 100.0,
+                  "custom": {},
+                  "problems": {},
+                  "result": "success",
+                  "stderr": "",
+                  "stdout": "",
+                  "tests": {},
+                  "text": "",
+                  "state": ""
+                }
+
+            The response is streamed as newline-delimited JSON (NDJSON). Allowing youthe client to process the submissions
+            one by one as they arrive.
+
+            The raw input submitted by the student (file contents, code, QCM answers, etc.) is not included in this
+            list. Use the dedicated endpoint for retrieving inputs (accessible to staff members or to the authors) to
+            download the raw input of one particular submission.
+
+            This endpoint takes a JSON body with the mandatory field "username", a list of usernames to filter the submissions.
+            Only submissions from those users will be returned.
+        """
+
+        try:
+            return self._verify_authentication(self._get_input, (courseid, taskid), {})
+        except APIError as error:
+            return error.send()
+
+    def _get_input(self, courseid, taskid):
+
+        username = flask.g.user.username
+
+        try:
+            course = Course.get(courseid)
+        except:
+            self._logger.warning(f"Course '{courseid}' not found")
+            raise APINotFound()
+
+        data = flask.request.get_json(silent=True)
+        if data is None:
+            raise APIInvalidArguments()
+
+        usernames = data.get("usernames")
+        if not isinstance(usernames, list):
+            raise APIInvalidArguments()
+
+        if not self.user_manager.has_staff_rights_on_course(course, username, include_superadmins=True) and not set(usernames) == {username}:
+            self._logger.warning(f"User '{username}' tried accessing submissions of other users in course '{courseid}'")
+            raise APINotFound()
+
+        try:
+            _ = course.get_task(taskid) if taskid else None
+        except:
+            self._logger.warning(f"Task '{taskid}' not found")
+            raise APINotFound()
+
+        tasks = [taskid] if taskid else None
+
+        submissions, _ = self.submission_manager.get_selected_submissions_queryset(
+            course, only_tasks=tasks, only_users=usernames,
+            keep_only_evaluation_submissions=True
+        )
+
+        def generate():
+            for s in submissions.exclude("user_ip", "status"):
+                yield s.to_json() + "\n"
+
+        return flask.Response(
+            generate(),
+            mimetype="application/x-ndjson",
+            headers={
+                "X-Total-Count": str(submissions.count()),
+            },
+        )
+
+
+class APISubmissionInput(APIAuthenticatedPage):
+    r"""
+        Endpoint
+          ::
+
+            /api/v1/submissions/<submissionid>/input
+
+    """
+
+    def GET(self, submissionid):
+        """
+            Returns the raw input of a submission, formatted as a BSON binary.
+            Accessible to any author of the submission, or to a staff member of the course.
+
+            The input is formatted as follows, with additional metadata and the different problems' input :
+            {
+                "@username" : "user1",
+                "@email" : "user1@email.com",
+                "@lang" : "en",
+                "@time": "2026-06-23 15:01:44.706579+00:00",
+                "@attempts": "5",
+                "@random": [],
+                "@state": "",
+
+                "code_problem": "print(\"Hello world!\")",
+                "file_problem": {
+                    "filename": "file1.zip",
+                    "value": "sDBBQAVcbcAWpn2wFoAQAAYi9maXp6YnV6e......DQAH4NsBagbcAWrg2wFqdXgLAAEE6AMAAAToAwAAUEsFBgAAAAAEAAQAVgEAAEACAAAAAA=="
+                    },
+                "qcm_problem": {
+                    # number of the selected answer for each question, starting from 0.
+                    "qcm1": "0",
+                    "qcm2": "2",
+                    "qcm3": "1",
+                    ...
+            }
+
+            Returns 200 OK with the raw input as a BSON binary if the submission exists and the user is allowed to access it.
+            Returns 404 Not Found if the submission does not exist or if the user is not allowed to access it.
+
+        """
+        try:
+            return self._verify_authentication(self._get_input, (submissionid,), {})
+        except APIError as error:
+            return error.send()
+
+    def _get_input(self, submissionid):
+        username = flask.g.user.username
+
+        try:
+            submission = self.submission_manager.get_submission(submissionid)
+        except:
+            self.logger.warning(f"Submission '{submissionid}' not found")
+            raise APINotFound()
+
+        course = Course.get(submission.courseid)
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username, include_superadmins=True)
+        is_owner = username in submission.username
+        if not (is_staff or is_owner):
+            self.logger.warning(f"User '{username}' is nor the owner, nor a staff member for submission '{submissionid}'")
+            raise APINotFound()
+
+        grid_file = submission.input
+
+        def generate(chunk_size):
+            grid_file.seek(0)
+            while chunk := grid_file.read(chunk_size):
+                yield chunk
+
+        response = flask.Response(generate(chunk_size= 2 * 1024 * 1024), content_type="application/octet-stream")
+        response.headers["Content-Length"] = str(grid_file.length)
+
+        return response
+
+
+class APISubmissionsFeedback(APIAuthenticatedPage):
+    r"""
+        Endpoint
+          ::
+
+            /api/v[0-1]/submissions/<submissionid>/feedback
+
+    """
+
+    def API_POST(self, submissionid):
+        """
+            Changes the general feedback of a submission and the feedback of individual problems. Only accessible to staff members of the course.
+            The request body must be a JSON object with the following fields:
+
+            ::
+
+                {
+                    "feedback": "The feedback text",
+                    "problems_feedback": {
+                        "problem_id_1": "Feedback for problem 1",
+                        "problem_id_2": "Feedback for problem 2",
+                        ...
+                    }
+                }
+
+            The problems_feedback field is optional and can be omitted if there is no feedback for particular problems.
+
+            Returns 200 OK if the feedback was successfully changed.
+            Returns 400 Bad Request if the request body is not valid JSON or does not respect the expected format.
+            Returns 403 Forbidden if the user is not allowed to change the feedback of the submission.
+            Returns 404 Not Found if the submission does not exist.
+        """
+
+        try:
+            submission = self.submission_manager.get_submission(submissionid)
+        except:
+            self.logger.warning(f"Submission '{submissionid}' not found")
+            raise APINotFound()
+
+        course = Course.get(submission.courseid)
+        if not self.user_manager.has_staff_rights_on_course(course, flask.g.user.username , include_superadmins=True):
+            self.logger.warning(f"User '{flask.g.user.username}' is not a staff member for submission '{submissionid}'")
+            raise APIForbidden("You are not allowed to change the feedback of this submission")
+
+        data = flask.request.get_json(silent=True)
+        if data is None:
+            raise APIInvalidArguments()
+
+        feedback = data.get("feedback")
+        if not isinstance(feedback, str):
+            raise APIInvalidArguments()
+
+        submission.text = feedback
+
+        problems_feedback = data.get("problems_feedback")
+        if problems_feedback is not None:
+            if not isinstance(problems_feedback, dict):
+                raise APIInvalidArguments()
+
+            task_problems = {problem.get_id() for problem in course.get_task(submission.taskid).get_problems()}
+
+            for pid, text in problems_feedback.items():
+                if not isinstance(pid, str) or not isinstance(text, str) or pid not in task_problems:
+                    raise APIInvalidArguments()
+                submission.problems[pid] = text
+
+        submission.save()
+        
+        return 200, {"submission_id" : str(submission.id)}
