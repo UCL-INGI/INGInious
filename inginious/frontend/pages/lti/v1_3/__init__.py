@@ -25,12 +25,10 @@ from inginious.frontend.models import LTIData, LaunchData
 class LTI13TaskPage(TaskPage):
     _is_lti = True
     _lti_version = "1.3"
-    _launch_model = LaunchData
 
 class LTI13TaskPageStaticDownload(TaskPageStaticDownload):
     _is_lti = True
     _lti_version = "1.3"
-    _launch_model = LaunchData
 
 
 class LTI13JWKSPage(INGIniousPage):
@@ -180,18 +178,16 @@ class LTI13LaunchPage(INGIniousPage):
 
 class LTI13BindPage(LTIBindPage):
     _lti_version = "1.3"
-    _launch_model = LaunchData
 
 
 class LTI13LoginPage(LTILoginPage):
     _lti_version = "1.3"
-    _launch_model = LaunchData
 
 
 class LTI13DeepLinkPage(INGIniousAuthPage):
 
     def GET(self, launch_id):
-        if not LaunchData.objects(session_id=session.id, launch_id=launch_id, lti__valid=True).first():
+        if not LaunchData.objects(session_id=session.id, launch_id=launch_id, lti__version="1.3", lti__valid=True).first():
             raise Forbidden(description=_("No LTI data available."))
 
         lti_courses = {
@@ -209,7 +205,7 @@ class LTI13DeepLinkPage(INGIniousAuthPage):
         return render_template("lti/deeplink.html", courses=lti_courses)
 
     def POST(self, launch_id):
-        if not (launch := LaunchData.objects(session_id=session.id, launch_id=launch_id, lti__valid=True).first()):
+        if not (launch := LaunchData.objects(session_id=session.id, launch_id=launch_id, lti__version="1.3", lti__valid=True).first()):
             raise Forbidden(description=_("No LTI data available."))
 
         courseid = request.form.get("courseid")
